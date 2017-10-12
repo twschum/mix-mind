@@ -12,6 +12,8 @@ from collections import OrderedDict
 import pandas as pd
 import numpy as np
 
+ANY_SPIRIT = 'brandy, dry gin, genever, amber rum, white rum, rye whiskey'.split(',')
+
 def get_fraction(amount):
     numer, denom = float(amount).as_integer_ratio()
     if denom == 1:
@@ -35,11 +37,17 @@ def convert_to_menu(recipes):
     """ Convert recipe json into readible format
     """
 
+    menu = []
     for drink_name, recipe in recipes.iteritems():
         lines = []
         lines.append(drink_name)
         unit = recipe.get('unit', 'oz')
         prep = recipe.get('prep', '')
+
+        info = recipe.get('info')
+
+        if info:
+            lines.append("\t{}".format(info))
 
         for ingredient, amount in recipe['ingredients'].iteritems():
             lines.append(get_ingredient_amount(ingredient, amount, unit))
@@ -47,6 +55,10 @@ def convert_to_menu(recipes):
         for ingredient, amount in recipe.get('optional', {}).iteritems():
             linestr = "{} (optional)".format(get_ingredient_amount(ingredient, amount, unit))
             lines.append(linestr)
+
+        misc = recipe.get('misc')
+        if misc:
+            lines.append("\t{}".format(misc))
 
         garnish = recipe.get('garnish')
         if garnish:
@@ -57,10 +69,9 @@ def convert_to_menu(recipes):
             lines.append("\t    Examples: ".format(examples))
             for e in examples:
                 lines.append("\t    ${:.2f} | {}".format(e.values()[0], e.keys()[0]))
-        else:
-            lines.append("\t(Missing ingredients!)")
 
-        print '\n'.join(lines)
+        menu.append('\n'.join(lines))
+    return menu
 
 def expand_recipes(df, recipes):
 
@@ -76,17 +87,19 @@ def expand_recipes(df, recipes):
         examples = []
         for bottles in get_all_bottle_combinations(df, ingredients_names):
             sum_ = 0
-            for bottle, amount in zip(bottles, ingredients_amounts):
-                sum_ += cost_by_bottle_and_volume(df, bottle, amount)
+            for bottle, type_, amount in zip(bottles, ingredients_names, ingredients_amounts):
+                sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount)
             examples.append({','.join(bottles) : sum_})
         recipes[drink_name]['examples'] = examples
 
     return recipes
 
 
-def cost_by_bottle_and_volume(df, bottle, amount, unit='oz'):
+def cost_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
     # TODO bottle and type comparison
-    per_unit = min(df[df['Bottle'] == bottle]['$/{}'.format(unit)])
+    #from pprint import pprint; import ipdb; ipdb.set_trace()
+    bottle_row = df[df['Bottle'] == bottle and df['type'] == type_]
+    per_unit = min(bottle_row['$/{}'.format(unit)])
     return per_unit * amount
 
 def get_all_bottle_combinations(df, types):
@@ -98,11 +111,7 @@ def slice_on_type(df, type_):
     return df[df['type'] == type_]
 
 
-def calculate_cost(price_df, ingredients, unit):
-    pass
-
-
-def generate_cost_df(barstock_csv):
+def load_cost_df(barstock_csv, include_all=False):
     df = pd.read_csv(barstock_csv)
     df = df.dropna(subset=['Type'])
     df['type'] = map(string.lower, df['Type'])
@@ -110,6 +119,11 @@ def generate_cost_df(barstock_csv):
     # convert money columns to floats
     for col in [col for col in df.columns if '$' in col]:
         df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
+
+    # drop out of stock items
+    if not include_all:
+        #log debug how many dropped
+        df = df[df["In Stock"] != 0]
 
     return df
 
@@ -119,6 +133,9 @@ Example usage:
     ./program -v -d
 """, formatter_class=argparse.RawTextHelpFormatter)
     p.add_argument('-v', dest='verbose', action='store_true')
+    p.add_argument('-a', dest='all', action='store_true', help="Include all recipes regardless of stock")
+    p.add_argument('-p', dest='prices', action='store_true', help="Calculate prices for example drinks based on stock")
+    p.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
 
     return p
 
@@ -126,15 +143,23 @@ def main():
 
     args = get_parser().parse_args()
 
-    df = generate_cost_df('Barstock - Sheet1.csv')
-
     with open('recipes.json') as fp:
         base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
 
-    all_recipes = expand_recipes(df, base_recipes)
+    if args.prices:
+        df = load_cost_df('Barstock - Sheet1.csv', args.all)
+        all_recipes = expand_recipes(df, base_recipes)
+        menu = convert_to_menu(all_recipes)
+    else:
+        menu = convert_to_menu(base_recipes)
 
-    convert_to_menu(all_recipes)
+    # TODO sorting?
 
+    if args.write:
+        with open(args.write, 'w') as fp:
+            fp.write('\n'.join(menu))
+    else:
+        print '\n'.join(menu)
 
 if __name__ == "__main__":
     main()
