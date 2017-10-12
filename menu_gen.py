@@ -6,6 +6,7 @@ Turn recipes json into a readable menu
 import argparse
 import json
 import string
+import itertools
 from collections import OrderedDict
 
 import pandas as pd
@@ -45,9 +46,14 @@ def convert_to_menu(recipes):
             linestr = "{} (optional)".format(get_ingredient_amount(ingredient, amount, unit))
             lines.append(linestr)
 
-        garnish = ingredients.get('garnish')
+        garnish = recipe.get('garnish')
         if garnish:
             lines.append("\t{}, for garnish".format(garnish))
+
+
+        examples = recipe.get('examples')
+        if examples:
+            lines.append("\tExamples: {}".format(examples))
 
         print '\n'.join(lines)
 
@@ -55,27 +61,32 @@ def expand_recipes(df, recipes):
 
     for drink_name, recipe in recipes.iteritems():
 
-        opts = get_all_bottle_combinations(df, recipe['ingredients'].keys())
+        ingredients = {k:v for k,v in recipe['ingredients'].iteritems() \
+                if not isinstance(v, basestring)}
 
         examples = []
-        for bottles in opts:
+        for bottles in get_all_bottle_combinations(df, ingredients.iterkeys()):
 
             sum_ = 0
-            for bottle, amount in zip(bottles, recipe['ingredients'].itervalues()):
-                sum_ += cost_by_bottle_and_volume(df, nottle, amount)
+            for bottle, amount in zip(bottles, ingredients.itervalues()):
+                sum_ += cost_by_bottle_and_volume(df, bottle, amount)
 
             examples.append({','.join(bottles) : sum_})
 
         recipes[drink_name]['examples'] = examples
 
+    return recipes
+
 
 def cost_by_bottle_and_volume(df, bottle, amount, unit='oz'):
+    # TODO bottle and type comparison
     per_unit = min(df[df['Bottle'] == bottle]['$/{}'.format(unit)])
     return per_unit * amount
 
 
 def get_all_bottle_combinations(df, types):
-    opts = itertools.product([slice_on_type(df, t) for t in types])
+    bottle_lists = [slice_on_type(df, t)['Bottle'].tolist() for t in types]
+    opts = itertools.product(*bottle_lists)
     return opts
 
 def slice_on_type(df, type_):
@@ -115,10 +126,10 @@ def main():
     with open('recipes.json') as fp:
         base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
 
+    all_recipes = expand_recipes(df, base_recipes)
 
-    expand_recipes(df, base_recipes)
-
-    convert_to_menu(base_recipes)
+    import ipdb; ipdb.set_trace()
+    convert_to_menu(all_recipes)
 
 
 if __name__ == "__main__":
