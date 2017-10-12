@@ -7,6 +7,9 @@ import argparse
 import json
 from collections import OrderedDict
 
+import pandas as pd
+import numpy as np
+
 def get_fraction(amount):
     numer, denom = float(amount).as_integer_ratio()
     if denom == 1:
@@ -44,13 +47,18 @@ def convert_to_menu(recipes):
             linestr = "{} (optional)".format(get_ingredient_amount(ingredient, amount, unit))
             lines.append(linestr)
 
-
         garnish = ingredients.get('garnish')
         if garnish:
             lines.append("\t{}, for garnish".format(garnish))
 
         print '\n'.join(lines)
 
+def calculate_cost(price_df, ingredients, unit):
+    pass
+
+def generate_cost_df(barstock_csv):
+    import ipdb; ipdb.set_trace()
+    df = barstock.from_csv(barstock_csv)
 
 
 def get_parser():
@@ -65,6 +73,8 @@ Example usage:
 def main():
 
     args = get_parser().parse_args()
+
+    df = generate_cost_df('Barstock - Sheet1.csv')
 
     with open('recipes.json') as fp:
         convert_to_menu(json.load(fp, object_pairs_hook=OrderedDict))
