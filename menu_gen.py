@@ -5,10 +5,15 @@ Turn recipes json into a readable menu
 
 import argparse
 import json
+from collections import OrderedDict
 
 def get_fraction(amount):
-    import ipdb; ipdb.set_trace()
-    return amount
+    numer, denom = float(amount).as_integer_ratio()
+    if denom == 1:
+        return numer
+    whole = numer / denom
+    numer = numer % denom
+    return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, denom)
 
 def convert_to_menu(recipes):
     """
@@ -24,15 +29,21 @@ def convert_to_menu(recipes):
                 continue
             elif ingredient == "optional":
                 continue
-            if unit == 'oz':
+            elif ingredient == "unit":
+                continue
+
+            if isinstance(amount, basestring):
+                amount_str = amount
+            elif unit == 'oz':
                 amount_str = get_fraction(amount)
             else:
                 amount_str = str(amount)
 
             lines.append("\t{} {} {}".format(amount_str, unit, ingredient))
+
         garnish = ingredients.get('garnish')
         if garnish:
-            lines.append("{}, for garnish".format(garnish))
+            lines.append("\t{}, for garnish".format(garnish))
 
         print '\n'.join(lines)
 
@@ -52,7 +63,7 @@ def main():
     args = get_parser().parse_args()
 
     with open('recipes.json') as fp:
-        convert_to_menu(json.load(fp))
+        convert_to_menu(json.load(fp, object_pairs_hook=OrderedDict))
 
 
 if __name__ == "__main__":
