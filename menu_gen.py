@@ -23,6 +23,8 @@ def get_fraction(amount):
 def get_ingredient_amount(name, amount, unit):
     if isinstance(amount, basestring):
         amount_str = amount
+        if amount == 'dash':
+            unit = 'of'
     elif unit == 'oz':
         amount_str = get_fraction(amount)
     else:
