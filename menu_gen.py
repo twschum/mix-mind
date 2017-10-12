@@ -57,6 +57,8 @@ def convert_to_menu(recipes):
             lines.append("\t    Examples: ".format(examples))
             for e in examples:
                 lines.append("\t    ${:.2f} | {}".format(e.values()[0], e.keys()[0]))
+        else:
+            lines.append("\t(Missing ingredients!)")
 
         print '\n'.join(lines)
 
