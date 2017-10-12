@@ -49,9 +49,8 @@ def convert_to_menu(recipes):
         prep = recipe.get('prep', '')
 
         info = recipe.get('info')
-
         if info:
-            lines.append("\t{}".format(info))
+            lines.append('\t"{}"'.format(info))
 
         for ingredient, amount in recipe['ingredients'].iteritems():
             lines.append(get_ingredient_amount(ingredient, amount, unit))
@@ -73,6 +72,12 @@ def convert_to_menu(recipes):
             lines.append("\t    Examples: ".format(examples))
             for e in examples:
                 lines.append("\t    ${:.2f} | {}".format(e.values()[0], e.keys()[0]))
+
+        variants = recipe.get('variants')
+        if variants:
+            lines.append("\t    Variant{}:".format('s' if len(variants) > 1 else ''))
+            for v in variants:
+                lines.append("\t    {}".format(v))
 
         menu.append('\n'.join(lines))
     return menu
@@ -160,9 +165,9 @@ def main():
 
     if args.write:
         with open(args.write, 'w') as fp:
-            fp.write('\n'.join(menu))
+            fp.write('\n\n'.join(menu))
     else:
-        print '\n'.join(menu)
+        print '\n\n'.join(menu)
 
 if __name__ == "__main__":
     main()
