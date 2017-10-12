@@ -239,9 +239,9 @@
         "ingredients": {
             "vodka": 1.5,
             "orange liqueur": 0.75,
-            "lime juice": 0.75
-        },
-        "misc": "Splash of simple syrup"
+            "lime juice": 0.75,
+            "simple syrup": 0.125
+        }
     },
     "Moscow Mule (Vodka Buck)": {
         "ingredients": {

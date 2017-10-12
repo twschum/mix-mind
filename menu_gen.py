@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 
 ANY_SPIRIT = 'brandy, dry gin, genever, amber rum, white rum, rye whiskey'.split(',')
+ML_PER_OZ = 29.5735
 
 def get_fraction(amount):
     numer, denom = float(amount).as_integer_ratio()
@@ -26,7 +27,7 @@ def get_ingredient_amount(name, amount, unit):
     if isinstance(amount, basestring):
         amount_str = amount
         if amount == 'dash':
-            unit = 'of '
+            unit = 'of'
         else:
             unit = ''
     elif unit == 'oz':
@@ -85,30 +86,53 @@ def convert_to_menu(recipes):
 def expand_recipes(df, recipes):
 
     for drink_name, recipe in recipes.iteritems():
+        unit = recipe.get('unit', 'oz')
 
-        # ignore non-numeric ingredients
-        ingredients_names = [k for k,v in recipe['ingredients'].iteritems() \
-                if not isinstance(v, basestring)]
-        ingredients_amounts = [v for k,v in recipe['ingredients'].iteritems() \
-                if not isinstance(v, basestring)]
+        ingredients_names = []
+        ingredients_amounts = []
+        for name, amount in recipe['ingredients'].iteritems():
+            if isinstance(amount, basestring):
+                if amount == 'Top with':
+                    amount = 3.0
+                elif 'dash' in amount:
+                    amount = dash_to_volume(amount, unit)
+                else:
+                    continue
+            ingredients_names.append(name)
+            ingredients_amounts.append(amount)
 
         # calculate cost for every combination of ingredients for this drink
         examples = []
         for bottles in get_all_bottle_combinations(df, ingredients_names):
             sum_ = 0
+            std_drinks = 0
             for bottle, type_, amount in zip(bottles, ingredients_names, ingredients_amounts):
-                sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount)
+                sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount, unit)
+                std_drinks += drinks_by_bottle_and_volume(df, bottle, type_, amount, unit)
             examples.append({', '.join(bottles) : sum_})
         recipes[drink_name]['examples'] = examples
 
     return recipes
 
 
+
 def cost_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
     # TODO bottle and type comparison
-    bottle_row = df[(df['Bottle'] == bottle) & (df['type'] == type_)]
-    per_unit = min(bottle_row['$/{}'.format(unit)])
+    get_bottle_by_type(df, bottle, type_)
+    per_unit = bottle_row['$/{}'.format(unit)]
     return per_unit * amount
+
+def get_bottle_by_type(df, bottle, type_):
+    return df[(df['Bottle'] == bottle) & (df['type'] == type_)]
+
+def dash_to_volume(amount, unit):
+    # TODO find numeric value in amount
+    # ds = 0.62 mL
+    ds = 2.0 * 0.62
+    if unit == 'mL':
+        return ds
+    elif unit == 'oz':
+        return ds / ML_PER_OZ
 
 def get_all_bottle_combinations(df, types):
     bottle_lists = [slice_on_type(df, t)['Bottle'].tolist() for t in types]
