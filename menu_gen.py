@@ -5,6 +5,7 @@ Turn recipes json into a readable menu
 
 import argparse
 import json
+import string
 from collections import OrderedDict
 
 import pandas as pd
@@ -31,7 +32,6 @@ def convert_to_menu(recipes):
     """
     """
 
-    drinks_text = []
     for drink_name, recipe in recipes.iteritems():
         lines = []
         lines.append(drink_name)
@@ -39,11 +39,9 @@ def convert_to_menu(recipes):
         prep = recipe.get('prep', '')
 
         for ingredient, amount in recipe['ingredients'].iteritems():
-            if ingredient == "optional":
-                continue
             lines.append(get_ingredient_amount(ingredient, amount, unit))
 
-        for ingredient, amount in recipe['ingredients'].get('optional', {}).iteritems():
+        for ingredient, amount in recipe.get('optional', {}).iteritems():
             linestr = "{} (optional)".format(get_ingredient_amount(ingredient, amount, unit))
             lines.append(linestr)
 
@@ -53,13 +51,51 @@ def convert_to_menu(recipes):
 
         print '\n'.join(lines)
 
+def expand_recipes(df, recipes):
+
+    for drink_name, recipe in recipes.iteritems():
+
+        opts = get_all_bottle_combinations(df, recipe['ingredients'].keys())
+
+        examples = []
+        for bottles in opts:
+
+            sum_ = 0
+            for bottle, amount in zip(bottles, recipe['ingredients'].itervalues()):
+                sum_ += cost_by_bottle_and_volume(df, nottle, amount)
+
+            examples.append({','.join(bottles) : sum_})
+
+        recipes[drink_name]['examples'] = examples
+
+
+def cost_by_bottle_and_volume(df, bottle, amount, unit='oz'):
+    per_unit = min(df[df['Bottle'] == bottle]['$/{}'.format(unit)])
+    return per_unit * amount
+
+
+def get_all_bottle_combinations(df, types):
+    opts = itertools.product([slice_on_type(df, t) for t in types])
+    return opts
+
+def slice_on_type(df, type_):
+    return df[df['type'] == type_]
+
+
 def calculate_cost(price_df, ingredients, unit):
     pass
 
-def generate_cost_df(barstock_csv):
-    import ipdb; ipdb.set_trace()
-    df = barstock.read_csv(barstock_csv)
 
+def generate_cost_df(barstock_csv):
+    df = pd.read_csv(barstock_csv)
+    df = df.dropna(subset=['Type'])
+    df['type'] = map(string.lower, df['Type'])
+
+    # convert money columns to floats
+    for col in [col for col in df.columns if '$' in col]:
+        df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
+
+    return df
 
 def get_parser():
     p = argparse.ArgumentParser(description="""
@@ -77,7 +113,12 @@ def main():
     df = generate_cost_df('Barstock - Sheet1.csv')
 
     with open('recipes.json') as fp:
-        convert_to_menu(json.load(fp, object_pairs_hook=OrderedDict))
+        base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+
+
+    expand_recipes(df, base_recipes)
+
+    convert_to_menu(base_recipes)
 
 
 if __name__ == "__main__":
