@@ -58,7 +58,7 @@ def calculate_cost(price_df, ingredients, unit):
 
 def generate_cost_df(barstock_csv):
     import ipdb; ipdb.set_trace()
-    df = barstock.from_csv(barstock_csv)
+    df = barstock.read_csv(barstock_csv)
 
 
 def get_parser():
