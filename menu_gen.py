@@ -15,31 +15,35 @@ def get_fraction(amount):
     numer = numer % denom
     return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, denom)
 
+def get_ingredient_amount(name, amount, unit):
+    if isinstance(amount, basestring):
+        amount_str = amount
+    elif unit == 'oz':
+        amount_str = get_fraction(amount)
+    else:
+        amount_str = str(amount)
+    return "\t{} {} {}".format(amount_str, unit, name)
+
 def convert_to_menu(recipes):
     """
     """
 
     drinks_text = []
-    for drink_name, ingredients in recipes.iteritems():
+    for drink_name, recipe in recipes.iteritems():
         lines = []
         lines.append(drink_name)
-        unit = ingredients.get('unit', 'oz')
-        for ingredient, amount in ingredients.iteritems():
-            if ingredient == "garnish":
-                continue
-            elif ingredient == "optional":
-                continue
-            elif ingredient == "unit":
-                continue
+        unit = recipe.get('unit', 'oz')
+        prep = recipe.get('prep', '')
 
-            if isinstance(amount, basestring):
-                amount_str = amount
-            elif unit == 'oz':
-                amount_str = get_fraction(amount)
-            else:
-                amount_str = str(amount)
+        for ingredient, amount in recipe['ingredients'].iteritems():
+            if ingredient == "optional":
+                continue
+            lines.append(get_ingredient_amount(ingredient, amount, unit))
 
-            lines.append("\t{} {} {}".format(amount_str, unit, ingredient))
+        for ingredient, amount in recipe['ingredients'].get('optional', {}).iteritems():
+            linestr = "{} (optional)".format(get_ingredient_amount(ingredient, amount, unit))
+            lines.append(linestr)
+
 
         garnish = ingredients.get('garnish')
         if garnish:
