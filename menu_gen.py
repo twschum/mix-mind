@@ -26,12 +26,16 @@ def get_ingredient_amount(name, amount, unit):
     if isinstance(amount, basestring):
         amount_str = amount
         if amount == 'dash':
-            unit = 'of'
+            unit = 'of '
+        else:
+            unit = ''
     elif unit == 'oz':
         amount_str = get_fraction(amount)
     else:
         amount_str = str(amount)
-    return "\t{} {} {}".format(amount_str, unit, name)
+    if unit:
+        unit += ' '
+    return "\t{} {}{}".format(amount_str, unit, name)
 
 def convert_to_menu(recipes):
     """ Convert recipe json into readible format
@@ -89,7 +93,7 @@ def expand_recipes(df, recipes):
             sum_ = 0
             for bottle, type_, amount in zip(bottles, ingredients_names, ingredients_amounts):
                 sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount)
-            examples.append({','.join(bottles) : sum_})
+            examples.append({', '.join(bottles) : sum_})
         recipes[drink_name]['examples'] = examples
 
     return recipes
@@ -97,8 +101,7 @@ def expand_recipes(df, recipes):
 
 def cost_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
     # TODO bottle and type comparison
-    #from pprint import pprint; import ipdb; ipdb.set_trace()
-    bottle_row = df[df['Bottle'] == bottle and df['type'] == type_]
+    bottle_row = df[(df['Bottle'] == bottle) & (df['type'] == type_)]
     per_unit = min(bottle_row['$/{}'.format(unit)])
     return per_unit * amount
 
