@@ -14,7 +14,7 @@
         "garnish": "Lemon twist or olives"
     },
 
-    "Manhatten": {
+    "Manhattan": {
         "ingredients": {
             "rye whiskey": 2,
             "sweet vermouth": 1,
@@ -74,7 +74,7 @@
     },
 
     "Blackberry Garden": {
-        "info": "Created after I made a batch of blackberry liquer, still don't have a good name",
+        "info": "Created after I made a batch of blackberry liqueur",
         "ingredients": {
             "brandy": 1,
             "blackberry liqueur": 1,
