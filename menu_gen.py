@@ -38,7 +38,7 @@ def get_ingredient_amount(name, amount, unit):
         unit += ' '
     return "\t{} {}{}".format(amount_str, unit, name)
 
-def convert_to_menu(recipes):
+def convert_to_menu(recipes, prices=True, all_=True):
     """ Convert recipe json into readible format
     """
 
@@ -69,7 +69,7 @@ def convert_to_menu(recipes):
             lines.append("\t{}, for garnish".format(garnish))
 
         examples = recipe.get('examples')
-        if examples:
+        if examples and prices:
             lines.append("\t    Examples: ".format(examples))
             for e in examples:
                 lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
@@ -80,7 +80,10 @@ def convert_to_menu(recipes):
             for v in variants:
                 lines.append("\t    {}".format(v))
 
-        menu.append('\n'.join(lines))
+        if all_ or examples:
+            menu.append('\n'.join(lines))
+        else:
+            print "Can't make {}".format(drink_name)
     return menu
 
 def expand_recipes(df, recipes):
@@ -136,7 +139,8 @@ def cost_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
     return per_unit * amount
 
 def get_bottle_by_type(df, bottle, type_):
-    row = slice_on_type(df, type_)[df['Bottle'] == bottle]
+    by_type = slice_on_type(df, type_)
+    row = by_type[by_type['Bottle'] == bottle]
     if len(row) > 1:
         raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
     return row
@@ -202,12 +206,9 @@ def main():
     with open('recipes.json') as fp:
         base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
 
-    if args.prices:
-        df = load_cost_df('Barstock - Sheet1.csv', args.all)
-        all_recipes = expand_recipes(df, base_recipes)
-        menu = convert_to_menu(all_recipes)
-    else:
-        menu = convert_to_menu(base_recipes)
+    df = load_cost_df('Barstock - Sheet1.csv', args.all)
+    all_recipes = expand_recipes(df, base_recipes)
+    menu = convert_to_menu(all_recipes, args.prices, args.all)
 
     # TODO sorting?
 

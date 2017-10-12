@@ -4,7 +4,7 @@ Spirit,Dry Gin,Michigin,1,90,750,$35.95,25.4,$0.048,$1.42,$2.13,$0.107
 Spirit,Dry Gin,Kinckerbocker,1,85,750,$24.99,25.4,$0.033,$0.99,$1.48,$0.078
 Spirit,Dry Gin,Bombay Sapphire,1,94,750,$21.99,25.4,$0.029,$0.87,$1.30,$0.062
 Spirit,Dry Gin,New Amsterdam,1,80,1750,$22.99,59.2,$0.013,$0.39,$0.58,$0.033
-Spirit,Dry Gin,Kirkland,1,88,1750,$25.49,59.2,$0.015,$0.43,$0.65,$0.033
+Spirit,Dry Gin,Kirkland London Dry,1,88,1750,$25.49,59.2,$0.015,$0.43,$0.65,$0.033
 Spirit,Genever,Bols,1,84,750,$28.99,25.4,$0.039,$1.14,$1.71,$0.092
 Spirit,Amber Rum,Sailor Jerry,1,92,750,$17.99,25.4,$0.024,$0.71,$1.06,$0.052
 Spirit,Amber Rum,Captain Morgan,0,70,750,$14.99,25.4,$0.020,$0.59,$0.89,$0.057
@@ -32,9 +32,9 @@ Spirit,Tennessee Whiskey,Jack Daniel's Honey,1,70,750,$24.99,25.4,$0.033,$0.99,$
 Spirit,Irish Whiskey,Jameson,1,80,750,$27.99,25.4,$0.037,$1.10,$1.66,$0.093
 Spirit,Dark Rum,Kraken Black,1,94,750,$20.99,25.4,$0.028,$0.83,$1.24,$0.060
 Spirit,Silver Tequila,Jose Cuervo,1,80,750,$20.99,25.4,$0.028,$0.83,$1.24,$0.070
-Spirit,Silver Tequila,Kirkland,0,80,1750,$25.99,59.2,$0.015,$0.44,$0.66,$0.037
+Spirit,Silver Tequila,Kirkland Silver Tequila,0,80,1750,$25.99,59.2,$0.015,$0.44,$0.66,$0.037
+Liqueur,Amaretto,Disorionno,1,56,750,$27.99,25.4,$0.037,$1.10,$1.66,$0.133
 Liqueur,Blackberry Liqueur,Homemade,1,35,600,$6.00,20.3,$0.010,$0.30,$0.44,$0.057
-,,,,,,,0.0,,,,
 ,,,,,,,0.0,,,,
 ,,,,,,,0.0,,,,
 Spirit,Scotch Whisky,Glengoyne 10,1,86,750,$41.99,25.4,$0.056,$1.66,$2.48,$0.130
@@ -44,9 +44,12 @@ Spirit,Scotch Whisky,Balvenie 12 DoubleWood,0,86,750,$50.99,25.4,$0.068,$2.01,$3
 Syrup,Grenadine,Rose's,1,,355,$3.29,12.0,$0.009,$0.27,$0.41,
 Syrup,Simple Syrup,Homemade,1,,4000,$2.79,135.3,$0.001,$0.02,$0.03,
 Syrup,Rich Simple Syrup,Homemade,1,,2000,$2.79,67.6,$0.001,$0.04,$0.06,
-Syrup,Honey,Kirkland,1,,2270,$11.99,76.8,$0.005,$0.16,$0.23,
+Syrup,Honey,Kirkland Honey,1,,2270,$11.99,76.8,$0.005,$0.16,$0.23,
 Syrup,Honey Syrup,Homemade,1,,3405,$11.99,115.1,$0.004,$0.10,$0.16,
-Syrup,Orgeat,BG Reynolds,1,,232,$8.99,7.8,$0.039,$1.15,$1.72,
+Syrup,Orgeat,BG Reynolds,0,,232,$8.99,7.8,$0.039,$1.15,$1.72,
+Syrup,Maple Syrup,Local Michigan,1,,177,$10.99,6.0,$0.062,$1.84,$2.75,
+,,,,,,,,,,,
+Dry,Sugar,Raw Cane Sugar,1,,4000,$2.79,135.3,$0.001,$0.02,$0.03,
 ,,,,,,,,,,,
 Juice,Lemon Juice,Fresh,1,,45,$0.80,1.5,$0.018,$0.53,$0.79,
 Juice,Lime Juice,Fresh,1,,30,$0.34,1.0,$0.011,$0.34,$0.50,
@@ -58,3 +61,4 @@ Mixer,Ginger Beer,Bundaberg,1,,355,$1.50,12.0,$0.004,$0.12,$0.19,
 Mixer,Club Soda,Canada Dry,1,,178,$0.80,6.0,$0.004,$0.13,$0.20,
 Mixer,Cola,Coke,1,,355,$1.20,12.0,$0.003,$0.10,$0.15,
 Mixer,Champagne,Cooks,1,,750,$16.00,25.4,$0.021,$0.63,$0.95,
+Mixer,Water,Tap,1,,750,$0.00,25.4,$0.000,$0.00,$0.00,

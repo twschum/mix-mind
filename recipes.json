@@ -13,6 +13,7 @@
         "glass": "martini",
         "garnish": "Lemon twist or olives"
     },
+
     "Manhatten": {
         "ingredients": {
             "rye whiskey": 2,
@@ -21,6 +22,7 @@
         },
         "garnish": "Orange twist, optionally flamed"
     },
+
     "Margarita": {
         "ingredients": {
             "silver tequila": 2,
@@ -31,6 +33,7 @@
         "prep": "stir",
         "garnish": "Salt rim, lime wedge"
     },
+
     "Rye Whiskey Sour": {
         "ingredients": {
             "rye whiskey": 1.5,
@@ -46,16 +49,18 @@
             "prep": "shake",
             "garnish": null
     },
+
     "The Cocktail": {
         "info": "The original mixed drink, c. 1790s.",
         "ingredients": {
             "any spirit": 1.5,
             "aromatic bitters": "1 to 2 dashes",
             "water": "1 tsp",
-            "raw sugar": "1 tsp"
+            "sugar": "1 tsp"
         },
         "glass": "rocks"
     },
+
     "Mai Tai": {
         "ingredients": {
             "amber rum": 2,
@@ -67,7 +72,8 @@
         "prep": "shake",
         "garnish": "Flamed orange peel, mint, orange, or cherry"
     },
-    "That One I Make": {
+
+    "Blackberry Garden": {
         "info": "Created after I made a batch of blackberry liquer, still don't have a good name",
         "ingredients": {
             "brandy": 1,
@@ -76,8 +82,10 @@
             "lime juice": 0.5
         },
         "prep": "shake",
+        "origin": "Schubar original",
         "garnish": "Basil leaf"
     },
+
     "Bee's Knees": {
         "ingredients": {
             "dry gin": 1.5,
@@ -94,6 +102,19 @@
             "simple syrup": 0.5,
             "grenadine": 0.125
         }
+    },
+
+    "Bronx": {
+        "ingredients": {
+            "dry gin": 1.5,
+            "orange juice": 1.5,
+            "sweet vermouth": 0.5,
+            "dry vermouth": 0.5
+        },
+        "prep": "shake",
+        "variants": ["Silver Bronx: add egg white", "Income Tax: add Angostura"],
+        "origin": "The Savoy Cocktail Book",
+        "garnish": "Orange zest"
     },
 
     "The Fitzgerald": {
@@ -115,6 +136,7 @@
         "variants": ["French 125: Use Cognac instead of gin"],
         "glass": "flute"
     },
+
     "Fresh Lime Gimlet": {
         "ingredients": {
             "dry gin": 1.5,
@@ -123,6 +145,7 @@
         },
         "garnish": "Fresh mint sprig or cucumber slice"
     },
+
     "Gin Rickey": {
         "ingredients": {
             "dry gin": 2,
@@ -132,6 +155,7 @@
         "misc": "Squeezed shell of 1/2 a lime",
         "variants": ["Circus Rickey: Add 1 dash of Grenadine"]
     },
+
     "Gin Buck": {
         "ingredients": {
             "dry gin": 2,
@@ -140,6 +164,7 @@
         },
         "misc": "Squeezed shell of 1/2 a lime"
     },
+
     "Tom Collins": {
         "ingredients": {
             "dry gin": 2,
@@ -149,16 +174,18 @@
         },
         "glass": "collins"
     },
+
     "Gin Fizz": {
         "ingredients": {
             "dry gin": 2,
             "lime juice": 0.75,
-            "club soda, no ice": "Top with"
+            "club soda": "Top with"
         },
         "prep": "shake",
         "ice": "none",
         "glass": "rocks"
     },
+
     "White Lady": {
         "ingredients": {
             "dry gin": 1.5,
@@ -166,6 +193,7 @@
             "lemon juice": 0.75
         }
     },
+
     "Sidecar": {
         "ingredients": {
             "brandy": 2,
@@ -174,6 +202,7 @@
         },
         "garnish": "Sugar rim and lemon wheel"
     },
+
     "Classic Daiquiri": {
         "ingredients": {
             "lime juice": 0.5,
@@ -182,6 +211,7 @@
         },
         "variants": ["Santiago: Add 1/4 tsp grenadine"]
     },
+
     "Rum Rickey": {
         "ingredients": {
             "white rum": 2,
@@ -189,6 +219,7 @@
         },
         "misc": "Squeezed shell of 1/2 a lime"
     },
+
     "Small-Dinger": {
         "ingredients": {
             "white rum": 1,
@@ -197,22 +228,27 @@
             "grenadine": 0.5
         }
     },
+
     "Smooth Cuba Libre": {
         "ingredients": {
             "rum": 1.5,
             "cola": 6,
             "aromatic bitters": "1 to 2 dashes"
         },
+        "origin": "Schubar original",
         "garnish": "Lime wedge and splash of lime juice"
     },
+
     "Honey Flannel": {
         "ingredients": {
             "amber rum": 1.5,
             "brandy": 0.75,
             "honey syrup": 0.75,
             "lemon juice": 0.75
-        }
+        },
+        "origin": "Schubar original"
     },
+
     "Jamaica Honey Bee": {
         "ingredients": {
             "amber rum": 2,
@@ -220,12 +256,14 @@
             "lemon juice": 0.5
         }
     },
+
     "Pink Gin": {
         "ingredients": {
             "dry gin": 2,
             "angostura bitters": "2 dashes"
         }
     },
+
     "Classic Cosmopolitan": {
         "ingredients": {
             "vodka": 1.5,
@@ -235,6 +273,7 @@
         },
         "garnish": "Orange peel, preferably flamed"
     },
+
     "Kamikaze": {
         "ingredients": {
             "vodka": 1.5,
@@ -243,6 +282,7 @@
             "simple syrup": 0.125
         }
     },
+
     "Moscow Mule (Vodka Buck)": {
         "ingredients": {
             "vodka": 2,
@@ -250,5 +290,62 @@
         },
         "misc": "Squeezed shell of 1/2 a lime",
         "variants": ["Kentucky Mule: burbon or rye", "Rum Buck: amber rum", "Brandy Buck: brandy"]
+    },
+
+    "Amaretto Sour": {
+        "ingredients": {
+            "amaretto": 2,
+            "lemon juice": 0.75
+        },
+        "garnish": "Sugar rim and a Marischino cherry"
+    },
+
+    "Ruby Slip": {
+        "ingredients": {
+            "dry gin": 2,
+            "lemon juice": 0.75,
+            "cranberry juice": 0.75,
+            "simple syrup": 0.25,
+            "club soda": "Top with"
+        },
+        "origin": "Schubar original"
+    },
+
+    "Japanese Cocktail #1": {
+        "ingredients": {
+            "brandy": 2,
+            "orgeat": 0.25,
+            "lemon juice": 0.25,
+            "aromatic bitters": "dash"
+        }
+    },
+
+    "Blue Christmas": {
+        "ingredients": {
+            "whiskey": 1.5,
+            "cognac": 1.5,
+            "maple syrup": 0.5,
+            "aromatic bitters": "2 dashes"
+        }
+    },
+
+    "Cowboy Martini": {
+        "ingredients": {
+            "dry gin": 60,
+            "simple syrup": 10,
+            "orange bitters": "dash"
+        },
+        "misc": "mint leaves",
+        "unit": "mL",
+        "prep": "shake"
+    },
+
+    "Trinidad Sour": {
+        "ingredients": {
+            "angostura bitters": 1,
+            "orgeat": 1,
+            "lemon juice": 0.75,
+            "rye whiskey": 0.5
+        }
     }
 }
