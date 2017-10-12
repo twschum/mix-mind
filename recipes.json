@@ -1,0 +1,48 @@
+{
+    "Martini": {
+        "dry gin": 2.5,
+        "dry vermouth": 0.5,
+        "optional": {
+            "orange bitters": "dash"
+        },
+        "garnish": "Lemon twist or olives",
+        "unit": "oz",
+    },
+    "Manhatten": {
+        "rye whiskey": 2,
+        "sweet vermouth": 1,
+        "aromatic bitters": "dash",
+        "garnish": "Orange twist, optionally flamed"
+    },
+    "Margarita": {
+        "silver tequila": 2,
+        "orange liqueur": 1,
+        "lime juice": 0.5,
+        "lemon juice": 0.5,
+        "garnish": "Salt rim, lime wedge"
+    },
+    "Rye Whiskey Sour": {
+        "rye whiskey": 1.5,
+        "simple syrup": 0.75,
+        "lemon juice": 0.75,
+        "optional": {
+            "egg white": "one"
+        },
+        "garnish": null
+    },
+    "Mai Tai": {
+        "amber rum:": 2,
+        "orange liqueur": 0.5,
+        "orgeat": 0.25,
+        "rich simple syrup": 0.25,
+        "lime juice": 0.5,
+        "garnish": "Flamed orange peel, mint, orange, or cherry"
+    }
+    "That One I Make": {
+        "brandy": 1,
+        "blackberry liqueur": 1,
+        "simple syrup": 0.25,
+        "lime juice": 0.5,
+        "garnish": "Basil leaf"
+    }
+}
