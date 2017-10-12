@@ -30,7 +30,7 @@ def get_ingredient_amount(name, amount, unit):
     return "\t{} {} {}".format(amount_str, unit, name)
 
 def convert_to_menu(recipes):
-    """
+    """ Convert recipe json into readible format
     """
 
     for drink_name, recipe in recipes.iteritems():
@@ -50,10 +50,11 @@ def convert_to_menu(recipes):
         if garnish:
             lines.append("\t{}, for garnish".format(garnish))
 
-
         examples = recipe.get('examples')
         if examples:
-            lines.append("\tExamples: {}".format(examples))
+            lines.append("\t    Examples: ".format(examples))
+            for e in examples:
+                lines.append("\t    ${:.2f} | {}".format(e.values()[0], e.keys()[0]))
 
         print '\n'.join(lines)
 
@@ -61,18 +62,19 @@ def expand_recipes(df, recipes):
 
     for drink_name, recipe in recipes.iteritems():
 
-        ingredients = {k:v for k,v in recipe['ingredients'].iteritems() \
-                if not isinstance(v, basestring)}
+        # ignore non-numeric ingredients
+        ingredients_names = [k for k,v in recipe['ingredients'].iteritems() \
+                if not isinstance(v, basestring)]
+        ingredients_amounts = [v for k,v in recipe['ingredients'].iteritems() \
+                if not isinstance(v, basestring)]
 
+        # calculate cost for every combination of ingredients for this drink
         examples = []
-        for bottles in get_all_bottle_combinations(df, ingredients.iterkeys()):
-
+        for bottles in get_all_bottle_combinations(df, ingredients_names):
             sum_ = 0
-            for bottle, amount in zip(bottles, ingredients.itervalues()):
+            for bottle, amount in zip(bottles, ingredients_amounts):
                 sum_ += cost_by_bottle_and_volume(df, bottle, amount)
-
             examples.append({','.join(bottles) : sum_})
-
         recipes[drink_name]['examples'] = examples
 
     return recipes
@@ -82,7 +84,6 @@ def cost_by_bottle_and_volume(df, bottle, amount, unit='oz'):
     # TODO bottle and type comparison
     per_unit = min(df[df['Bottle'] == bottle]['$/{}'.format(unit)])
     return per_unit * amount
-
 
 def get_all_bottle_combinations(df, types):
     bottle_lists = [slice_on_type(df, t)['Bottle'].tolist() for t in types]
@@ -128,7 +129,6 @@ def main():
 
     all_recipes = expand_recipes(df, base_recipes)
 
-    import ipdb; ipdb.set_trace()
     convert_to_menu(all_recipes)
 
 
