@@ -6,8 +6,8 @@
             "orange bitters": "dash"
         },
         "garnish": "Lemon twist or olives",
-        "unit": "oz",
-    },
+        "unit": "oz"
+        },
     "Manhatten": {
         "rye whiskey": 2,
         "sweet vermouth": 1,
@@ -31,13 +31,13 @@
         "garnish": null
     },
     "Mai Tai": {
-        "amber rum:": 2,
+        "amber rum": 2,
         "orange liqueur": 0.5,
         "orgeat": 0.25,
         "rich simple syrup": 0.25,
         "lime juice": 0.5,
         "garnish": "Flamed orange peel, mint, orange, or cherry"
-    }
+    },
     "That One I Make": {
         "brandy": 1,
         "blackberry liqueur": 1,
