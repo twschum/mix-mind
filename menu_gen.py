@@ -72,7 +72,7 @@ def convert_to_menu(recipes):
         if examples:
             lines.append("\t    Examples: ".format(examples))
             for e in examples:
-                lines.append("\t    ${:.2f} | {}".format(e.values()[0], e.keys()[0]))
+                lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
 
         variants = recipe.get('variants')
         if variants:
@@ -87,6 +87,7 @@ def expand_recipes(df, recipes):
 
     for drink_name, recipe in recipes.iteritems():
         unit = recipe.get('unit', 'oz')
+        prep = recipe.get('prep', 'shake')
 
         ingredients_names = []
         ingredients_amounts = []
@@ -96,6 +97,8 @@ def expand_recipes(df, recipes):
                     amount = 3.0
                 elif 'dash' in amount:
                     amount = dash_to_volume(amount, unit)
+                elif 'tsp' in amount:
+                    amount = float(amount.split()[0]) * (0.125 if unit == 'oz' else 5.0)
                 else:
                     continue
             ingredients_names.append(name)
@@ -106,24 +109,37 @@ def expand_recipes(df, recipes):
         for bottles in get_all_bottle_combinations(df, ingredients_names):
             sum_ = 0
             std_drinks = 0
+            volume = 1.5 if prep == 'shake' else 0.5
             for bottle, type_, amount in zip(bottles, ingredients_names, ingredients_amounts):
                 sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount, unit)
                 std_drinks += drinks_by_bottle_and_volume(df, bottle, type_, amount, unit)
-            examples.append({', '.join(bottles) : sum_})
+                volume += amount
+            abv = 40.0 * (std_drinks*(1.5 if unit == 'oz' else 45.0) / volume)
+            examples.append({'bottles': ', '.join(bottles),
+                             'cost': sum_,
+                             'abv': abv,
+                             'drinks': std_drinks})
         recipes[drink_name]['examples'] = examples
 
     return recipes
 
-
+def drinks_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
+    """ Standard drink is 1.5 oz or 45 ml at 80 proof
+    """
+    proof = get_bottle_by_type(df, bottle, type_)['Proof'].median()
+    adjusted_proof = proof / 80.0
+    adjusted_amount = amount / (1.5 if unit == 'oz' else 45.0)
+    return adjusted_proof * adjusted_amount
 
 def cost_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
-    # TODO bottle and type comparison
-    get_bottle_by_type(df, bottle, type_)
-    per_unit = bottle_row['$/{}'.format(unit)]
+    per_unit = get_bottle_by_type(df, bottle, type_)['$/{}'.format(unit)].median()
     return per_unit * amount
 
 def get_bottle_by_type(df, bottle, type_):
-    return df[(df['Bottle'] == bottle) & (df['type'] == type_)]
+    row = slice_on_type(df, type_)[df['Bottle'] == bottle]
+    if len(row) > 1:
+        raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
+    return row
 
 def dash_to_volume(amount, unit):
     # TODO find numeric value in amount
@@ -140,7 +156,13 @@ def get_all_bottle_combinations(df, types):
     return opts
 
 def slice_on_type(df, type_):
+    if type_ in ['rum', 'whiskey']: # expand for more I guess
+        return df[df['type'].str.contains(type_)]
+    elif type_ == 'any spirit':
+        return df[df['Category'] == 'Spirit']
+
     return df[df['type'] == type_]
+
 
 
 def load_cost_df(barstock_csv, include_all=False):
@@ -151,6 +173,8 @@ def load_cost_df(barstock_csv, include_all=False):
     # convert money columns to floats
     for col in [col for col in df.columns if '$' in col]:
         df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
+
+    df['Proof'] = df['Proof'].fillna(0)
 
     # drop out of stock items
     if not include_all:
