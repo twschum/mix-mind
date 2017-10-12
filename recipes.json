@@ -41,21 +41,20 @@
             "egg white": "one"
         },
         "variants": ["Fancy Sour: Reduce simple syrup to 1/2 oz and add 1 tsp orange liqueur",
-                     "Honey Sour: Replace simple syrup with honey syrup",
-                     "New York Sour: Float 1/2 oz red wine"],
-        "prep": "shake",
-        "garnish": null
+            "Honey Sour: Replace simple syrup with honey syrup",
+            "New York Sour: Float 1/2 oz red wine"],
+            "prep": "shake",
+            "garnish": null
     },
     "The Cocktail": {
-        "notes": "The original mixed drink, c. 1790s.",
-        brandy, dry gin, genever, amber rum, white rum, rye whiskey
+        "info": "The original mixed drink, c. 1790s.",
         "ingredients": {
             "any spirit": 1.5,
             "aromatic bitters": "1 to 2 dashes",
             "water": "1 tsp",
             "raw sugar": "1 tsp"
-          
         },
+        "glass": "rocks"
     },
     "Mai Tai": {
         "ingredients": {
@@ -69,6 +68,7 @@
         "garnish": "Flamed orange peel, mint, orange, or cherry"
     },
     "That One I Make": {
+        "info": "Created after I made a batch of blackberry liquer, still don't have a good name",
         "ingredients": {
             "brandy": 1,
             "blackberry liqueur": 1,
@@ -78,129 +78,177 @@
         "prep": "shake",
         "garnish": "Basil leaf"
     },
-    "Bee's Knees" {
-    1.5 dry gin
-    0.75 lemon juice
-    0.75 honey syrup
-    orage twist
+    "Bee's Knees": {
+        "ingredients": {
+            "dry gin": 1.5,
+            "lemon juice": 0.75,
+            "honey syrup": 0.75
+        },
+        "garnish": "Orange twist"
     },
 
-    Box Car
-    1.5 dry gin
-    0.75 lemon juice
-    0.5 simple syrup
-    0.125 grenadine
+    "Box Car": {
+        "ingredients": {
+            "dry gin": 1.5,
+            "lemon juice": 0.75,
+            "simple syrup": 0.5,
+            "grenadine": 0.125
+        }
+    },
 
-    The Fitzgerald
-    1.5 dry gin
-    0.75 lemon juice
-    0.75 simple syrup
-    2 dashes aromatic bitters
+    "The Fitzgerald": {
+        "ingredients": {
+            "dry gin": 1.5,
+            "lemon juice": 0.75,
+            "simple syrup": 0.75,
+            "aromatic bitters": "2 dashes"
+        }
+    },
 
-    French 75
-    1.5 dry gin
-    0.75 lemon juice
-    0.75 simple syrup
-    Top with Champagne
-    "glass": "flute",
-
-    Fresh Lime Gimlet
-    1.5 dry gin
-    0.75 lime juice
-    0.5 simple syrup    
-    "garnish": "Fresh mint sprig or cucumber slice"
-
-    Gin Rickey
-    2 dry gin
-    0.75 lime juice
-    Top with club soda
-    Squeezed shell of 1/2 a lime
-    "variants": ["Circus Rickey: Add 1 dash of Grenadine"]
-    
-    Gin Buck
-    2 dry gin
-    0.75 lime juice
-    Top with ginger beer
-    Squeezed shell of 1/2 a lime
-    
-    Tom Collins
-    2 dry gin
-    0.75 lemon juice
-    0.5 simple syrup
-    Top with club soda
-
-    Gin Fizz
-    2 dry gin
-    0.75 lime juice
-    Top with club soda, no ice
-
-    White Lady
-    1.5 dry gin
-    0.75 orange liqueur
-    0.75 lemon juice
-    
-    Sidecar
-    2 brandy
-    1 orange liqueur
-    0.75 lemon juice
-    "garnish": "Sugar rim and lemon wheel"
-    
-    Classic Daiquiri
-    0.5 lime juice
-    0.25 simple syrup
-    2 white rum
-    "variants": ["Santiago: Add 1/4 tsp grenadine"],
-    
-    Rum Rickey
-    2 white rum
-    Top with club soda
-    Squeezed shell of 1/2 a lime
-    
-    Small-Dinger
-    1 white rum
-    1 dry gin
-    0.5 lime juice
-    0.5 grenadine
-
-    Smooth Cuba Libre
-    1.5 rum
-    6 cola
-    1 to 2 dashes aromatic bitters
-    "garnish": "Lime wedge and splash of lime juice"
-    
-
-    Honey Flannel
-    1.5 amber rum
-    0.75 brandy
-    0.75 honey syrup
-    0.75 lemon juice
-
-    Jamaica Honey Bee
-    2 amber rum
-    0.5 honey syrup
-    0.5 lemon juice
-
-    Pink Gin
-    2 dry gin
-    2 dashes angostura bitters
-
-    Classic Cosmopolitan
-    1.5 vodka
-    0.75 orange liqueur
-    1 cranberry juice
-    0.25 lime juice
-    "garnish": "Orange peel, preferably flamed"
-
-    Kamikaze
-    1.5 vodka
-    0.75 orange liqueur
-    0.75 lime juice
-    Splash of simple syrup
-    
-    Moscow Mule (Vodka Buck)
-    2 vodka
-    Top with ginger beer
-    Squeezed shell of 1/2 a lime
-    "variants": ["Kentucky Mule: burbon or rye", "Rum Buck: amber rum", "Brandy Buck: brandy"],
-    
+    "French 75": {
+        "ingredients": {
+            "dry gin": 1.5,
+            "lemon juice": 0.75,
+            "simple syrup": 0.75,
+            "Champagne": "Top with"
+        },
+        "variants": ["French 125: Use Cognac instead of gin"],
+        "glass": "flute"
+    },
+    "Fresh Lime Gimlet": {
+        "ingredients": {
+            "dry gin": 1.5,
+            "lime juice": 0.75,
+            "simple syrup": 0.5
+        },
+        "garnish": "Fresh mint sprig or cucumber slice"
+    },
+    "Gin Rickey": {
+        "ingredients": {
+            "dry gin": 2,
+            "lime juice": 0.75,
+            "club soda": "Top with"
+        },
+        "misc": "Squeezed shell of 1/2 a lime",
+        "variants": ["Circus Rickey: Add 1 dash of Grenadine"]
+    },
+    "Gin Buck": {
+        "ingredients": {
+            "dry gin": 2,
+            "lime juice": 0.75,
+            "ginger beer": "Top with"
+        },
+        "misc": "Squeezed shell of 1/2 a lime"
+    },
+    "Tom Collins": {
+        "ingredients": {
+            "dry gin": 2,
+            "lemon juice": 0.75,
+            "simple syrup": 0.5,
+            "club soda": "Top with"
+        },
+        "glass": "collins"
+    },
+    "Gin Fizz": {
+        "ingredients": {
+            "dry gin": 2,
+            "lime juice": 0.75,
+            "club soda, no ice": "Top with"
+        },
+        "prep": "shake",
+        "ice": "none",
+        "glass": "rocks"
+    },
+    "White Lady": {
+        "ingredients": {
+            "dry gin": 1.5,
+            "orange liqueur": 0.75,
+            "lemon juice": 0.75
+        }
+    },
+    "Sidecar": {
+        "ingredients": {
+            "brandy": 2,
+            "orange liqueur": 1,
+            "lemon juice": 0.75
+        },
+        "garnish": "Sugar rim and lemon wheel"
+    },
+    "Classic Daiquiri": {
+        "ingredients": {
+            "lime juice": 0.5,
+            "simple syrup": 0.25,
+            "white rum": 2
+        },
+        "variants": ["Santiago: Add 1/4 tsp grenadine"]
+    },
+    "Rum Rickey": {
+        "ingredients": {
+            "white rum": 2,
+            "club soda": "Top with"
+        },
+        "misc": "Squeezed shell of 1/2 a lime"
+    },
+    "Small-Dinger": {
+        "ingredients": {
+            "white rum": 1,
+            "dry gin": 1,
+            "lime juice": 0.5,
+            "grenadine": 0.5
+        }
+    },
+    "Smooth Cuba Libre": {
+        "ingredients": {
+            "rum": 1.5,
+            "cola": 6,
+            "aromatic bitters": "1 to 2 dashes"
+        },
+        "garnish": "Lime wedge and splash of lime juice"
+    },
+    "Honey Flannel": {
+        "ingredients": {
+            "amber rum": 1.5,
+            "brandy": 0.75,
+            "honey syrup": 0.75,
+            "lemon juice": 0.75
+        }
+    },
+    "Jamaica Honey Bee": {
+        "ingredients": {
+            "amber rum": 2,
+            "honey syrup": 0.5,
+            "lemon juice": 0.5
+        }
+    },
+    "Pink Gin": {
+        "ingredients": {
+            "dry gin": 2,
+            "angostura bitters": "2 dashes"
+        }
+    },
+    "Classic Cosmopolitan": {
+        "ingredients": {
+            "vodka": 1.5,
+            "orange liqueur": 0.75,
+            "cranberry juice": 1,
+            "lime juice": 0.25
+        },
+        "garnish": "Orange peel, preferably flamed"
+    },
+    "Kamikaze": {
+        "ingredients": {
+            "vodka": 1.5,
+            "orange liqueur": 0.75,
+            "lime juice": 0.75
+        },
+        "misc": "Splash of simple syrup"
+    },
+    "Moscow Mule (Vodka Buck)": {
+        "ingredients": {
+            "vodka": 2,
+            "ginger beer": "Top with"
+        },
+        "misc": "Squeezed shell of 1/2 a lime",
+        "variants": ["Kentucky Mule: burbon or rye", "Rum Buck: amber rum", "Brandy Buck: brandy"]
+    }
 }
