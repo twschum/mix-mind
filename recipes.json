@@ -20,6 +20,8 @@
             "sweet vermouth": 1,
             "aromatic bitters": "dash"
         },
+        "prep": "stir",
+        "variants": ["Rum-hattan: spiced rum, sweet vermouth, orange bitters"],
         "garnish": "Orange twist, optionally flamed"
     },
 
@@ -202,6 +204,41 @@
         },
         "garnish": "Sugar rim and lemon wheel"
     },
+    
+    "Between the Sheets": {
+        "info": "Popular 'sexy cocktail' of the Prohibition era",
+        "ingredients": {
+            "brandy": 0.75,
+            "dry gin": 0.75,
+            "orange liqueur": 0.75,
+            "lemon juice": 0.75
+        }
+    },
+        
+    "Brandy Daisy": {
+        "ingredients": {
+            "brandy": 1.5,
+            "lemon juice": 0.75,
+            "orange liqueur": 0.75,
+            "grenadine": "1/4 tsp",
+        }
+        "misc": "club soda\nStrain over crushed ice into a rocks glass and top with club soda",
+        "glass": "rocks",
+        "ice": "crushed",
+        "prep": "shake",
+        "origin": "12BB"
+    },
+    
+    "Embassy": {
+        "info": "Created by Eddie Brandsatter at his Prohibition era Hollywood club, The Embassy",
+        "ingredients": {
+            "brandy": 1,
+            "amber rum": 1,
+            "orange liqueur": 1,
+            "lime juice": 0.5,
+            "simple syrup": "1 tsp"
+        }
+    },
 
     "Classic Daiquiri": {
         "ingredients": {
@@ -350,7 +387,21 @@
     },
 
     "Clipper Cocktail": {
+        "info": "from Pan Am's North Pacific run, in the 1930s"
+        "ingredients": {
+            "white rum": 1.5,
+            "dry vermouth": 1.5,
+            "grenadine": "1 tsp"
+        }
     },
+
     "Turf Cocktail": {
+        "ingredients": {
+            "genever": 2,
+            "sweet vermouth": 1,
+            "aromatic bitters": "dash"
+        },
+        "perp": "stir",
+        "garnish": "Lemon twist"
     }
 }
