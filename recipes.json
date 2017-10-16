@@ -7,6 +7,7 @@
         "optional": {
             "orange bitters": "dash"
         },
+        "variants": ["Reverse Martini: 5 parts vermouth to 1 part gin"],
         "unit": "oz",
         "prep": "stir",
         "ice": null,
@@ -20,8 +21,9 @@
             "sweet vermouth": 1,
             "aromatic bitters": "dash"
         },
+        "variants": ["Rum-hattan: spiced rum, sweet vermouth, orange bitters",
+                     "Reverse Manhattan: 2 parts vermouth to 1 part whiskey"],
         "prep": "stir",
-        "variants": ["Rum-hattan: spiced rum, sweet vermouth, orange bitters"],
         "garnish": "Orange twist, optionally flamed"
     },
 
@@ -46,10 +48,10 @@
             "egg white": "one"
         },
         "variants": ["Fancy Sour: Reduce simple syrup to 1/2 oz and add 1 tsp orange liqueur",
-            "Honey Sour: Replace simple syrup with honey syrup",
-            "New York Sour: Float 1/2 oz red wine"],
-            "prep": "shake",
-            "garnish": null
+                     "Honey Sour: Replace simple syrup with honey syrup",
+                     "New York Sour: Float 1/2 oz red wine"],
+        "prep": "shake",
+        "garnish": null
     },
 
     "The Cocktail": {
@@ -204,7 +206,7 @@
         },
         "garnish": "Sugar rim and lemon wheel"
     },
-    
+
     "Between the Sheets": {
         "info": "Popular 'sexy cocktail' of the Prohibition era",
         "ingredients": {
@@ -214,21 +216,21 @@
             "lemon juice": 0.75
         }
     },
-        
+
     "Brandy Daisy": {
         "ingredients": {
             "brandy": 1.5,
             "lemon juice": 0.75,
             "orange liqueur": 0.75,
-            "grenadine": "1/4 tsp",
-        }
+            "grenadine": "1/4 tsp"
+        },
         "misc": "club soda\nStrain over crushed ice into a rocks glass and top with club soda",
         "glass": "rocks",
         "ice": "crushed",
         "prep": "shake",
         "origin": "12BB"
     },
-    
+
     "Embassy": {
         "info": "Created by Eddie Brandsatter at his Prohibition era Hollywood club, The Embassy",
         "ingredients": {
@@ -387,12 +389,51 @@
     },
 
     "Clipper Cocktail": {
-        "info": "from Pan Am's North Pacific run, in the 1930s"
+        "info": "from Pan Am's North Pacific run, in the 1930s",
         "ingredients": {
             "white rum": 1.5,
             "dry vermouth": 1.5,
             "grenadine": "1 tsp"
         }
+    },
+
+    "Vermouth De Mure": {
+        "info": "The missing link between modern and ancestral martini styles",
+        "ingredients": {
+            "dry vermouth": 3,
+            "blackberry liqueur": 0.5,
+            "club soda": "Top with"
+        },
+        "glass": "collins",
+        "ice": "cubed",
+        "prep": "stir",
+        "origin": "12BB",
+        "garnish": "Lemon twist"
+    },
+
+    "Victory": {
+        "info": "Light and herbal with lower alcohol content",
+        "ingredients": {
+            "dry vermouth": 0.75,
+            "sweet vermouth": 0.75,
+            "lemon juice": "1 tsp",
+            "orange juice": "1 tsp",
+            "grenadine": "1 tsp"
+        },
+        "glass": "martini",
+        "prep": "shake",
+        "origin": "12BB"
+    },
+
+    "The Vampire": {
+        "info": "The missing link between modern and ancestral martini styles",
+        "ingredients": {
+            "dry gin": 1.5,
+            "dry vermouth": 1.5,
+            "lime juice": "5 drops"
+        },
+        "origin": "Cocktail Boothby's American Bar-Tender, 1891",
+        "garnish": "Lime twist (or garlic clove, to keep away the namesake)"
     },
 
     "Turf Cocktail": {
