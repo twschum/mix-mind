@@ -300,7 +300,8 @@
         "ingredients": {
             "dry gin": 2,
             "angostura bitters": "2 dashes"
-        }
+        },
+        "prep": "stir"
     },
 
     "Classic Cosmopolitan": {

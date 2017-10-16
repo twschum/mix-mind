@@ -38,11 +38,20 @@ def get_ingredient_amount(name, amount, unit):
         unit += ' '
     return "\t{} {}{}".format(amount_str, unit, name)
 
+def check_stat(field, tracker, example, drink_name):
+    if example[field] > tracker[field]:
+        tracker.update(example)
+        tracker['name'] = drink_name
+    return tracker
+
 def convert_to_menu(recipes, prices=True, all_=True):
     """ Convert recipe json into readible format
     """
 
     menu = []
+    most_expensive = {'cost':0}
+    most_booze = {'drinks':0}
+    most_abv = {'abv': 0}
     for drink_name, recipe in recipes.iteritems():
         lines = []
         lines.append(drink_name)
@@ -73,6 +82,9 @@ def convert_to_menu(recipes, prices=True, all_=True):
             lines.append("\t    Examples: ".format(examples))
             for e in examples:
                 lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
+                most_expensive = check_stat('cost', most_expensive, e, drink_name)
+                most_booze = check_stat('drinks', most_booze, e, drink_name)
+                most_abv = check_stat('abv', most_abv, e, drink_name)
 
         variants = recipe.get('variants')
         if variants:
@@ -84,6 +96,9 @@ def convert_to_menu(recipes, prices=True, all_=True):
             menu.append('\n'.join(lines))
         else:
             print "Can't make {}".format(drink_name)
+    print "Most Expensive: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_expensive)
+    print "Most Booze: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_booze)
+    print "Highest ABV (estimate): {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_abv)
     return menu
 
 def expand_recipes(df, recipes):
@@ -101,7 +116,10 @@ def expand_recipes(df, recipes):
                 elif 'dash' in amount:
                     amount = dash_to_volume(amount, unit)
                 elif 'tsp' in amount:
-                    amount = float(amount.split()[0]) * (0.125 if unit == 'oz' else 5.0)
+                    try:
+                        amount = float(amount.split()[0]) * (0.125 if unit == 'oz' else 5.0)
+                    except ValueError:
+                        amount = 0.25 # XXX HAX FIXME
                 else:
                     continue
             ingredients_names.append(name)
@@ -196,6 +214,7 @@ Example usage:
     p.add_argument('-a', dest='all', action='store_true', help="Include all recipes regardless of stock")
     p.add_argument('-p', dest='prices', action='store_true', help="Calculate prices for example drinks based on stock")
     p.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
+    p.add_argument('-s', dest='stats', action='store_true', help="Just show some stats")
 
     return p
 
@@ -209,6 +228,9 @@ def main():
     df = load_cost_df('Barstock - Sheet1.csv', args.all)
     all_recipes = expand_recipes(df, base_recipes)
     menu = convert_to_menu(all_recipes, args.prices, args.all)
+
+    if args.stats:  # HAX FIXME
+        return
 
     # TODO sorting?
 
