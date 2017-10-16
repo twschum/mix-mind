@@ -213,6 +213,7 @@ Example usage:
     ./program -v -d
 """, formatter_class=argparse.RawTextHelpFormatter)
     p.add_argument('-v', dest='verbose', action='store_true')
+    p.add_argument('-b', dest='barstock', default='Barstock - Sheet1.csv', help="Barstock csv filename")
     p.add_argument('-a', dest='all', action='store_true', help="Include all recipes regardless of stock")
     p.add_argument('-p', dest='prices', action='store_true', help="Calculate prices for example drinks based on stock")
     p.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
@@ -227,7 +228,7 @@ def main():
     with open('recipes.json') as fp:
         base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
 
-    df = load_cost_df('Barstock - Sheet1.csv', args.all)
+    df = load_cost_df(args.barstock, args.all)
     all_recipes = expand_recipes(df, base_recipes)
     menu = convert_to_menu(all_recipes, args.prices, args.all)
 
