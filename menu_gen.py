@@ -178,10 +178,12 @@ def get_all_bottle_combinations(df, types):
     return opts
 
 def slice_on_type(df, type_):
-    if type_ in ['rum', 'whiskey']: # expand for more I guess
+    if type_ in ['rum', 'whiskey', 'tequila', 'vermouth']:
         return df[df['type'].str.contains(type_)]
     elif type_ == 'any spirit':
         return df[df['Category'] == 'Spirit']
+    elif type_ == 'bitters':
+        return df[df['Category'] == 'Bitters']
 
     return df[df['type'] == type_]
 
