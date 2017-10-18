@@ -10,6 +10,7 @@
         "variants": ["Reverse Martini: 5 parts vermouth to 1 part gin"],
         "unit": "oz",
         "prep": "stir",
+        "profile": ["strong"],
         "ice": null,
         "glass": "martini",
         "garnish": "Lemon twist or olives"
@@ -23,6 +24,7 @@
         },
         "variants": ["Rum-hattan: spiced rum, sweet vermouth, orange bitters",
                      "Reverse Manhattan: 2 parts vermouth to 1 part whiskey"],
+        "profile": ["strong"],
         "prep": "stir",
         "garnish": "Orange twist, optionally flamed"
     },
@@ -50,6 +52,7 @@
         "variants": ["Fancy Sour: Reduce simple syrup to 1/2 oz and add 1 tsp orange liqueur",
                      "Honey Sour: Replace simple syrup with honey syrup",
                      "New York Sour: Float 1/2 oz red wine"],
+        "profile": ["tangy", "citrusy"],
         "prep": "shake",
         "garnish": null
     },
@@ -73,6 +76,7 @@
             "rich simple syrup": 0.25,
             "lime juice": 0.5
         },
+        "profile": ["tangy", "citrusy"],
         "prep": "shake",
         "garnish": "Flamed orange peel, mint, orange, or cherry"
     },
@@ -96,6 +100,7 @@
             "lemon juice": 0.75,
             "honey syrup": 0.75
         },
+        "profile": ["tangy", "citrusy"],
         "garnish": "Orange twist"
     },
 
@@ -105,7 +110,8 @@
             "lemon juice": 0.75,
             "simple syrup": 0.5,
             "grenadine": 0.125
-        }
+        },
+        "profile": ["tangy", "citrusy"]
     },
 
     "Bronx": {
@@ -127,7 +133,8 @@
             "lemon juice": 0.75,
             "simple syrup": 0.75,
             "aromatic bitters": "2 dashes"
-        }
+        },
+        "profile": ["tangy", "citrusy"]
     },
 
     "French 75": {
@@ -137,6 +144,7 @@
             "simple syrup": 0.75,
             "Champagne": "Top with"
         },
+        "profile": ["tangy", "citrusy"]
         "variants": ["French 125: Use Cognac instead of gin"],
         "glass": "flute"
     },
@@ -147,6 +155,7 @@
             "lime juice": 0.75,
             "simple syrup": 0.5
         },
+        "profile": ["tangy", "citrusy"],
         "garnish": "Fresh mint sprig or cucumber slice"
     },
 
@@ -157,6 +166,7 @@
             "club soda": "Top with"
         },
         "misc": "Squeezed shell of 1/2 a lime",
+        "profile": ["tangy", "citrusy"],
         "variants": ["Circus Rickey: Add 1 dash of Grenadine"]
     },
 
@@ -166,6 +176,7 @@
             "lime juice": 0.75,
             "ginger beer": "Top with"
         },
+        "profile": ["tangy", "citrusy"],
         "misc": "Squeezed shell of 1/2 a lime"
     },
 
@@ -176,6 +187,7 @@
             "simple syrup": 0.5,
             "club soda": "Top with"
         },
+        "profile": ["tangy", "citrusy"],
         "glass": "collins"
     },
 
@@ -195,7 +207,8 @@
             "dry gin": 1.5,
             "orange liqueur": 0.75,
             "lemon juice": 0.75
-        }
+        },
+        "profile": ["tangy", "citrusy"]
     },
 
     "Sidecar": {
@@ -275,6 +288,7 @@
             "aromatic bitters": "1 to 2 dashes"
         },
         "origin": "Schubar original",
+        "profile": ["sweet", "fruity"],
         "garnish": "Lime wedge and splash of lime juice"
     },
 
@@ -293,7 +307,8 @@
             "amber rum": 2,
             "honey syrup": 0.5,
             "lemon juice": 0.5
-        }
+        },
+        "profile": ["tangy", "citrusy"]
     },
 
     "Pink Gin": {
@@ -444,6 +459,7 @@
             "aromatic bitters": "dash"
         },
         "perp": "stir",
+        "profile": ["strong"],
         "garnish": "Lemon twist"
     }
 }

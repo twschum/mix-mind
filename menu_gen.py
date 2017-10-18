@@ -8,12 +8,13 @@ import json
 import string
 import itertools
 from collections import OrderedDict
+from fractions import Fraction
 
 import pandas as pd
 import numpy as np
 
-ANY_SPIRIT = 'brandy, dry gin, genever, amber rum, white rum, rye whiskey'.split(',')
 ML_PER_OZ = 29.5735
+UNITS = ['oz', 'mL']
 
 def get_fraction(amount):
     numer, denom = float(amount).as_integer_ratio()
@@ -23,7 +24,7 @@ def get_fraction(amount):
     numer = numer % denom
     return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, denom)
 
-def get_ingredient_amount(name, amount, unit):
+def get_ingredient_str(name, amount, unit):
     if isinstance(amount, basestring):
         amount_str = amount
         if amount == 'dash':
@@ -63,10 +64,10 @@ def convert_to_menu(recipes, prices=True, all_=True):
             lines.append('\t"{}"'.format(info))
 
         for ingredient, amount in recipe['ingredients'].iteritems():
-            lines.append(get_ingredient_amount(ingredient, amount, unit))
+            lines.append(get_ingredient_str(ingredient, amount, unit))
 
         for ingredient, amount in recipe.get('optional', {}).iteritems():
-            linestr = "{} (optional)".format(get_ingredient_amount(ingredient, amount, unit))
+            linestr = "{} (optional)".format(get_ingredient_str(ingredient, amount, unit))
             lines.append(linestr)
 
         misc = recipe.get('misc')
@@ -117,9 +118,10 @@ def expand_recipes(df, recipes):
                     amount = dash_to_volume(amount, unit)
                 elif 'tsp' in amount:
                     try:
-                        amount = float(amount.split()[0]) * (0.125 if unit == 'oz' else 5.0)
+                        amount = float(amount.split()[0])
                     except ValueError:
-                        amount = 0.25 # XXX HAX FIXME
+                        amount = float(Fraction(amount_str.split()[0]))
+                    amount = tsp_to_volume(amount, unit)
                 else:
                     continue
             ingredients_names.append(name)
@@ -164,13 +166,17 @@ def get_bottle_by_type(df, bottle, type_):
     return row
 
 def dash_to_volume(amount, unit):
-    # TODO find numeric value in amount
+    # TODO find numeric value in amount; regex time??
     # ds = 0.62 mL
     ds = 2.0 * 0.62
     if unit == 'mL':
         return ds
     elif unit == 'oz':
         return ds / ML_PER_OZ
+
+def tsp_to_volume(amount, unit):
+    return amount * (0.125 if unit == 'oz' else 5.0)
+
 
 def get_all_bottle_combinations(df, types):
     bottle_lists = [slice_on_type(df, t)['Bottle'].tolist() for t in types]
@@ -186,8 +192,6 @@ def slice_on_type(df, type_):
         return df[df['Category'] == 'Bitters']
 
     return df[df['type'] == type_]
-
-
 
 def load_cost_df(barstock_csv, include_all=False):
     df = pd.read_csv(barstock_csv)
@@ -214,8 +218,9 @@ Example usage:
 """, formatter_class=argparse.RawTextHelpFormatter)
     p.add_argument('-v', dest='verbose', action='store_true')
     p.add_argument('-b', dest='barstock', default='Barstock - Sheet1.csv', help="Barstock csv filename")
+    p.add_argument('-r', dest='recipes', default='recipes.json', help="Barstock csv filename")
     p.add_argument('-a', dest='all', action='store_true', help="Include all recipes regardless of stock")
-    p.add_argument('-p', dest='prices', action='store_true', help="Calculate prices for example drinks based on stock")
+    p.add_argument('-p', dest='prices', action='store_true', help="Calculate and display prices for example drinks based on stock")
     p.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
     p.add_argument('-s', dest='stats', action='store_true', help="Just show some stats")
 
