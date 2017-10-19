@@ -144,7 +144,7 @@
             "simple syrup": 0.75,
             "Champagne": "Top with"
         },
-        "profile": ["tangy", "citrusy"]
+        "profile": ["tangy", "citrusy"],
         "variants": ["French 125: Use Cognac instead of gin"],
         "glass": "flute"
     },

@@ -7,7 +7,7 @@ import argparse
 import json
 import string
 import itertools
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from fractions import Fraction
 
 import pandas as pd
@@ -37,7 +37,7 @@ def get_ingredient_str(name, amount, unit):
         amount_str = str(amount)
     if unit:
         unit += ' '
-    return "\t{} {}{}".format(amount_str, unit, name)
+    return "{} {}{}".format(amount_str, unit, name)
 
 def check_stat(field, tracker, example, drink_name):
     if example[field] > tracker[field]:
@@ -45,11 +45,14 @@ def check_stat(field, tracker, example, drink_name):
         tracker['name'] = drink_name
     return tracker
 
+RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients')
+
 def convert_to_menu(recipes, prices=True, all_=True):
     """ Convert recipe json into readible format
     """
 
     menu = []
+    menu_tuples = []
     most_expensive = {'cost':0}
     most_booze = {'drinks':0}
     most_abv = {'abv': 0}
@@ -63,23 +66,30 @@ def convert_to_menu(recipes, prices=True, all_=True):
         if info:
             lines.append('\t"{}"'.format(info))
 
+        ingredients = []
         for ingredient, amount in recipe['ingredients'].iteritems():
-            lines.append(get_ingredient_str(ingredient, amount, unit))
+            item_str = get_ingredient_str(ingredient, amount, unit)
+            lines.append('\t'+item_str)
+            ingredients.append(item_str)
 
         for ingredient, amount in recipe.get('optional', {}).iteritems():
-            linestr = "{} (optional)".format(get_ingredient_str(ingredient, amount, unit))
-            lines.append(linestr)
+            item_str = "{} (optional)".format(get_ingredient_str(ingredient, amount, unit))
+            lines.append('\t'+item_str)
+            ingredients.append(item_str)
 
         misc = recipe.get('misc')
         if misc:
             lines.append("\t{}".format(misc))
+            ingredients.append(misc)
 
         garnish = recipe.get('garnish')
         if garnish:
-            lines.append("\t{}, for garnish".format(garnish))
+            garnish = "{}, for garnish".format(garnish)
+            lines.append('\t'+garnish)
+            ingredients.append(garnish)
 
         examples = recipe.get('examples')
-        if examples and prices:
+        if examples: #XXX and prices:
             lines.append("\t    Examples: ".format(examples))
             for e in examples:
                 lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
@@ -95,12 +105,14 @@ def convert_to_menu(recipes, prices=True, all_=True):
 
         if all_ or examples:
             menu.append('\n'.join(lines))
+            menu_tuples.append(RecipeContent(drink_name, info, ingredients))
+
         else:
             print "Can't make {}".format(drink_name)
     print "Most Expensive: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_expensive)
     print "Most Booze: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_booze)
     print "Highest ABV (estimate): {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_abv)
-    return menu
+    return menu, menu_tuples
 
 def expand_recipes(df, recipes):
 
@@ -120,7 +132,7 @@ def expand_recipes(df, recipes):
                     try:
                         amount = float(amount.split()[0])
                     except ValueError:
-                        amount = float(Fraction(amount_str.split()[0]))
+                        amount = float(Fraction(amount.split()[0]))
                     amount = tsp_to_volume(amount, unit)
                 else:
                     continue
@@ -223,6 +235,7 @@ Example usage:
     p.add_argument('-p', dest='prices', action='store_true', help="Calculate and display prices for example drinks based on stock")
     p.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
     p.add_argument('-s', dest='stats', action='store_true', help="Just show some stats")
+    p.add_argument('--pdf', dest='pdf', default=None, help="Generate menu as a .tex and .pdf file")
 
     return p
 
@@ -235,10 +248,14 @@ def main():
 
     df = load_cost_df(args.barstock, args.all)
     all_recipes = expand_recipes(df, base_recipes)
-    menu = convert_to_menu(all_recipes, args.prices, args.all)
+    menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all)
 
     if args.stats:  # HAX FIXME
         return
+
+    if args.pdf:
+        import formatted_menu
+        formatted_menu.format_recipes(menu_tuples, args.pdf)
 
     # TODO sorting?
 
