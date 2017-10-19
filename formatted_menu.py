@@ -39,7 +39,7 @@ def add_to_column(paracols, recipes):
                 paracols.append(italic(recipe.info +'\n'))
             for item in recipe.ingredients:
                 paracols.append(item +'\n')
-            paracols.append('\n')
+            paracols.append(Command('par'))
 
 def generate_recipes_pdf(recipes, output_filename):
 
