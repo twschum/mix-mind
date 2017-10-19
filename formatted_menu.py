@@ -11,6 +11,9 @@ class ParacolEnvironment(Environment):
     _latex_name = 'paracol'
     packages = [Package('paracol')]
 
+class SamepageEnvironment(Environment):
+    _latex_name = 'samepage'
+
 class SwitchColumn(CommandBase):
     _latex_name = 'switchcolumn'
 
@@ -30,12 +33,13 @@ def generate_title(title, subtitle):
 def add_to_column(paracols, recipes):
     for recipe in recipes:
         #with doc.create(Subsection(recipe.name, numbering=False, width=r"0.5\textwidth")):
-        paracols.append(bold(recipe.name +'\n'))
-        if recipe.info:
-            paracols.append(italic(recipe.info +'\n'))
-        for item in recipe.ingredients:
-            paracols.append(item +'\n')
-        paracols.append('\n')
+        with paracols.create(SamepageEnvironment()):
+            paracols.append(bold(recipe.name +'\n'))
+            if recipe.info:
+                paracols.append(italic(recipe.info +'\n'))
+            for item in recipe.ingredients:
+                paracols.append(item +'\n')
+            paracols.append('\n')
 
 def generate_recipes_pdf(recipes, output_filename):
 
