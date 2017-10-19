@@ -256,6 +256,7 @@ def main():
     if args.pdf:
         import formatted_menu
         formatted_menu.format_recipes(menu_tuples, args.pdf)
+        return
 
     # TODO sorting?
 
