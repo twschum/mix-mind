@@ -72,15 +72,6 @@
         "glass": "rocks"
     },
 
-    "Sidecar": {
-        "ingredients": {
-            "brandy": 2,
-            "orange liqueur": 1,
-            "lemon juice": 0.75
-        },
-        "garnish": "Sugar rim and lemon wheel"
-    },
-
     "Blackberry Garden": {
         "info": "Created after I made a batch of blackberry liqueur",
         "ingredients": {
@@ -128,6 +119,15 @@
         "profile": ["tangy", "citrusy"],
         "prep": "shake",
         "garnish": "Flamed orange peel, mint, orange, or cherry"
+    },
+
+    "Sidecar": {
+        "ingredients": {
+            "brandy": 2,
+            "orange liqueur": 1,
+            "lemon juice": 0.75
+        },
+        "garnish": "Sugar rim and lemon wheel"
     },
 
     "Box Car": {

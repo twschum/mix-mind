@@ -76,15 +76,6 @@ def generate_liquor_list(df):
     with cols.create(FlushLeft()):
         for item in bottles.Type:
             cols.append(LargeText(italic(item+'\n')))
-
-
-    '''
-    for item in bottles.itertuples(name='BottleInfo'):
-        block.append(LargeText(item.Bottle))
-        block.append(HorizontalSpace('8pt'))
-        block.append(italic(item.Type))
-        block.append(Command('\\'))
-    '''
     return listing
 
 
@@ -168,7 +159,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     tagline = 'Get Fubar at Schubar, but, like, in a classy way'
     tagline = 'Get Fubar at Schubar on the good stuff'
     hf = PageStyle("schubarheaderfooter", header_thickness=0.4, footer_thickness=0.4)
-    with hf.create(Head('C')):
+    with hf.create(Head('L')):
         hf.append(TitleText(title))
         hf.append(Command('\\'))
         hf.append(FootnoteText(italic(tagline)))
@@ -181,9 +172,6 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     doc.preamble.append(hf)
     doc.change_document_style("schubarheaderfooter")
 
-    # TODO dont this
-    doc.append(generate_liquor_list(liquor_df))
-
     #doc.append(generate_title('@Schubar', 'I really need a tagline'))
     doc.append(Command('par')) # TODO First titles fall outside pararcols box
     # Columns setup and fill
@@ -194,6 +182,9 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
         if align_names:
             switch += '*' if (i % ncols) == 0 else ''
         paracols.append(Command(switch))
+
+    # TODO dont this
+    doc.append(generate_liquor_list(liquor_df))
 
     print "Compiling {}.pdf".format(output_filename)
     doc.generate_pdf(output_filename, clean_tex=False)
