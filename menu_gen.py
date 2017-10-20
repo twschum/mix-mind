@@ -45,7 +45,7 @@ def check_stat(field, tracker, example, drink_name):
         tracker['name'] = drink_name
     return tracker
 
-RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients')
+RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin')
 
 def convert_to_menu(recipes, prices=True, all_=True):
     """ Convert recipe json into readible format
@@ -105,7 +105,7 @@ def convert_to_menu(recipes, prices=True, all_=True):
 
         if all_ or examples:
             menu.append('\n'.join(lines))
-            menu_tuples.append(RecipeContent(drink_name, info, ingredients))
+            menu_tuples.append(RecipeContent(drink_name, info, ingredients, None, recipe.get('origin', '')))
 
         else:
             print "Can't make {}".format(drink_name)

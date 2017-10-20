@@ -68,17 +68,13 @@
         "glass": "rocks"
     },
 
-    "Mai Tai": {
+    "Sidecar": {
         "ingredients": {
-            "amber rum": 2,
-            "orange liqueur": 0.5,
-            "orgeat": 0.25,
-            "rich simple syrup": 0.25,
-            "lime juice": 0.5
+            "brandy": 2,
+            "orange liqueur": 1,
+            "lemon juice": 0.75
         },
-        "profile": ["tangy", "citrusy"],
-        "prep": "shake",
-        "garnish": "Flamed orange peel, mint, orange, or cherry"
+        "garnish": "Sugar rim and lemon wheel"
     },
 
     "Blackberry Garden": {
@@ -102,6 +98,19 @@
         },
         "profile": ["tangy", "citrusy"],
         "garnish": "Orange twist"
+    },
+
+    "Mai Tai": {
+        "ingredients": {
+            "amber rum": 2,
+            "orange liqueur": 0.5,
+            "orgeat": 0.25,
+            "rich simple syrup": 0.25,
+            "lime juice": 0.5
+        },
+        "profile": ["tangy", "citrusy"],
+        "prep": "shake",
+        "garnish": "Flamed orange peel, mint, orange, or cherry"
     },
 
     "Box Car": {
@@ -211,15 +220,6 @@
         "profile": ["tangy", "citrusy"]
     },
 
-    "Sidecar": {
-        "ingredients": {
-            "brandy": 2,
-            "orange liqueur": 1,
-            "lemon juice": 0.75
-        },
-        "garnish": "Sugar rim and lemon wheel"
-    },
-
     "Between the Sheets": {
         "info": "Popular 'sexy cocktail' of the Prohibition era",
         "ingredients": {
@@ -281,13 +281,24 @@
         }
     },
 
+    "Ruby Fizz": {
+        "ingredients": {
+            "dry gin": 2,
+            "lemon juice": 0.75,
+            "cranberry juice": 0.75,
+            "simple syrup": 0.25,
+            "club soda": "Top with"
+        },
+        "origin": "Schubar original"
+    },
+
     "Smooth Cuba Libre": {
         "ingredients": {
             "rum": 1.5,
             "cola": 6,
             "aromatic bitters": "1 to 2 dashes"
         },
-        "origin": "Schubar original",
+        "origin": "Schubar adaptation",
         "profile": ["sweet", "fruity"],
         "garnish": "Lime wedge and splash of lime juice"
     },
@@ -353,17 +364,6 @@
             "lemon juice": 0.75
         },
         "garnish": "Sugar rim and a Marischino cherry"
-    },
-
-    "Ruby Slip": {
-        "ingredients": {
-            "dry gin": 2,
-            "lemon juice": 0.75,
-            "cranberry juice": 0.75,
-            "simple syrup": 0.25,
-            "club soda": "Top with"
-        },
-        "origin": "Schubar original"
     },
 
     "Japanese Cocktail #1": {
