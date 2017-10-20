@@ -118,7 +118,7 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, markup=False, examples=False, liquor_df=None):
+def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, markup=False, examples=False, liquor_df=None, ldf_own_page=False):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """
@@ -128,10 +128,10 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
 
     # Determine some settings based on the number of cols
     if ncols == 1:
-        side_margin = '2.0in'
+        side_margin = '1.75in'
         colsep = '44pt'
     elif ncols == 2:
-        side_margin = '1.0in'
+        side_margin = '0.8in'
         colsep = '50pt'
     elif ncols == 3:
         side_margin = '0.5in'
@@ -186,8 +186,9 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
             switch += '*' if (i % ncols) == 0 else ''
         paracols.append(Command(switch))
 
-    # TODO dont this
-    append_liquor_list(doc, liquor_df, own_page=False)
+    # append a page on the ingredients
+    if not liquor_df.empty:
+        append_liquor_list(doc, liquor_df, own_page=ldf_own_page)
 
     print "Compiling {}.pdf".format(output_filename)
     doc.generate_pdf(output_filename, clean_tex=False)

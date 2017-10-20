@@ -262,6 +262,7 @@ Example usage:
     pdf_parser.add_argument('-m', dest='markup', default=1, type=float, help="Drink markup: total = ceil(base_cost*markup)")
     pdf_parser.add_argument('-e', dest='examples', action='store_true', help="Show example recipes")
     pdf_parser.add_argument('-l', dest='liquor_list', action='store_true', help="Show list of the available ingredients")
+    pdf_parser.add_argument('-L', dest='liquor_list_own_page', action='store_true', help="Show list of the available ingredients on a separate page")
     pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output")
     pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
     pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
@@ -279,6 +280,7 @@ def main():
         with open(args.load_cache) as fp:
             menu_tuples = pickle.load(fp)
             print "Loaded recipe cache file {}".format(args.load_cache)
+        ingredient_df = pandas.read_pickle(args.load_cache+'.dfpkl')
     else:
         with open('recipes.json') as fp:
             base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
@@ -291,11 +293,13 @@ def main():
         with open(args.save_cache, 'w') as fp:
             pickle.dump(menu_tuples, fp)
             print "Saved recipe cache as {}".format(args.save_cache)
+        ingredient_df.to_pickle(args.save_cache+'.dfpkl')
 
     if args.command == 'pdf' and args.pdf_filename:
         import formatted_menu
-        ingredient_df = df if args.liquor_list else None
-        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align, args.debug, args.prices, args.markup, args.examples, ingredient_df)
+        ingredient_df = df if args.liquor_list else pd.DataFrame()
+        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align,
+                args.debug, args.prices, args.markup, args.examples, ingredient_df, args.liquor_list_own_page)
         return
 
     if args.write:
