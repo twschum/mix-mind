@@ -83,7 +83,7 @@ def format_recipe(recipe):
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
+def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """
@@ -92,7 +92,10 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
     pylatex.config.active = pylatex.config.Version1(indent=False)
 
     # Determine some settings based on the number of cols
-    if ncols == 2:
+    if ncols == 1:
+        side_margin = '2.5in'
+        colsep = '44pt'
+    elif ncols == 2:
         side_margin = '1.0in'
         colsep = '80pt'
     elif ncols == 3:
@@ -100,7 +103,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
         colsep = '44pt'
     else:
         side_margin = '0.5in'
-        colsep = '44pt'
+        colsep = '30pt'
 
     # Document setup
     doc_opts = {
@@ -109,6 +112,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
             'bottom': '0.75in',
             'left': side_margin,
             'right': side_margin,
+            'showframe': debug,
         }
     }
     doc = Document(**doc_opts)
@@ -118,11 +122,15 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
     doc.preamble.append(Command(r'renewcommand*\ttdefault', extra_arguments='cmvtt'))
     doc.preamble.append(Command(r'renewcommand*\familydefault', extra_arguments=NoEscape(r'\ttdefault')))
 
-    hf = PageStyle("schubarheaderfooter", header_thickness=0.5, footer_thickness=0.5)
-    with hf.create(Head('L')):
-        #hf.append(Command('\\'))
+    # Header with title, tagline, page number right, date left
+    # Footer with key to denote someting about drinks
+    hf = PageStyle("schubarheaderfooter", header_thickness=0.4, footer_thickness=0.4)
+    with hf.create(Head('C')):
         hf.append(TitleText('@Schubar'))
-        hf.append(FootnoteText(italic('\nGet Fubar at Schubar, but, like, in a classy way')))
+        hf.append(Command('\\'))
+        hf.append(FootnoteText(italic('Get Fubar at Schubar, but, like, in a classy way')))
+    with hf.create(Head('L')):
+        hf.append(Command('thepage'))
     with hf.create(Head('R')):
         hf.append(time.strftime("%b %d, %Y"))
     with hf.create(Foot('C')):
@@ -133,6 +141,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
     #doc.append(generate_title('@Schubar', 'I really need a tagline'))
 
     doc.append(Command('setlength', NoEscape('\columnsep'), extra_arguments=Arguments('44pt')))
+    doc.append(Command('par')) # TODO First titles fall outside pararcols box
     # Columns setup and fill
     paracols = add_paracols_environment(doc, ncols, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
