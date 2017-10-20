@@ -1,5 +1,6 @@
 {
     "Martini": {
+        "info": "The \"King of Cocktails\"",
         "ingredients": {
             "dry gin": 2.5,
             "dry vermouth": 0.5
@@ -18,6 +19,7 @@
     },
 
     "Manhattan": {
+        "info": "An example of the perfect marriage between spirit, vermouth, & bitters",
         "ingredients": {
             "rye whiskey": 2,
             "sweet vermouth": 1,
@@ -42,6 +44,7 @@
     },
 
     "Rye Whiskey Sour": {
+        "info": "The most popular drink among regulars",
         "ingredients": {
             "rye whiskey": 1.5,
             "simple syrup": 0.75,
@@ -92,6 +95,7 @@
     },
 
     "Bee's Knees": {
+        "info": "Gin sour with honey -doesn't get much better",
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
@@ -102,7 +106,7 @@
     },
 
     "Honey Flannel": {
-        "info": "The best thing to do with fresh on a chill day",
+        "info": "The best thing to do with fresh honey on a crisp day",
         "ingredients": {
             "amber rum": 1.5,
             "brandy": 0.75,
@@ -113,6 +117,7 @@
     },
 
     "Mai Tai": {
+        "info": "Legendary tiki cocktail taken back to its roots",
         "ingredients": {
             "amber rum": 2,
             "orange liqueur": 0.5,
@@ -126,6 +131,7 @@
     },
 
     "Box Car": {
+        "info": "Gin cousin to the Sidecar",
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
@@ -136,6 +142,7 @@
     },
 
     "Bronx": {
+        "info": "was ranked number three in \"The World's 10 Most Famous Cocktails in 1934\" after the Martini and Manhattan",
         "ingredients": {
             "dry gin": 1.5,
             "orange juice": 1.5,
@@ -453,6 +460,15 @@
         },
         "origin": "Cocktail Boothby's American Bar-Tender, 1891",
         "garnish": "Lime twist (or garlic clove, to keep away the namesake)"
+    },
+
+    "Aquavit Gimlet": {
+        "info": "Aquavit is a traditional scandinavian spirit with caraway and dill as the primary botanicals",
+        "ingredients": {
+            "aquavit": 1.5,
+            "lime juice": 0.75,
+            "simple syrup": 0.5
+        }
     },
 
     "Turf Cocktail": {

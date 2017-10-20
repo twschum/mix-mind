@@ -44,7 +44,7 @@ def superscript(item):
 
 
 def generate_title(title, subtitle):
-    titleblock = center()
+    titleblock = Center()
     titleblock.append(titletext(bold(title)))
     titleblock.append(command('\\'))
     titleblock.append(footnotetext(italic(subtitle)))
@@ -54,8 +54,20 @@ def generate_title(title, subtitle):
     return titleblock
 
 def generate_liquor_list(df):
-    pass
-
+    bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
+    block = Center()
+    block.append(HRuleFill())
+    block.append(Command('\\'))
+    block.append(VerticalSpace('16pt'))
+    block.append(TitleText("Included Ingredients"))
+    block.append(Command('\\'))
+    block.append(VerticalSpace('12pt'))
+    for item in bottles.itertuples(name='BottleInfo'):
+        block.append(LargeText(item.Bottle))
+        block.append(HorizontalSpace('8pt'))
+        block.append(italic(item.Type))
+        block.append(Command('\\'))
+    return block
 
 
 def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
@@ -164,8 +176,8 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
             switch += '*' if (i % ncols) == 0 else ''
         paracols.append(Command(switch))
 
-    if liquor_df:
-        doc.append(generate_liquor_list(liquor_df))
+    # TODO dont this
+    doc.append(generate_liquor_list(liquor_df))
 
     print "Compiling {}.pdf".format(output_filename)
     doc.generate_pdf(output_filename, clean_tex=False)
