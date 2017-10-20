@@ -285,7 +285,7 @@ def main():
 
     if args.command == 'pdf' and args.pdf_filename:
         import formatted_menu
-        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align, args.debug)
+        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align, args.debug, args.prices)
         return
 
     if args.write:

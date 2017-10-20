@@ -101,6 +101,17 @@
         "garnish": "Orange twist"
     },
 
+    "Honey Flannel": {
+        "info": "The best thing to do with fresh on a chill day",
+        "ingredients": {
+            "amber rum": 1.5,
+            "brandy": 0.75,
+            "honey syrup": 0.75,
+            "lemon juice": 0.75
+        },
+        "origin": "Schubar original"
+    },
+
     "Mai Tai": {
         "ingredients": {
             "amber rum": 2,
@@ -147,13 +158,13 @@
         "profile": ["tangy", "citrusy"]
     },
 
-    "Honey Flannel": {
-        "info": "The best thing to do with fresh on a chill day",
+    "Ruby Fizz": {
         "ingredients": {
-            "amber rum": 1.5,
-            "brandy": 0.75,
-            "honey syrup": 0.75,
-            "lemon juice": 0.75
+            "dry gin": 2,
+            "lemon juice": 0.75,
+            "cranberry juice": 0.75,
+            "simple syrup": 0.25,
+            "club soda": "Top with"
         },
         "origin": "Schubar original"
     },
@@ -294,17 +305,6 @@
         }
     },
 
-    "Ruby Fizz": {
-        "ingredients": {
-            "dry gin": 2,
-            "lemon juice": 0.75,
-            "cranberry juice": 0.75,
-            "simple syrup": 0.25,
-            "club soda": "Top with"
-        },
-        "origin": "Schubar original"
-    },
-
     "Smooth Cuba Libre": {
         "ingredients": {
             "rum": 1.5,
@@ -315,6 +315,7 @@
         "profile": ["sweet", "fruity"],
         "garnish": "Lime wedge and splash of lime juice"
     },
+
     "Jamaica Honey Bee": {
         "ingredients": {
             "amber rum": 2,

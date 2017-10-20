@@ -2,7 +2,7 @@ import pylatex.config
 from pylatex.base_classes import Environment, CommandBase, Arguments, Options
 from pylatex.package import Package
 from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniPage, \
-        LineBreak, VerticalSpace, Head, Foot, PageStyle, Center, Itemize, \
+        LineBreak, VerticalSpace, Head, Foot, PageStyle, Center, Itemize, HFill, \
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
@@ -24,6 +24,11 @@ def add_paracols_environment(doc, ncols, sloppy=True):
     doc.append(paracols)
     return paracols
 
+class HRuleFill(CommandBase):
+    _latex_name = 'hrulefill'
+
+class DotFill(CommandBase):
+    _latex_name = 'dotfill'
 
 class SamepageEnvironment(Environment):
     _latex_name = 'samepage'
@@ -40,13 +45,11 @@ def superscript(item):
 
 def generate_title(title, subtitle):
     titleblock = Center()
-    titleblock.append(Command('LARGE'))
-    titleblock.append(bold(title))
+    titleblock.append(TitleText(bold(title)))
     titleblock.append(Command('\\'))
-    titleblock.append(Command('small'))
-    titleblock.append(italic(subtitle))
+    titleblock.append(FootnoteText(italic(subtitle)))
     titleblock.append(Command('\\'))
-    titleblock.append(Command('hrulefill'))
+    titleblock.append(HRuleFill())
     titleblock.append('\n')
     return titleblock
 
@@ -56,7 +59,7 @@ def add_to_column(paracols, recipes):
         paracols.append(format_recipe(recipe))
 
 
-def format_recipe(recipe):
+def format_recipe(recipe, show_price=True, show_examples=True):
     """ Return the recipe in a paragraph in a samepage
     """
     recipe_page = SamepageEnvironment()
@@ -66,6 +69,15 @@ def format_recipe(recipe):
         name_line.append(superscript(Command('dag')))
     elif 'schubar adaptation' in recipe.origin.lower():
         name_line.append(superscript(Command('ddag')))
+    else:
+        name_line.append(' ')
+    if show_price and recipe.examples:
+        prices = [e['cost'] for e in recipe.examples]
+        price = '{:.2f} - {:.2f}'.format(min(prices), max(prices))
+        price = '{}'.format(int(max(prices)*3+1))
+        name_line.append(DotFill())
+        name_line.append(superscript('$'))
+        name_line.append(price)
     name_line.append('\n')
     recipe_page.append(name_line)
 
@@ -79,11 +91,15 @@ def format_recipe(recipe):
         #recipe_page.append(VerticalSpace('8pt'))
         recipe_page.append(italic(variant +'\n')) # TODO real indenting
 
+    if show_examples and recipe.examples and recipe.name != 'The Cocktail':
+        for e in recipe.examples:
+            recipe_page.append(FootnoteText("${cost:.2f} | {bottles}\n".format(**e)))
+
     recipe_page.append(Command('par'))
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False):
+def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, examples=False, liquor_df=None):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """
@@ -93,7 +109,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
 
     # Determine some settings based on the number of cols
     if ncols == 1:
-        side_margin = '2.5in'
+        side_margin = '2.0in'
         colsep = '44pt'
     elif ncols == 2:
         side_margin = '1.0in'
@@ -124,17 +140,20 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
 
     # Header with title, tagline, page number right, date left
     # Footer with key to denote someting about drinks
+    title = '@Schubar'
+    tagline = 'Get Fubar at Schubar, but, like, in a classy way'
+    tagline = 'Get Fubar at Schubar on the good stuff'
     hf = PageStyle("schubarheaderfooter", header_thickness=0.4, footer_thickness=0.4)
     with hf.create(Head('C')):
-        hf.append(TitleText('@Schubar'))
+        hf.append(TitleText(title))
         hf.append(Command('\\'))
-        hf.append(FootnoteText(italic('Get Fubar at Schubar, but, like, in a classy way')))
+        hf.append(FootnoteText(italic(tagline)))
     with hf.create(Foot('R')):
         hf.append(FootnoteText(Command('thepage')))
     with hf.create(Head('R')):
         hf.append(FootnoteText(time.strftime("%b %d, %Y")))
     with hf.create(Foot('C')):
-        hf.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))
+        hf.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))#,  *bla, bla raw eggs"))
     doc.preamble.append(hf)
     doc.change_document_style("schubarheaderfooter")
 
@@ -150,6 +169,9 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
         if align_names:
             switch += '*' if (i % ncols) == 0 else ''
         paracols.append(Command(switch))
+
+    if liquor_df:
+        doc.append(generate_liquor_list(liquor_df))
 
     print "Compiling {}.pdf".format(output_filename)
     doc.generate_pdf(output_filename, clean_tex=False)

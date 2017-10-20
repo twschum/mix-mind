@@ -1,6 +1,6 @@
 Category,Type,Bottle,In Stock,Proof,Size (mL),Price Paid,Size (oz),$/mL,$/oz,$/1.5oz
 Spirit,Brandy,E&J X.O.,1,80,750,$13.99,25.4,$0.019,$0.55,$0.83
-Spirit,Dry Gin,Michigin,1,90,750,$35.95,25.4,$0.048,$1.42,$2.13
+Spirit,Dry Gin,Michigin,0,90,750,$35.95,25.4,$0.048,$1.42,$2.13
 Spirit,Dry Gin,Kinckerbocker,1,85,750,$24.99,25.4,$0.033,$0.99,$1.48
 Spirit,Dry Gin,Bombay Sapphire,1,94,750,$21.99,25.4,$0.029,$0.87,$1.30
 Spirit,Dry Gin,New Amsterdam,1,80,1750,$22.99,59.2,$0.013,$0.39,$0.58
