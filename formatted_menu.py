@@ -6,6 +6,7 @@ from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniP
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
+import time
 
 class TitleText(HugeText):
     _latex_name = 'LARGE'
@@ -113,7 +114,9 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
         #hf.append(Command('\\'))
         hf.append(TitleText('@Schubar'))
         hf.append('\n')
-        hf.append(FootnoteText(italic('I really need a tagline')))
+        hf.append(FootnoteText(italic('Get Fubar at Schubar, but, like, in a classy way')))
+    with hf.create(Head('R')):
+        hf.append(time.strftime("%b %d, %Y"))
     with hf.create(Foot('C')):
         hf.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))
     doc.preamble.append(hf)
