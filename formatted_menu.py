@@ -16,10 +16,11 @@ class ParacolEnvironment(Environment):
     packages = [Package('paracol')]
 class SloppyParacolsEnvironment(Environment):
     _latex_name = 'sloppypar'
-def add_paracols_environment(doc, ncols):
-    sloppy = SloppyParacolsEnvironment()
+def add_paracols_environment(doc, ncols, sloppy=True):
     paracols = ParacolEnvironment(arguments=Arguments(ncols))
-    doc.append(sloppy)
+    if sloppy:
+        sloppy = SloppyParacolsEnvironment()
+        doc.append(sloppy)
     doc.append(paracols)
     return paracols
 
@@ -102,7 +103,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
     doc_opts = {
         'geometry_options': {
             'top': '1.0in',
-            'bottom': '1.0in',
+            'bottom': '0.75in',
             'left': side_margin,
             'right': side_margin,
         }
@@ -130,7 +131,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
 
     doc.append(Command('setlength', NoEscape('\columnsep'), extra_arguments=Arguments('44pt')))
     # Columns setup and fill
-    paracols = add_paracols_environment(doc, ncols)
+    paracols = add_paracols_environment(doc, ncols, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
         paracols.append(format_recipe(recipe))
         switch = 'switchcolumn'
