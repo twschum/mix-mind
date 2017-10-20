@@ -47,7 +47,7 @@ def check_stat(field, tracker, example, drink_name):
         tracker['name'] = drink_name
     return tracker
 
-RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin,examples,prep,ice,glass')
+RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin,examples,prep,ice,glass,max_cost')
 
 def convert_to_menu(recipes, prices=True, all_=True, stats=True):
     """ Convert recipe json into readible format
@@ -112,7 +112,7 @@ def convert_to_menu(recipes, prices=True, all_=True, stats=True):
 
         if all_ or examples:
             menu.append('\n'.join(lines))
-            menu_tuples.append(RecipeContent(drink_name, info, ingredients, variants, origin, examples, prep, ice, glass))
+            menu_tuples.append(RecipeContent(drink_name, info, ingredients, variants, origin, examples, prep, ice, glass, recipe.get('max_cost',0)))
         else:
             print "Can't make {}".format(drink_name)
 
@@ -166,6 +166,12 @@ def expand_recipes(df, recipes):
                              'abv': abv,
                              'drinks': std_drinks})
         recipes[drink_name]['examples'] = examples
+        # calculate the max price
+        price = 0
+        if examples:
+            prices = [e['cost'] for e in examples]
+            price = max(prices)
+        recipes[drink_name]['max_cost'] = price
 
     return recipes
 
@@ -253,6 +259,9 @@ Example usage:
     pdf_parser = subparsers.add_parser('pdf', help='Options for generating a pdf via LaTeX integration')
     pdf_parser.add_argument('pdf_filename', default=None, nargs='?', help="Basename of the pdf and tex files")
     pdf_parser.add_argument('-n', dest='ncols', default=2, type=int, help="Number of columns to use for the menu")
+    pdf_parser.add_argument('-m', dest='markup', default=1, type=float, help="Drink markup: total = ceil(base_cost*markup)")
+    pdf_parser.add_argument('-e', dest='examples', action='store_true', help="Show example recipes")
+    pdf_parser.add_argument('-l', dest='liquor_list', action='store_true', help="Show list of the available ingredients")
     pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output")
     pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
     pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
@@ -285,7 +294,8 @@ def main():
 
     if args.command == 'pdf' and args.pdf_filename:
         import formatted_menu
-        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align, args.debug, args.prices)
+        ingredient_df = df if args.liquor_list else None
+        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align, args.debug, args.prices, args.markup, args.examples, ingredient_df)
         return
 
     if args.write:

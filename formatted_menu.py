@@ -2,7 +2,7 @@ import pylatex.config
 from pylatex.base_classes import Environment, CommandBase, Arguments, Options
 from pylatex.package import Package
 from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniPage, \
-        LineBreak, VerticalSpace, Head, Foot, PageStyle, Center, Itemize, HFill, \
+        LineBreak, VerticalSpace, HorizontalSpace, Head, Foot, PageStyle, Center, Itemize, HFill, \
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
@@ -44,22 +44,21 @@ def superscript(item):
 
 
 def generate_title(title, subtitle):
-    titleblock = Center()
-    titleblock.append(TitleText(bold(title)))
-    titleblock.append(Command('\\'))
-    titleblock.append(FootnoteText(italic(subtitle)))
-    titleblock.append(Command('\\'))
-    titleblock.append(HRuleFill())
+    titleblock = center()
+    titleblock.append(titletext(bold(title)))
+    titleblock.append(command('\\'))
+    titleblock.append(footnotetext(italic(subtitle)))
+    titleblock.append(command('\\'))
+    titleblock.append(hrulefill())
     titleblock.append('\n')
     return titleblock
 
-
-def add_to_column(paracols, recipes):
-    for recipe in recipes:
-        paracols.append(format_recipe(recipe))
+def generate_liquor_list(df):
+    pass
 
 
-def format_recipe(recipe, show_price=True, show_examples=True):
+
+def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
     """ Return the recipe in a paragraph in a samepage
     """
     recipe_page = SamepageEnvironment()
@@ -69,12 +68,8 @@ def format_recipe(recipe, show_price=True, show_examples=True):
         name_line.append(superscript(Command('dag')))
     elif 'schubar adaptation' in recipe.origin.lower():
         name_line.append(superscript(Command('ddag')))
-    else:
-        name_line.append(' ')
-    if show_price and recipe.examples:
-        prices = [e['cost'] for e in recipe.examples]
-        price = '{:.2f} - {:.2f}'.format(min(prices), max(prices))
-        price = '{}'.format(int(max(prices)*3+1))
+    if show_price and recipe.max_cost:
+        price = int(((recipe.max_cost+1) * markup) +1) # Addative or multiplicative markups?
         name_line.append(DotFill())
         name_line.append(superscript('$'))
         name_line.append(price)
@@ -82,13 +77,12 @@ def format_recipe(recipe, show_price=True, show_examples=True):
     recipe_page.append(name_line)
 
     if recipe.info:
-        #paracols.append(Command('sloppy'))
         recipe_page.append(italic(recipe.info +'\n'))
     for item in recipe.ingredients:
         recipe_page.append(item +'\n')
 
     for variant in recipe.variants:
-        #recipe_page.append(VerticalSpace('8pt'))
+        recipe_page.append(HorizontalSpace('8pt'))
         recipe_page.append(italic(variant +'\n')) # TODO real indenting
 
     if show_examples and recipe.examples and recipe.name != 'The Cocktail':
@@ -99,7 +93,7 @@ def format_recipe(recipe, show_price=True, show_examples=True):
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, examples=False, liquor_df=None):
+def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, markup=False, examples=False, liquor_df=None):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """
@@ -164,7 +158,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     # Columns setup and fill
     paracols = add_paracols_environment(doc, ncols, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
-        paracols.append(format_recipe(recipe))
+        paracols.append(format_recipe(recipe, show_price=prices, show_examples=examples, markup=markup))
         switch = 'switchcolumn'
         if align_names:
             switch += '*' if (i % ncols) == 0 else ''
