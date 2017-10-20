@@ -73,7 +73,7 @@ def format_recipe(recipe):
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename):
+def generate_recipes_pdf(recipes, output_filename, ncols):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """

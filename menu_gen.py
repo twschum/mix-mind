@@ -229,16 +229,22 @@ def get_parser():
 Example usage:
     ./program -v -d
 """, formatter_class=argparse.RawTextHelpFormatter)
+    subparsers = p.add_subparsers(help='commands', dest='command')
+
     p.add_argument('-v', dest='verbose', action='store_true')
     p.add_argument('-b', dest='barstock', default='Barstock - Sheet1.csv', help="Barstock csv filename")
     p.add_argument('-r', dest='recipes', default='recipes.json', help="Barstock csv filename")
     p.add_argument('-a', dest='all', action='store_true', help="Include all recipes regardless of stock")
     p.add_argument('-p', dest='prices', action='store_true', help="Calculate and display prices for example drinks based on stock")
-    p.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
     p.add_argument('-s', dest='stats', action='store_true', help="Just show some stats")
-    p.add_argument('--pdf', dest='pdf', default=None, help="Generate menu as a .tex and .pdf file")
-    p.add_argument('--cpickle', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
-    p.add_argument('--lpickle', help="Load the generated menu that can be consumed by the LaTeX menu generator")
+    txt_parser = subparsers.add_parser('txt', help='Not a pdf')
+    txt_parser.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
+
+    pdf_parser = subparsers.add_parser('pdf', help='Options for generating a pdf via LaTeX integration')
+    pdf_parser.add_argument('pdf_filename', default=None, nargs='?', help="Basename of the pdf and tex files")
+    pdf_parser.add_argument('-n', dest='ncols', default=2, type=int, help="Number of columns to use for the menu")
+    pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
+    pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
     return p
 
@@ -246,9 +252,10 @@ def main():
 
     args = get_parser().parse_args()
 
-    if args.lpickle:
-        with open(args.lpickle) as fp:
+    if args.load_cache:
+        with open(args.load_cache) as fp:
             menu_tuples = pickle.load(fp)
+            print "Loaded recipe cache file {}".format(args.load_cache)
     else:
         with open('recipes.json') as fp:
             base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
@@ -257,19 +264,19 @@ def main():
         all_recipes = expand_recipes(df, base_recipes)
         menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all)
 
-    if args.cpickle:
-        with open('{}.pkl'.format(args.cpickle), 'w') as fp:
+    if args.save_cache:
+        cachefile = '{}.pkl'.format(args.save_cache)
+        with open(cachefile, 'w') as fp:
             pickle.dump(menu_tuples, fp)
+            print "Saved recipe cache as {}".format(args.cachefile)
 
-    if args.pdf:
+    if args.command == 'pdf':
         import formatted_menu
-        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf)
+        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols)
         return
 
     if args.stats:  # HAX FIXME
         return
-
-    # TODO sorting?
 
     if args.write:
         with open(args.write, 'w') as fp:
