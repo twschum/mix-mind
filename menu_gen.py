@@ -5,6 +5,7 @@ Turn recipes json into a readable menu
 
 import argparse
 import json
+import cPickle as pickle
 import string
 import itertools
 from collections import OrderedDict, namedtuple
@@ -236,6 +237,8 @@ Example usage:
     p.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
     p.add_argument('-s', dest='stats', action='store_true', help="Just show some stats")
     p.add_argument('--pdf', dest='pdf', default=None, help="Generate menu as a .tex and .pdf file")
+    p.add_argument('--cpickle', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
+    p.add_argument('--lpickle', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
     return p
 
@@ -243,19 +246,27 @@ def main():
 
     args = get_parser().parse_args()
 
-    with open('recipes.json') as fp:
-        base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+    if args.lpickle:
+        with open(args.lpickle) as fp:
+            menu_tuples = pickle.load(fp)
+    else:
+        with open('recipes.json') as fp:
+            base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
 
-    df = load_cost_df(args.barstock, args.all)
-    all_recipes = expand_recipes(df, base_recipes)
-    menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all)
+        df = load_cost_df(args.barstock, args.all)
+        all_recipes = expand_recipes(df, base_recipes)
+        menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all)
 
-    if args.stats:  # HAX FIXME
-        return
+    if args.cpickle:
+        with open('{}.pkl'.format(args.cpickle), 'w') as fp:
+            pickle.dump(menu_tuples, fp)
 
     if args.pdf:
         import formatted_menu
         formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf)
+        return
+
+    if args.stats:  # HAX FIXME
         return
 
     # TODO sorting?
