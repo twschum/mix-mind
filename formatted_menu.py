@@ -1,11 +1,14 @@
 import pylatex.config
-from pylatex.base_classes import Environment, CommandBase, Arguments
+from pylatex.base_classes import Environment, CommandBase, Arguments, Options
 from pylatex.package import Package
-from pylatex import Document, MiniPage, LineBreak, VerticalSpace, Section, Subsection, MultiColumn, Command, Center, MediumText, LargeText, NoEscape, Head, Foot, PageStyle
+from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniPage, \
+        LineBreak, VerticalSpace, Head, Foot, PageStyle, Center, \
+        FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
-class TitleEnvironment(Environment):
-    _latex_name = 'center'
+
+class TitleText(HugeText):
+    _latex_name = 'LARGE'
 
 class ParacolEnvironment(Environment):
     _latex_name = 'paracol'
@@ -73,7 +76,7 @@ def format_recipe(recipe):
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename, ncols):
+def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """
@@ -81,48 +84,52 @@ def generate_recipes_pdf(recipes, output_filename, ncols):
     print "Generating {}.tex".format(output_filename)
     pylatex.config.active = pylatex.config.Version1(indent=False)
 
+    # Determine some settings based on the number of cols
+    if ncols == 2:
+        side_margin = '1.0in'
+        colsep = '80pt'
+    elif ncols == 3:
+        side_margin = '0.5in'
+        colsep = '44pt'
 
     # Document setup
     doc_opts = {
-        'geometry_options':  {"margin": "0.5in"}
+        'geometry_options': {
+            'top': '1.0in',
+            'bottom': '1.0in',
+            'left': side_margin,
+            'right': side_margin,
+        }
     }
     doc = Document(**doc_opts)
-    #doc.documentclass = Command('documentclass', options=Options('10pt', 'portrait', 'letterpaper'))
+    doc.documentclass = Command('documentclass', options=Options('11pt', 'portrait', 'letterpaper'), arguments=Arguments('article'))
 
     # http://www.tug.dk/FontCatalogue/computermoderntypewriterproportional/
     doc.preamble.append(Command(r'renewcommand*\ttdefault', extra_arguments='cmvtt'))
     doc.preamble.append(Command(r'renewcommand*\familydefault', extra_arguments=NoEscape(r'\ttdefault')))
 
-    footer = PageStyle("footnotekey", footer_thickness=0.5)
-    with footer.create(Foot('C')):
-        footer.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))
-    doc.preamble.append(footer)
-    doc.change_document_style("footnotekey")
+    hf = PageStyle("schubarheaderfooter", header_thickness=0.5, footer_thickness=0.5)
+    with hf.create(Head('L')):
+        #hf.append(Command('\\'))
+        hf.append(TitleText('@Schubar'))
+        hf.append('\n')
+        hf.append(FootnoteText(italic('I really need a tagline')))
+    with hf.create(Foot('C')):
+        hf.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))
+    doc.preamble.append(hf)
+    doc.change_document_style("schubarheaderfooter")
 
-    doc.append(generate_title('@Schubar', 'I really need a tagline'))
+    #doc.append(generate_title('@Schubar', 'I really need a tagline'))
 
     doc.append(Command('setlength', NoEscape('\columnsep'), extra_arguments=Arguments('44pt')))
     # Columns setup and fill
-    ncols = 2
     paracols = add_paracols_environment(doc, ncols)
     for i, recipe in enumerate(recipes, 1):
         paracols.append(format_recipe(recipe))
         switch = 'switchcolumn'
-        switch += '*' if (i % ncols) == 0 else ''
+        if align_names:
+            switch += '*' if (i % ncols) == 0 else ''
         paracols.append(Command(switch))
-
-    r'''
-    The paracol environment may also start with a
-    spanning text by specifying it as the optional argument
-    of \begin{paracol}. For example, at the
-    beginning of this document, the author put;
-    \begin{paracol}{2}[\section{Introduction}]
-    add_to_column(paracols, recipes[::ncols])
-    paracols.append(SwitchColumn())
-    add_to_column(paracols, recipes[1::ncols])
-    paracols.append(SwitchColumn())
-    add_to_column(paracols, recipes[2::ncols])
-    '''
 
     print "Compiling {}.pdf".format(output_filename)
     doc.generate_pdf(output_filename, clean_tex=False)

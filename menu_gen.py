@@ -243,6 +243,7 @@ Example usage:
     pdf_parser = subparsers.add_parser('pdf', help='Options for generating a pdf via LaTeX integration')
     pdf_parser.add_argument('pdf_filename', default=None, nargs='?', help="Basename of the pdf and tex files")
     pdf_parser.add_argument('-n', dest='ncols', default=2, type=int, help="Number of columns to use for the menu")
+    pdf_parser.add_argument('--no-align', action='store_false', help="Do not align drink names")
     pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
     pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
@@ -252,7 +253,7 @@ def main():
 
     args = get_parser().parse_args()
 
-    if args.load_cache:
+    if args.command == 'pdf' and args.load_cache:
         with open(args.load_cache) as fp:
             menu_tuples = pickle.load(fp)
             print "Loaded recipe cache file {}".format(args.load_cache)
@@ -264,7 +265,7 @@ def main():
         all_recipes = expand_recipes(df, base_recipes)
         menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all)
 
-    if args.save_cache:
+    if args.command == 'pdf' and args.save_cache:
         cachefile = '{}.pkl'.format(args.save_cache)
         with open(cachefile, 'w') as fp:
             pickle.dump(menu_tuples, fp)
@@ -272,7 +273,7 @@ def main():
 
     if args.command == 'pdf':
         import formatted_menu
-        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols)
+        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.no_align)
         return
 
     if args.stats:  # HAX FIXME
