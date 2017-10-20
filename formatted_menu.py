@@ -3,6 +3,7 @@ from pylatex.base_classes import Environment, CommandBase, Arguments, Options
 from pylatex.package import Package
 from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniPage, \
         LineBreak, VerticalSpace, HorizontalSpace, Head, Foot, PageStyle, Center, Itemize, HFill, \
+        FlushRight, FlushLeft, \
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
@@ -16,7 +17,8 @@ class ParacolEnvironment(Environment):
     packages = [Package('paracol')]
 class SloppyParacolsEnvironment(Environment):
     _latex_name = 'sloppypar'
-def add_paracols_environment(doc, ncols, sloppy=True):
+def add_paracols_environment(doc, ncols, columnsep, sloppy=True):
+    doc.append(Command('setlength', NoEscape('\columnsep'), extra_arguments=Arguments(columnsep)))
     paracols = ParacolEnvironment(arguments=Arguments(ncols))
     if sloppy:
         sloppy = SloppyParacolsEnvironment()
@@ -55,19 +57,35 @@ def generate_title(title, subtitle):
 
 def generate_liquor_list(df):
     bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
+    listing = SamepageEnvironment()
     block = Center()
     block.append(HRuleFill())
     block.append(Command('\\'))
     block.append(VerticalSpace('16pt'))
     block.append(TitleText("Included Ingredients"))
     block.append(Command('\\'))
-    block.append(VerticalSpace('12pt'))
+    listing.append(block)
+    listing.append(VerticalSpace('12pt'))
+
+    cols = add_paracols_environment(listing, 2, '8pt', sloppy=False)
+    with cols.create(FlushRight()):
+        for item in bottles.Bottle:
+            cols.append(LargeText(item))
+            cols.append(Command('\\'))
+    cols.append(Command('switchcolumn'))
+    with cols.create(FlushLeft()):
+        for item in bottles.Type:
+            cols.append(LargeText(italic(item+'\n')))
+
+
+    '''
     for item in bottles.itertuples(name='BottleInfo'):
         block.append(LargeText(item.Bottle))
         block.append(HorizontalSpace('8pt'))
         block.append(italic(item.Type))
         block.append(Command('\\'))
-    return block
+    '''
+    return listing
 
 
 def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
@@ -119,7 +137,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
         colsep = '44pt'
     elif ncols == 2:
         side_margin = '1.0in'
-        colsep = '80pt'
+        colsep = '50pt'
     elif ncols == 3:
         side_margin = '0.5in'
         colsep = '44pt'
@@ -163,21 +181,19 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     doc.preamble.append(hf)
     doc.change_document_style("schubarheaderfooter")
 
-    #doc.append(generate_title('@Schubar', 'I really need a tagline'))
+    # TODO dont this
+    doc.append(generate_liquor_list(liquor_df))
 
-    doc.append(Command('setlength', NoEscape('\columnsep'), extra_arguments=Arguments('44pt')))
+    #doc.append(generate_title('@Schubar', 'I really need a tagline'))
     doc.append(Command('par')) # TODO First titles fall outside pararcols box
     # Columns setup and fill
-    paracols = add_paracols_environment(doc, ncols, sloppy=False)
+    paracols = add_paracols_environment(doc, ncols, colsep, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
         paracols.append(format_recipe(recipe, show_price=prices, show_examples=examples, markup=markup))
         switch = 'switchcolumn'
         if align_names:
             switch += '*' if (i % ncols) == 0 else ''
         paracols.append(Command(switch))
-
-    # TODO dont this
-    doc.append(generate_liquor_list(liquor_df))
 
     print "Compiling {}.pdf".format(output_filename)
     doc.generate_pdf(output_filename, clean_tex=False)
