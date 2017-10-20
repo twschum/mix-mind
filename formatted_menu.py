@@ -3,7 +3,7 @@ from pylatex.base_classes import Environment, CommandBase, Arguments, Options
 from pylatex.package import Package
 from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniPage, \
         LineBreak, VerticalSpace, HorizontalSpace, Head, Foot, PageStyle, Center, Itemize, HFill, \
-        FlushRight, FlushLeft, \
+        FlushRight, FlushLeft, NewPage, \
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
@@ -55,11 +55,14 @@ def generate_title(title, subtitle):
     titleblock.append('\n')
     return titleblock
 
-def generate_liquor_list(df):
+def append_liquor_list(doc, df, own_page):
+    if own_page:
+        doc.append(NewPage())
     bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
     listing = SamepageEnvironment()
     block = Center()
-    block.append(HRuleFill())
+    if not own_page:
+        block.append(HRuleFill())
     block.append(Command('\\'))
     block.append(VerticalSpace('16pt'))
     block.append(TitleText("Included Ingredients"))
@@ -76,7 +79,8 @@ def generate_liquor_list(df):
     with cols.create(FlushLeft()):
         for item in bottles.Type:
             cols.append(LargeText(italic(item+'\n')))
-    return listing
+
+    doc.append(listing)
 
 
 def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
@@ -172,9 +176,8 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     doc.preamble.append(hf)
     doc.change_document_style("schubarheaderfooter")
 
-    #doc.append(generate_title('@Schubar', 'I really need a tagline'))
-    doc.append(Command('par')) # TODO First titles fall outside pararcols box
     # Columns setup and fill
+    doc.append(VerticalSpace('0pt'))
     paracols = add_paracols_environment(doc, ncols, colsep, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
         paracols.append(format_recipe(recipe, show_price=prices, show_examples=examples, markup=markup))
@@ -184,7 +187,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
         paracols.append(Command(switch))
 
     # TODO dont this
-    doc.append(generate_liquor_list(liquor_df))
+    append_liquor_list(doc, liquor_df, own_page=False)
 
     print "Compiling {}.pdf".format(output_filename)
     doc.generate_pdf(output_filename, clean_tex=False)

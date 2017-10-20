@@ -181,7 +181,7 @@
             "dry gin": 1.5,
             "lemon juice": 0.75,
             "simple syrup": 0.75,
-            "Champagne": "Top with"
+            "champagne": "Top with"
         },
         "profile": ["tangy", "citrusy"],
         "variants": ["French 125: Use Cognac instead of gin"],
