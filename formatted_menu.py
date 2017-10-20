@@ -98,6 +98,9 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
     elif ncols == 3:
         side_margin = '0.5in'
         colsep = '44pt'
+    else:
+        side_margin = '0.5in'
+        colsep = '44pt'
 
     # Document setup
     doc_opts = {
