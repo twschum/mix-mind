@@ -2,7 +2,7 @@ import pylatex.config
 from pylatex.base_classes import Environment, CommandBase, Arguments, Options
 from pylatex.package import Package
 from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniPage, \
-        LineBreak, VerticalSpace, Head, Foot, PageStyle, Center, \
+        LineBreak, VerticalSpace, Head, Foot, PageStyle, Center, Itemize, \
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
@@ -73,6 +73,11 @@ def format_recipe(recipe):
         recipe_page.append(italic(recipe.info +'\n'))
     for item in recipe.ingredients:
         recipe_page.append(item +'\n')
+
+    for variant in recipe.variants:
+        #recipe_page.append(VerticalSpace('8pt'))
+        recipe_page.append(italic(variant +'\n')) # TODO real indenting
+
     recipe_page.append(Command('par'))
     return recipe_page
 
@@ -113,8 +118,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True):
     with hf.create(Head('L')):
         #hf.append(Command('\\'))
         hf.append(TitleText('@Schubar'))
-        hf.append('\n')
-        hf.append(FootnoteText(italic('Get Fubar at Schubar, but, like, in a classy way')))
+        hf.append(FootnoteText(italic('\nGet Fubar at Schubar, but, like, in a classy way')))
     with hf.create(Head('R')):
         hf.append(time.strftime("%b %d, %Y"))
     with hf.create(Foot('C')):

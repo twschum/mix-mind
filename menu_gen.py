@@ -98,7 +98,7 @@ def convert_to_menu(recipes, prices=True, all_=True):
                 most_booze = check_stat('drinks', most_booze, e, drink_name)
                 most_abv = check_stat('abv', most_abv, e, drink_name)
 
-        variants = recipe.get('variants')
+        variants = recipe.get('variants', [])
         if variants:
             lines.append("\t    Variant{}:".format('s' if len(variants) > 1 else ''))
             for v in variants:
@@ -269,7 +269,7 @@ def main():
         cachefile = '{}.pkl'.format(args.save_cache)
         with open(cachefile, 'w') as fp:
             pickle.dump(menu_tuples, fp)
-            print "Saved recipe cache as {}".format(args.cachefile)
+            print "Saved recipe cache as {}".format(cachefile)
 
     if args.command == 'pdf':
         import formatted_menu
