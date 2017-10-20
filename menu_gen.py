@@ -244,7 +244,7 @@ Example usage:
     pdf_parser.add_argument('pdf_filename', default=None, nargs='?', help="Basename of the pdf and tex files")
     pdf_parser.add_argument('-n', dest='ncols', default=2, type=int, help="Number of columns to use for the menu")
     pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output")
-    pdf_parser.add_argument('--no-align', action='store_false', help="Do not align drink names")
+    pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
     pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
     pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
@@ -274,7 +274,7 @@ def main():
 
     if args.command == 'pdf':
         import formatted_menu
-        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.no_align, args.debug)
+        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align, args.debug)
         return
 
     if args.stats:  # HAX FIXME
