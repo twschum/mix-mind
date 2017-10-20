@@ -10,6 +10,15 @@ class TitleEnvironment(Environment):
 class ParacolEnvironment(Environment):
     _latex_name = 'paracol'
     packages = [Package('paracol')]
+class SloppyParacolsEnvironment(Environment):
+    _latex_name = 'sloppypar'
+def add_paracols_environment(doc, ncols):
+    sloppy = SloppyParacolsEnvironment()
+    paracols = ParacolEnvironment(arguments=Arguments(ncols))
+    doc.append(sloppy)
+    doc.append(paracols)
+    return paracols
+
 
 class SamepageEnvironment(Environment):
     _latex_name = 'samepage'
@@ -60,6 +69,7 @@ def format_recipe(recipe):
         recipe_page.append(italic(recipe.info +'\n'))
     for item in recipe.ingredients:
         recipe_page.append(item +'\n')
+    recipe_page.append(Command('par'))
     return recipe_page
 
 
@@ -85,26 +95,21 @@ def generate_recipes_pdf(recipes, output_filename):
 
     footer = PageStyle("footnotekey", footer_thickness=0.5)
     with footer.create(Foot('C')):
-        footer.append(Command('dag'))
-        footer.append("= a Schubar Original")
-        footer.append(VerticalSpace('12pt'))
-        footer.append(Command('ddag'))
-        footer.append("= a Schubar Adaptation")
+        footer.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))
     doc.preamble.append(footer)
     doc.change_document_style("footnotekey")
 
-    doc.append(generate_title('SchuBar', 'I really need a tagline'))
+    doc.append(generate_title('@Schubar', 'I really need a tagline'))
 
+    doc.append(Command('setlength', NoEscape('\columnsep'), extra_arguments=Arguments('44pt')))
     # Columns setup and fill
-    ncols = 3
-    paracols = ParacolEnvironment(arguments=Arguments(ncols))
-    paracols.append(Command('setcolumnwidth', arguments=Arguments(NoEscape(r'0.23\textwidth,0.23\textwidth,0.23\textwidth')))) # TODO this...
+    ncols = 2
+    paracols = add_paracols_environment(doc, ncols)
     for i, recipe in enumerate(recipes, 1):
         paracols.append(format_recipe(recipe))
         switch = 'switchcolumn'
-        #switch += '*' if (i % ncols) == 0 else ''
+        switch += '*' if (i % ncols) == 0 else ''
         paracols.append(Command(switch))
-    doc.append(paracols)
 
     r'''
     The paracol environment may also start with a
