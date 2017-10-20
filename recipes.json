@@ -146,6 +146,17 @@
         "profile": ["tangy", "citrusy"]
     },
 
+    "Honey Flannel": {
+        "info": "The best thing to do with fresh on a chill day",
+        "ingredients": {
+            "amber rum": 1.5,
+            "brandy": 0.75,
+            "honey syrup": 0.75,
+            "lemon juice": 0.75
+        },
+        "origin": "Schubar original"
+    },
+
     "French 75": {
         "ingredients": {
             "dry gin": 1.5,
@@ -210,6 +221,7 @@
         "ice": "none",
         "glass": "rocks"
     },
+
 
     "White Lady": {
         "ingredients": {
@@ -302,17 +314,6 @@
         "profile": ["sweet", "fruity"],
         "garnish": "Lime wedge and splash of lime juice"
     },
-
-    "Honey Flannel": {
-        "ingredients": {
-            "amber rum": 1.5,
-            "brandy": 0.75,
-            "honey syrup": 0.75,
-            "lemon juice": 0.75
-        },
-        "origin": "Schubar original"
-    },
-
     "Jamaica Honey Bee": {
         "ingredients": {
             "amber rum": 2,
