@@ -7,7 +7,8 @@
         "optional": {
             "orange bitters": "dash"
         },
-        "variants": ["Reverse Martini: 5 parts vermouth to 1 part gin"],
+        "variants": ["Reverse Martini: 5 parts vermouth to 1 part gin",
+                     "Perfect Martini: equal parts dry and sweet vermouth"],
         "unit": "oz",
         "prep": "stir",
         "profile": ["strong"],

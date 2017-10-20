@@ -129,10 +129,10 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
         hf.append(TitleText('@Schubar'))
         hf.append(Command('\\'))
         hf.append(FootnoteText(italic('Get Fubar at Schubar, but, like, in a classy way')))
-    with hf.create(Head('L')):
-        hf.append(Command('thepage'))
+    with hf.create(Foot('R')):
+        hf.append(FootnoteText(Command('thepage')))
     with hf.create(Head('R')):
-        hf.append(time.strftime("%b %d, %Y"))
+        hf.append(FootnoteText(time.strftime("%b %d, %Y")))
     with hf.create(Foot('C')):
         hf.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))
     doc.preamble.append(hf)
