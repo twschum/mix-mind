@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """
 Turn recipes json into a readable menu
+TODO figure out how to handle recipes calling for an ingredient by name instead of type
 """
 
 import argparse
@@ -46,9 +47,9 @@ def check_stat(field, tracker, example, drink_name):
         tracker['name'] = drink_name
     return tracker
 
-RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin')
+RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin,examples,prep,ice,glass')
 
-def convert_to_menu(recipes, prices=True, all_=True):
+def convert_to_menu(recipes, prices=True, all_=True, stats=True):
     """ Convert recipe json into readible format
     """
 
@@ -61,7 +62,10 @@ def convert_to_menu(recipes, prices=True, all_=True):
         lines = []
         lines.append(drink_name)
         unit = recipe.get('unit', 'oz')
-        prep = recipe.get('prep', '')
+        origin = recipe.get('origin', '')
+        prep = recipe.get('prep', 'shake')
+        ice = recipe.get('origin', 'cubed')
+        glass = recipe.get('glass', 'up')
 
         info = recipe.get('info')
         if info:
@@ -89,14 +93,16 @@ def convert_to_menu(recipes, prices=True, all_=True):
             lines.append('\t'+garnish)
             ingredients.append(garnish)
 
-        examples = recipe.get('examples')
-        if examples: #XXX and prices:
-            lines.append("\t    Examples: ".format(examples))
+        examples = recipe.get('examples', [])
+        if examples:
+            if prices:
+                lines.append("\t    Examples: ".format(examples))
             for e in examples:
-                lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
                 most_expensive = check_stat('cost', most_expensive, e, drink_name)
                 most_booze = check_stat('drinks', most_booze, e, drink_name)
                 most_abv = check_stat('abv', most_abv, e, drink_name)
+                if prices:
+                    lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
 
         variants = recipe.get('variants', [])
         if variants:
@@ -106,13 +112,14 @@ def convert_to_menu(recipes, prices=True, all_=True):
 
         if all_ or examples:
             menu.append('\n'.join(lines))
-            menu_tuples.append(RecipeContent(drink_name, info, ingredients, variants, recipe.get('origin', '')))
-
+            menu_tuples.append(RecipeContent(drink_name, info, ingredients, variants, origin, examples, prep, ice, glass))
         else:
             print "Can't make {}".format(drink_name)
-    print "Most Expensive: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_expensive)
-    print "Most Booze: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_booze)
-    print "Highest ABV (estimate): {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_abv)
+
+    if stats:
+        print "Most Expensive: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_expensive)
+        print "Most Booze: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_booze)
+        print "Highest ABV (estimate): {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_abv)
     return menu, menu_tuples
 
 def expand_recipes(df, recipes):
@@ -145,11 +152,14 @@ def expand_recipes(df, recipes):
         for bottles in get_all_bottle_combinations(df, ingredients_names):
             sum_ = 0
             std_drinks = 0
-            volume = 1.5 if prep == 'shake' else 0.5
+            volume = 0
             for bottle, type_, amount in zip(bottles, ingredients_names, ingredients_amounts):
                 sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount, unit)
                 std_drinks += drinks_by_bottle_and_volume(df, bottle, type_, amount, unit)
                 volume += amount
+            # add ~40% for stirred and ~65% for shaken
+            water_added_by_prep = { } # TODO shake, stir, mix? something w/o ice
+            volume *= 1.65 if prep == 'shake' else 1.5
             abv = 40.0 * (std_drinks*(1.5 if unit == 'oz' else 45.0) / volume)
             examples.append({'bottles': ', '.join(bottles),
                              'cost': sum_,
@@ -254,6 +264,8 @@ def main():
 
     args = get_parser().parse_args()
 
+    # TODO Fix the flow here to be less of a roundabout mess
+
     if args.command == 'pdf' and args.load_cache:
         with open(args.load_cache) as fp:
             menu_tuples = pickle.load(fp)
@@ -264,20 +276,16 @@ def main():
 
         df = load_cost_df(args.barstock, args.all)
         all_recipes = expand_recipes(df, base_recipes)
-        menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all)
+        menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all, args.stats)
 
     if args.command == 'pdf' and args.save_cache:
-        cachefile = '{}.pkl'.format(args.save_cache)
-        with open(cachefile, 'w') as fp:
+        with open(args.save_cache, 'w') as fp:
             pickle.dump(menu_tuples, fp)
-            print "Saved recipe cache as {}".format(cachefile)
+            print "Saved recipe cache as {}".format(args.save_cache)
 
-    if args.command == 'pdf':
+    if args.command == 'pdf' and args.pdf_filename:
         import formatted_menu
         formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align, args.debug)
-        return
-
-    if args.stats:  # HAX FIXME
         return
 
     if args.write:
