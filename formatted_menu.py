@@ -78,7 +78,8 @@ def append_liquor_list(doc, df, own_page):
     cols.append(Command('switchcolumn'))
     with cols.create(FlushLeft()):
         for item in bottles.Type:
-            cols.append(LargeText(italic(item+'\n')))
+            cols.append(LargeText(italic(item)))
+            cols.append(Command('\\'))
 
     doc.append(listing)
 

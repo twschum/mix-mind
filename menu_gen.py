@@ -216,7 +216,8 @@ def slice_on_type(df, type_):
     if type_ in ['rum', 'whiskey', 'tequila', 'vermouth']:
         return df[df['type'].str.contains(type_)]
     elif type_ == 'any spirit':
-        return df[df['Category'] == 'Spirit']
+        return df[df.type.isin(['dry gin', 'rye whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
+        #return df[df['Category'] == 'Spirit']
     elif type_ == 'bitters':
         return df[df['Category'] == 'Bitters']
 
