@@ -78,7 +78,19 @@ class QuantizedIngredient(Ingredient):
     @util.default_initializer
     def __init__(self, type_, raw_quantity, unit):
         # interpret the raw quantity
-        pass
+        if isinstance(raw_quantity, basestring):
+            if raw_quantity == 'Top with':
+                self.amount = 3.0 # TODO better estimate?
+            elif 'dash' in raw_quantity:
+                self.amount = dash_to_volume(amount, unit)
+            elif 'tsp' in raw_quantity:
+                try:
+                    self.amount = float(raw_quantity.split()[0])
+                except ValueError:
+                    self.amount = float(Fraction(raw_quantity.split()[0]))
+                self.amount = tsp_to_volume(self.amount, unit)
+            else:
+                continue
 
     def str(self):
         return "{} {} {}".format(self.raw_quantity, self.unit, self.type_)

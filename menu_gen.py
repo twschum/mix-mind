@@ -16,16 +16,11 @@ from fractions import Fraction
 import pandas as pd
 import numpy as np
 
+import util
+
 ML_PER_OZ = 29.5735
 UNITS = ['oz', 'mL']
 
-def get_fraction(amount):
-    numer, denom = float(amount).as_integer_ratio()
-    if denom == 1:
-        return numer
-    whole = numer / denom
-    numer = numer % denom
-    return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, denom)
 
 def get_ingredient_str(name, amount, unit):
     if isinstance(amount, basestring):
@@ -35,7 +30,7 @@ def get_ingredient_str(name, amount, unit):
         else:
             unit = ''
     elif unit == 'oz':
-        amount_str = get_fraction(amount)
+        amount_str = util.get_fraction(amount)
     else:
         amount_str = str(amount)
     if unit:

@@ -12,3 +12,11 @@ def default_initializer(func):
             setattr(self, name, arg)
         func(self, *args, **kwargs)
     return wrapper
+
+def get_fraction(amount):
+    numer, denom = float(amount).as_integer_ratio()
+    if denom == 1:
+        return numer
+    whole = numer / denom
+    numer = numer % denom
+    return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, denom)
