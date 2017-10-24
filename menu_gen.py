@@ -2,6 +2,7 @@
 """
 Turn recipes json into a readable menu
 TODO figure out how to handle recipes calling for an ingredient by name instead of type
+TODO jsonschema for recipes
 """
 
 import argparse
