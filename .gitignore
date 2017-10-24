@@ -1,6 +1,11 @@
 # other
 *.swp
 *.swo
+*.pdf
+*.tex
+*.aux
+*.log
+*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
