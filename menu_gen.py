@@ -153,16 +153,21 @@ def expand_recipes(df, recipes):
             sum_ = 0
             std_drinks = 0
             volume = 0
+            display_list = []
             for bottle, type_, amount in zip(bottles, ingredients_names, ingredients_amounts):
                 sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount, unit)
                 std_drinks += drinks_by_bottle_and_volume(df, bottle, type_, amount, unit)
                 volume += amount
+                # remove juice and such from the bottles listed
+                category = get_bottle_by_type(df, bottle, type_).get_value(0, 'Category')
+                if category in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit']:
+                    display_list.append(bottle)
             # add ~40% for stirred and ~65% for shaken
             water_added_by_prep = { } # TODO shake, stir, mix? something w/o ice
-            volume *= 1.65 if prep == 'shake' else 1.5
+            volume *= 1.65 if prep == 'shake' else 1.4
             abv = 40.0 * (std_drinks*(1.5 if unit == 'oz' else 45.0) / volume)
-            # TODO remove juice and such
-            examples.append({'bottles': ', '.join(bottles),
+
+            examples.append({'bottles': ', '.join(display_list),
                              'cost': sum_,
                              'abv': abv,
                              'drinks': std_drinks})
@@ -190,7 +195,7 @@ def cost_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
 
 def get_bottle_by_type(df, bottle, type_):
     by_type = slice_on_type(df, type_)
-    row = by_type[by_type['Bottle'] == bottle]
+    row = by_type[by_type['Bottle'] == bottle].reset_index(drop=True)
     if len(row) > 1:
         raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
     return row

@@ -91,9 +91,7 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
     # set up drink name
     name_line = LargeText(recipe.name)
     if 'schubar original' in recipe.origin.lower():
-        name_line.append(superscript(Command('dag')))
-    elif 'schubar adaptation' in recipe.origin.lower():
-        name_line.append(superscript(Command('ddag')))
+        name_line.append(superscript('*'))
     if show_price and recipe.max_cost:
         price = int(((recipe.max_cost+1) * markup) +1) # Addative or multiplicative markups?
         name_line.append(DotFill())
@@ -113,7 +111,7 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
 
     if show_examples and recipe.examples:# and recipe.name != 'The Cocktail':
         for e in recipe.examples:
-            recipe_page.append(FootnoteText("${cost:.2f} | {bottles}\n".format(**e)))
+            recipe_page.append(FootnoteText("${cost:.2f} | {abv:.2f}% | {drinks:.2f} | {bottles}\n".format(**e)))
 
     recipe_page.append(Command('par'))
     return recipe_page
@@ -161,19 +159,28 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     # Header with title, tagline, page number right, date left
     # Footer with key to denote someting about drinks
     title = '@Schubar'
-    tagline = 'Get Fubar at Schubar, but, like, in a classy way'
-    tagline = 'Get Fubar at Schubar on the good stuff'
+    if prices:
+        tagline = 'Tips never required, always appreciated'
+        tagline = 'Tips for your drinks never required, always appreciated'
+    else:
+        tagline = 'Get Fubar at Schubar on the good stuff'
+        tagline = 'Get Fubar at Schubar, but, like, in a classy way'
     hf = PageStyle("schubarheaderfooter", header_thickness=0.4, footer_thickness=0.4)
     with hf.create(Head('L')):
         hf.append(TitleText(title))
         hf.append(Command('\\'))
         hf.append(FootnoteText(italic(tagline)))
-    with hf.create(Foot('R')):
-        hf.append(FootnoteText(Command('thepage')))
     with hf.create(Head('R')):
         hf.append(FootnoteText(time.strftime("%b %d, %Y")))
+    with hf.create(Foot('L')):
+        hf.append(superscript("*"))
+        hf.append(FootnoteText(r"Schubar Original"))
     with hf.create(Foot('C')):
-        hf.append(NoEscape(r"\dag Schubar Original,  \ddag Schubar Adaptation"))#,  *bla, bla raw eggs"))
+        if prices:
+            hf.append(HorizontalSpace('12pt'))
+            hf.append(FootnoteText(NoEscape(r"\$ amount shown is recommended tip, calculated from cost of ingredients")))
+    with hf.create(Foot('R')):
+        hf.append(FootnoteText(Command('thepage')))
     doc.preamble.append(hf)
     doc.change_document_style("schubarheaderfooter")
 
