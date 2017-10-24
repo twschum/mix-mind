@@ -111,7 +111,7 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
         recipe_page.append(HorizontalSpace('8pt'))
         recipe_page.append(italic(variant +'\n')) # TODO real indenting
 
-    if show_examples and recipe.examples and recipe.name != 'The Cocktail':
+    if show_examples and recipe.examples:# and recipe.name != 'The Cocktail':
         for e in recipe.examples:
             recipe_page.append(FootnoteText("${cost:.2f} | {bottles}\n".format(**e)))
 

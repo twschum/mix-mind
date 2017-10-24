@@ -161,6 +161,7 @@ def expand_recipes(df, recipes):
             water_added_by_prep = { } # TODO shake, stir, mix? something w/o ice
             volume *= 1.65 if prep == 'shake' else 1.5
             abv = 40.0 * (std_drinks*(1.5 if unit == 'oz' else 45.0) / volume)
+            # TODO remove juice and such
             examples.append({'bottles': ', '.join(bottles),
                              'cost': sum_,
                              'abv': abv,
