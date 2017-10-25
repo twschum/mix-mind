@@ -56,11 +56,12 @@ def generate_title(title, subtitle):
     return titleblock
 
 def append_liquor_list(doc, df, own_page):
-    if own_page:
-        doc.append(NewPage())
     bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
     listing = SamepageEnvironment()
     block = Center()
+    if own_page:
+        print "Appending list as new page"
+        block.append(NewPage())
     if not own_page:
         block.append(HRuleFill())
     block.append(Command('\\'))
@@ -92,6 +93,7 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
     name_line = LargeText(recipe.name)
     if 'schubar original' in recipe.origin.lower():
         name_line.append(superscript('*'))
+        #name_line.append(superscript(NoEscape('\dag')))
     if show_price and recipe.max_cost:
         price = int(((recipe.max_cost+1) * markup) +1) # Addative or multiplicative markups?
         name_line.append(DotFill())
@@ -174,6 +176,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
         hf.append(FootnoteText(time.strftime("%b %d, %Y")))
     with hf.create(Foot('L')):
         hf.append(superscript("*"))
+        #hf.append(superscript(NoEscape("\dag")))
         hf.append(FootnoteText(r"Schubar Original"))
     with hf.create(Foot('C')):
         if prices:

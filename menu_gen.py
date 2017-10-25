@@ -300,7 +300,7 @@ def main():
 
     if args.command == 'pdf' and args.pdf_filename:
         import formatted_menu
-        ingredient_df = df if args.liquor_list else pd.DataFrame()
+        ingredient_df = df if args.liquor_list or args.liquor_list_own_page else pd.DataFrame()
         formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align,
                 args.debug, args.prices, args.markup, args.examples, ingredient_df, args.liquor_list_own_page)
         return
