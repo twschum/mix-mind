@@ -144,11 +144,14 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     # Document setup
     doc_opts = {
         'geometry_options': {
-            'top': '1.0in',
-            'bottom': '0.75in',
+            'showframe': debug,
             'left': side_margin,
             'right': side_margin,
-            'showframe': debug,
+            'top': '0.4in',
+            'bottom': '0.2in',
+            'headheight': '29pt',
+            'includehead': True,
+            'includefoot': True,
         }
     }
     doc = Document(**doc_opts)
@@ -188,7 +191,6 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     doc.change_document_style("schubarheaderfooter")
 
     # Columns setup and fill
-    doc.append(VerticalSpace('0pt'))
     paracols = add_paracols_environment(doc, ncols, colsep, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
         paracols.append(format_recipe(recipe, show_price=prices, show_examples=examples, markup=markup))
