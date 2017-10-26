@@ -6,7 +6,7 @@ Just generally make it better OOP
 
 import util
 
-class RecipeError(Exception):
+class RecipeError(StandardError):
     pass
 
 class Drink(object):
@@ -62,6 +62,9 @@ class Ingredient(object):
     def cost(self):
         return 0
 
+    def convert(self, new_unit):
+        pass
+
 
 class Garnish(Ingredient):
     """ An ingredient line that denotes it's a garnish
@@ -75,10 +78,13 @@ class QuantizedIngredient(Ingredient):
     """
     @util.default_initializer
     def __init__(self, type_, raw_quantity, recipe_unit):
+
+        self.top_with = False
         # interpret the raw quantity
         if isinstance(raw_quantity, basestring):
             if raw_quantity == 'Top with':
                 self.amount = util.convert_units(3.0, 'oz', 'recipe_unit', rounded=True)
+                self.top_with = True
 
             elif 'dash' in raw_quantity:
                 self.unit = 'ds'
@@ -89,7 +95,7 @@ class QuantizedIngredient(Ingredient):
                 elif re.match(r'[0-9]+ to [0-9]+ dashes', raw_quantity):
                     self.amount = (int(raw_quantity.split()[0]), int(raw_quantity.split()[2]))
                 else:
-                    raise ValueError("Unknown format for dash amount: {} {} in {}".format(raw_quantity, type_))
+                    raise RecipeError("Unknown format for dash amount: {} {}".format(raw_quantity, type_))
 
             elif 'tsp' in raw_quantity:
                 try:
@@ -98,10 +104,46 @@ class QuantizedIngredient(Ingredient):
                     self.amount = float(Fraction(raw_quantity.split()[0]))
                 self.amount = tsp_to_volume(self.amount, unit)
             else:
-                continue
+                raise RecipeError("Unknown ingredient quantity: {} {}".format(raw_quantity, type_))
+        else:
+            self.amount = raw_quantity
+            self.unit = recipe_unit
+
+    def convert(self, new_unit):
+        if isinstance(self.amount, tuple):
+            lower  = util.convert_units(self.amount[0], self.unit, new_unit, rounded=True)
+            higher = util.convert_units(self.amount[1], self.unit, new_unit, rounded=True)
+            self.amount = (lower, higher)
+        else:
+            self.amount = util.convert_units(self.amount, self.unit, new_unit, rounded=True)
+        self.unit = new_unit
 
     def str(self):
-        return "{} {} {}".format(self.raw_quantity, self.unit, self.type_)
+        if self.top_with:
+            return "Top with {}".format(self.type_)
+
+        if self.unit == 'ds':
+            if isinstance(self.amount, tuple):
+                amount = "{:.0f} to {:.0f}".format(self.amount[0], self.amount[1])
+                unit = 'dashes'
+            elif self.amount == 1:
+                amount = 'dash'
+                unit = 'of'
+            else:
+                amount = "{:.0f}".format(self.amount)
+                unit = 'dashes'
+        elif self.unit in ['oz', 'tsp']:
+            amount = util.to_fraction(self.amount)
+            unit = self.unit
+        else:
+            amount = self.amount
+            unit = self.unit
+
+        formats = {
+                'mL': "{:.0f} {} {}",
+                'cL': "{:.1f} {} {}",
+                }
+        return formats.get(self.unit, "{} {} {}").format(amount, unit, self.type_)
 
 
 class OptionalIngredient(QuantizedIngredient):
