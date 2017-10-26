@@ -22,6 +22,14 @@ def to_fraction(amount):
     numer = fraction.numerator % fraction.denominator
     return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, fraction.denominator)
 
+def calculate_std_drinks(proof, amount, unit):
+    """ Standard drink is 1.5 oz or 45 ml at 80 proof
+    """
+    adjusted_proof = proof / 80.0
+    adjusted_amount = convert_units(amount, unit, 'oz')
+    return adjusted_proof * adjusted_amount
+
+
 # units, yo
 ML_PER_OZ           =  29.5735
 ML_PER_OZ_ROUNDED   =  30.0

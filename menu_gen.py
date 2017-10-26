@@ -175,58 +175,58 @@ def expand_recipes(df, recipes):
 
     return recipes
 
-def drinks_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
-    """ Standard drink is 1.5 oz or 45 ml at 80 proof
+class Barstock(object):
+    """ Wrap up a csv of bottle info with some helpful methods
+    for data access and querying
     """
-    proof = get_bottle_by_type(df, bottle, type_)['Proof'].median()
-    adjusted_proof = proof / 80.0
-    adjusted_amount = amount / (1.5 if unit == 'oz' else 45.0)
-    return adjusted_proof * adjusted_amount
+    def get_all_bottle_combinations(self, types):
+        bottle_lists = [slice_on_type(self.df, t)['Bottle'].tolist() for t in types]
+        opts = itertools.product(*bottle_lists)
+        return opts
 
-def cost_by_bottle_and_volume(df, bottle, type_, amount, unit='oz'):
-    per_unit = get_bottle_by_type(df, bottle, type_)['$/{}'.format(unit)].median()
-    return per_unit * amount
+    def get_bottle_proof(self, bottle, type_):
+        return get_bottle_by_type(self.df, bottle, type_)['Proof'].median()
 
-def get_bottle_by_type(df, bottle, type_):
-    by_type = slice_on_type(df, type_)
-    row = by_type[by_type['Bottle'] == bottle].reset_index(drop=True)
-    if len(row) > 1:
-        raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
-    return row
+    def cost_by_bottle_and_volume(self, bottle, type_, amount, unit='oz'):
+        per_unit = get_bottle_by_type(self.df, bottle, type_)['$/{}'.format(unit)].median()
+        return per_unit * amount
 
-def get_all_bottle_combinations(df, types):
-    bottle_lists = [slice_on_type(df, t)['Bottle'].tolist() for t in types]
-    opts = itertools.product(*bottle_lists)
-    return opts
+    def get_bottle_by_type(self, bottle, type_):
+        by_type = slice_on_type(self.df, type_)
+        row = by_type[by_type['Bottle'] == bottle].reset_index(drop=True)
+        if len(row) > 1:
+            raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
+        return row
 
-def slice_on_type(df, type_):
-    if type_ in ['rum', 'whiskey', 'tequila', 'vermouth']:
-        return df[df['type'].str.contains(type_)]
-    elif type_ == 'any spirit':
-        return df[df.type.isin(['dry gin', 'rye whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
-        #return df[df['Category'] == 'Spirit']
-    elif type_ == 'bitters':
-        return df[df['Category'] == 'Bitters']
+    def slice_on_type(self, type_):
+        if type_ in ['rum', 'whiskey', 'tequila', 'vermouth']:
+            return self.df[self.df['type'].str.contains(type_)]
+        elif type_ == 'any spirit':
+            return self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
+            #return self.df[self.df['Category'] == 'Spirit']
+        elif type_ == 'bitters':
+            return self.df[self.df['Category'] == 'Bitters']
+        else:
+            return self.df[self.df['type'] == type_]
 
-    return df[df['type'] == type_]
+    def load(cls, barstock_csv, include_all=False):
+        obj = cls()
+        df = pd.read_csv(barstock_csv)
+        df = df.dropna(subset=['Type'])
+        df['type'] = map(string.lower, df['Type'])
 
-def load_cost_df(barstock_csv, include_all=False):
-    df = pd.read_csv(barstock_csv)
-    df = df.dropna(subset=['Type'])
-    df['type'] = map(string.lower, df['Type'])
+        # convert money columns to floats
+        for col in [col for col in df.columns if '$' in col]:
+            df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
 
-    # convert money columns to floats
-    for col in [col for col in df.columns if '$' in col]:
-        df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
+        df['Proof'] = df['Proof'].fillna(0)
 
-    df['Proof'] = df['Proof'].fillna(0)
-
-    # drop out of stock items
-    if not include_all:
-        #log debug how many dropped
-        df = df[df["In Stock"] != 0]
-
-    return df
+        # drop out of stock items
+        if not include_all:
+            #log debug how many dropped
+            df = df[df["In Stock"] != 0]
+        obj.df = df
+        return obj
 
 def get_parser():
     p = argparse.ArgumentParser(description="""
@@ -289,12 +289,13 @@ def main():
             print "Loaded recipe cache file {}".format(args.load_cache)
         ingredient_df = pandas.read_pickle(args.load_cache+'.dfpkl')
     else:
-        with open('recipes.json') as fp:
+        with open(args.recipes) as fp:
             base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+        recipes = [drink.Drink(name, recipe) for name, recipe in base_recipes.iteritems()]
 
         df = load_cost_df(args.barstock, args.all)
-        all_recipes = expand_recipes(df, base_recipes)
-        menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all, args.stats)
+        #all_recipes = expand_recipes(df, base_recipes)
+        #menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all, args.stats)
 
     if args.command == 'pdf' and args.save_cache:
         with open(args.save_cache, 'w') as fp:

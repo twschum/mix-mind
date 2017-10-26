@@ -5,6 +5,8 @@ Just generally make it better OOP
 """
 import re
 from fractions import Fraction
+from collections import namedtuple
+import itertools
 
 import util
 
@@ -14,6 +16,8 @@ class RecipeError(StandardError):
 class Drink(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
+    RecipeExample = namedtuple('RecipeExample', 'bottles,cost,abv,drinks')
+
 
     @util.default_initializer
     def __init__(self, name, recipe_dict, stock_df=None):
@@ -54,6 +58,8 @@ class Drink(object):
         return '\n'.join(lines)
 
     def convert(self, to_unit, convert_nonstandard=False):
+        if self.unit == to_unit:
+            return
         for ingredient in self.ingredients:
             if ingredient.unit in ['ds', 'drop'] and not convert_nonstandard:
                 continue
@@ -63,8 +69,15 @@ class Drink(object):
                 pass
         self.unit = to_unit
 
+
+    def generate_examples(self, barstock):
+        ingredient_types = [i.type_ for i in self.ingredients if isinstance(i, QuantizedIngredient)]
+
+
+
+
 class Ingredient(object):
-    """ An "ingredient" is everything that should be represented in standard text, line by line
+    """ An "ingredient" is every item that should be represented in standard text
     """
     @util.default_initializer
     def __init__(self, description):
