@@ -45,16 +45,6 @@ def superscript(item):
     return Superscript(arguments=item)
 
 
-def generate_title(title, subtitle):
-    titleblock = Center()
-    titleblock.append(titletext(bold(title)))
-    titleblock.append(command('\\'))
-    titleblock.append(footnotetext(italic(subtitle)))
-    titleblock.append(command('\\'))
-    titleblock.append(hrulefill())
-    titleblock.append('\n')
-    return titleblock
-
 def append_liquor_list(doc, df, own_page):
     bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
     listing = SamepageEnvironment()
@@ -109,7 +99,7 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
 
     for variant in recipe.variants:
         recipe_page.append(HorizontalSpace('8pt'))
-        recipe_page.append(italic(variant +'\n')) # TODO real indenting
+        recipe_page.append(italic(variant +'\n'))
 
     if show_examples and recipe.examples:# and recipe.name != 'The Cocktail':
         for e in recipe.examples:

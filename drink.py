@@ -15,8 +15,6 @@ class Drink(object):
 
     @util.default_initializer
     def __init__(self, stock_df, name, recipe_dict):
-        pass
-        # TODO for initialization
         # from recipe dict pull out other info and set defaults
         self.info      =  recipe_dict.get('info',      '')
         self.origin    =  recipe_dict.get('origin',    '')
@@ -76,13 +74,23 @@ class QuantizedIngredient(Ingredient):
     """ Has a unit based on the raw quantity, responsible for unit conversions, text output
     """
     @util.default_initializer
-    def __init__(self, type_, raw_quantity, unit):
+    def __init__(self, type_, raw_quantity, recipe_unit):
         # interpret the raw quantity
         if isinstance(raw_quantity, basestring):
             if raw_quantity == 'Top with':
                 self.amount = 3.0 # TODO better estimate?
             elif 'dash' in raw_quantity:
-                self.amount = dash_to_volume(amount, unit)
+                #self.amount = dash_to_volume(amount, unit)
+                self.unit = 'ds'
+                if raw_quantity == 'dash':
+                    self.amount = 1
+                elif re.match(r'[0-9]+ dashes', raw_quantity):
+                    self.amount = int(raw_quantity.split()[0])
+                elif re.match(r'[0-9]+ to [0-9]+ dashes', raw_quantity):
+                    self.amount = (int(raw_quantity.split()[0]), int(raw_quantity.split()[2]))
+                else:
+                    raise ValueError("Unknown format for dash amount: {} {} in {}".format(raw_quantity, type_))
+
             elif 'tsp' in raw_quantity:
                 try:
                     self.amount = float(raw_quantity.split()[0])
