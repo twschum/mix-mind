@@ -16,6 +16,7 @@ from fractions import Fraction
 import pandas as pd
 import numpy as np
 
+import drink
 import util
 
 
@@ -255,11 +256,30 @@ Example usage:
     pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
     pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
+    test_parser = subparsers.add_parser('test', help='whatever I need it to be')
+
     return p
 
 def main():
 
     args = get_parser().parse_args()
+
+    if args.command == 'test':
+        with open('recipes.json') as fp:
+            base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+
+        new_recipes = []
+        for name, recipe in base_recipes.iteritems():
+            try:
+                x = drink.Drink(name, recipe)
+            except:
+                print name, recipe
+                raise
+            x.convert('oz', convert_nonstandard=False)
+            print x
+            new_recipes.append(x)
+
+        return
 
     # TODO Fix the flow here to be less of a roundabout mess
 
@@ -289,11 +309,12 @@ def main():
                 args.debug, args.prices, args.markup, args.examples, ingredient_df, args.liquor_list_own_page)
         return
 
-    if args.write:
-        with open(args.write, 'w') as fp:
-            fp.write('\n\n'.join(menu))
-    else:
-        print '\n\n'.join(menu)
+    if args.command == 'txt':
+        if args.write:
+            with open(args.write, 'w') as fp:
+                fp.write('\n\n'.join(menu))
+        else:
+            print '\n\n'.join(menu)
 
 if __name__ == "__main__":
     main()

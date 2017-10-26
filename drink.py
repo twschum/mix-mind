@@ -3,6 +3,8 @@ Drink class encapsulates how a drink recipe is calculated and formulated,
 can provide itself as a dict/json, tuple of values, do conversions, etc.
 Just generally make it better OOP
 """
+import re
+from fractions import Fraction
 
 import util
 
@@ -14,7 +16,7 @@ class Drink(object):
     """
 
     @util.default_initializer
-    def __init__(self, stock_df, name, recipe_dict):
+    def __init__(self, name, recipe_dict, stock_df=None):
         # from recipe dict pull out other info and set defaults
         self.info      =  recipe_dict.get('info',      '')
         self.origin    =  recipe_dict.get('origin',    '')
@@ -25,39 +27,51 @@ class Drink(object):
         self.variants  =  recipe_dict.get('variants',  [])
         self.examples  =  []
         self.ingredients = []
-        for type_, quantity in recipe.get('ingredients', {}).iteritems():
-            self.ingredients.append(Ingredient(type_, quantity, self.unit))
-        for type_, quantity in recipe.get('optional', {}).iteritems():
+        for type_, quantity in recipe_dict.get('ingredients', {}).iteritems():
+            self.ingredients.append(QuantizedIngredient(type_, quantity, self.unit))
+        for type_, quantity in recipe_dict.get('optional', {}).iteritems():
             self.ingredients.append(OptionalIngredient(type_, quantity, self.unit))
-        ingredients.append(Ingredient(recipe.get('misc', '')))
-        ingredients.append(Garnish(recipe.get('misc', '')))
+        if recipe_dict.get('misc'):
+            self.ingredients.append(Ingredient(recipe_dict.get('misc')))
+        if recipe_dict.get('garnish'):
+            self.ingredients.append(Garnish(recipe_dict.get('garnish')))
 
         self.show_examples = False
 
     def __str__(self):
-        """ Drink recipe basic output format
+        """ Drink recipe basic plain text output format
         """
         lines = []
         lines.append(self.name)
         lines.extend([i.str() for i in self.ingredients])
-        lines.append("Variants")
-        lines.extend(self.variants)
+        if self.variants:
+            lines.append("Variants:")
+            lines.extend(['\t'+v for v in self.variants])
         if self.show_examples:
             lines.append("Examples:")
-            lines.extend(self.examples)
-        lines.append('\n')
+            lines.extend(['\t'+v for v in self.examples])
+        lines.append('')
         return '\n'.join(lines)
 
+    def convert(self, to_unit, convert_nonstandard=False):
+        for ingredient in self.ingredients:
+            if ingredient.unit in ['ds', 'drop'] and not convert_nonstandard:
+                continue
+            try:
+                ingredient.convert(to_unit)
+            except NotImplementedError:
+                pass
+        self.unit = to_unit
 
 class Ingredient(object):
     """ An "ingredient" is everything that should be represented in standard text, line by line
     """
     @util.default_initializer
     def __init__(self, description):
-        pass
+        self.unit = None
 
     def str(self):
-        return str(description)
+        return str(self.description)
 
     def cost(self):
         return 0
@@ -70,7 +84,7 @@ class Garnish(Ingredient):
     """ An ingredient line that denotes it's a garnish
     """
     def str(self):
-        return "{}, for garnish".format(super().str())
+        return "{}, for garnish".format(super(Garnish, self).str())
 
 
 class QuantizedIngredient(Ingredient):
@@ -83,7 +97,8 @@ class QuantizedIngredient(Ingredient):
         # interpret the raw quantity
         if isinstance(raw_quantity, basestring):
             if raw_quantity == 'Top with':
-                self.amount = util.convert_units(3.0, 'oz', 'recipe_unit', rounded=True)
+                self.amount = util.convert_units(3.0, 'oz', recipe_unit, rounded=True)
+                self.unit = recipe_unit
                 self.top_with = True
 
             elif 'dash' in raw_quantity:
@@ -102,7 +117,20 @@ class QuantizedIngredient(Ingredient):
                     self.amount = float(raw_quantity.split()[0])
                 except ValueError:
                     self.amount = float(Fraction(raw_quantity.split()[0]))
-                self.amount = tsp_to_volume(self.amount, unit)
+                self.unit = 'tsp'
+
+            elif 'drop' in raw_quantity:
+                self.unit = 'drop'
+                if raw_quantity == 'drop':
+                    self.amount = 1
+                elif re.match(r'[0-9]+ drops', raw_quantity):
+                    self.amount = int(raw_quantity.split()[0])
+                else:
+                    raise RecipeError("Unknown format for dash amount: {} {}".format(raw_quantity, type_))
+
+            elif raw_quantity in ['one', 'two', 'three']:
+                self.amount = raw_quantity
+                self.unit = 'literal'
             else:
                 raise RecipeError("Unknown ingredient quantity: {} {}".format(raw_quantity, type_))
         else:
@@ -110,6 +138,8 @@ class QuantizedIngredient(Ingredient):
             self.unit = recipe_unit
 
     def convert(self, new_unit):
+        if self.unit == 'literal':
+            return
         if isinstance(self.amount, tuple):
             lower  = util.convert_units(self.amount[0], self.unit, new_unit, rounded=True)
             higher = util.convert_units(self.amount[1], self.unit, new_unit, rounded=True)
@@ -121,6 +151,8 @@ class QuantizedIngredient(Ingredient):
     def str(self):
         if self.top_with:
             return "Top with {}".format(self.type_)
+        if self.unit == 'literal':
+            return "{} {}".format(self.amount, self.type_)
 
         if self.unit == 'ds':
             if isinstance(self.amount, tuple):
@@ -132,6 +164,16 @@ class QuantizedIngredient(Ingredient):
             else:
                 amount = "{:.0f}".format(self.amount)
                 unit = 'dashes'
+        elif self.unit == 'drop':
+            if isinstance(self.amount, tuple):
+                amount = "{:.0f} to {:.0f}".format(self.amount[0], self.amount[1])
+                unit = 'drops'
+            elif self.amount == 1:
+                amount = 'drop'
+                unit = 'of'
+            else:
+                amount = "{:.0f}".format(self.amount)
+                unit = 'drops'
         elif self.unit in ['oz', 'tsp']:
             amount = util.to_fraction(self.amount)
             unit = self.unit
@@ -150,5 +192,5 @@ class OptionalIngredient(QuantizedIngredient):
     """ A quantized ingredient that just gets an extra output tag
     """
     def str(self):
-        return "{}, (optional)".format(super().str())
+        return "{}, (optional)".format(super(OptionalIngredient, self).str())
 
