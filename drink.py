@@ -78,9 +78,9 @@ class QuantizedIngredient(Ingredient):
         # interpret the raw quantity
         if isinstance(raw_quantity, basestring):
             if raw_quantity == 'Top with':
-                self.amount = 3.0 # TODO better estimate?
+                self.amount = util.convert_units(3.0, 'oz', 'recipe_unit', rounded=True)
+
             elif 'dash' in raw_quantity:
-                #self.amount = dash_to_volume(amount, unit)
                 self.unit = 'ds'
                 if raw_quantity == 'dash':
                     self.amount = 1

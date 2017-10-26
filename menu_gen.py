@@ -18,9 +18,6 @@ import numpy as np
 
 import util
 
-ML_PER_OZ = 29.5735
-UNITS = ['oz', 'mL']
-
 
 def get_ingredient_str(name, amount, unit):
     if isinstance(amount, basestring):
@@ -30,7 +27,7 @@ def get_ingredient_str(name, amount, unit):
         else:
             unit = ''
     elif unit == 'oz':
-        amount_str = util.get_fraction(amount)
+        amount_str = util.to_fraction(amount)
     else:
         amount_str = str(amount)
     if unit:
@@ -131,13 +128,13 @@ def expand_recipes(df, recipes):
                 if amount == 'Top with':
                     amount = 3.0
                 elif 'dash' in amount:
-                    amount = dash_to_volume(amount, unit)
+                    amount = util.dash_to_volume(amount, unit)
                 elif 'tsp' in amount:
                     try:
                         amount = float(amount.split()[0])
                     except ValueError:
                         amount = float(Fraction(amount.split()[0]))
-                    amount = tsp_to_volume(amount, unit)
+                    amount = util.tsp_to_volume(amount, unit)
                 else:
                     continue
             ingredients_names.append(name)
@@ -195,19 +192,6 @@ def get_bottle_by_type(df, bottle, type_):
     if len(row) > 1:
         raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
     return row
-
-def dash_to_volume(amount, unit):
-    # TODO find numeric value in amount; regex time??
-    # ds = 0.62 mL
-    ds = 2.0 * 0.62
-    if unit == 'mL':
-        return ds
-    elif unit == 'oz':
-        return ds / ML_PER_OZ
-
-def tsp_to_volume(amount, unit):
-    return amount * (0.125 if unit == 'oz' else 5.0)
-
 
 def get_all_bottle_combinations(df, types):
     bottle_lists = [slice_on_type(df, t)['Bottle'].tolist() for t in types]
