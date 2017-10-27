@@ -16,7 +16,7 @@ from fractions import Fraction
 import pandas as pd
 import numpy as np
 
-import drink
+import recipe as drink_recipe
 import util
 
 
@@ -271,7 +271,7 @@ def main():
         new_recipes = []
         for name, recipe in base_recipes.iteritems():
             try:
-                x = drink.Drink(name, recipe)
+                x = drink_recipe.DrinkRecipe(name, recipe)
             except:
                 print name, recipe
                 raise

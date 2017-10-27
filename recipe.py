@@ -1,5 +1,5 @@
 """
-Drink class encapsulates how a drink recipe is calculated and formulated,
+Recipe class encapsulates how a drink recipe is calculated and formulated,
 can provide itself as a dict/json, tuple of values, do conversions, etc.
 Just generally make it better OOP
 """
@@ -13,7 +13,7 @@ import util
 class RecipeError(StandardError):
     pass
 
-class Drink(object):
+class DrinkRecipe(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
     RecipeExample = namedtuple('RecipeExample', 'bottles,cost,abv,drinks')
