@@ -80,12 +80,12 @@ class DrinkRecipe(object):
         e.g. For every dry gin and vermouth in Barstock, generate every Martini
         that can be made, along with the cost,abv,std_drinks from the ingredients
         """
-        ingredients = [i for i in self.ingredients if isinstance(i, QuantizedIngredient)]
+        ingredients = self._get_quantized_ingredients()
         example_bottles = barstock.get_all_bottle_combinations((i.type_ for i in ingredients))
         for bottles in example_bottles:
             example = RecipeExample
             for bottle, ingredient in zip(bottles, ingredients):
-                if ingredient.type_ == 'literal':
+                if ingredient.unit == 'literal':
                     continue
                 example.cost       += ingredient.get_cost(bottle, barstock)
                 example.std_drinks += ingredient.get_std_drinks(bottle, barstock)
@@ -111,6 +111,25 @@ class DrinkRecipe(object):
         self.stats.max_std_drinks = max([e.std_drinks for e in self.examples])
         self.stats.volume = max([e.volume for e in self.examples])
 
+    def _get_quantized_ingredients(self):
+        return (i for i in self.ingredients if isinstance(i, QuantizedIngredient))
+
+    def primary_spirit(self):
+        max_amount = 0
+        max_ingredient = None
+        for i in self._get_quantized_ingredients(): # TODO enforce ingredient Category tags
+            amount = i.get_amount_as(self.unit, rounded=False, single_value=True)
+            if amount > max_amount:
+                max_amount = amount
+                max_ingredient = i.type_
+        return max_ingredient
+
+    def contains_ingredient(self, ingredient):
+        for i in self.ingredients:
+            if i.type_ == ingredient:
+                return True
+        return False
+
 
 class Ingredient(object):
     """ An "ingredient" is every item that should be represented in standard text
@@ -118,6 +137,7 @@ class Ingredient(object):
     @util.default_initializer
     def __init__(self, description):
         self.unit = None
+        self.type_ = description
 
     def str(self):
         return str(self.description)
