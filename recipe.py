@@ -123,7 +123,7 @@ class DrinkRecipe(object):
         max_ingredient = None
         for i in self._get_quantized_ingredients(): # TODO enforce ingredient Category tags
             amount = i.get_amount_as(self.unit, rounded=False, single_value=True)
-            if amount > max_amount:
+            if amount > max_amount and not i.top_with:
                 max_amount = amount
                 max_ingredient = i.type_
         return max_ingredient

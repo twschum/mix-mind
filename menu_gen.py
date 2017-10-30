@@ -292,7 +292,10 @@ def main():
             except:
                 print name, recipe
                 raise
-            print x.name
+            if x.primary_spirit() == 'dry gin':
+                print "gin: ", x.name
+            if x.contains_ingredient('lime juice'):
+                print "lime: ", x.name
             new_recipes.append(x)
 
         return
