@@ -153,7 +153,7 @@ def expand_recipes(df, recipes):
                 std_drinks += drinks_by_bottle_and_volume(df, bottle, type_, amount, unit)
                 volume += amount
                 # remove juice and such from the bottles listed
-                category = get_bottle_by_type(df, bottle, type_).get_value(0, 'Category')
+                category = get_bottle_by_type(df, bottle, type_).at[0, 'Category']
                 if category in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit']:
                     display_list.append(bottle)
 
@@ -185,7 +185,7 @@ class Barstock(object):
         where each list is a specific way to make the drink
         e.g. Martini passes in ['gin', 'vermouth'], gets [['Beefeater', 'Noilly Prat'], ['Knickerbocker', 'Noilly Prat']]
         """
-        bottle_lists = [slice_on_type(self.df, t)['Bottle'].tolist() for t in types]
+        bottle_lists = [self.slice_on_type(t)['Bottle'].tolist() for t in types]
         opts = itertools.product(*bottle_lists)
         return opts
 
@@ -202,10 +202,10 @@ class Barstock(object):
     def get_bottle_field(self, bottle, type_, field):
         if field not in self.df.columns:
             raise AttributeError("get-bottle-field '{}' not a valid field in the data".format(field))
-        return self.get_bottle_by_type(bottle, type_).get_value(0, field)
+        return self.get_bottle_by_type(bottle, type_).at[0, field]
 
     def get_bottle_by_type(self, bottle, type_):
-        by_type = slice_on_type(self.df, type_)
+        by_type = self.slice_on_type(type_)
         row = by_type[by_type['Bottle'] == bottle].reset_index(drop=True)
         if len(row) > 1:
             raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
@@ -222,6 +222,7 @@ class Barstock(object):
         else:
             return self.df[self.df['type'] == type_]
 
+    @classmethod
     def load(cls, barstock_csv, include_all=False):
         obj = cls()
         df = pd.read_csv(barstock_csv)
@@ -281,15 +282,17 @@ def main():
         with open('recipes.json') as fp:
             base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
 
+        barstock = Barstock.load(args.barstock)
+
         new_recipes = []
         for name, recipe in base_recipes.iteritems():
             try:
                 x = drink_recipe.DrinkRecipe(name, recipe)
+                x.generate_examples(barstock)
             except:
                 print name, recipe
                 raise
-            x.convert('oz', convert_nonstandard=False)
-            print x
+            print x.name
             new_recipes.append(x)
 
         return
