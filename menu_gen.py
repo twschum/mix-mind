@@ -156,6 +156,7 @@ def expand_recipes(df, recipes):
                 category = get_bottle_by_type(df, bottle, type_).get_value(0, 'Category')
                 if category in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit']:
                     display_list.append(bottle)
+
             # add ~40% for stirred and ~65% for shaken
             water_added_by_prep = { } # TODO shake, stir, mix? something w/o ice
             volume *= 1.65 if prep == 'shake' else 1.4
@@ -180,16 +181,28 @@ class Barstock(object):
     for data access and querying
     """
     def get_all_bottle_combinations(self, types):
+        """ For a given list of ingredient types, return a list of lists
+        where each list is a specific way to make the drink
+        e.g. Martini passes in ['gin', 'vermouth'], gets [['Beefeater', 'Noilly Prat'], ['Knickerbocker', 'Noilly Prat']]
+        """
         bottle_lists = [slice_on_type(self.df, t)['Bottle'].tolist() for t in types]
         opts = itertools.product(*bottle_lists)
         return opts
 
     def get_bottle_proof(self, bottle, type_):
-        return get_bottle_by_type(self.df, bottle, type_)['Proof'].median()
+        return self.get_bottle_field(bottle, type_, 'Proof')
+
+    def get_bottle_category(self, bottle, type_):
+        return self.get_bottle_field(bottle, type_, 'Category')
 
     def cost_by_bottle_and_volume(self, bottle, type_, amount, unit='oz'):
-        per_unit = get_bottle_by_type(self.df, bottle, type_)['$/{}'.format(unit)].median()
+        per_unit = self.get_bottle_field(bottle, type_, '$/{}'.format(unit))
         return per_unit * amount
+
+    def get_bottle_field(self, bottle, type_, field):
+        if field not in self.df.columns:
+            raise AttributeError("get-bottle-field '{}' not a valid field in the data".format(field))
+        return self.get_bottle_by_type(bottle, type_).get_value(0, field)
 
     def get_bottle_by_type(self, bottle, type_):
         by_type = slice_on_type(self.df, type_)

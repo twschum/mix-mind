@@ -5,10 +5,13 @@ Just generally make it better OOP
 """
 import re
 from fractions import Fraction
-from collections import namedtuple
+from recordtype import recordtype
 import itertools
 
 import util
+
+# water volume added by preperation method for ABV estimate
+WATER_BY_PREP = {'shake': 1.65, 'stir': 1.3}
 
 class RecipeError(StandardError):
     pass
@@ -16,8 +19,7 @@ class RecipeError(StandardError):
 class DrinkRecipe(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
-    RecipeExample = namedtuple('RecipeExample', 'bottles,cost,abv,drinks')
-
+    RecipeExample = recordtype('RecipeExample', [('bottles', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
 
     @util.default_initializer
     def __init__(self, name, recipe_dict, stock_df=None):
@@ -71,9 +73,16 @@ class DrinkRecipe(object):
 
 
     def generate_examples(self, barstock):
-        ingredient_types = [i.type_ for i in self.ingredients if isinstance(i, QuantizedIngredient)]
-
-
+        ingredients = [i for i in self.ingredients if isinstance(i, QuantizedIngredient)]
+        example_bottles = barstock.get_all_bottle_combinations((i.type_ for i in ingredients))
+        for bottles in example_bottles:
+            example = RecipeExample
+            for bottle, ingredient in zip(bottles, ingredients):
+                if ingredient.type_ == 'literal':
+                    continue
+                example.cost       += ingredient.get_cost(bottle, barstock)
+                example.std_drinks += ingredient.get_std_drinks(bottle, barstock)
+                example.volume     += ingredient.get_amount_as(self.unit, rounded=False, single_value=True)
 
 
 class Ingredient(object):
@@ -153,13 +162,19 @@ class QuantizedIngredient(Ingredient):
     def convert(self, new_unit):
         if self.unit == 'literal':
             return
-        if isinstance(self.amount, tuple):
-            lower  = util.convert_units(self.amount[0], self.unit, new_unit, rounded=True)
-            higher = util.convert_units(self.amount[1], self.unit, new_unit, rounded=True)
-            self.amount = (lower, higher)
-        else:
-            self.amount = util.convert_units(self.amount, self.unit, new_unit, rounded=True)
+        self.amount = self.get_amount_as(new_unit)
         self.unit = new_unit
+
+    def get_amount_as(self, new_unit, rounded=True, single_value=False):
+        if self.unit == 'literal':
+            return
+        if isinstance(self.amount, tuple):
+            lower  = util.convert_units(self.amount[0], self.unit, new_unit, rounded=rounded)
+            higher = util.convert_units(self.amount[1], self.unit, new_unit, rounded=rounded)
+            amount = (lower+higher)/2.0 if single_value else (lower, higher)
+        else:
+            amount = util.convert_units(self.amount, self.unit, new_unit, rounded=rounded)
+        return amount
 
     def str(self):
         if self.top_with:
@@ -199,6 +214,19 @@ class QuantizedIngredient(Ingredient):
                 'cL': "{:.1f} {} {}",
                 }
         return formats.get(self.unit, "{} {} {}").format(amount, unit, self.type_)
+
+    def get_cost(self, bottle, barstock, recipe_unit):
+        if self.unit == 'literal':
+            return 0
+        amount = self.get_amount_as(recipe_unit, rounded=False, single_value=True)
+        return barstock.cost_by_bottle_and_volume(bottle, self.type_, amount, recipe_unit)
+
+    def get_std_drinks(self, bottle, barstock, recipe_unit):
+        if self.unit == 'literal':
+            return 0
+        amount = self.get_amount_as(recipe_unit, rounded=False, single_value=True)
+        proof = barstock.get_bottle_proof(bottle, self.type_)
+        return util.calculate_std_drinks(proof, amount, recipe_unit)
 
 
 class OptionalIngredient(QuantizedIngredient):
