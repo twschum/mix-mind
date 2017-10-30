@@ -26,8 +26,20 @@ def calculate_std_drinks(proof, amount, unit):
     """ Standard drink is 1.5 oz or 45 ml at 80 proof
     """
     adjusted_proof = proof / 80.0
-    adjusted_amount = convert_units(amount, unit, 'oz')
+    adjusted_amount = convert_units(amount, unit, 'oz') / 1.5
     return adjusted_proof * adjusted_amount
+
+def calculate_abv(std_drinks, volume, unit):
+    if unit == 'oz':
+        units_per_std_drink = 1.5
+    elif unit == 'mL':
+        units_per_std_drink = 45.0
+    elif unit == 'cL':
+        units_per_std_drink = 4.5
+    else:
+        raise NotImplementedError("number of standard drinks for unit '{}' is unknown".format(unit))
+    abv = 40.0 * (std_drinks*units_per_std_drink / volume)
+    return abv
 
 
 # units, yo

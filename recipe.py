@@ -20,6 +20,7 @@ class DrinkRecipe(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
     RecipeExample = recordtype('RecipeExample', [('bottles', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
+    RecipeStats = recordtype('RecipeStats', 'min_cost,max_cost,min_abv,max_abv,min_std_drinks,max_std_drinks,volume', default=0.0)
 
     @util.default_initializer
     def __init__(self, name, recipe_dict, stock_df=None):
@@ -31,8 +32,9 @@ class DrinkRecipe(object):
         self.ice       =  recipe_dict.get('origin',    'cubed')
         self.glass     =  recipe_dict.get('glass',     'up')
         self.variants  =  recipe_dict.get('variants',  [])
-        self.examples  =  []
-        self.ingredients = []
+        self.max_cost     =  0
+        self.examples     =  []
+        self.ingredients  =  []
         for type_, quantity in recipe_dict.get('ingredients', {}).iteritems():
             self.ingredients.append(QuantizedIngredient(type_, quantity, self.unit))
         for type_, quantity in recipe_dict.get('optional', {}).iteritems():
@@ -51,15 +53,17 @@ class DrinkRecipe(object):
         lines.append(self.name)
         lines.extend([i.str() for i in self.ingredients])
         if self.variants:
-            lines.append("Variants:")
+            lines.append("\tVariants:")
             lines.extend(['\t'+v for v in self.variants])
         if self.show_examples:
-            lines.append("Examples:")
+            lines.append("\tExamples:")
             lines.extend(['\t'+v for v in self.examples])
         lines.append('')
         return '\n'.join(lines)
 
     def convert(self, to_unit, convert_nonstandard=False):
+        """ Convert the main unit of this recipe
+        """
         if self.unit == to_unit:
             return
         for ingredient in self.ingredients:
@@ -71,8 +75,11 @@ class DrinkRecipe(object):
                 pass
         self.unit = to_unit
 
-
     def generate_examples(self, barstock):
+        """ Given a Barstock, calculate examples drinks from the data
+        e.g. For every dry gin and vermouth in Barstock, generate every Martini
+        that can be made, along with the cost,abv,std_drinks from the ingredients
+        """
         ingredients = [i for i in self.ingredients if isinstance(i, QuantizedIngredient)]
         example_bottles = barstock.get_all_bottle_combinations((i.type_ for i in ingredients))
         for bottles in example_bottles:
@@ -83,6 +90,26 @@ class DrinkRecipe(object):
                 example.cost       += ingredient.get_cost(bottle, barstock)
                 example.std_drinks += ingredient.get_std_drinks(bottle, barstock)
                 example.volume     += ingredient.get_amount_as(self.unit, rounded=False, single_value=True)
+                # remove juice and such from the bottles listed
+                if barstock.get_bottle_category(bottle, ingredient.type_) in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit']:
+                    example.bottles.append(bottle)
+            example.bottles = ', '.join(example.bottles)
+            example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
+            example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
+            self.max_cost = max(self.max_cost, example.cost)
+            self.exmples.append(example)
+
+    def calculate_stats(self):
+        """ After generating examples, calculate stats for this drink
+        """
+        self.stats = RecipeStats()
+        self.stats.min_cost = min([e.cost for e in self.examples])
+        self.stats.max_cost = max([e.cost for e in self.examples])
+        self.stats.min_abv = min([e.abv for e in self.examples])
+        self.stats.max_abv = max([e.abv for e in self.examples])
+        self.stats.min_std_drinks = min([e.std_drinks for e in self.examples])
+        self.stats.max_std_drinks = max([e.std_drinks for e in self.examples])
+        self.stats.volume = max([e.volume for e in self.examples])
 
 
 class Ingredient(object):
