@@ -14,7 +14,6 @@ from collections import OrderedDict, namedtuple
 from fractions import Fraction
 
 import pandas as pd
-import numpy as np
 
 import recipe as drink_recipe
 import util
@@ -41,6 +40,7 @@ def check_stat(field, tracker, example, drink_name):
         tracker['name'] = drink_name
     return tracker
 
+# TODO make these equivalent properties available on the DrinkRecipe class
 RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin,examples,prep,ice,glass,max_cost')
 
 def convert_to_menu(recipes, prices=True, all_=True, stats=True):
@@ -111,6 +111,7 @@ def convert_to_menu(recipes, prices=True, all_=True, stats=True):
             print "Can't make {}".format(drink_name)
 
     if stats:
+        # TODO alternate stats block and mapping
         print "Most Expensive: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_expensive)
         print "Most Booze: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_booze)
         print "Highest ABV (estimate): {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_abv)
@@ -180,6 +181,7 @@ class Barstock(object):
     """ Wrap up a csv of bottle info with some helpful methods
     for data access and querying
     """
+    # TODO move to own file
     def get_all_bottle_combinations(self, types):
         """ For a given list of ingredient types, return a list of lists
         where each list is a specific way to make the drink
@@ -271,6 +273,8 @@ Example usage:
     pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
     test_parser = subparsers.add_parser('test', help='whatever I need it to be')
+    # TODO takes args for checking if it contains n+ ingredients
+    # take arg for primary spirit
 
     return p
 
