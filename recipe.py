@@ -61,12 +61,16 @@ class DrinkRecipe(object):
         lines.append('')
         return '\n'.join(lines)
 
+    def __repr__(self):
+        return "{}:{},[{}]".format(self.__class__.__name__, self.name, ','.join((i.__repr__() for i in self.ingredients)))
+
     def convert(self, to_unit, convert_nonstandard=False):
         """ Convert the main unit of this recipe
         """
         if self.unit == to_unit:
             return
         for ingredient in self.ingredients:
+            ingredient.recipe_unit = to_unit
             if ingredient.unit in ['ds', 'drop'] and not convert_nonstandard:
                 continue
             try:
@@ -83,7 +87,7 @@ class DrinkRecipe(object):
         ingredients = self._get_quantized_ingredients()
         example_bottles = barstock.get_all_bottle_combinations((i.type_ for i in ingredients))
         for bottles in example_bottles:
-            example = RecipeExample
+            example = self.RecipeExample()
             for bottle, ingredient in zip(bottles, ingredients):
                 if ingredient.unit == 'literal':
                     continue
@@ -97,12 +101,12 @@ class DrinkRecipe(object):
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
-            self.exmples.append(example)
+            self.examples.append(example)
 
     def calculate_stats(self):
         """ After generating examples, calculate stats for this drink
         """
-        self.stats = RecipeStats()
+        self.stats = self.RecipeStats()
         self.stats.min_cost = min([e.cost for e in self.examples])
         self.stats.max_cost = max([e.cost for e in self.examples])
         self.stats.min_abv = min([e.abv for e in self.examples])
@@ -112,7 +116,7 @@ class DrinkRecipe(object):
         self.stats.volume = max([e.volume for e in self.examples])
 
     def _get_quantized_ingredients(self):
-        return (i for i in self.ingredients if isinstance(i, QuantizedIngredient))
+        return [i for i in self.ingredients if isinstance(i, QuantizedIngredient)]
 
     def primary_spirit(self):
         max_amount = 0
@@ -134,6 +138,9 @@ class DrinkRecipe(object):
 class Ingredient(object):
     """ An "ingredient" is every item that should be represented in standard text
     """
+    def _repr_fmt(self):
+        return "<{}[{{}}]>".format(self.__class__.__name__)
+
     @util.default_initializer
     def __init__(self, description):
         self.unit = None
@@ -142,8 +149,8 @@ class Ingredient(object):
     def str(self):
         return str(self.description)
 
-    def cost(self):
-        return 0
+    def __repr__(self):
+        return self._repr_fmt().format(self.description)
 
     def convert(self, new_unit):
         pass
@@ -154,6 +161,9 @@ class Garnish(Ingredient):
     """
     def str(self):
         return "{}, for garnish".format(super(Garnish, self).str())
+
+    def __repr__(self):
+        return super(Garnish, self)._repr_fmt().format(self.description)
 
 
 class QuantizedIngredient(Ingredient):
@@ -205,6 +215,9 @@ class QuantizedIngredient(Ingredient):
         else:
             self.amount = raw_quantity
             self.unit = recipe_unit
+
+    def __repr__(self):
+        return super(QuantizedIngredient, self)._repr_fmt().format("{},{},{}".format(self.amount, self.unit, self.type_))
 
     def convert(self, new_unit):
         if self.unit == 'literal':
@@ -262,18 +275,18 @@ class QuantizedIngredient(Ingredient):
                 }
         return formats.get(self.unit, "{} {} {}").format(amount, unit, self.type_)
 
-    def get_cost(self, bottle, barstock, recipe_unit):
+    def get_cost(self, bottle, barstock):
         if self.unit == 'literal':
             return 0
-        amount = self.get_amount_as(recipe_unit, rounded=False, single_value=True)
-        return barstock.cost_by_bottle_and_volume(bottle, self.type_, amount, recipe_unit)
+        amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
+        return barstock.cost_by_bottle_and_volume(bottle, self.type_, amount, self.recipe_unit)
 
-    def get_std_drinks(self, bottle, barstock, recipe_unit):
+    def get_std_drinks(self, bottle, barstock):
         if self.unit == 'literal':
             return 0
-        amount = self.get_amount_as(recipe_unit, rounded=False, single_value=True)
+        amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
         proof = barstock.get_bottle_proof(bottle, self.type_)
-        return util.calculate_std_drinks(proof, amount, recipe_unit)
+        return util.calculate_std_drinks(proof, amount, self.recipe_unit)
 
 
 class OptionalIngredient(QuantizedIngredient):
