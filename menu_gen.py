@@ -19,8 +19,17 @@ import pandas as pd
 import recipe as drink_recipe
 import util
 
-# TODO make these equivalent properties available on the DrinkRecipe class
-RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin,examples,prep,ice,glass,max_cost')
+def filter_recipes(recipes, filter_options):
+    reduce_fn = any if filter_options.use_or else all
+    recipes = [recipe for recipe in recipes if recipe.can_make or filter_options.all]
+    if filter_options.include:
+        recipes = [recipe for recipe in recipes if
+                reduce_fn((recipe.contains_ingredient(ingredient) for ingredient in filter_options.include))]
+    if filter_options.exclude:
+        recipes = [recipe for recipe in recipes if
+                reduce_fn((not recipe.contains_ingredient(ingredient) for ingredient in filter_options.exclude))]
+    return recipes
+
 
 class StatTracker(dict):
     # mutable class variables
@@ -39,7 +48,7 @@ class StatTracker(dict):
             StatTracker._title_width = len(str_title)
 
     def __str__(self):
-        return "{{title:>{}}}: {{drink_name:{}}} ${{cost:.2f}} | {{abv:>5.2f}}% ABV | {{std_drinks:.2f}} | {{bottles}}"\
+        return "{{title:{}}} | {{drink_name:{}}} | ${{cost:.2f}} | {{abv:>5.2f}}% ABV | {{std_drinks:.2f}} | {{bottles}}"\
             .format(self._title_width+1, self._name_width+1).format(**self)
 
     def update_stat(self, recipe):
@@ -52,7 +61,7 @@ class StatTracker(dict):
             if len(recipe.name) > StatTracker._name_width:
                 StatTracker._name_width = len(recipe.name)
 
-def get_stats(recipes):
+def report_stats(recipes):
     most_expensive = StatTracker('cost', 'max', 'Most Expensive')
     most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
     most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
@@ -67,14 +76,14 @@ def get_stats(recipes):
             least_expensive.update_stat(recipe)
             least_booze.update_stat(recipe)
             least_abv.update_stat(recipe)
+    print
     print most_expensive
     print most_booze
     print most_abv
     print least_expensive
     print least_booze
     print least_abv
-
-
+    print
 
 def convert_to_menu(recipes, prices=True, all_=True, stats=True):
     """ Convert recipe json into readable format
@@ -250,9 +259,10 @@ Example usage:
     p.add_argument('-v', dest='verbose', action='store_true')
     p.add_argument('-b', dest='barstock', default='Barstock - Sheet1.csv', help="Barstock csv filename")
     p.add_argument('-r', dest='recipes', default='recipes.json', help="Recipes json filename")
+    p.add_argument('--save_cache', action='store_true', help="Pickle the generated recipes to cache them for later use (e.g. a quicker build of the pdf)")
+    p.add_argument('--load_cache', action='store_true', help="Load the generated recipes from cache for use")
 
     # display options
-    p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
     p.add_argument('-p', '--prices', action='store_true', help="Display prices for drinks based on stock")
     p.add_argument('-s', '--stats', action='store_true', help="Print out a detailed statistics block for the selected recipes")
     p.add_argument('-e', '--examples', action='store_true', help="Show specific examples of a recipe based on the ingredient stock")
@@ -260,11 +270,14 @@ Example usage:
     p.add_argument('-m', dest='markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
 
     # filtering options
+    p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
     p.add_argument('-i', dest='include', nargs='+', help="Filter by ingredient(s) that must be contained in the recipe")
     p.add_argument('-x', dest='exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
+    p.add_argument('-or', dest='use_or', action='store_true', help="use logical OR for included and excluded ingredient lists instead of default AND")
 
     # txt output
     txt_parser = subparsers.add_parser('txt', help='Simple plain text output')
+    txt_parser.add_argument('--names', action='store_true', help="Show the names of drinks only")
     txt_parser.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
 
     # pdf (latex) output and options
@@ -275,8 +288,6 @@ Example usage:
     pdf_parser.add_argument('-L', dest='liquor_list_own_page', action='store_true', help="Show list of the available ingredients on a separate page")
     pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output to the pdf")
     pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
-    #pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
-    #pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
     # Do alternate things
     test_parser = subparsers.add_parser('test', help='whatever I need it to be')
@@ -284,7 +295,8 @@ Example usage:
     return p
 
 # make passing a bunch of options around a bit cleaner
-DisplayOptions = namedtuple('DisplayOptions', 'all,prices,stats,examples,all_ingredients,markup')
+DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup')
+FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align')
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
@@ -293,54 +305,34 @@ def main():
 
     args = get_parser().parse_args()
     display_options = bundle_options(DisplayOptions, args)
-    pdf_options = bundle_options(PdfOptions, args)
 
-    from pprint import pprint; import ipdb; ipdb.set_trace()
-    if args.command == 'test':
-        with open('recipes.json') as fp:
-            base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+    CACHE_FILE = 'cache.pkl'
+    if args.load_cache:
+        with open(CACHE_FILE) as fp:
+            barstock, recipes = pickle.load(fp)
+            print "Loaded {} recipes from cache file".format(len(recipes))
 
-        barstock = Barstock.load(args.barstock)
-
-        new_recipes = []
-        for name, recipe in base_recipes.iteritems():
-            try:
-                x = drink_recipe.DrinkRecipe(name, recipe)
-                x.generate_examples(barstock)
-            except:
-                print name, recipe
-                raise
-            #if x.contains_ingredient(args.query) and not x.contains_ingredient(args.not_q):
-                #print x.name
-            new_recipes.append(x)
-        get_stats(new_recipes)
-        return
-
-    # TODO Fix the flow here to be less of a roundabout mess
-
-    if args.command == 'pdf' and args.load_cache:
-        with open(args.load_cache) as fp:
-            menu_tuples = pickle.load(fp)
-            print "Loaded recipe cache file {}".format(args.load_cache)
-        ingredient_df = pandas.read_pickle(args.load_cache+'.dfpkl')
     else:
-        # This right here is the standard thing
         with open(args.recipes) as fp:
             base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
         barstock = Barstock.load(args.barstock, args.all)
         recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
                 for name, recipe in base_recipes.iteritems()]
-        if not args.all:
-            # TODO replace with a property on the recipe for "can make" -do ice too! (excl. crushed)
-            recipes = [recipe for recipe in recipes if recipe.examples]
+        recipes = filter_recipes(recipes, bundle_options(FilterOptions, args))
 
-    if args.command == 'pdf' and args.save_cache:
-        with open(args.save_cache, 'w') as fp:
-            pickle.dump(menu_tuples, fp)
-            print "Saved recipe cache as {}".format(args.save_cache)
-        ingredient_df.to_pickle(args.save_cache+'.dfpkl')
+    if args.save_cache:
+        with open(CACHE_FILE, 'w') as fp:
+            pickle.dump((barstock, recipes), fp)
+            print "Saved {} recipes to cache file".format(len(recipes))
 
-    if args.command == 'pdf' and args.pdf_filename:
+    if args.stats:
+        report_stats(recipes)
+
+    if args.command == 'test':
+        print "This is a test"
+
+    if args.command == 'pdf':
+        pdf_options = bundle_options(PdfOptions, args)
         import formatted_menu
         ingredient_df = barstock.df if args.liquor_list or args.liquor_list_own_page else pd.DataFrame()
         formatted_menu.generate_recipes_pdf(recipes, args.pdf_filename, args.ncols, args.align,
@@ -348,11 +340,16 @@ def main():
         return
 
     if args.command == 'txt':
-        if args.write:
-            with open(args.write, 'w') as fp:
-                fp.write('\n\n'.join(menu))
+        if args.names:
+            print '\n'.join([recipe.name for recipe in recipes])
+            print
+            return
+        #if args.write:
+            #with open(args.write, 'w') as fp:
+                #fp.write('\n\n'.join(menu))
         else:
-            print '\n\n'.join(menu)
+            print '\n'.join([str(recipe) for recipe in recipes])
+            print
 
 if __name__ == "__main__":
     main()
