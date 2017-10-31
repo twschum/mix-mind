@@ -130,7 +130,7 @@ class DrinkRecipe(object):
 
     def contains_ingredient(self, ingredient):
         for i in self.ingredients:
-            if i.type_ == ingredient:
+            if ingredient in i.type_:
                 return True
         return False
 

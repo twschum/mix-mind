@@ -273,6 +273,8 @@ Example usage:
     pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
     test_parser = subparsers.add_parser('test', help='whatever I need it to be')
+    test_parser.add_argument('-q', dest='query', help="An ingredient that must be contained in the recipe")
+    test_parser.add_argument('-p', dest='not_q', help="An ingredient that must be contained in the recipe")
     # TODO takes args for checking if it contains n+ ingredients
     # take arg for primary spirit
 
@@ -296,12 +298,9 @@ def main():
             except:
                 print name, recipe
                 raise
-            if x.primary_spirit() == 'dry gin':
-                print "gin: ", x.name
-            if x.contains_ingredient('lime juice'):
-                print "lime: ", x.name
+            if x.contains_ingredient(args.query) and not x.contains_ingredient(args.not_q):
+                print x.name
             new_recipes.append(x)
-
         return
 
     # TODO Fix the flow here to be less of a roundabout mess
