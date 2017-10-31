@@ -13,7 +13,7 @@
         "unit": "oz",
         "prep": "stir",
         "profile": ["strong"],
-        "ice": null,
+        "ice": "none",
         "glass": "martini",
         "garnish": "Lemon twist or olives"
     },

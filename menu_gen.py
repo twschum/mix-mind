@@ -208,44 +208,94 @@ class Barstock(object):
 
 def get_parser():
     p = argparse.ArgumentParser(description="""
+MixMind Drink Menu Generator by twschum
+You'll need:
+ - A json file of recipes  TODO add a jsonschema
+{{
+    "Martini": {{
+        "info": "The King of Cocktails",
+        "ingredients": {{
+            "dry gin": 2.5,
+            "dry vermouth": 0.5
+        }},
+        "optional": {{
+            "orange bitters": "dash"
+        }},
+        "variants": ["Reverse Martini: 5 parts vermouth to 1 part gin",
+                     "Perfect Martini: equal parts dry and sweet vermouth"],
+        "unit": "oz",
+        "prep": "stir",
+        "ice": "none",
+        "glass": "martini",
+        "garnish": "Lemon twist or olives"
+    }}
+}}
+ - A csv of liquer bottles based on the following format:
+Category  Type              Bottle           In Stock  Proof  Size (mL)  Price Paid  Size (oz)  $/mL    $/oz
+Spirit    Rye Whiskey       Bulleit Rye      1         90     750        $28.96      25.4       $0.039  $1.14
+Spirit    Dry Gin           New Amsterdam    0         88     1750       $25.49      59.2       $0.015  $0.43
+Liqueur   Orange Liqueur    Triple Sec       1         30     750        $5.99       25.4       $0.008  $0.24
+Vermouth  Dry Vermouth      Noilly Prat Dry  1         32     375        $6.99       12.7       $0.019  $0.55
+Bitters   Aromatic Bitters  Angostura        1         89.4   118        $7.95       4.0        $0.067  $1.99
+Syrup     Simple Syrup      Homemade         1         0      4000       $2.79       135.3      $0.001  $0.02
+Juice     Lemon Juice       Fresh            1         0      45         $0.80       1.5        $0.018  $0.53
+Mixer     Club Soda         Club Soda        0         0      178        $1.00       6.0        $0.006  $0.17
+
 Example usage:
-    ./program -v -d
-""", formatter_class=argparse.RawTextHelpFormatter)
+    {} -b 'Barstock.csv' -r 'my_recipes.json' -p -e -i lime rum -x 'lemon juice'  pdf my_menu -n 2 -l
+""".format(__file__), formatter_class=argparse.RawTextHelpFormatter)
     subparsers = p.add_subparsers(help='commands', dest='command')
 
+    # core parameters
     p.add_argument('-v', dest='verbose', action='store_true')
     p.add_argument('-b', dest='barstock', default='Barstock - Sheet1.csv', help="Barstock csv filename")
-    p.add_argument('-r', dest='recipes', default='recipes.json', help="Barstock csv filename")
-    p.add_argument('-a', dest='all', action='store_true', help="Include all recipes regardless of stock")
-    p.add_argument('-p', dest='prices', action='store_true', help="Calculate and display prices for example drinks based on stock")
-    p.add_argument('-s', dest='stats', action='store_true', help="Just show some stats")
-    txt_parser = subparsers.add_parser('txt', help='Not a pdf')
+    p.add_argument('-r', dest='recipes', default='recipes.json', help="Recipes json filename")
+
+    # display options
+    p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
+    p.add_argument('-p', '--prices', action='store_true', help="Display prices for drinks based on stock")
+    p.add_argument('-s', '--stats', action='store_true', help="Print out a detailed statistics block for the selected recipes")
+    p.add_argument('-e', '--examples', action='store_true', help="Show specific examples of a recipe based on the ingredient stock")
+    p.add_argument('-g', '--all-ingredients', action='store_true', help="Show every ingredient instead of just the main liquors with each example")
+    p.add_argument('-m', dest='markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
+
+    # filtering options
+    p.add_argument('-i', dest='include', nargs='+', help="Filter by ingredient(s) that must be contained in the recipe")
+    p.add_argument('-x', dest='exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
+
+    # txt output
+    txt_parser = subparsers.add_parser('txt', help='Simple plain text output')
     txt_parser.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
 
+    # pdf (latex) output and options
     pdf_parser = subparsers.add_parser('pdf', help='Options for generating a pdf via LaTeX integration')
-    pdf_parser.add_argument('pdf_filename', default=None, nargs='?', help="Basename of the pdf and tex files")
+    pdf_parser.add_argument('pdf_filename', help="Basename of the pdf and tex files generated")
     pdf_parser.add_argument('-n', dest='ncols', default=2, type=int, help="Number of columns to use for the menu")
-    pdf_parser.add_argument('-m', dest='markup', default=1, type=float, help="Drink markup: total = ceil(base_cost*markup)")
-    pdf_parser.add_argument('-e', dest='examples', action='store_true', help="Show example recipes")
     pdf_parser.add_argument('-l', dest='liquor_list', action='store_true', help="Show list of the available ingredients")
     pdf_parser.add_argument('-L', dest='liquor_list_own_page', action='store_true', help="Show list of the available ingredients on a separate page")
-    pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output")
+    pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output to the pdf")
     pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
-    pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
-    pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
+    #pdf_parser.add_argument('--save_cache', help="Pickle the generated menu that can be consumed by the LaTeX menu generator")
+    #pdf_parser.add_argument('--load_cache', help="Load the generated menu that can be consumed by the LaTeX menu generator")
 
+    # Do alternate things
     test_parser = subparsers.add_parser('test', help='whatever I need it to be')
-    test_parser.add_argument('-q', dest='query', help="An ingredient that must be contained in the recipe")
-    test_parser.add_argument('-p', dest='not_q', help="An ingredient that must be contained in the recipe")
-    # TODO takes args for checking if it contains n+ ingredients
-    # take arg for primary spirit
 
     return p
+
+# make passing a bunch of options around a bit cleaner
+DisplayOptions = namedtuple('DisplayOptions', 'all,prices,stats,examples,all_ingredients,markup')
+PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align')
+def bundle_options(tuple_class, args):
+    return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
 
 def main():
 
     args = get_parser().parse_args()
+    display_options = bundle_options(DisplayOptions, args)
+    pdf_options = bundle_options(PdfOptions, args)
 
+    from pprint import pprint; import ipdb; ipdb.set_trace()
     if args.command == 'test':
         with open('recipes.json') as fp:
             base_recipes = json.load(fp, object_pairs_hook=OrderedDict)

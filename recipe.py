@@ -1,5 +1,5 @@
 """
-Recipe class encapsulates how a drink recipe is calculated and formulated,
+DrinkRecipe class encapsulates how a drink recipe is calculated and formulated,
 can provide itself as a dict/json, tuple of values, do conversions, etc.
 Just generally make it better OOP
 """
@@ -63,6 +63,10 @@ class DrinkRecipe(object):
 
     def __repr__(self):
         return "{}:{},[{}]".format(self.__class__.__name__, self.name, ','.join((i.__repr__() for i in self.ingredients)))
+
+    @property
+    def can_make(self):
+        return bool(self.examples)
 
     def convert(self, to_unit, convert_nonstandard=False):
         """ Convert the main unit of this recipe
