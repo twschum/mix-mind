@@ -19,16 +19,14 @@ import pandas as pd
 import recipe as drink_recipe
 import util
 
-def check_stat(field, tracker, example, drink_name, op):
-    if op(example[field], tracker[field]):
-        tracker.update(example)
-        tracker['name'] = drink_name
-    return tracker
-
 # TODO make these equivalent properties available on the DrinkRecipe class
 RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin,examples,prep,ice,glass,max_cost')
 
 class StatTracker(dict):
+    # mutable class variables
+    _title_width = 0
+    _name_width = 0
+
     def __init__(self, attr, magnitude, str_title):
         if magnitude not in ('max', 'min'):
             raise ValueError('StatTracker magnitude must be "max" or "min"')
@@ -37,9 +35,12 @@ class StatTracker(dict):
         self.val_attr = attr
         self.val = float('inf') if magnitude == 'min' else 0.0
         self['title'] = str_title
+        if len(str_title) > StatTracker._title_width:
+            StatTracker._title_width = len(str_title)
 
     def __str__(self):
-        return "{title:>26}: {drink_name}, ${cost:.2f} | {abv:.2f}% ABV | {std_drinks:.2f} | {bottles}".format(**self)
+        return "{{title:>{}}}: {{drink_name:{}}} ${{cost:.2f}} | {{abv:>5.2f}}% ABV | {{std_drinks:.2f}} | {{bottles}}"\
+            .format(self._title_width+1, self._name_width+1).format(**self)
 
     def update_stat(self, recipe):
         example = getattr(recipe.stats, self.stat)
@@ -48,18 +49,30 @@ class StatTracker(dict):
             self.val = ex_val
             self.update(example._asdict())
             self['drink_name'] = recipe.name
+            if len(recipe.name) > StatTracker._name_width:
+                StatTracker._name_width = len(recipe.name)
 
 def get_stats(recipes):
-    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
     most_expensive = StatTracker('cost', 'max', 'Most Expensive')
     most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
     most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
+    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
+    least_booze = StatTracker('std_drinks', 'min', 'Fewest Std Drinks')
+    least_abv = StatTracker('abv', 'min', 'Lowest Estimated ABV')
     for recipe in recipes:
         if recipe.calculate_stats():
-            least_expensive.update_stat(recipe)
             most_expensive.update_stat(recipe)
-    print least_expensive
+            most_booze.update_stat(recipe)
+            most_abv.update_stat(recipe)
+            least_expensive.update_stat(recipe)
+            least_booze.update_stat(recipe)
+            least_abv.update_stat(recipe)
     print most_expensive
+    print most_booze
+    print most_abv
+    print least_expensive
+    print least_booze
+    print least_abv
 
 
 
@@ -69,9 +82,6 @@ def convert_to_menu(recipes, prices=True, all_=True, stats=True):
 
     menu = []
     menu_tuples = []
-    most_expensive = {'cost':0}
-    most_booze = {'drinks':0}
-    most_abv = {'abv': 0}
     for drink_name, recipe in recipes.iteritems():
         lines = []
         lines.append(drink_name)
@@ -112,9 +122,6 @@ def convert_to_menu(recipes, prices=True, all_=True, stats=True):
             if prices:
                 lines.append("\t    Examples: ".format(examples))
             for e in examples:
-                most_expensive = check_stat('cost', most_expensive, e, drink_name)
-                most_booze = check_stat('drinks', most_booze, e, drink_name)
-                most_abv = check_stat('abv', most_abv, e, drink_name)
                 if prices:
                     lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
 
@@ -130,11 +137,6 @@ def convert_to_menu(recipes, prices=True, all_=True, stats=True):
         else:
             print "Can't make {}".format(drink_name)
 
-    if stats:
-        # TODO alternate stats block and mapping
-        print "Most Expensive: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_expensive)
-        print "Most Booze: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_booze)
-        print "Highest ABV (estimate): {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_abv)
     return menu, menu_tuples
 
 class Barstock(object):
