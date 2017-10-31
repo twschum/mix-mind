@@ -102,6 +102,7 @@ class DrinkRecipe(object):
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
             self.examples.append(example)
+        return self # so it can be used when chained
 
     def calculate_stats(self):
         """ After generating examples, calculate stats for this drink

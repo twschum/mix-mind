@@ -93,17 +93,17 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
     recipe_page.append(name_line)
 
     if recipe.info:
-        recipe_page.append(italic(recipe.info +'\n'))
+        recipe_page.append(SmallText(italic(recipe.info +'\n')))
     for item in recipe.ingredients:
-        recipe_page.append(item +'\n')
+        recipe_page.append(item.str() +'\n')
 
     for variant in recipe.variants:
         recipe_page.append(HorizontalSpace('8pt'))
-        recipe_page.append(italic(variant +'\n'))
+        recipe_page.append(SmallText(italic(variant +'\n')))
 
     if show_examples and recipe.examples:# and recipe.name != 'The Cocktail':
         for e in recipe.examples:
-            recipe_page.append(FootnoteText("${cost:.2f} | {abv:.2f}% | {drinks:.2f} | {bottles}\n".format(**e)))
+            recipe_page.append(FootnoteText("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}\n".format(**e._asdict())))
 
     recipe_page.append(Command('par'))
     return recipe_page

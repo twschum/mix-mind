@@ -274,13 +274,15 @@ def main():
             print "Loaded recipe cache file {}".format(args.load_cache)
         ingredient_df = pandas.read_pickle(args.load_cache+'.dfpkl')
     else:
+        # This right here is the standard thing
         with open(args.recipes) as fp:
             base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
-        recipes = [drink.Drink(name, recipe) for name, recipe in base_recipes.iteritems()]
-
-        df = load_cost_df(args.barstock, args.all)
-        #all_recipes = expand_recipes(df, base_recipes)
-        #menu, menu_tuples = convert_to_menu(all_recipes, args.prices, args.all, args.stats)
+        barstock = Barstock.load(args.barstock, args.all)
+        recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
+                for name, recipe in base_recipes.iteritems()]
+        if not args.all:
+            # TODO replace with a property on the recipe for "can make" -do ice too! (excl. crushed)
+            recipes = [recipe for recipe in recipes if recipe.examples]
 
     if args.command == 'pdf' and args.save_cache:
         with open(args.save_cache, 'w') as fp:
@@ -290,8 +292,8 @@ def main():
 
     if args.command == 'pdf' and args.pdf_filename:
         import formatted_menu
-        ingredient_df = df if args.liquor_list or args.liquor_list_own_page else pd.DataFrame()
-        formatted_menu.generate_recipes_pdf(menu_tuples, args.pdf_filename, args.ncols, args.align,
+        ingredient_df = barstock.df if args.liquor_list or args.liquor_list_own_page else pd.DataFrame()
+        formatted_menu.generate_recipes_pdf(recipes, args.pdf_filename, args.ncols, args.align,
                 args.debug, args.prices, args.markup, args.examples, ingredient_df, args.liquor_list_own_page)
         return
 
