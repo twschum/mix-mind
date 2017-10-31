@@ -95,7 +95,7 @@ class DrinkRecipe(object):
                 example.std_drinks += ingredient.get_std_drinks(bottle, barstock)
                 example.volume     += ingredient.get_amount_as(self.unit, rounded=False, single_value=True)
                 # remove juice and such from the bottles listed
-                if barstock.get_bottle_category(bottle, ingredient.type_) in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit']:
+                if barstock.get_bottle_category(bottle, ingredient.type_) in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit', 'Wine']:
                     example.bottles.append(bottle)
             example.bottles = ', '.join(example.bottles);
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
@@ -107,7 +107,7 @@ class DrinkRecipe(object):
         """ After generating examples, calculate stats for this drink
         """
         if not self.examples:
-            return
+            return False
         def _find_example(examples, attr, max_=False):
             return sorted(examples, key=lambda e: getattr(e, attr), reverse=max_)[0]
         self.stats = self.RecipeStats()
@@ -118,6 +118,7 @@ class DrinkRecipe(object):
         self.stats.min_std_drinks = _find_example(self.examples, 'std_drinks')
         self.stats.max_std_drinks = _find_example(self.examples, 'std_drinks', max_=True)
         self.stats.volume = _find_example(self.examples, 'volume', max_=True).volume
+        return True
 
     def _get_quantized_ingredients(self):
         return [i for i in self.ingredients if isinstance(i, QuantizedIngredient)]

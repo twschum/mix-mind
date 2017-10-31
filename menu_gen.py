@@ -12,30 +12,15 @@ import string
 import itertools
 from collections import OrderedDict, namedtuple
 from fractions import Fraction
+import operator
 
 import pandas as pd
 
 import recipe as drink_recipe
 import util
 
-
-def get_ingredient_str(name, amount, unit):
-    if isinstance(amount, basestring):
-        amount_str = amount
-        if amount == 'dash':
-            unit = 'of'
-        else:
-            unit = ''
-    elif unit == 'oz':
-        amount_str = util.to_fraction(amount)
-    else:
-        amount_str = str(amount)
-    if unit:
-        unit += ' '
-    return "{} {}{}".format(amount_str, unit, name)
-
-def check_stat(field, tracker, example, drink_name):
-    if example[field] > tracker[field]:
+def check_stat(field, tracker, example, drink_name, op):
+    if op(example[field], tracker[field]):
         tracker.update(example)
         tracker['name'] = drink_name
     return tracker
@@ -43,8 +28,43 @@ def check_stat(field, tracker, example, drink_name):
 # TODO make these equivalent properties available on the DrinkRecipe class
 RecipeContent = namedtuple('RecipeContent', 'name,info,ingredients,variants,origin,examples,prep,ice,glass,max_cost')
 
+class StatTracker(dict):
+    def __init__(self, attr, magnitude, str_title):
+        if magnitude not in ('max', 'min'):
+            raise ValueError('StatTracker magnitude must be "max" or "min"')
+        self.op = operator.lt if magnitude == 'min' else operator.gt
+        self.stat = '{}_{}'.format(magnitude, attr)
+        self.val_attr = attr
+        self.val = float('inf') if magnitude == 'min' else 0.0
+        self['title'] = str_title
+
+    def __str__(self):
+        return "{title:>26}: {drink_name}, ${cost:.2f} | {abv:.2f}% ABV | {std_drinks:.2f} | {bottles}".format(**self)
+
+    def update_stat(self, recipe):
+        example = getattr(recipe.stats, self.stat)
+        ex_val = getattr(example, self.val_attr)
+        if self.op(ex_val, self.val):
+            self.val = ex_val
+            self.update(example._asdict())
+            self['drink_name'] = recipe.name
+
+def get_stats(recipes):
+    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
+    most_expensive = StatTracker('cost', 'max', 'Most Expensive')
+    most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
+    most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
+    for recipe in recipes:
+        if recipe.calculate_stats():
+            least_expensive.update_stat(recipe)
+            most_expensive.update_stat(recipe)
+    print least_expensive
+    print most_expensive
+
+
+
 def convert_to_menu(recipes, prices=True, all_=True, stats=True):
-    """ Convert recipe json into readible format
+    """ Convert recipe json into readable format
     """
 
     menu = []
@@ -116,66 +136,6 @@ def convert_to_menu(recipes, prices=True, all_=True, stats=True):
         print "Most Booze: {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_booze)
         print "Highest ABV (estimate): {name}, ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**most_abv)
     return menu, menu_tuples
-
-def expand_recipes(df, recipes):
-
-    for drink_name, recipe in recipes.iteritems():
-        unit = recipe.get('unit', 'oz')
-        prep = recipe.get('prep', 'shake')
-
-        ingredients_names = []
-        ingredients_amounts = []
-        for name, amount in recipe['ingredients'].iteritems():
-            if isinstance(amount, basestring):
-                if amount == 'Top with':
-                    amount = 3.0
-                elif 'dash' in amount:
-                    amount = util.dash_to_volume(amount, unit)
-                elif 'tsp' in amount:
-                    try:
-                        amount = float(amount.split()[0])
-                    except ValueError:
-                        amount = float(Fraction(amount.split()[0]))
-                    amount = util.tsp_to_volume(amount, unit)
-                else:
-                    continue
-            ingredients_names.append(name)
-            ingredients_amounts.append(amount)
-
-        # calculate cost for every combination of ingredients for this drink
-        examples = []
-        for bottles in get_all_bottle_combinations(df, ingredients_names):
-            sum_ = 0
-            std_drinks = 0
-            volume = 0
-            display_list = []
-            for bottle, type_, amount in zip(bottles, ingredients_names, ingredients_amounts):
-                sum_ += cost_by_bottle_and_volume(df, bottle, type_, amount, unit)
-                std_drinks += drinks_by_bottle_and_volume(df, bottle, type_, amount, unit)
-                volume += amount
-                # remove juice and such from the bottles listed
-                category = get_bottle_by_type(df, bottle, type_).at[0, 'Category']
-                if category in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit']:
-                    display_list.append(bottle)
-
-            # add ~40% for stirred and ~65% for shaken
-            water_added_by_prep = { } # TODO shake, stir, mix? something w/o ice
-            volume *= 1.65 if prep == 'shake' else 1.4
-            abv = 40.0 * (std_drinks*(1.5 if unit == 'oz' else 45.0) / volume)
-
-            examples.append({'bottles': ', '.join(display_list),
-                             'cost': sum_,
-                             'abv': abv,
-                             'drinks': std_drinks})
-        recipes[drink_name]['examples'] = examples
-        # calculate the max price
-        price = 0
-        if examples:
-            prices = [e['cost'] for e in examples]
-            price = max(prices)
-        recipes[drink_name]['max_cost'] = price
-
-    return recipes
 
 class Barstock(object):
     """ Wrap up a csv of bottle info with some helpful methods
@@ -298,9 +258,10 @@ def main():
             except:
                 print name, recipe
                 raise
-            if x.contains_ingredient(args.query) and not x.contains_ingredient(args.not_q):
-                print x.name
+            #if x.contains_ingredient(args.query) and not x.contains_ingredient(args.not_q):
+                #print x.name
             new_recipes.append(x)
+        get_stats(new_recipes)
         return
 
     # TODO Fix the flow here to be less of a roundabout mess
