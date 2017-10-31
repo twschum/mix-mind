@@ -20,7 +20,7 @@ class DrinkRecipe(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
     RecipeExample = recordtype('RecipeExample', [('bottles', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
-    RecipeStats = recordtype('RecipeStats', 'min_cost,max_cost,min_abv,max_abv,min_std_drinks,max_std_drinks,volume', default=0.0)
+    RecipeStats = recordtype('RecipeStats', 'min_cost,max_cost,min_abv,max_abv,min_std_drinks,max_std_drinks,volume', default=RecipeExample)
 
     @util.default_initializer
     def __init__(self, name, recipe_dict, stock_df=None):
@@ -87,7 +87,7 @@ class DrinkRecipe(object):
         ingredients = self._get_quantized_ingredients()
         example_bottles = barstock.get_all_bottle_combinations((i.type_ for i in ingredients))
         for bottles in example_bottles:
-            example = self.RecipeExample()
+            example = self.RecipeExample(); example.bottles = []
             for bottle, ingredient in zip(bottles, ingredients):
                 if ingredient.unit == 'literal':
                     continue
@@ -97,7 +97,7 @@ class DrinkRecipe(object):
                 # remove juice and such from the bottles listed
                 if barstock.get_bottle_category(bottle, ingredient.type_) in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit']:
                     example.bottles.append(bottle)
-            example.bottles = ', '.join(example.bottles)
+            example.bottles = ', '.join(example.bottles);
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
@@ -106,14 +106,18 @@ class DrinkRecipe(object):
     def calculate_stats(self):
         """ After generating examples, calculate stats for this drink
         """
+        if not self.examples:
+            return
+        def _find_example(examples, attr, max_=False):
+            return sorted(examples, key=lambda e: getattr(e, attr), reverse=max_)[0]
         self.stats = self.RecipeStats()
-        self.stats.min_cost = min([e.cost for e in self.examples])
-        self.stats.max_cost = max([e.cost for e in self.examples])
-        self.stats.min_abv = min([e.abv for e in self.examples])
-        self.stats.max_abv = max([e.abv for e in self.examples])
-        self.stats.min_std_drinks = min([e.std_drinks for e in self.examples])
-        self.stats.max_std_drinks = max([e.std_drinks for e in self.examples])
-        self.stats.volume = max([e.volume for e in self.examples])
+        self.stats.min_cost = _find_example(self.examples, 'cost')
+        self.stats.max_cost = _find_example(self.examples, 'cost', max_=True)
+        self.stats.min_abv = _find_example(self.examples, 'abv')
+        self.stats.max_abv = _find_example(self.examples, 'abv', max_=True)
+        self.stats.min_std_drinks = _find_example(self.examples, 'std_drinks')
+        self.stats.max_std_drinks = _find_example(self.examples, 'std_drinks', max_=True)
+        self.stats.volume = _find_example(self.examples, 'volume', max_=True).volume
 
     def _get_quantized_ingredients(self):
         return [i for i in self.ingredients if isinstance(i, QuantizedIngredient)]
