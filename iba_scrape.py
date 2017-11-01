@@ -13,6 +13,13 @@ import json
 url = 'http://iba-world.com/iba-cocktails/'
 jsonfile = 'IBA_unforgettables.json'
 
+
+url = 'http://iba-world.com/contemporary-classics/'
+jsonfile = 'IBA_contemporary_classics.json'
+
+url = 'http://iba-world.com/new-era-drinks/'
+jsonfile = 'IBA_new_era_drinks.json'
+
 recipes = OrderedDict()
 
 page = requests.get(url)
@@ -23,18 +30,41 @@ for item in items:
     name = ' '.join([word.capitalize() for word in name.split()])
     body = item.find(".//div[@class='blog_text']")
     recipes[name] = {'unit': 'cL'}
+    print name
     children = [c for c in body.iterchildren()]
 
     assert children[1].tag == 'p'
-    recipes[name]['style'] = children[1].text
+    style = children[1].text
+    if style is None:
+        style = children[1].find('span').text
+    recipes[name]['style'] = style
 
-    assert children[2].tag == 'ul'
     recipes[name]['ingredients'] = OrderedDict()
-    for ingredient in children[2].iterchildren():
-        try:
-            recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = float(ingredient.text.split()[0])
-        except ValueError:
-            recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = ingredient.text.split()[0]
+
+    if not children[2].tag == 'ul':
+        print "DO BY HAND: ", children[2].text
+
+    else:
+        for ingredient in children[2].iterchildren():
+            if len(ingredient.text.split()) == 1:
+                recipes[name]['ingredients'][ingredient.text.lower()] = ''
+                continue
+            unit = ingredient.text.split()[1].lower()
+            if unit == 'cl':
+                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = float(ingredient.text.split()[0])
+            elif unit == 'bar' or unit == 'to': # bar spoon
+                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[3:]])] = ' '.join(ingredient.text.split()[:3])
+            elif unit == 'dashes' or unit == 'drops':
+                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = ' '.join(ingredient.text.split()[:2])
+            elif unit == 'dash':
+                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = 'dash'
+            else:
+                print "using literal: ", ingredient.text
+                literal = {'1': 'one', '2': 'two', 'A': 'one'}
+                try:
+                    recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[1:]])] = literal[ingredient.text.split()[0]]
+                except:
+                    recipes[name]['ingredients'][ingredient.text.lower()] = ''
 
     # Get full description from the link
     ref_url = item.find(".//a[@class='top_hover_image']").attrib.get('href')
@@ -48,10 +78,10 @@ for item in items:
         if child.tag =='ul':
             use_next = True
 
-    print name
 
-
-
+with open(jsonfile, 'w') as fp:
+    json.dump(recipes, fp, indent=4, separators=(',', ': '))
+    print "Wrote out as {}".format(jsonfile)
 
 
 sys.exit(0)
