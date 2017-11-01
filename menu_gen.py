@@ -302,6 +302,8 @@ def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
 
 def main():
+    # TODO refactor the passing of options into the pdf generator
+    # pass display options to Recipes when generating
 
     args = get_parser().parse_args()
     display_options = bundle_options(DisplayOptions, args)
