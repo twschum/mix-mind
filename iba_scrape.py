@@ -3,22 +3,21 @@
 # scrape the IBA pages for cocktail lists
 
 import sys
-
+import xml.etree.ElementTree as ET
 from lxml import html
 import requests
 from pprint import pprint
 from collections import OrderedDict
 import json
 
+url = 'http://iba-world.com/new-era-drinks/'
+jsonfile = 'IBA_new_era_drinks.json'
+
 url = 'http://iba-world.com/iba-cocktails/'
 jsonfile = 'IBA_unforgettables.json'
 
-
 url = 'http://iba-world.com/contemporary-classics/'
 jsonfile = 'IBA_contemporary_classics.json'
-
-url = 'http://iba-world.com/new-era-drinks/'
-jsonfile = 'IBA_new_era_drinks.json'
 
 recipes = OrderedDict()
 
@@ -33,38 +32,47 @@ for item in items:
     print name
     children = [c for c in body.iterchildren()]
 
-    assert children[1].tag == 'p'
-    style = children[1].text
+    n = 0
+    if children[1].tag == 'ul':
+        n = -1
+
+    style = children[n+1].text
     if style is None:
-        style = children[1].find('span').text
+        try:
+            style = children[n+1].find('span').text
+        except:
+            pass
     recipes[name]['style'] = style
 
     recipes[name]['ingredients'] = OrderedDict()
 
-    if not children[2].tag == 'ul':
-        print "DO BY HAND: ", children[2].text
+    if not children[n+2].tag == 'ul':
+        print "adapting <p> ingredients:", children[n+2].text
+        ing_list = ET.tostring(children[n+2]).lstrip('<p>').rstrip('</p>\n').split('<br />\n')
 
     else:
-        for ingredient in children[2].iterchildren():
-            if len(ingredient.text.split()) == 1:
-                recipes[name]['ingredients'][ingredient.text.lower()] = ''
-                continue
-            unit = ingredient.text.split()[1].lower()
-            if unit == 'cl':
-                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = float(ingredient.text.split()[0])
-            elif unit == 'bar' or unit == 'to': # bar spoon
-                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[3:]])] = ' '.join(ingredient.text.split()[:3])
-            elif unit == 'dashes' or unit == 'drops':
-                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = ' '.join(ingredient.text.split()[:2])
-            elif unit == 'dash':
-                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[2:]])] = 'dash'
-            else:
-                print "using literal: ", ingredient.text
-                literal = {'1': 'one', '2': 'two', 'A': 'one'}
-                try:
-                    recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.text.split()[1:]])] = literal[ingredient.text.split()[0]]
-                except:
-                    recipes[name]['ingredients'][ingredient.text.lower()] = ''
+        ing_list = [i.text for i in children[n+2].iterchildren()]
+
+    for ingredient in ing_list:
+        if len(ingredient.split()) == 1:
+            recipes[name]['ingredients'][ingredient.lower()] = ''
+            continue
+        unit = ingredient.split()[1].lower()
+        if unit == 'cl':
+            recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.split()[2:]])] = float(ingredient.split()[0])
+        elif unit == 'bar' or unit == 'to': # bar spoon
+            recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.split()[3:]])] = ' '.join(ingredient.split()[:3])
+        elif unit == 'dashes' or unit == 'drops' or unit == 'with':
+            recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.split()[2:]])] = ' '.join(ingredient.split()[:2])
+        elif unit == 'dash':
+            recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.split()[2:]])] = 'dash'
+        else:
+            print "using literal: ", ingredient
+            literal = {'1': 'one', '2': 'two', 'A': 'one'}
+            try:
+                recipes[name]['ingredients'][' '.join([w.lower() for w in ingredient.split()[1:]])] = literal[ingredient.split()[0]]
+            except:
+                recipes[name]['ingredients'][ingredient.lower()] = ''
 
     # Get full description from the link
     ref_url = item.find(".//a[@class='top_hover_image']").attrib.get('href')
