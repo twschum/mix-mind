@@ -1,0 +1,330 @@
+{
+    "Bellini": {
+        "style": "Sparkling Cocktail",
+        "IBA_description": "Pour peach puree into chilled glass and add sparkling wine. Stir gently.",
+        "unit": "cL",
+        "ingredients": {
+            "prosecco": 10.0,
+            "fresh peach puree": 5.0
+        }
+    },
+    "Black Russian": {
+        "style": "After Dinner Cocktail",
+        "IBA_description": "Pour the ingredients into the old fashioned-glass filled with ice cubes. Stir gently.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 5.0,
+            "coffee liqueur": 2.0
+        }
+    },
+    "Bloody Mary": {
+        "style": "Longdrink",
+        "IBA_description": "Stir gently, pour all ingredients into highball glass. Garnish with celery and lemon wedge (optional).",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 4.5,
+            "tomato juice": 9.0,
+            "lemon juice": 1.5,
+            "dashes of worcestershire sauce": "2 to 3",
+            "tabasco": "",
+            "celery salt": "",
+            "pepper": ""
+        }
+    },
+    "Caipirinha": {
+        "style": "Longdrink",
+        "IBA_description": "Place lime and sugar in an old fashioned glass and muddle. Fill glass with ice and Cacha\u00e7a. (For a Caipiroska \u2013 use Vodka instead of Cacha\u00e7a).",
+        "unit": "cL",
+        "ingredients": {
+            "cacha\u00e7a": 5.0,
+            "1/2 fresh lime (4 wedges)": "",
+            "teaspoons sugar": "two"
+        }
+    },
+    "Champagne Cocktail": {
+        "style": "Sparkling Cocktail",
+        "unit": "cL",
+        "ingredients": {
+            "chilled champagne": 9.0,
+            "cognac": 1.0,
+            "angostura bitters": "2 dashes",
+            "sugar cube": "one"
+        }
+    },
+    "Cosmopolitan": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Shake all ingredients in cocktail shaker filled with ice.Strain into a large cocktail glass .Garnish with lime slice.",
+        "unit": "cL",
+        "ingredients": {
+            "citron vodka": 4.0,
+            "cointreau": 1.5,
+            "cranberry juice": 3.0,
+            "fresh lime juice": 1.5
+        }
+    },
+    "Cuba Libre": {
+        "style": "Longdrink",
+        "IBA_description": "Build all ingredients in a highball glass filled with ice. Garnish with lime wedge.",
+        "unit": "cL",
+        "ingredients": {
+            "white rum": 5.0,
+            "cola": 12.0,
+            "fresh lime juice": 1.0
+        }
+    },
+    "French 75": {
+        "style": "Sparkling Cocktail",
+        "IBA_description": "Pour all the ingredients, except champagne, into a shaker. Shake.Strain into a champagne flute.Top up with champagne. Stir gently.",
+        "unit": "cL",
+        "ingredients": {
+            "gin": 3.0,
+            "fresh lemon juice": 1.5,
+            "sugar syrup": "2 dashes",
+            "champagne": 6.0
+        }
+    },
+    "French Connection": {
+        "style": "After Dinner Cocktail",
+        "IBA_description": "Pour all ingredients directly into old fashioned glass filled with ice cubes.",
+        "unit": "cL",
+        "ingredients": {
+            "cognac": 3.5,
+            "amaretto": 3.5
+        }
+    },
+    "God Father": {
+        "style": "After Dinner Cocktail",
+        "unit": "cL",
+        "ingredients": {
+            "scotch": 3.5,
+            "amaretto": 3.5
+        }
+    },
+    "God Mother": {
+        "style": "After Dinner Cocktail",
+        "IBA_description": "Pour all ingredients directly into old fashioned glass filled with ice cubes.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 3.5,
+            "amaretto": 3.5
+        }
+    },
+    "Golden Dream": {
+        "style": "After Dinner Cocktail",
+        "IBA_description": "Pour all ingredients into shaker filled with ice.",
+        "unit": "cL",
+        "ingredients": {
+            "galliano": 2.0,
+            "triple sec": 2.0,
+            "fresh orange juice": 2.0,
+            "fresh cream": 1.0
+        }
+    },
+    "Grasshopper": {
+        "style": "After Dinner Cocktail",
+        "IBA_description": "Pour all ingredients into shaker filled with ice.",
+        "unit": "cL",
+        "ingredients": {
+            "cr\u00e8me de cacao (white)": 3.0,
+            "cr\u00e8me de menthe (green)": 3.0,
+            "fresh cream": 3.0
+        }
+    },
+    "Harvey Wallbanger": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Pour vodka and orange juice into a highball glass filled with ice.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 4.5,
+            "galliano (to float on drink)": 1.5,
+            "orange juice": 9.0
+        }
+    },
+    "Hemingway Special": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Pour all ingredients into a shaker with ice. Shake.",
+        "unit": "cL",
+        "ingredients": {
+            "white rum": 6.0,
+            "maraschino": 1.5,
+            "grapefruit juice": 4.0,
+            "1.5cl fresh lime juice": ""
+        }
+    },
+    "Horse\u2019s Neck": {
+        "style": "Longdrink",
+        "IBA_description": "Pour brandy and ginger ale directly into hi-ball glass with ice cubes. Stir gently.",
+        "unit": "cL",
+        "ingredients": {
+            "brandy": 4.0,
+            "ginger ale": 12.0,
+            "dash of angostura bitters (optional)": ""
+        }
+    },
+    "Irish Coffee": {
+        "style": "Hot Drink",
+        "IBA_description": "Warm the Irish whiskey over a burner.\u00a0Pour into the glass (for hot drink) hot coffee, and add a teaspoon of sugar.\u00a0Float Cream on top.",
+        "unit": "cL",
+        "ingredients": {
+            "irish whiskey": 4.0,
+            "hot coffee": 9.0,
+            "fresh cream": 3.0,
+            "teaspoon of brown sugar": "one"
+        }
+    },
+    "Kir": {
+        "style": "Before Dinner Cocktail",
+        "IBA_description": "Pour Cr\u00e8me de Cassis into glass, top up with white wine.",
+        "unit": "cL",
+        "ingredients": {
+            "dry white wine": 9.0,
+            "cr\u00e8me de cassis": 1.0
+        }
+    },
+    "Long Island Ice Tea": {
+        "style": "Longdrink",
+        "IBA_description": "Add all ingredients into highball glass filled with ice.",
+        "unit": "cL",
+        "ingredients": {
+            "gin": 1.5,
+            "tequila": 1.5,
+            "vodka": 1.5,
+            "white rum": 1.5,
+            "triple sec": 1.5,
+            "gomme syrup": 3.0,
+            "lemon juice, fresh": 2.5,
+            "of cola": "dash"
+        }
+    },
+    "Mai-tai": {
+        "style": "Longdrink",
+        "IBA_description": "Shake and strain into highball glass.",
+        "unit": "cL",
+        "ingredients": {
+            "white rum": 4.0,
+            "dark rum": 2.0,
+            "orange cura\u0107ao": 1.5,
+            "orgeat syrup": 1.5,
+            "fresh lime juice": 1.0
+        }
+    },
+    "Margarita": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Pour all ingredients into shaker with ice.",
+        "unit": "cL",
+        "ingredients": {
+            "tequila": 3.5,
+            "cointreau": 2.0,
+            "freshly squeezed lime juice": 1.5
+        }
+    },
+    "Mimosa": {
+        "style": "Sparkling Cocktail",
+        "IBA_description": "Pour orange juice into flute and gently pour Champagne. Stir gently.",
+        "unit": "cL",
+        "ingredients": {
+            "champagne": 7.5,
+            "orange juice, fresh": 7.5
+        }
+    },
+    "Mint Julep": {
+        "style": "Longdrink",
+        "IBA_description": "In a highball glass gently muddle the mint, sugar and water.",
+        "unit": "cL",
+        "ingredients": {
+            "bourbon whiskey": 6.0,
+            "4 fresh mint sprigs": "",
+            "teaspoon powdered sugar": "one",
+            "teaspoons water": "two"
+        }
+    },
+    "Mojito": {
+        "style": "Longdrink",
+        "IBA_description": "Muddle mint springs with sugar and lime juice.",
+        "unit": "cL",
+        "ingredients": {
+            "white cuban rum": 4.0,
+            "fresh lime juice": 3.0,
+            "6 mint sprigs": "",
+            "teaspoons white sugar": "two",
+            "soda water": ""
+        }
+    },
+    "Moscow Mule": {
+        "style": "Longdrink",
+        "IBA_description": "Combine the vodka and ginger beer.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 4.5,
+            "ginger beer": 12.0,
+            "lime juice, fresh": 0.5,
+            "slice lime in a highball glass": "one"
+        }
+    },
+    "Pina Colada": {
+        "style": "Longdrink",
+        "IBA_description": "Blend all the ingredients with ice in a electric blender, pour into a large goblet or Hurricane glass and serve with straws.",
+        "unit": "cL",
+        "ingredients": {
+            "white rum": 3.0,
+            "pineapple juice": 9.0,
+            "coconut cream": 3.0
+        }
+    },
+    "Rose": {
+        "style": null,
+        "IBA_description": "Stir all ingredients with ice and strain into a cocktail glass.",
+        "unit": "cL",
+        "ingredients": {
+            "kirsch": 2.0,
+            "dry vermouth": 4.0,
+            "strawberry syrup": "3 dashes"
+        }
+    },
+    "Sea Breeze": {
+        "style": "Longdrink",
+        "IBA_description": "Build all ingredients in a rock glass filled with ice. Garnish with lime wedge.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 4.0,
+            "cranberry juice": 12.0,
+            "grapefruit juice": 3.0
+        }
+    },
+    "Sex On The Beach": {
+        "style": "Longdrink",
+        "IBA_description": "Build all ingredients in a highball glass filled with ice. Garnish with orange slice.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 4.0,
+            "peach schnapps": 2.0,
+            "cranberry juice": 4.0,
+            "orange juice": 4.0
+        }
+    },
+    "Singapore Sling": {
+        "style": "Longdrink",
+        "IBA_description": "Pour all ingredients into cocktail shaker filled with ice cubes. Shake well.",
+        "unit": "cL",
+        "ingredients": {
+            "gin": 3.0,
+            "cherry liqueur": 1.5,
+            "cointreau": 0.75,
+            "dom b\u00e9n\u00e9dictine": 0.75,
+            "grenadine": 1.0,
+            "pineapple juice": 12.0,
+            "lime juice": 1.5,
+            "angostura bitters": "dash"
+        }
+    },
+    "Tequila Sunrise": {
+        "style": "Longdrink",
+        "IBA_description": "Pour tequila and orange juice directly into highball with ice cubes.",
+        "unit": "cL",
+        "ingredients": {
+            "tequila": 4.5,
+            "orange juice": 9.0,
+            "grenadine": 1.5
+        }
+    }
+}

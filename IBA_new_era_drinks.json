@@ -1,0 +1,172 @@
+{
+    "B52": {
+        "style": null,
+        "IBA_description": "Layer ingredients one at a time starting with Kahl\u00faa, followed by Baileys Irish Cream and top with Grand Marnier.",
+        "unit": "cL",
+        "ingredients": {
+            "grand marnier": 2.0,
+            "baileys irish cream": 2.0,
+            "kahl\u00faa": 2.0
+        }
+    },
+    "Barracuda": {
+        "style": "Sparkling Cocktail",
+        "IBA_description": null,
+        "unit": "cL",
+        "ingredients": {
+            "gold rum": 4.5,
+            "galliano": 1.5,
+            "pineapple juice": 6.0,
+            "fresh lime juice": "dash",
+            "prosecco": "Top with"
+        }
+    },
+    "Bramble": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Build over crushed ice, in a rock glass.",
+        "unit": "cL",
+        "ingredients": {
+            "gin": 4.0,
+            "sugar syrup": 1.0,
+            "fresh lemon juice": 1.5,
+            "blackberry liqueur": 1.5
+        }
+    },
+    "Dark \u2018n\u2019 Stormy": {
+        "style": "Longdrink",
+        "IBA_description": "In a highball glass filled with ice add\u00a06cl Dark Rum and top with ginger beer. Garnish with lime wedge.",
+        "unit": "cL",
+        "ingredients": {
+            "dark rum": 6.0,
+            "ginger beer": 10.0
+        }
+    },
+    "Dirty Martini": {
+        "style": "Before Dinner Cocktail",
+        "IBA_description": "Pour all ingredients into mixing glass with ice cubes.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 6.0,
+            "dry vermouth": 1.0,
+            "olive juice": 1.0
+        }
+    },
+    "Espresso Martini": {
+        "style": "After Dinner Cocktail",
+        "IBA_description": "Shake and strain into a chilled cocktail glass.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 5.0,
+            "kahl\u00faa": 1.0,
+            "sugar syrup (according to individual\u00a0preference\u00a0of sweetness)": "",
+            "short strong espresso": "one"
+        }
+    },
+    "French Martini": {
+        "style": "Before Dinner Cocktail",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 4.5,
+            "raspberry liqueur": 1.5,
+            "fresh pineapple juice": 1.5
+        }
+    },
+    "Kamikaze": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Shake and strain into a chilled cocktail glass.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 3.0,
+            "triple sec": 3.0,
+            "fresh lime juice": 3.0
+        }
+    },
+    "Lemon Drop Martini": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Shake and strain into a chilled cocktail glass rimmed with sugar, garnish with a slice of lemon.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka citron": 2.5,
+            "triple sec": 2.0,
+            "fresh lemon juice": 1.5
+        }
+    },
+    "Pisco Sour": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Shake and strain into a chilled champagne flute.",
+        "unit": "cL",
+        "ingredients": {
+            "pisco": 4.5,
+            "sugar syrup": 2.0,
+            "fresh lemon juice": 3.0,
+            "raw egg white (small egg)": "one"
+        }
+    },
+    "Russian Spring Punch": {
+        "style": "Sparkling Cocktail",
+        "IBA_description": "Shake the ingredients and pour into highball glass. Top with Sparkling wine.",
+        "unit": "cL",
+        "ingredients": {
+            "vodka": 2.5,
+            "cr\u00e9me de cassis": 1.5,
+            "sugar syrup": 1.0,
+            "lemon juice, fresh": 2.5
+        }
+    },
+    "Spritz Veneziano": {
+        "style": "Sparkling Cocktail",
+        "IBA_description": "Build into an old-fashioned glass filled with ice.",
+        "unit": "cL",
+        "ingredients": {
+            "prosecco": 6.0,
+            "aperol": 4.0,
+            "splash of soda water": ""
+        }
+    },
+    "Tommy\u2019s Margarita": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Shake and strain into a chilled cocktail glass.",
+        "unit": "cL",
+        "ingredients": {
+            "tequila": 4.5,
+            "freshly squeezed lime juice": 1.5,
+            "of agave nectar": "2 bar spoons"
+        }
+    },
+    "Vampiro": {
+        "style": null,
+        "unit": "cL",
+        "ingredients": {
+            "tequila (silver)": 5.0,
+            "tomato juice": 7.0,
+            "orange juice, fresh": 3.0,
+            "lime juice, fresh": 1.0,
+            "teaspoon clear honey": "one",
+            "half slice onion finely chopped": "",
+            "few slices fresh red hot chili peppers": "",
+            "worchestershire sauce": "Few drops",
+            "salt": ""
+        }
+    },
+    "Vesper": {
+        "style": "Before Dinner Cocktail ",
+        "unit": "cL",
+        "ingredients": {
+            "gin": 6.0,
+            "vodka": 1.5,
+            "lillet blonde": 0.75,
+            "lemon twist (garnish)": ""
+        }
+    },
+    "Yellow Bird": {
+        "style": "All Day Cocktail",
+        "IBA_description": "Shake and strain into a chilled cocktail glass.",
+        "unit": "cL",
+        "ingredients": {
+            "white rum": 3.0,
+            "galliano": 1.5,
+            "triple sec": 1.5,
+            "lime juice": 1.5
+        }
+    }
+}
