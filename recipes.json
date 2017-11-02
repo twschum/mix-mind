@@ -57,8 +57,7 @@
                      "Honey Sour: Replace simple syrup with honey syrup",
                      "New York Sour: Float 1/2 oz red wine"],
         "profile": ["tangy", "citrusy"],
-        "prep": "shake",
-        "garnish": null
+        "prep": "shake"
     },
 
     "The Cocktail": {
@@ -136,7 +135,7 @@
             "dry gin": 1.5,
             "lemon juice": 0.75,
             "simple syrup": 0.5,
-            "grenadine": 0.125
+            "Grenadine": 0.125
         },
         "profile": ["tangy", "citrusy"]
     },
@@ -266,7 +265,7 @@
             "brandy": 1.5,
             "lemon juice": 0.75,
             "orange liqueur": 0.75,
-            "grenadine": "1/4 tsp"
+            "Grenadine": "1/4 tsp"
         },
         "misc": "club soda\nStrain over crushed ice into a rocks glass and top with club soda",
         "glass": "rocks",
@@ -308,7 +307,7 @@
             "white rum": 1,
             "dry gin": 1,
             "lime juice": 0.5,
-            "grenadine": 0.5
+            "Grenadine": 0.5
         }
     },
 
@@ -373,7 +372,7 @@
             "amaretto": 2,
             "lemon juice": 0.75
         },
-        "garnish": "Sugar rim and a Marischino cherry"
+        "garnish": "Sugar rim and a Maraschino cherry"
     },
 
     "Japanese Cocktail #1": {
@@ -419,7 +418,7 @@
         "ingredients": {
             "white rum": 1.5,
             "dry vermouth": 1.5,
-            "grenadine": "1 tsp"
+            "Grenadine": "1 tsp"
         }
     },
 
@@ -444,7 +443,7 @@
             "sweet vermouth": 0.75,
             "lemon juice": "1 tsp",
             "orange juice": "1 tsp",
-            "grenadine": "1 tsp"
+            "Grenadine": "1 tsp"
         },
         "glass": "martini",
         "prep": "shake",
@@ -480,5 +479,15 @@
         "perp": "stir",
         "profile": ["strong"],
         "garnish": "Lemon twist"
+    },
+
+    "Between the Sheets": {
+        "info": "From the Detroit Athletic Club, first seen on their 1916 menu for 35 cents",
+        "ingredients": {
+            "dry gin": 0.75,
+            "Maraschino liqueur": 0.75,
+            "Green Chartreuse": 0.75,
+            "lemon juice": 0.75
+        }
     }
 }
