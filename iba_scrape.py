@@ -18,6 +18,7 @@ jsonfile = 'IBA_unforgettables.json'
 
 url = 'http://iba-world.com/contemporary-classics/'
 jsonfile = 'IBA_contemporary_classics.json'
+jsonfile = 'IBA_.json'
 
 recipes = OrderedDict()
 
