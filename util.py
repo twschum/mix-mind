@@ -84,6 +84,8 @@ def dash_to_volume(amount, unit, rounded=False):
     mL_per_oz = ML_PER_OZ if not rounded else ML_PER_OZ_ROUNDED
     if unit == 'mL':
         return amount * ML_PER_DS
+    elif unit == 'cL':
+        return amount * ML_PER_DS / ML_PER_CL
     elif unit == 'oz':
         return amount / mL_per_oz
     else:
@@ -128,6 +130,8 @@ def mL_to_volume(amount, unit, rounded=False):
         return amount / mL_per_tsp
     elif unit == 'drop':
         return amount / ML_PER_DROP
+    elif unit == 'mL':
+        return amount
     else:
         no_conversion('mL', unit)
 
@@ -136,6 +140,8 @@ def drop_to_volume(amount, unit, rounded=False):
         return amount * OZ_PER_DROP
     elif unit == 'mL':
         return amount * ML_PER_DROP
+    elif unit == 'cL':
+        return amount * ML_PER_DROP / ML_PER_CL
     else:
         no_conversion('drop', unit)
 

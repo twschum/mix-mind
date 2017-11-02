@@ -281,16 +281,17 @@ class QuantizedIngredient(Ingredient):
             unit = self.unit
 
         formats = {
-                'mL': "{:.0f} {} {}",
-                'cL': "{:.1f} {} {}",
+                'mL': u"{:.0f} {} {}",
+                'cL': u"{:.1f} {} {}",
                 }
-        return formats.get(self.unit, "{} {} {}").format(amount, unit, self.type_)
+        return formats.get(self.unit, u"{} {} {}").format(amount, unit, self.type_)
 
     def get_cost(self, bottle, barstock):
         if self.unit == 'literal':
             return 0
-        amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
-        return barstock.cost_by_bottle_and_volume(bottle, self.type_, amount, self.recipe_unit)
+        unit = 'mL' if self.recipe_unit == 'cL' else self.recipe_unit
+        amount = self.get_amount_as(unit, rounded=False, single_value=True)
+        return barstock.cost_by_bottle_and_volume(bottle, self.type_, amount, unit)
 
     def get_std_drinks(self, bottle, barstock):
         if self.unit == 'literal':
