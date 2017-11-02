@@ -125,9 +125,9 @@
             "dry gin": 4.5,
             "simple syrup": 1.0,
             "lemon juice": 3.0,
-            "club soda": "Top with",
+            "club soda": "Top with"
         },
-        "garnish": "
+        "garnish": "Lemon slice"
     },
     "John Collins": {
         "style": "Longdrink",
@@ -195,7 +195,7 @@
             "whiskey": 4.5,
             "angostura bitters": "2 dashes",
             "sugar cube": "one",
-            "water": "Few dashes"
+            "water": "3 dashes"
         }
     },
     "Paradise": {
@@ -316,8 +316,8 @@
         "ingredients": {
             "old tom gin": 3.0,
             "dry vermouth": 3.0,
-            "Maraschino liqueur": "1/2 bar spoon",
-            "absinthe": "1/4 bar spoon",
+            "Maraschino liqueur": "1 tsp",
+            "absinthe": "1/2 tsp",
             "orange bitters": "3 dashes"
         },
         "garnish": "Lemon twist and a Marachino cherry"
