@@ -258,7 +258,7 @@ Example usage:
     # core parameters
     p.add_argument('-v', dest='verbose', action='store_true')
     p.add_argument('-b', dest='barstock', default='Barstock - Sheet1.csv', help="Barstock csv filename")
-    p.add_argument('-r', dest='recipes', default='recipes.json', help="Recipes json filename")
+    p.add_argument('-r', dest='recipes', default='recipes.json', help="Recipes json filename(s). Separate multiple with commas")
     p.add_argument('--save_cache', action='store_true', help="Pickle the generated recipes to cache them for later use (e.g. a quicker build of the pdf)")
     p.add_argument('--load_cache', action='store_true', help="Load the generated recipes from cache for use")
 
@@ -315,8 +315,17 @@ def main():
             print "Loaded {} recipes from cache file".format(len(recipes))
 
     else:
-        with open(args.recipes) as fp:
-            base_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+        base_recipes = OrderedDict()
+        for recipe_json in args.recipes.split(','):
+            with open(recipe_json) as fp:
+                other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+                print "Recipes loaded from {}".format(recipe_json)
+                for item in other_recipes.itervalues():
+                    item.update({'source_file': recipe_json})
+                for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
+                    print "{} from {} will override recipe from {}".format(name, other_recipes[name]['source_file'], base_recipes[name]['source_file'])
+                base_recipes.update(other_recipes)
+
         barstock = Barstock.load(args.barstock, args.all)
         recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
                 for name, recipe in base_recipes.iteritems()]
@@ -344,7 +353,7 @@ def main():
     if args.command == 'txt':
         if args.names:
             print '\n'.join([recipe.name for recipe in recipes])
-            print
+            print '------------\n{} recipes\n'.format(len(recipes))
             return
         #if args.write:
             #with open(args.write, 'w') as fp:
