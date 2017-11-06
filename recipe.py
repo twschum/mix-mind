@@ -289,9 +289,8 @@ class QuantizedIngredient(Ingredient):
     def get_cost(self, bottle, barstock):
         if self.unit == 'literal':
             return 0
-        unit = 'mL' if self.recipe_unit == 'cL' else self.recipe_unit
-        amount = self.get_amount_as(unit, rounded=False, single_value=True)
-        return barstock.cost_by_bottle_and_volume(bottle, self.type_, amount, unit)
+        amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
+        return barstock.cost_by_bottle_and_volume(bottle, self.type_, amount, self.recipe_unit)
 
     def get_std_drinks(self, bottle, barstock):
         if self.unit == 'literal':

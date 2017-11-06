@@ -185,6 +185,7 @@ class Barstock(object):
         return row
 
     def slice_on_type(self, type_):
+        type_ = type_.lower()
         if type_ in ['rum', 'whiskey', 'tequila', 'vermouth']:
             return self.df[self.df['type'].str.contains(type_)]
         elif type_ == 'any spirit':
@@ -324,6 +325,7 @@ def main():
                     item.update({'source_file': recipe_json})
                 for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
                     print "{} from {} will override recipe from {}".format(name, other_recipes[name]['source_file'], base_recipes[name]['source_file'])
+                    del base_recipes[name]
                 base_recipes.update(other_recipes)
 
         barstock = Barstock.load(args.barstock, args.all)
