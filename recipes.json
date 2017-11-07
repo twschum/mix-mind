@@ -250,16 +250,6 @@
         "profile": ["tangy", "citrusy"]
     },
 
-    "Between the Sheets": {
-        "info": "Popular 'sexy cocktail' of the Prohibition era",
-        "ingredients": {
-            "brandy": 0.75,
-            "dry gin": 0.75,
-            "orange liqueur": 0.75,
-            "lemon juice": 0.75
-        }
-    },
-
     "Brandy Daisy": {
         "ingredients": {
             "brandy": 1.5,
@@ -272,6 +262,16 @@
         "ice": "crushed",
         "prep": "shake",
         "origin": "12BB"
+    },
+
+    "Between the Sheets": {
+        "info": "Popular 'sexy cocktail' of the Prohibition era",
+        "ingredients": {
+            "brandy": 0.75,
+            "dry gin": 0.75,
+            "orange liqueur": 0.75,
+            "lemon juice": 0.75
+        }
     },
 
     "Embassy": {
@@ -482,7 +482,7 @@
         "garnish": "Lemon twist"
     },
 
-    "Between the Sheets": {
+    "Last Word": {
         "info": "From the Detroit Athletic Club, first seen on their 1916 menu for 35 cents",
         "ingredients": {
             "dry gin": 0.75,
