@@ -177,3 +177,6 @@ class IngredientSpecifier(object):
     def __str__(self):
         return self.bottle if self.bottle else self.what
 
+    def __repr__(self):
+        return "{}:{}".format(self.what, self.bottle if self.bottle else '')
+
