@@ -103,7 +103,7 @@
         "IBA_description": "Pour all ingredients into a mixing glass with ice.",
         "unit": "cL",
         "ingredients": {
-            "gin": 6.0,
+            "dry gin": 6.0,
             "peach bitters": "2 drops",
             "fresh mint leaves": "two"
         }
@@ -176,6 +176,7 @@
         }
     },
     "Negroni": {
+        "info": "First mixed in Florence, 1919, at the request of Count Camillo Negroni",
         "style": "Before Dinner Cocktail",
         "IBA_description": "Pour all ingredients directly into old-fashioned glass filled with ice. Stir gently.Garnish with half orange slice.",
         "unit": "cL",
@@ -184,7 +185,12 @@
             "Campari": 3.0,
             "sweet vermouth": 3.0
         },
-        "prep": "stir",
+        "misc": "Build directly in a rocks glass with ice",
+        "variants": ["Boulevardier: Substitute rye for gin",
+            "Dutch Negroni: Substitute Genever for gin",
+            "Old Pal: Substitute dry vermouth and Canadian rye"],
+        "prep": "build",
+        "ice": "cubed",
         "garnish": "Orange peel or slice"
     },
     "Old Fashioned": {
