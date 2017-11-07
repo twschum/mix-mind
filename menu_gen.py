@@ -10,7 +10,7 @@ import json
 import cPickle as pickle
 import string
 import itertools
-from collections import OrderedDict, namedtuple
+from collections import OrderedDict, namedtuple, Counter
 from fractions import Fraction
 import operator
 
@@ -19,15 +19,19 @@ import pandas as pd
 import recipe as drink_recipe
 import util
 
-def filter_recipes(recipes, filter_options):
+def filter_recipes(all_recipes, filter_options):
     reduce_fn = any if filter_options.use_or else all
-    recipes = [recipe for recipe in recipes if recipe.can_make or filter_options.all]
+    recipes = [recipe for recipe in all_recipes if recipe.can_make or filter_options.all]
     if filter_options.include:
         recipes = [recipe for recipe in recipes if
                 reduce_fn((recipe.contains_ingredient(ingredient) for ingredient in filter_options.include))]
     if filter_options.exclude:
         recipes = [recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient) for ingredient in filter_options.exclude))]
+    def get_names(items):
+        return set(map(lambda i: i.name, items))
+    excluded = ', '.join(sorted(list(get_names(all_recipes) - get_names(recipes))))
+    print "    Can't make: {}\n".format(excluded)
     return recipes
 
 
@@ -216,6 +220,20 @@ class Barstock(object):
         obj.df = df
         return obj
 
+def load_recipe_json(recipe_files):
+    base_recipes = OrderedDict()
+    for recipe_json in recipe_files:
+        with open(recipe_json) as fp:
+            other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+            print "Recipes loaded from {}".format(recipe_json)
+            for item in other_recipes.itervalues():
+                item.update({'source_file': recipe_json})
+            for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
+                print "Keeping {} from {} over {}".format(name, base_recipes[name]['source_file'], other_recipes[name]['source_file'])
+                del other_recipes[name]
+            base_recipes.update(other_recipes)
+    return base_recipes
+
 def get_parser():
     p = argparse.ArgumentParser(description="""
 MixMind Drink Menu Generator by twschum
@@ -267,6 +285,7 @@ Example usage:
     p.add_argument('-p', '--prices', action='store_true', help="Display prices for drinks based on stock")
     p.add_argument('-s', '--stats', action='store_true', help="Print out a detailed statistics block for the selected recipes")
     p.add_argument('-e', '--examples', action='store_true', help="Show specific examples of a recipe based on the ingredient stock")
+    p.add_argument('-c', '--convert', default='oz', choices=['oz','mL','cL'], help="Convert recipes to a different primary unit")
     p.add_argument('-g', '--all-ingredients', action='store_true', help="Show every ingredient instead of just the main liquors with each example")
     p.add_argument('-m', dest='markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
 
@@ -309,6 +328,16 @@ def main():
     args = get_parser().parse_args()
     display_options = bundle_options(DisplayOptions, args)
 
+    if args.command == 'test':
+        print "This is a test"
+        recipes = load_recipe_json(args.recipes.split(','))
+        ingredients = Counter()
+        for info in recipes.itervalues():
+            ingredients.update(info.get('ingredients', {}).iterkeys())
+        for i, n in ingredients.most_common():
+            print '{:2d} {}'.format(n, unicode(i).encode('ascii', errors='replace'))
+        return
+
     CACHE_FILE = 'cache.pkl'
     if args.load_cache:
         with open(CACHE_FILE) as fp:
@@ -316,21 +345,13 @@ def main():
             print "Loaded {} recipes from cache file".format(len(recipes))
 
     else:
-        base_recipes = OrderedDict()
-        for recipe_json in args.recipes.split(','):
-            with open(recipe_json) as fp:
-                other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
-                print "Recipes loaded from {}".format(recipe_json)
-                for item in other_recipes.itervalues():
-                    item.update({'source_file': recipe_json})
-                for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
-                    print "{} from {} will override recipe from {}".format(name, other_recipes[name]['source_file'], base_recipes[name]['source_file'])
-                    del base_recipes[name]
-                base_recipes.update(other_recipes)
-
+        base_recipes = load_recipe_json(args.recipes.split(','))
         barstock = Barstock.load(args.barstock, args.all)
         recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
                 for name, recipe in base_recipes.iteritems()]
+        if args.convert:
+            print "Converting recipes to unit: {}".format(args.convert)
+            map(lambda r: r.convert(args.convert), recipes)
         recipes = filter_recipes(recipes, bundle_options(FilterOptions, args))
 
     if args.save_cache:
@@ -340,9 +361,6 @@ def main():
 
     if args.stats:
         report_stats(recipes)
-
-    if args.command == 'test':
-        print "This is a test"
 
     if args.command == 'pdf':
         pdf_options = bundle_options(PdfOptions, args)
