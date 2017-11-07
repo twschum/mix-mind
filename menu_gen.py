@@ -14,6 +14,7 @@ import operator
 import pandas as pd
 
 import recipe as drink_recipe
+from barstock import Barstock
 
 def filter_recipes(all_recipes, filter_options):
     reduce_fn = any if filter_options.use_or else all

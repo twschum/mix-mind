@@ -1,4 +1,5 @@
 
+import string
 import itertools
 import pandas as pd
 
@@ -9,12 +10,12 @@ class Barstock(object):
     for data access and querying
     """
     # TODO move to own file
-    def get_all_bottle_combinations(self, types):
-        """ For a given list of ingredient types, return a list of lists
+    def get_all_bottle_combinations(self, specifiers):
+        """ For a given list of ingredient specifiers, return a list of lists
         where each list is a specific way to make the drink
         e.g. Martini passes in ['gin', 'vermouth'], gets [['Beefeater', 'Noilly Prat'], ['Knickerbocker', 'Noilly Prat']]
         """
-        bottle_lists = [self.slice_on_type(t)['Bottle'].tolist() for t in types]
+        bottle_lists = [self.slice_on_type(i)['Bottle'].tolist() for i in specifiers]
         opts = itertools.product(*bottle_lists)
         return opts
 
@@ -29,32 +30,35 @@ class Barstock(object):
         return per_unit * amount
 
     def get_bottle_field(self, ingredient, field):
-        if ingredient.bottle is None:
-            raise ValueError("get-bottle-field ingredient has no bottle specified")
         if field not in self.df.columns:
             raise AttributeError("get-bottle-field '{}' not a valid field in the data".format(field))
         return self.get_ingredient_row(ingredient).at[0, field]
 
     def get_ingredient_row(self, ingredient):
-        by_type = self.slice_on_type(ingredient.what)
-        row = by_type[by_type['Bottle'] == ingredient.bottle].reset_index(drop=True)
+        if ingredient.bottle is None:
+            raise ValueError("ingredient {} has no bottle specified".format(ingredient.__repr__()))
+        row = self.slice_on_type(ingredient)
         if len(row) > 1:
-            raise ValueError('{} "{}" has multiple entries in the input data!'.format(ingredient.what, ingredient.bottle))
+            raise ValueError('{} has multiple entries in the input data!'.format(ingredient.__repr__()))
         elif len(row) < 1:
-            raise ValueError('{} "{}" has no entry in the input data!'.format(ingredient.what, ingredient.bottle))
+            raise ValueError('{} has no entry in the input data!'.format(ingredient.__repr__()))
         return row
 
-    def slice_on_type(self, type_):
-        type_ = type_.lower()
+    def slice_on_type(self, specifier):
+        type_ = specifier.what.lower()
         if type_ in ['rum', 'whiskey', 'tequila', 'vermouth']:
-            return self.df[self.df['type'].str.contains(type_)]
+            matching = self.df[self.df['type'].str.contains(type_)]
         elif type_ == 'any spirit':
-            return self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
-            #return self.df[self.df['Category'] == 'Spirit']
+            matching = self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
+            #matching = self.df[self.df['Category'] == 'Spirit']
         elif type_ == 'bitters':
-            return self.df[self.df['Category'] == 'Bitters']
+            matching = self.df[self.df['Category'] == 'Bitters']
         else:
-            return self.df[self.df['type'] == type_]
+            matching = self.df[self.df['type'] == type_]
+        if specifier.bottle:
+            return matching[matching['Bottle'] == specifier.bottle].reset_index(drop=True)
+        else:
+            return matching
 
     @classmethod
     def load(cls, barstock_csv, include_all=False):
