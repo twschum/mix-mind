@@ -147,7 +147,7 @@ def drop_to_volume(amount, unit, rounded=False):
 
 def cL_to_volume(amount, unit, rounded=False):
     try:
-        return mL_to_volume(amount, unit, rounded) / ML_PER_CL
+        return mL_to_volume(amount, unit, rounded) * ML_PER_CL
     except NotImplementedError:
         no_conversion('cL', unit)
 
