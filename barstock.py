@@ -18,26 +18,30 @@ class Barstock(object):
         opts = itertools.product(*bottle_lists)
         return opts
 
-    def get_bottle_proof(self, bottle, type_):
-        return self.get_bottle_field(bottle, type_, 'Proof')
+    def get_bottle_proof(self, ingredient):
+        return self.get_bottle_field(ingredient, 'Proof')
 
-    def get_bottle_category(self, bottle, type_):
-        return self.get_bottle_field(bottle, type_, 'Category')
+    def get_bottle_category(self, ingredient):
+        return self.get_bottle_field(ingredient, 'Category')
 
-    def cost_by_bottle_and_volume(self, bottle, type_, amount, unit='oz'):
-        per_unit = self.get_bottle_field(bottle, type_, '$/{}'.format(unit))
+    def cost_by_bottle_and_volume(self, ingredient, amount, unit='oz'):
+        per_unit = self.get_bottle_field(ingredient, '$/{}'.format(unit))
         return per_unit * amount
 
-    def get_bottle_field(self, bottle, type_, field):
+    def get_bottle_field(self, ingredient, field):
+        if ingredient.bottle is None:
+            raise ValueError("get-bottle-field ingredient has no bottle specified")
         if field not in self.df.columns:
             raise AttributeError("get-bottle-field '{}' not a valid field in the data".format(field))
-        return self.get_bottle_by_type(bottle, type_).at[0, field]
+        return self.get_ingredient_row(ingredient).at[0, field]
 
-    def get_bottle_by_type(self, bottle, type_):
-        by_type = self.slice_on_type(type_)
-        row = by_type[by_type['Bottle'] == bottle].reset_index(drop=True)
+    def get_ingredient_row(self, ingredient):
+        by_type = self.slice_on_type(ingredient.what)
+        row = by_type[by_type['Bottle'] == ingredient.bottle].reset_index(drop=True)
         if len(row) > 1:
-            raise ValueError('{} "{}" has multiple entries in the input data!'.format(type_, bottle))
+            raise ValueError('{} "{}" has multiple entries in the input data!'.format(ingredient.what, ingredient.bottle))
+        elif len(row) < 1:
+            raise ValueError('{} "{}" has no entry in the input data!'.format(ingredient.what, ingredient.bottle))
         return row
 
     def slice_on_type(self, type_):
@@ -45,7 +49,7 @@ class Barstock(object):
         if type_ in ['rum', 'whiskey', 'tequila', 'vermouth']:
             return self.df[self.df['type'].str.contains(type_)]
         elif type_ == 'any spirit':
-            return self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
+            return self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
             #return self.df[self.df['Category'] == 'Spirit']
         elif type_ == 'bitters':
             return self.df[self.df['Category'] == 'Bitters']

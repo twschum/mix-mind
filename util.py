@@ -151,3 +151,29 @@ def cL_to_volume(amount, unit, rounded=False):
     except NotImplementedError:
         no_conversion('cL', unit)
 
+class IngredientSpecifier(object):
+    """ Allow type:bottle in recipes,
+    e.g. "white rum:Barcadi Catra Blanca" or "aromatic bitters:Angostura bitters"
+    """
+    @default_initializer
+    def __init__(self, what, bottle=None):
+        if what is None:
+            raise ValueError("IngredientSpecifier what (type) cannot be None")
+
+    @classmethod
+    def from_string(cls, type_str):
+        if ':' in type_str:
+            t = type_str.split(':')
+            if len(t) == 2:
+                what = t[0]
+                bottle = t[1]
+            else:
+                raise ValueError("Unknown ingredient specifier: {}".format(type_str))
+        else:
+            what = type_str
+            bottle = None
+        return cls(what, bottle)
+
+    def __str__(self):
+        return self.bottle if self.bottle else self.what
+
