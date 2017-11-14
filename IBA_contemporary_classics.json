@@ -4,10 +4,14 @@
         "IBA_description": "Pour peach puree into chilled glass and add sparkling wine. Stir gently.",
         "unit": "cL",
         "ingredients": {
-            "prosecco": 10.0,
-            "fresh peach puree": 5.0
-        }
+            "Prosecco": 10.0,
+            "peach puree": 5.0
+        },
+        "prep": "build",
+        "ice": "neat",
+        "glass": "flute"
     },
+
     "Black Russian": {
         "style": "After Dinner Cocktail",
         "IBA_description": "Pour the ingredients into the old fashioned-glass filled with ice cubes. Stir gently.",
@@ -15,8 +19,12 @@
         "ingredients": {
             "vodka": 5.0,
             "coffee liqueur": 2.0
-        }
+        },
+        "glass": "rocks",
+        "ice": "cubed",
+        "prep": "build"
     },
+
     "Bloody Mary": {
         "style": "Longdrink",
         "IBA_description": "Stir gently, pour all ingredients into highball glass. Garnish with celery and lemon wedge (optional).",
@@ -25,42 +33,53 @@
             "vodka": 4.5,
             "tomato juice": 9.0,
             "lemon juice": 1.5,
-            "dashes of worcestershire sauce": "2 to 3",
+            "worcestershire sauce": "2 to 3 dashes",
             "tabasco": "",
             "celery salt": "",
             "pepper": ""
-        }
+        },
+        "glass": "highball",
+        "perp": "build",
+        "ice": "cubed",
+        "garnish": "Celery and lemon wedge"
     },
     "Caipirinha": {
         "style": "Longdrink",
         "IBA_description": "Place lime and sugar in an old fashioned glass and muddle. Fill glass with ice and Cacha\u00e7a. (For a Caipiroska \u2013 use Vodka instead of Cacha\u00e7a).",
         "unit": "cL",
         "ingredients": {
-            "cacha\u00e7a": 5.0,
-            "1/2 fresh lime (4 wedges)": "",
-            "teaspoons sugar": "two"
-        }
+            "Cacha\u00e7a": 5.0,
+            "sugar": "2 tsp"
+        },
+        "glass": "rocks",
+        "prep": "build",
+        "misc": "1/2 lime (cut into wedges), muddled with sugar",
+        "variants": ["Caipiroska: substitute vodka for Cacha\u00e7a"]
     },
     "Champagne Cocktail": {
         "style": "Sparkling Cocktail",
         "unit": "cL",
         "ingredients": {
-            "chilled champagne": 9.0,
-            "cognac": 1.0,
-            "angostura bitters": "2 dashes",
-            "sugar cube": "one"
-        }
+            "Champagne (chilled)": 9.0,
+            "Cognac": 1.0,
+            "aromatic bitters": "2 dashes",
+            "sugar": "1 tsp"
+        },
+        "prep": "build",
+        "ice": "neat",
+        "glass": "rocks"
     },
     "Cosmopolitan": {
         "style": "All Day Cocktail",
         "IBA_description": "Shake all ingredients in cocktail shaker filled with ice.Strain into a large cocktail glass .Garnish with lime slice.",
         "unit": "cL",
         "ingredients": {
-            "citron vodka": 4.0,
-            "cointreau": 1.5,
+            "vodka:Absolut Citron": 4.0,
+            "orange liqueur:Cointreau": 1.5,
             "cranberry juice": 3.0,
-            "fresh lime juice": 1.5
-        }
+            "lime juice": 1.5
+        },
+        "garnish": "Lime wedge"
     },
     "Cuba Libre": {
         "style": "Longdrink",
@@ -69,36 +88,44 @@
         "ingredients": {
             "white rum": 5.0,
             "cola": 12.0,
-            "fresh lime juice": 1.0
-        }
+            "lime juice": 1.0
+        },
+        "glass": "highball",
+        "prep": "build",
+        "garnish": "Lime wedge"
     },
     "French 75": {
         "style": "Sparkling Cocktail",
         "IBA_description": "Pour all the ingredients, except champagne, into a shaker. Shake.Strain into a champagne flute.Top up with champagne. Stir gently.",
         "unit": "cL",
         "ingredients": {
-            "gin": 3.0,
-            "fresh lemon juice": 1.5,
-            "sugar syrup": "2 dashes",
-            "champagne": 6.0
-        }
+            "dry gin": 3.0,
+            "lemon juice": 1.5,
+            "simple syrup": "2 dashes",
+            "champagne": "Top with"
+        },
+        "glass": "flute"
     },
     "French Connection": {
         "style": "After Dinner Cocktail",
         "IBA_description": "Pour all ingredients directly into old fashioned glass filled with ice cubes.",
         "unit": "cL",
         "ingredients": {
-            "cognac": 3.5,
+            "Cognac": 3.5,
             "amaretto": 3.5
-        }
+        },
+        "prep": "build",
+        "glass": "rocks"
     },
     "God Father": {
         "style": "After Dinner Cocktail",
         "unit": "cL",
         "ingredients": {
-            "scotch": 3.5,
+            "Scotch whisky": 3.5,
             "amaretto": 3.5
-        }
+        },
+        "prep": "build",
+        "glass": "rocks"
     },
     "God Mother": {
         "style": "After Dinner Cocktail",
@@ -107,16 +134,18 @@
         "ingredients": {
             "vodka": 3.5,
             "amaretto": 3.5
-        }
+        },
+        "prep": "build",
+        "glass": "rocks"
     },
     "Golden Dream": {
         "style": "After Dinner Cocktail",
         "IBA_description": "Pour all ingredients into shaker filled with ice.",
         "unit": "cL",
         "ingredients": {
-            "galliano": 2.0,
-            "triple sec": 2.0,
-            "fresh orange juice": 2.0,
+            "Galliano": 2.0,
+            "orange liqueur": 2.0,
+            "orange juice": 2.0,
             "fresh cream": 1.0
         }
     },
@@ -136,7 +165,7 @@
         "unit": "cL",
         "ingredients": {
             "vodka": 4.5,
-            "galliano (to float on drink)": 1.5,
+            "Galliano (to float on drink)": 1.5,
             "orange juice": 9.0
         }
     },
@@ -146,30 +175,34 @@
         "unit": "cL",
         "ingredients": {
             "white rum": 6.0,
-            "maraschino": 1.5,
+            "Maraschino liqueur": 1.5,
             "grapefruit juice": 4.0,
-            "1.5cl fresh lime juice": ""
+            "lime juice": "1.5 cl"
         }
     },
-    "Horse\u2019s Neck": {
+    "Horse's Neck": {
         "style": "Longdrink",
         "IBA_description": "Pour brandy and ginger ale directly into hi-ball glass with ice cubes. Stir gently.",
         "unit": "cL",
         "ingredients": {
             "brandy": 4.0,
-            "ginger ale": 12.0,
-            "dash of angostura bitters (optional)": ""
-        }
+            "ginger beer": 12.0
+        },
+        "optional": {
+            "aromatic bitters": "dash"
+        },
+        "glass": "highball",
+        "prep": "build"
     },
     "Irish Coffee": {
         "style": "Hot Drink",
-        "IBA_description": "Warm the Irish whiskey over a burner.\u00a0Pour into the glass (for hot drink) hot coffee, and add a teaspoon of sugar.\u00a0Float Cream on top.",
+        "IBA_description": "Warm the Irish whiskey over a burner. Pour hot coffee into the glass, and add a teaspoon of sugar. Float cream on top.",
         "unit": "cL",
         "ingredients": {
-            "irish whiskey": 4.0,
+            "Irish whiskey": 4.0,
             "hot coffee": 9.0,
             "fresh cream": 3.0,
-            "teaspoon of brown sugar": "one"
+            "brown sugar": "1 tsp"
         }
     },
     "Kir": {
@@ -179,22 +212,28 @@
         "ingredients": {
             "dry white wine": 9.0,
             "cr\u00e8me de cassis": 1.0
-        }
+        },
+        "prep": "build",
+        "ice": "neat",
+        "glass": "flute",
+        "variants": ["Kir Royale: substitute Champagne for wine"]
     },
     "Long Island Ice Tea": {
         "style": "Longdrink",
         "IBA_description": "Add all ingredients into highball glass filled with ice.",
         "unit": "cL",
         "ingredients": {
-            "gin": 1.5,
-            "tequila": 1.5,
+            "dry gin": 1.5,
+            "silver tequila": 1.5,
             "vodka": 1.5,
             "white rum": 1.5,
-            "triple sec": 1.5,
+            "orange liqueur": 1.5,
             "gomme syrup": 3.0,
-            "lemon juice, fresh": 2.5,
-            "of cola": "dash"
-        }
+            "lemon juice": 2.5,
+            "cola": "Top with"
+        },
+        "glass": "highball",
+        "prep": "build"
     },
     "Mai-tai": {
         "style": "Longdrink",
@@ -203,10 +242,13 @@
         "ingredients": {
             "white rum": 4.0,
             "dark rum": 2.0,
-            "orange cura\u0107ao": 1.5,
-            "orgeat syrup": 1.5,
-            "fresh lime juice": 1.0
-        }
+            "orange liqueur": 1.5,
+            "orgeat": 1.5,
+            "lime juice": 1.0
+        },
+        "ice": "crushed",
+        "glass": "tiki",
+        "prep": "shake"
     },
     "Margarita": {
         "style": "All Day Cocktail",
@@ -214,8 +256,8 @@
         "unit": "cL",
         "ingredients": {
             "tequila": 3.5,
-            "cointreau": 2.0,
-            "freshly squeezed lime juice": 1.5
+            "orange liqueur:Cointreau": 2.0,
+            "lime juice": 1.5
         }
     },
     "Mimosa": {
@@ -223,9 +265,12 @@
         "IBA_description": "Pour orange juice into flute and gently pour Champagne. Stir gently.",
         "unit": "cL",
         "ingredients": {
-            "champagne": 7.5,
-            "orange juice, fresh": 7.5
-        }
+            "Champagne": 7.5,
+            "orange juice": 7.5
+        },
+        "prep": "build",
+        "ice": "neat",
+        "glass": "flute"
     },
     "Mint Julep": {
         "style": "Longdrink",
@@ -233,22 +278,30 @@
         "unit": "cL",
         "ingredients": {
             "bourbon whiskey": 6.0,
-            "4 fresh mint sprigs": "",
-            "teaspoon powdered sugar": "one",
-            "teaspoons water": "two"
-        }
+            "sugar": "1 tsp",
+            "water": "2 tsp",
+            "fresh mint sprigs": "four"
+        },
+        "ice": "crushed",
+        "glass": "highball",
+        "prep": "build",
+        "garnish": "Fresh mint sprig"
     },
     "Mojito": {
         "style": "Longdrink",
         "IBA_description": "Muddle mint springs with sugar and lime juice.",
         "unit": "cL",
         "ingredients": {
-            "white cuban rum": 4.0,
-            "fresh lime juice": 3.0,
-            "6 mint sprigs": "",
-            "teaspoons white sugar": "two",
-            "soda water": ""
-        }
+            "white rum": 4.0,
+            "lime juice": 3.0,
+            "sugar": "2 tsp",
+            "fresh mint sprigs": "six",
+            "club soda": "Top with"
+        },
+        "ice": "crushed",
+        "glass": "rocks",
+        "prep": "build",
+        "garnish": "Fresh mint sprig"
     },
     "Moscow Mule": {
         "style": "Longdrink",
@@ -257,9 +310,11 @@
         "ingredients": {
             "vodka": 4.5,
             "ginger beer": 12.0,
-            "lime juice, fresh": 0.5,
-            "slice lime in a highball glass": "one"
-        }
+            "lime juice": 0.5
+        },
+        "glass": "copper mug",
+        "prep": "build",
+        "garnish": "Lime wedge"
     },
     "Pina Colada": {
         "style": "Longdrink",
@@ -269,10 +324,12 @@
             "white rum": 3.0,
             "pineapple juice": 9.0,
             "coconut cream": 3.0
-        }
+        },
+        "glass": "hurricane",
+        "prep": "blend"
     },
     "Rose": {
-        "style": null,
+        "style": "Wine Cocktail",
         "IBA_description": "Stir all ingredients with ice and strain into a cocktail glass.",
         "unit": "cL",
         "ingredients": {
@@ -289,7 +346,10 @@
             "vodka": 4.0,
             "cranberry juice": 12.0,
             "grapefruit juice": 3.0
-        }
+        },
+        "prep": "build",
+        "glass": "rocks",
+        "garnish": "Lime wedge"
     },
     "Sex On The Beach": {
         "style": "Longdrink",
@@ -300,22 +360,27 @@
             "peach schnapps": 2.0,
             "cranberry juice": 4.0,
             "orange juice": 4.0
-        }
+        },
+        "prep": "build",
+        "glass": "highball",
+        "garnish": "Orange slice"
     },
     "Singapore Sling": {
         "style": "Longdrink",
         "IBA_description": "Pour all ingredients into cocktail shaker filled with ice cubes. Shake well.",
         "unit": "cL",
         "ingredients": {
-            "gin": 3.0,
+            "dry gin": 3.0,
             "cherry liqueur": 1.5,
-            "cointreau": 0.75,
-            "dom b\u00e9n\u00e9dictine": 0.75,
-            "grenadine": 1.0,
+            "orange liqueur:Cointreau": 0.75,
+            "Dom B\u00e9n\u00e9dictine": 0.75,
+            "Grenadine": 1.0,
             "pineapple juice": 12.0,
             "lime juice": 1.5,
-            "angostura bitters": "dash"
-        }
+            "aromatic bitters:Angostura": "dash"
+        },
+        "glass": "highball",
+        "ice": "crushed"
     },
     "Tequila Sunrise": {
         "style": "Longdrink",
@@ -324,7 +389,9 @@
         "ingredients": {
             "tequila": 4.5,
             "orange juice": 9.0,
-            "grenadine": 1.5
-        }
+            "Grenadine": 1.5
+        },
+        "prep": "build",
+        "glass": "highball"
     }
 }
