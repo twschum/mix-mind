@@ -11,7 +11,8 @@ import itertools
 import util
 
 # water volume added by preperation method for ABV estimate
-WATER_BY_PREP = {'shake': 1.65, 'stir': 1.3, 'build': 1.1}
+# TODO by ice and prep instead -e.g. build, highball, cubed vs build, flute, neat
+WATER_BY_PREP = {'shake': 1.65, 'stir': 1.3, 'build': 1.0}
 
 class RecipeError(StandardError):
     pass
