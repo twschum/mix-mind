@@ -291,7 +291,11 @@ def main():
     if args.stats:
         report_stats(recipes)
 
+
     if args.command == 'pdf':
+        # sort recipes loosely by approximate display length
+        recipes.sort(key=lambda r: len(str(r).split('\n'))/3, reverse=True)
+
         pdf_options = bundle_options(PdfOptions, args)
         import formatted_menu
         ingredient_df = barstock.df if args.liquor_list or args.liquor_list_own_page else pd.DataFrame()
@@ -301,7 +305,7 @@ def main():
 
     if args.command == 'txt':
         if args.names:
-            print '\n'.join([recipe.name for recipe in recipes])
+            print '\n'.join([str(len(str(recipe).split('\n')))+' '+recipe.name for recipe in recipes])
             print '------------\n{} recipes\n'.format(len(recipes))
             return
         #if args.write:
