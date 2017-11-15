@@ -26,13 +26,13 @@ class DrinkRecipe(object):
     @util.default_initializer
     def __init__(self, name, recipe_dict, stock_df=None):
         # from recipe dict pull out other info and set defaults
-        self.info      =  recipe_dict.get('info',      '')
+        self.info      =  recipe_dict.get('info', '')
         self.iba_info  =  recipe_dict.get('IBA_description', '')
-        self.origin    =  recipe_dict.get('origin',    '')
-        self.unit      =  recipe_dict.get('unit',      'oz') # cL, mL, tsp, dash, drop, bar spoon
-        self.prep      =  recipe_dict.get('prep',      'shake') # build, stir
-        self.ice       =  recipe_dict.get('origin',    'cubed') # crushed
-        self.glass     =  recipe_dict.get('glass',     'cocktail') # rocks, martini, champagne flute
+        self.origin    =  recipe_dict.get('origin', '')
+        self.unit      =  recipe_dict.get('unit', 'oz') # cL, mL, tsp, dash, drop
+        self.prep      =  recipe_dict.get('prep', 'shake') # build, stir, blend
+        self.ice       =  recipe_dict.get('origin', 'cubed') # crushed, neat
+        self.glass     =  recipe_dict.get('glass', 'cocktail') # rocks, martini, flute, collins, highball
         self.variants  =  recipe_dict.get('variants',  [])
         self.max_cost     =  0
         self.examples     =  []
