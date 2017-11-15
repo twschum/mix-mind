@@ -13,7 +13,6 @@
         "unit": "oz",
         "prep": "stir",
         "profile": ["strong"],
-        "ice": "none",
         "glass": "martini",
         "garnish": "Lemon twist or olives"
     },
@@ -67,7 +66,9 @@
             "water": "1 tsp",
             "sugar": "1 tsp"
         },
-        "glass": "rocks"
+        "glass": "rocks",
+        "prep": "build",
+        "ice": "neat"
     },
 
     "Blackberry Garden": {
@@ -116,6 +117,8 @@
         },
         "profile": ["tangy", "citrusy"],
         "prep": "shake",
+        "glass": "rocks",
+        "ice": "crushed",
         "garnish": "Flamed orange peel, mint, orange, or cherry"
     },
 
@@ -182,11 +185,12 @@
             "dry gin": 1.5,
             "lemon juice": 0.75,
             "simple syrup": 0.75,
-            "Champagne": "3"
+            "Champagne": 3
         },
         "profile": ["tangy", "citrusy"],
         "variants": ["French 125: Use Cognac instead of gin"],
         "prep": "build",
+        "ice": "neat",
         "glass": "flute"
     },
 
@@ -208,6 +212,8 @@
         },
         "misc": "Squeezed shell of 1/2 a lime",
         "profile": ["tangy", "citrusy"],
+        "prep": "build",
+        "glass": "collins",
         "variants": ["Circus Rickey: Add 1 dash of Grenadine"]
     },
 
@@ -218,6 +224,8 @@
             "ginger beer": "Top with"
         },
         "profile": ["tangy", "citrusy"],
+        "prep": "build",
+        "glass": "collins",
         "misc": "Squeezed shell of 1/2 a lime"
     },
 
@@ -229,6 +237,7 @@
             "club soda": "Top with"
         },
         "profile": ["tangy", "citrusy"],
+        "prep": "build",
         "glass": "collins"
     },
 
@@ -239,7 +248,6 @@
             "club soda": "Top with"
         },
         "prep": "shake",
-        "ice": "none",
         "glass": "rocks"
     },
 
@@ -261,9 +269,9 @@
             "brandy": 1.5,
             "lemon juice": 0.75,
             "orange liqueur": 0.75,
-            "Grenadine": "1/4 tsp"
+            "Grenadine": "1/4 tsp",
+            "club soda": "Top with"
         },
-        "misc": "club soda\nStrain over crushed ice into a rocks glass and top with club soda",
         "glass": "rocks",
         "ice": "crushed",
         "prep": "shake",
@@ -507,5 +515,24 @@
             "Green Chartreuse": 0.75,
             "lemon juice": 0.75
         }
+    },
+
+    "Negroni": {
+        "info": "First mixed in Florence, 1919, at the request of Count Camillo Negroni",
+        "style": "Before Dinner Cocktail",
+        "IBA_description": "Pour all ingredients directly into old-fashioned glass filled with ice. Stir gently.Garnish with half orange slice.",
+        "unit": "cL",
+        "ingredients": {
+            "dry gin": 3.0,
+            "Campari": 3.0,
+            "sweet vermouth": 3.0
+        },
+        "variants": ["Boulevardier: Substitute rye for gin",
+            "Dutch Negroni: Substitute Genever for gin",
+            "Old Pal: Substitute dry vermouth and Canadian rye"],
+        "prep": "build",
+        "glass": "rocks",
+        "ice": "cubed",
+        "garnish": "Orange peel or slice"
     }
 }
