@@ -75,7 +75,7 @@ def append_liquor_list(doc, df, own_page):
     doc.append(listing)
 
 
-def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
+def format_recipe(recipe, show_price=False, show_examples=False, markup=1, show_prep=False):
     """ Return the recipe in a paragraph in a samepage
     """
     recipe_page = SamepageEnvironment()
@@ -91,6 +91,9 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
         name_line.append(price)
     name_line.append('\n')
     recipe_page.append(name_line)
+
+    if show_prep:
+        recipe_page.append(FootnoteText(recipe.prep_line(extended=True, caps=False)+'\n'))
 
     if recipe.info:
         recipe_page.append(SmallText(italic(recipe.info +'\n')))
@@ -109,7 +112,7 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1):
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, markup=False, examples=False, liquor_df=None, ldf_own_page=False):
+def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, markup=False, examples=False, liquor_df=None, ldf_own_page=False, show_prep=False):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """
@@ -183,7 +186,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     # Columns setup and fill
     paracols = add_paracols_environment(doc, ncols, colsep, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
-        paracols.append(format_recipe(recipe, show_price=prices, show_examples=examples, markup=markup))
+        paracols.append(format_recipe(recipe, show_price=prices, show_examples=examples, markup=markup, show_prep=show_prep))
         switch = 'switchcolumn'
         if align_names:
             switch += '*' if (i % ncols) == 0 else ''

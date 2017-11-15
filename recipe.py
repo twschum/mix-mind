@@ -7,6 +7,7 @@ import re
 from fractions import Fraction
 from recordtype import recordtype
 import itertools
+import string
 
 import util
 
@@ -31,7 +32,7 @@ class DrinkRecipe(object):
         self.origin    =  recipe_dict.get('origin', '')
         self.unit      =  recipe_dict.get('unit', 'oz') # cL, mL, tsp, dash, drop
         self.prep      =  recipe_dict.get('prep', 'shake') # build, stir, blend
-        self.ice       =  recipe_dict.get('origin', 'cubed') # crushed, neat
+        self.ice       =  recipe_dict.get('ice', 'cubed') # crushed, neat
         self.glass     =  recipe_dict.get('glass', 'cocktail') # rocks, martini, flute, collins, highball
         self.variants  =  recipe_dict.get('variants',  [])
         self.max_cost     =  0
@@ -65,6 +66,11 @@ class DrinkRecipe(object):
 
     def __repr__(self):
         return "{}:{},[{}]".format(self.__class__.__name__, self.name, ','.join((i.__repr__() for i in self.ingredients)))
+
+    def prep_line(self, extended=True, caps=True):
+        case_fn = string.upper if caps else string.lower
+        layout = "{{}} glass | {{}}{} | {{}}".format("" if self.ice == 'neat' else " ice") if extended else "{} | {} | {}"
+        return case_fn(layout.format(self.glass, self.ice, self.prep))
 
     @property
     def can_make(self):

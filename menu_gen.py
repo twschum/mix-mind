@@ -212,6 +212,7 @@ Example usage:
 
     # display options
     p.add_argument('-p', '--prices', action='store_true', help="Display prices for drinks based on stock")
+    p.add_argument('--prep', action='store_true', help="Display a line showing glass, ice, and prep")
     p.add_argument('-s', '--stats', action='store_true', help="Print out a detailed statistics block for the selected recipes")
     p.add_argument('-e', '--examples', action='store_true', help="Show specific examples of a recipe based on the ingredient stock")
     p.add_argument('-c', '--convert', default='oz', choices=['oz','mL','cL'], help="Convert recipes to a different primary unit")
@@ -244,7 +245,7 @@ Example usage:
     return p
 
 # make passing a bunch of options around a bit cleaner
-DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup')
+DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep')
 FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align')
 def bundle_options(tuple_class, args):
@@ -260,6 +261,9 @@ def main():
     if args.command == 'test':
         print "This is a test"
         recipes = load_recipe_json(args.recipes.split(','))
+        for recipe in (drink_recipe.DrinkRecipe(name, r) for name, r in recipes.iteritems()):
+            print recipe.prep_line(caps=False)
+        return
         ingredients = Counter()
         for info in recipes.itervalues():
             ingredients.update(info.get('ingredients', {}).iterkeys())
@@ -294,13 +298,13 @@ def main():
 
     if args.command == 'pdf':
         # sort recipes loosely by approximate display length
-        recipes.sort(key=lambda r: len(str(r).split('\n'))/3, reverse=True)
+        #recipes.sort(key=lambda r: len(str(r).split('\n'))/3, reverse=True)
 
         pdf_options = bundle_options(PdfOptions, args)
         import formatted_menu
         ingredient_df = barstock.df if args.liquor_list or args.liquor_list_own_page else pd.DataFrame()
         formatted_menu.generate_recipes_pdf(recipes, args.pdf_filename, args.ncols, args.align,
-                args.debug, args.prices, args.markup, args.examples, ingredient_df, args.liquor_list_own_page)
+                args.debug, args.prices, args.markup, args.examples, ingredient_df, args.liquor_list_own_page, args.prep)
         return
 
     if args.command == 'txt':
