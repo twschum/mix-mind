@@ -9,6 +9,9 @@ class Barstock(object):
     """ Wrap up a csv of bottle info with some helpful methods
     for data access and querying
     """
+    def __init__(self, df):
+        self.df = df
+
     # TODO move to own file
     def get_all_bottle_combinations(self, specifiers):
         """ For a given list of ingredient specifiers, return a list of lists
@@ -62,7 +65,6 @@ class Barstock(object):
 
     @classmethod
     def load(cls, barstock_csv, include_all=False):
-        obj = cls()
         df = pd.read_csv(barstock_csv)
         df = df.dropna(subset=['Type'])
         df['type'] = map(string.lower, df['Type'])
@@ -77,6 +79,5 @@ class Barstock(object):
         if not include_all:
             #log debug how many dropped
             df = df[df["In Stock"] != 0]
-        obj.df = df
-        return obj
+        return cls(df)
 
