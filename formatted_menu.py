@@ -75,36 +75,38 @@ def append_liquor_list(doc, df, own_page):
     doc.append(listing)
 
 
-def format_recipe(recipe, show_price=False, show_examples=False, markup=1, show_prep=False):
+def format_recipe(recipe, display_opts):
     """ Return the recipe in a paragraph in a samepage
     """
     recipe_page = SamepageEnvironment()
-    # set up drink name
     name_line = LargeText(recipe.name)
-    if 'schubar original' in recipe.origin.lower():
+
+    if not display_opts.ignore_origin and 'schubar original' in recipe.origin.lower():
         name_line.append(superscript('*'))
         #name_line.append(superscript(NoEscape('\dag')))
-    if show_price and recipe.max_cost:
-        price = int(((recipe.max_cost+1) * markup) +1) # Addative or multiplicative markups?
+
+    if display_opts.prices and recipe.max_cost:
+        price = int(((recipe.max_cost+1) * display_opts.markup) +1)
         name_line.append(DotFill())
         name_line.append(superscript('$'))
         name_line.append(price)
     name_line.append('\n')
     recipe_page.append(name_line)
 
-    if show_prep:
+    if display_opts.prep:
         recipe_page.append(FootnoteText(recipe.prep_line(extended=True, caps=False)+'\n'))
 
-    if recipe.info:
+    if not display_opts.ignore_info and recipe.info:
         recipe_page.append(SmallText(italic(recipe.info +'\n')))
     for item in recipe.ingredients:
         recipe_page.append(item.str() +'\n')
 
-    for variant in recipe.variants:
-        recipe_page.append(HorizontalSpace('8pt'))
-        recipe_page.append(SmallText(italic(variant +'\n')))
+    if not display_opts.ignore_variants:
+        for variant in recipe.variants:
+            recipe_page.append(HorizontalSpace('8pt'))
+            recipe_page.append(SmallText(italic(variant +'\n')))
 
-    if show_examples and recipe.examples:# and recipe.name != 'The Cocktail':
+    if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
         for e in recipe.examples:
             recipe_page.append(FootnoteText("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}\n".format(**e._asdict())))
 
@@ -112,22 +114,54 @@ def format_recipe(recipe, show_price=False, show_examples=False, markup=1, show_
     return recipe_page
 
 
-def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debug=False, prices=False, markup=False, examples=False, liquor_df=None, ldf_own_page=False, show_prep=False):
+def setup_header_footer(doc, pdf_opts, display_opts):
+    # Header with title, tagline, page number right, date left
+    # Footer with key to denote someting about drinks
+    title = pdf_opts.title or '@Schubar'
+    if display_opts.prices:
+        tagline = 'Tips never required, always appreciated'
+        tagline = pdf_opts.tagline or 'Tips for your drinks never required, always appreciated'
+    else:
+        tagline = 'Get Fubar at Schubar on the good stuff'
+        tagline = pdf_opts.tagline or 'Get Fubar at Schubar, but, like, in a classy way'
+    hf = PageStyle("schubarheaderfooter", header_thickness=0.4, footer_thickness=0.4)
+    with hf.create(Head('L')):
+        hf.append(TitleText(title))
+        hf.append(Command('\\'))
+        hf.append(FootnoteText(italic(tagline)))
+    with hf.create(Head('R')):
+        hf.append(FootnoteText(time.strftime("%b %d, %Y")))
+    if not display_opts.ignore_origin:
+        with hf.create(Foot('L')):
+            hf.append(superscript("*"))
+            #hf.append(superscript(NoEscape("\dag")))
+            hf.append(FootnoteText(r"Schubar Original"))
+    with hf.create(Foot('C')):
+        if display_opts.prices:
+            hf.append(HorizontalSpace('12pt'))
+            hf.append(FootnoteText(NoEscape(r"\$ amount shown is recommended tip, calculated from cost of ingredients")))
+    with hf.create(Foot('R')):
+        hf.append(FootnoteText(Command('thepage')))
+    doc.preamble.append(hf)
+    doc.change_document_style("schubarheaderfooter")
+
+
+def generate_recipes_pdf(recipes, pdf_opts, display_opts, ingredient_df):
     """ Generate a .tex and .pef from the recipes given
     recipes is an ordered list of RecipeTuple namedtuples
     """
 
-    print "Generating {}.tex".format(output_filename)
+    print "Generating {}.tex".format(pdf_opts.pdf_filename)
     pylatex.config.active = pylatex.config.Version1(indent=False)
 
     # Determine some settings based on the number of cols
-    if ncols == 1:
+    if pdf_opts.ncols == 1:
         side_margin = '1.75in'
         colsep = '44pt'
-    elif ncols == 2:
+    elif pdf_opts.ncols == 2:
         side_margin = '0.8in'
         colsep = '50pt'
-    elif ncols == 3:
+    elif pdf_opts.ncols == 3:
         side_margin = '0.5in'
         colsep = '44pt'
     else:
@@ -137,7 +171,7 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     # Document setup
     doc_opts = {
         'geometry_options': {
-            'showframe': debug,
+            'showframe': pdf_opts.debug,
             'left': side_margin,
             'right': side_margin,
             'top': '0.4in',
@@ -154,48 +188,22 @@ def generate_recipes_pdf(recipes, output_filename, ncols, align_names=True, debu
     doc.preamble.append(Command(r'renewcommand*\ttdefault', extra_arguments='cmvtt'))
     doc.preamble.append(Command(r'renewcommand*\familydefault', extra_arguments=NoEscape(r'\ttdefault')))
 
-    # Header with title, tagline, page number right, date left
-    # Footer with key to denote someting about drinks
-    title = '@Schubar'
-    if prices:
-        tagline = 'Tips never required, always appreciated'
-        tagline = 'Tips for your drinks never required, always appreciated'
-    else:
-        tagline = 'Get Fubar at Schubar on the good stuff'
-        tagline = 'Get Fubar at Schubar, but, like, in a classy way'
-    hf = PageStyle("schubarheaderfooter", header_thickness=0.4, footer_thickness=0.4)
-    with hf.create(Head('L')):
-        hf.append(TitleText(title))
-        hf.append(Command('\\'))
-        hf.append(FootnoteText(italic(tagline)))
-    with hf.create(Head('R')):
-        hf.append(FootnoteText(time.strftime("%b %d, %Y")))
-    with hf.create(Foot('L')):
-        hf.append(superscript("*"))
-        #hf.append(superscript(NoEscape("\dag")))
-        hf.append(FootnoteText(r"Schubar Original"))
-    with hf.create(Foot('C')):
-        if prices:
-            hf.append(HorizontalSpace('12pt'))
-            hf.append(FootnoteText(NoEscape(r"\$ amount shown is recommended tip, calculated from cost of ingredients")))
-    with hf.create(Foot('R')):
-        hf.append(FootnoteText(Command('thepage')))
-    doc.preamble.append(hf)
-    doc.change_document_style("schubarheaderfooter")
+    # apply a header and footer to the document
+    setup_header_footer(doc, pdf_opts, display_opts)
 
     # Columns setup and fill
-    paracols = add_paracols_environment(doc, ncols, colsep, sloppy=False)
+    paracols = add_paracols_environment(doc, pdf_opts.ncols, colsep, sloppy=False)
     for i, recipe in enumerate(recipes, 1):
-        paracols.append(format_recipe(recipe, show_price=prices, show_examples=examples, markup=markup, show_prep=show_prep))
+        paracols.append(format_recipe(recipe, display_opts))
         switch = 'switchcolumn'
-        if align_names:
-            switch += '*' if (i % ncols) == 0 else ''
+        if pdf_opts.align:
+            switch += '*' if (i % pdf_opts.ncols) == 0 else ''
         paracols.append(Command(switch))
 
     # append a page on the ingredients
-    if not liquor_df.empty:
-        append_liquor_list(doc, liquor_df, own_page=ldf_own_page)
+    if pdf_opts.liquor_list or pdf_opts.liquor_list_own_page:
+        append_liquor_list(doc, ingredient_df, own_page=pdf_opts.liquor_list_own_page)
 
-    print "Compiling {}.pdf".format(output_filename)
-    doc.generate_pdf(output_filename, clean_tex=False)
+    print "Compiling {}.pdf".format(pdf_opts.pdf_filename)
+    doc.generate_pdf(pdf_opts.pdf_filename, clean_tex=False)
     print "Done"
