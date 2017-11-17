@@ -220,6 +220,9 @@ Example usage:
     p.add_argument('-c', '--convert', default='oz', choices=['oz','mL','cL'], help="Convert recipes to a different primary unit")
     p.add_argument('-g', '--all-ingredients', action='store_true', help="Show every ingredient instead of just the main liquors with each example")
     p.add_argument('-m', dest='markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
+    p.add_argument('--ignore-info', action='store_true', help="Don't show the info line for recipes")
+    p.add_argument('--ignore-origin', action='store_true', help="Don't check origin and mark drinks as Schubar originals")
+    p.add_argument('--ignore-variants', action='store_true', help="Don't show variants for drinks")
 
     # filtering options
     p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
@@ -239,7 +242,6 @@ Example usage:
     pdf_parser.add_argument('-l', dest='liquor_list', action='store_true', help="Show list of the available ingredients")
     pdf_parser.add_argument('-L', dest='liquor_list_own_page', action='store_true', help="Show list of the available ingredients on a separate page")
     pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output to the pdf")
-    pdf_parser.add_argument('--ignore-origin', action='store_false', help="Don't check origin and mark drinks as Schubar originals")
     pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
     pdf_parser.add_argument('--title', default=None, help="Title to use")
     pdf_parser.add_argument('--tagline', default=None, help="Tagline to use below the title")
@@ -250,15 +252,15 @@ Example usage:
     return p
 
 # make passing a bunch of options around a bit cleaner
-DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep')
+DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep,ignore_origin,ignore_info,ignore_variants')
 FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or')
-PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline,ignore_origin')
+PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
 
 def main():
     # TODO refactor the passing of options into the pdf generator
-    # TODO category
+    # TODO category sorting of recipes i.e. After Dinner/Longdrink/Before Dinner ...
     # pass display options to Recipes when generating
 
     args = get_parser().parse_args()
