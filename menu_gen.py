@@ -15,6 +15,8 @@ import pandas as pd
 
 import recipe as drink_recipe
 from barstock import Barstock
+import formatted_menu
+
 
 def filter_recipes(all_recipes, filter_options):
     reduce_fn = any if filter_options.use_or else all
@@ -237,7 +239,10 @@ Example usage:
     pdf_parser.add_argument('-l', dest='liquor_list', action='store_true', help="Show list of the available ingredients")
     pdf_parser.add_argument('-L', dest='liquor_list_own_page', action='store_true', help="Show list of the available ingredients on a separate page")
     pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output to the pdf")
+    pdf_parser.add_argument('--ignore-origin', action='store_false', help="Don't check origin and mark drinks as Schubar originals")
     pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
+    pdf_parser.add_argument('--title', default=None, help="Title to use")
+    pdf_parser.add_argument('--tagline', default=None, help="Tagline to use below the title")
 
     # Do alternate things
     test_parser = subparsers.add_parser('test', help='whatever I need it to be')
@@ -247,16 +252,18 @@ Example usage:
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep')
 FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or')
-PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align')
+PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline,ignore_origin')
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
 
 def main():
     # TODO refactor the passing of options into the pdf generator
+    # TODO category
     # pass display options to Recipes when generating
 
     args = get_parser().parse_args()
     display_options = bundle_options(DisplayOptions, args)
+    filter_options = bundle_options(FilterOptions, args)
 
     if args.command == 'test':
         print "This is a test"
@@ -271,11 +278,13 @@ def main():
             print '{:2d} {}'.format(n, unicode(i).encode('ascii', errors='replace'))
         return
 
-    CACHE_FILE = 'cache.pkl'
+    RECIPES_CACHE_FILE = 'cache_recipes.pkl'
+    BARSTOCK_CACHE_FILE = 'cache_barstock.pkl'
     if args.load_cache:
+        barstock = Barstock(pd.read_pickle(BARSTOCK_CACHE_FILE))
         with open(CACHE_FILE) as fp:
-            barstock, recipes = pickle.load(fp)
-            print "Loaded {} recipes from cache file".format(len(recipes))
+            recipes, filter_options = pickle.load(fp)
+            print "Loaded {} recipes from cache file with options:\n{}\n{}".format(len(recipes), filter_options)
 
     else:
         base_recipes = load_recipe_json(args.recipes.split(','))
@@ -285,26 +294,22 @@ def main():
         if args.convert:
             print "Converting recipes to unit: {}".format(args.convert)
             map(lambda r: r.convert(args.convert), recipes)
-        recipes = filter_recipes(recipes, bundle_options(FilterOptions, args))
+        recipes = filter_recipes(recipes, filter_options)
 
     if args.save_cache:
-        with open(CACHE_FILE, 'w') as fp:
-            pickle.dump((barstock, recipes), fp)
-            print "Saved {} recipes to cache file".format(len(recipes))
+        barstock.df.to_pickle(BARSTOCK_CACHE_FILE)
+        with open(RECIPE_CACHE_FILE, 'w') as fp:
+            pickle.dump((recipes, filter_options), fp)
+            print "Saved recipes and barstock to cache file".format(len(recipes))
 
     if args.stats:
         report_stats(recipes)
 
-
     if args.command == 'pdf':
         # sort recipes loosely by approximate display length
         #recipes.sort(key=lambda r: len(str(r).split('\n'))/3, reverse=True)
-
         pdf_options = bundle_options(PdfOptions, args)
-        import formatted_menu
-        ingredient_df = barstock.df if args.liquor_list or args.liquor_list_own_page else pd.DataFrame()
-        formatted_menu.generate_recipes_pdf(recipes, args.pdf_filename, args.ncols, args.align,
-                args.debug, args.prices, args.markup, args.examples, ingredient_df, args.liquor_list_own_page, args.prep)
+        formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, barstock.df)
         return
 
     if args.command == 'txt':
