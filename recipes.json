@@ -174,7 +174,7 @@
             "lemon juice": 0.75,
             "cranberry juice": 0.75,
             "simple syrup": 0.25,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "origin": "Schubar original"
     },
@@ -208,7 +208,7 @@
         "ingredients": {
             "dry gin": 2,
             "lime juice": 0.75,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "misc": "Squeezed shell of 1/2 a lime",
         "profile": ["tangy", "citrusy"],
@@ -234,7 +234,7 @@
             "dry gin": 2,
             "lemon juice": 0.75,
             "simple syrup": 0.5,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "profile": ["tangy", "citrusy"],
         "prep": "build",
@@ -245,7 +245,7 @@
         "ingredients": {
             "dry gin": 2,
             "lime juice": 0.75,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "prep": "shake",
         "glass": "rocks"
@@ -270,7 +270,7 @@
             "lemon juice": 0.75,
             "orange liqueur": 0.75,
             "Grenadine": "1/4 tsp",
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "glass": "rocks",
         "ice": "crushed",
@@ -311,7 +311,7 @@
     "Rum Rickey": {
         "ingredients": {
             "white rum": 2,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "misc": "Squeezed shell of 1/2 a lime"
     },
@@ -454,7 +454,7 @@
         "ingredients": {
             "dry vermouth": 3,
             "blackberry liqueur": 0.5,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "glass": "collins",
         "ice": "cubed",

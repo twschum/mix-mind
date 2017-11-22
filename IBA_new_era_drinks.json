@@ -132,7 +132,7 @@
         "ingredients": {
             "Prosecco": 6.0,
             "Aperol": 4.0,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "prep": "build",
         "glass": "rocks"

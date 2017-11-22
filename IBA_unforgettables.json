@@ -11,12 +11,12 @@
     },
     "Americano": {
         "style": "Before Dinner Cocktail",
-        "IBA_description": "Mix the ingredients directly in an old-fashioned glass filled with ice-cubes, add a splash of club soda and garnish with half orange slice.",
+        "IBA_description": "Mix the ingredients directly in an old-fashioned glass filled with ice-cubes, add a splash of soda water and garnish with half orange slice.",
         "unit": "cL",
         "ingredients": {
             "Campari": 3.0,
             "sweet vermouth": 3.0,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "ice": "cubed",
         "prep": "build",
@@ -119,13 +119,13 @@
     },
     "Gin Fizz": {
         "style": "Longdrink",
-        "IBA_description": "Shake all ingredients with ice cubes, except club soda. Pour into tumbler. Top with club soda. Garnish with lemon slice.",
+        "IBA_description": "Shake all ingredients with ice cubes, except soda water. Pour into tumbler. Top with soda water. Garnish with lemon slice.",
         "unit": "cL",
         "ingredients": {
             "dry gin": 4.5,
             "simple syrup": 1.0,
             "lemon juice": 3.0,
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "garnish": "Lemon slice"
     },
@@ -137,7 +137,7 @@
             "dry gin": 4.5,
             "simple syrup": 1.5,
             "lemon juice": 3.0,
-            "club soda": 6.0
+            "soda water": 6.0
         },
         "prep": "build"
     },
@@ -253,7 +253,7 @@
             "egg white": "one",
             "orange flower water": "3 dashes",
             "vanilla extract": "2 drops",
-            "club soda": "Top with"
+            "soda water": "Top with"
         },
         "glass": "highball",
         "prep": "shake"
