@@ -4,21 +4,24 @@
         "IBA_description": "Layer ingredients one at a time starting with Kahl\u00faa, followed by Baileys Irish Cream and top with Grand Marnier.",
         "unit": "cL",
         "ingredients": {
-            "grand marnier": 2.0,
-            "baileys irish cream": 2.0,
-            "kahl\u00faa": 2.0
-        }
+            "coffee liqueur:Kahl\u00faa": 2.0,
+            "irish cream:Bailey's ": 2.0,
+            "orange liqueur:Grand Marnier": 2.0
+        },
+        "glass": "shooter",
+        "prep": "build",
+        "ice": "neat"
     },
     "Barracuda": {
         "style": "Sparkling Cocktail",
         "IBA_description": null,
         "unit": "cL",
         "ingredients": {
-            "gold rum": 4.5,
-            "galliano": 1.5,
+            "amber rum": 4.5,
+            "Galliano": 1.5,
             "pineapple juice": 6.0,
-            "fresh lime juice": "dash",
-            "prosecco": "Top with"
+            "lime juice": "dash",
+            "Prosecco": "Top with"
         }
     },
     "Bramble": {
@@ -26,20 +29,26 @@
         "IBA_description": "Build over crushed ice, in a rock glass.",
         "unit": "cL",
         "ingredients": {
-            "gin": 4.0,
-            "sugar syrup": 1.0,
-            "fresh lemon juice": 1.5,
+            "dry gin": 4.0,
+            "simple syrup": 1.0,
+            "lemon juice": 1.5,
             "blackberry liqueur": 1.5
-        }
+        },
+        "prep": "build",
+        "ice": "crushed",
+        "glass": "rocks"
     },
-    "Dark \u2018n\u2019 Stormy": {
+    "Dark 'n' Stormy": {
         "style": "Longdrink",
         "IBA_description": "In a highball glass filled with ice add\u00a06cl Dark Rum and top with ginger beer. Garnish with lime wedge.",
         "unit": "cL",
         "ingredients": {
             "dark rum": 6.0,
             "ginger beer": 10.0
-        }
+        },
+        "glass": "highball",
+        "prep": "build",
+        "garnish": "Lime wedge"
     },
     "Dirty Martini": {
         "style": "Before Dinner Cocktail",
@@ -57,9 +66,9 @@
         "unit": "cL",
         "ingredients": {
             "vodka": 5.0,
-            "kahl\u00faa": 1.0,
-            "sugar syrup (according to individual\u00a0preference\u00a0of sweetness)": "",
-            "short strong espresso": "one"
+            "coffee liqueur:Kahl\u00faa": 1.0,
+            "simple syrup": "1 to 3 dashes",
+            "shot espresso": "one"
         }
     },
     "French Martini": {
@@ -68,7 +77,7 @@
         "ingredients": {
             "vodka": 4.5,
             "raspberry liqueur": 1.5,
-            "fresh pineapple juice": 1.5
+            "pineapple juice": 1.5
         }
     },
     "Kamikaze": {
@@ -77,8 +86,8 @@
         "unit": "cL",
         "ingredients": {
             "vodka": 3.0,
-            "triple sec": 3.0,
-            "fresh lime juice": 3.0
+            "orange liqueur": 3.0,
+            "lime juice": 3.0
         }
     },
     "Lemon Drop Martini": {
@@ -87,19 +96,20 @@
         "unit": "cL",
         "ingredients": {
             "vodka citron": 2.5,
-            "triple sec": 2.0,
-            "fresh lemon juice": 1.5
-        }
+            "orange liqueur": 2.0,
+            "lemon juice": 1.5
+        },
+        "garnish": "Sugar rim and lemon wheel"
     },
     "Pisco Sour": {
         "style": "All Day Cocktail",
         "IBA_description": "Shake and strain into a chilled champagne flute.",
         "unit": "cL",
         "ingredients": {
-            "pisco": 4.5,
-            "sugar syrup": 2.0,
-            "fresh lemon juice": 3.0,
-            "raw egg white (small egg)": "one"
+            "brandy:Pisco": 4.5,
+            "simple syrup": 2.0,
+            "lemon juice": 3.0,
+            "egg white": "one"
         }
     },
     "Russian Spring Punch": {
@@ -109,54 +119,57 @@
         "ingredients": {
             "vodka": 2.5,
             "cr\u00e9me de cassis": 1.5,
-            "sugar syrup": 1.0,
-            "lemon juice, fresh": 2.5
-        }
+            "simple syrup": 1.0,
+            "lemon juice": 2.5,
+            "Champagne": "Top with"
+        },
+        "glass": "highball"
     },
     "Spritz Veneziano": {
         "style": "Sparkling Cocktail",
         "IBA_description": "Build into an old-fashioned glass filled with ice.",
         "unit": "cL",
         "ingredients": {
-            "prosecco": 6.0,
-            "aperol": 4.0,
-            "splash of soda water": ""
-        }
+            "Prosecco": 6.0,
+            "Aperol": 4.0,
+            "club soda": "Top with"
+        },
+        "prep": "build",
+        "glass": "rocks"
     },
-    "Tommy\u2019s Margarita": {
+    "Tommy's Margarita": {
         "style": "All Day Cocktail",
         "IBA_description": "Shake and strain into a chilled cocktail glass.",
         "unit": "cL",
         "ingredients": {
             "tequila": 4.5,
-            "freshly squeezed lime juice": 1.5,
-            "of agave nectar": "2 bar spoons"
+            "lime juice": 1.5,
+            "agave nectar": "2 tsp"
         }
     },
     "Vampiro": {
         "style": null,
         "unit": "cL",
         "ingredients": {
-            "tequila (silver)": 5.0,
+            "silver tequila": 5.0,
             "tomato juice": 7.0,
-            "orange juice, fresh": 3.0,
-            "lime juice, fresh": 1.0,
-            "teaspoon clear honey": "one",
-            "half slice onion finely chopped": "",
-            "few slices fresh red hot chili peppers": "",
-            "worchestershire sauce": "Few drops",
-            "salt": ""
-        }
+            "orange juice": 3.0,
+            "lime juice": 1.0,
+            "honey": "1 tsp",
+            "worchestershire sauce": "3 drops",
+            "salt": "dash"
+        },
+        "misc": "half an onion, finely chopped\nfew slices fresh red hot chili peppers"
     },
     "Vesper": {
         "style": "Before Dinner Cocktail ",
         "unit": "cL",
         "ingredients": {
-            "gin": 6.0,
+            "dry gin": 6.0,
             "vodka": 1.5,
-            "lillet blonde": 0.75,
-            "lemon twist (garnish)": ""
-        }
+            "Lillet Blanc": 0.75
+        },
+        "garnish": "Lemon twist"
     },
     "Yellow Bird": {
         "style": "All Day Cocktail",
@@ -164,8 +177,8 @@
         "unit": "cL",
         "ingredients": {
             "white rum": 3.0,
-            "galliano": 1.5,
-            "triple sec": 1.5,
+            "Galliano": 1.5,
+            "orange liqueur": 1.5,
             "lime juice": 1.5
         }
     }
