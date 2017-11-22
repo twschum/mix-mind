@@ -349,7 +349,7 @@
         "info": "This \"Pink\" cocktail is not for the faint of heart",
         "ingredients": {
             "dry gin": 2,
-            "angostura bitters": "2 dashes"
+            "aromatic bitters:Angostura": "2 dashes"
         },
         "prep": "stir"
     },
@@ -407,7 +407,7 @@
         "info": "Inspired by the collection of short stories, Blue Christmas: Holiday Stories for the Rest of Us, by John Dufresne",
         "ingredients": {
             "whiskey": 1.5,
-            "cognac": 1.5,
+            "Cognac": 1.5,
             "maple syrup": 0.5,
             "aromatic bitters": "2 dashes"
         },
@@ -430,7 +430,7 @@
     "Trinidad Sour": {
         "info": "This oddball cocktail was conceived by Giuseppe Gonzalez while he was at the celebrated Clover Club in Brooklyn",
         "ingredients": {
-            "angostura bitters": 1,
+            "aromatic bitters:Angostura": 1,
             "orgeat": 1,
             "lemon juice": 0.75,
             "rye whiskey": 0.5
