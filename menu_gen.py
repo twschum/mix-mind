@@ -270,9 +270,6 @@ def main():
     if args.command == 'test':
         print "This is a test"
         recipes = load_recipe_json(args.recipes.split(','))
-        for recipe in (drink_recipe.DrinkRecipe(name, r) for name, r in recipes.iteritems()):
-            print recipe.prep_line(caps=False)
-        return
         ingredients = Counter()
         for info in recipes.itervalues():
             ingredients.update(info.get('ingredients', {}).iterkeys())

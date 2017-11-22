@@ -34,9 +34,9 @@
             "tomato juice": 9.0,
             "lemon juice": 1.5,
             "worcestershire sauce": "2 to 3 dashes",
-            "tabasco": "",
-            "celery salt": "",
-            "pepper": ""
+            "tabasco": "dash",
+            "celery salt": "dash",
+            "pepper": "dash"
         },
         "glass": "highball",
         "perp": "build",
