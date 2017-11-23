@@ -153,7 +153,7 @@ def cL_to_volume(amount, unit, rounded=False):
 
 class IngredientSpecifier(object):
     """ Allow type:bottle in recipes,
-    e.g. "white rum:Barcadi Catra Blanca" or "aromatic bitters:Angostura bitters"
+    e.g. "white rum:Barcadi Catra Blanca" or "aromatic bitters:Angostura"
     """
     @default_initializer
     def __init__(self, what, bottle=None):

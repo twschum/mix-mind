@@ -150,9 +150,9 @@ class DrinkRecipe(object):
         return max_ingredient
 
     def contains_ingredient(self, ingredient):
-        return any(( ingredient in i.specifier.what or (i.specifier.bottle and ingredient in i.specifier.bottle) \
-            for i in self.ingredients))
-
+        return any(( ingredient in i.specifier.what \
+                or (i.specifier.bottle and ingredient in i.specifier.bottle) \
+                for i in self._get_quantized_ingredients()))
 
 class Ingredient(object):
     """ An "ingredient" is every item that should be represented in standard text

@@ -313,7 +313,13 @@ def main():
 
     if args.command == 'txt':
         if args.names:
-            print '\n'.join([str(len(str(recipe).split('\n')))+' '+recipe.name for recipe in recipes])
+            for recipe in recipes:
+                try:
+                    print recipe.name
+                except UnicodeEncodeError:
+                    from pprint import pprint; import ipdb; ipdb.set_trace()
+                    print recipe
+            #print '\n'.join([str(len(str(recipe).split('\n')))+' '+recipe.name for recipe in recipes])
             print '------------\n{} recipes\n'.format(len(recipes))
             return
         #if args.write:
