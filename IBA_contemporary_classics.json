@@ -124,7 +124,7 @@
             "Scotch whisky": 3.5,
             "amaretto": 3.5
         },
-        "prep": "build",
+        "prep": "stir",
         "glass": "rocks"
     },
     "God Mother": {
@@ -135,7 +135,7 @@
             "vodka": 3.5,
             "amaretto": 3.5
         },
-        "prep": "build",
+        "prep": "stir",
         "glass": "rocks"
     },
     "Golden Dream": {
