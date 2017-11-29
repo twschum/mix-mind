@@ -156,7 +156,7 @@ Example usage:
     # core parameters
     p.add_argument('-v', '--verbose', action='store_true')
     p.add_argument('-b', '--barstock', help="Barstock csv filename")
-    p.add_argument('-r', '--recipes', default='recipes.json', help="Recipes json filename(s). Separate multiple with commas")
+    p.add_argument('-r', '--recipes', nargs='+', default=['recipes.json'], help="Recipes json filename(s)")
     p.add_argument('--save_cache', action='store_true', help="Pickle the generated recipes to cache them for later use (e.g. a quicker build of the pdf)")
     p.add_argument('--load_cache', action='store_true', help="Load the generated recipes from cache for use")
 
@@ -218,7 +218,7 @@ def main():
 
     if args.command == 'test':
         print "This is a test"
-        recipes = load_recipe_json(args.recipes.split(','))
+        recipes = load_recipe_json(args.recipes)
         ingredients = Counter()
         for info in recipes.itervalues():
             ingredients.update(info.get('ingredients', {}).iterkeys())
@@ -235,7 +235,7 @@ def main():
             print "Loaded {} recipes from cache file with options:\n{}\n{}".format(len(recipes), filter_options)
 
     else:
-        base_recipes = load_recipe_json(args.recipes.split(','))
+        base_recipes = load_recipe_json(args.recipes)
         if args.barstock:
             barstock = Barstock.load(args.barstock, args.all)
             recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
