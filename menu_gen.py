@@ -206,9 +206,9 @@ Example usage:
     subparsers = p.add_subparsers(help='commands', dest='command')
 
     # core parameters
-    p.add_argument('-v', dest='verbose', action='store_true')
-    p.add_argument('-b', dest='barstock', default='Barstock - Sheet1.csv', help="Barstock csv filename")
-    p.add_argument('-r', dest='recipes', default='recipes.json', help="Recipes json filename(s). Separate multiple with commas")
+    p.add_argument('-v', '--verbose', action='store_true')
+    p.add_argument('-b', '--barstock', help="Barstock csv filename")
+    p.add_argument('-r', '--recipes', default='recipes.json', help="Recipes json filename(s). Separate multiple with commas")
     p.add_argument('--save_cache', action='store_true', help="Pickle the generated recipes to cache them for later use (e.g. a quicker build of the pdf)")
     p.add_argument('--load_cache', action='store_true', help="Load the generated recipes from cache for use")
 
@@ -219,29 +219,30 @@ Example usage:
     p.add_argument('-e', '--examples', action='store_true', help="Show specific examples of a recipe based on the ingredient stock")
     p.add_argument('-c', '--convert', default='oz', choices=['oz','mL','cL'], help="Convert recipes to a different primary unit")
     p.add_argument('-g', '--all-ingredients', action='store_true', help="Show every ingredient instead of just the main liquors with each example")
-    p.add_argument('-m', dest='markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
+    p.add_argument('-m', '--markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
     p.add_argument('--ignore-info', action='store_true', help="Don't show the info line for recipes")
     p.add_argument('--ignore-origin', action='store_true', help="Don't check origin and mark drinks as Schubar originals")
     p.add_argument('--ignore-variants', action='store_true', help="Don't show variants for drinks")
 
     # filtering options
     p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
-    p.add_argument('-i', dest='include', nargs='+', help="Filter by ingredient(s) that must be contained in the recipe")
-    p.add_argument('-x', dest='exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
-    p.add_argument('-or', dest='use_or', action='store_true', help="use logical OR for included and excluded ingredient lists instead of default AND")
+    p.add_argument('-i', '--include', nargs='+', help="Filter by ingredient(s) that must be contained in the recipe")
+    p.add_argument('-x', '--exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
+    p.add_argument('--or', dest='use_or', action='store_true', help="use logical OR for included and excluded ingredient lists instead of default AND")
+    p.add_argument('-t', '--category', help="Include drinks matching the IBA category such as After Dinner or Longdrink")
 
     # txt output
     txt_parser = subparsers.add_parser('txt', help='Simple plain text output')
     txt_parser.add_argument('--names', action='store_true', help="Show the names of drinks only")
-    txt_parser.add_argument('-w', dest='write', default=None, help="Save text menu out to a file")
+    txt_parser.add_argument('-w', '--write', default=None, help="Save text menu out to a file")
 
     # pdf (latex) output and options
     pdf_parser = subparsers.add_parser('pdf', help='Options for generating a pdf via LaTeX integration')
     pdf_parser.add_argument('pdf_filename', help="Basename of the pdf and tex files generated")
-    pdf_parser.add_argument('-n', dest='ncols', default=2, type=int, help="Number of columns to use for the menu")
-    pdf_parser.add_argument('-l', dest='liquor_list', action='store_true', help="Show list of the available ingredients")
-    pdf_parser.add_argument('-L', dest='liquor_list_own_page', action='store_true', help="Show list of the available ingredients on a separate page")
-    pdf_parser.add_argument('-D', dest='debug', action='store_true', help="Add debugging output to the pdf")
+    pdf_parser.add_argument('-n', '--ncols', default=2, type=int, help="Number of columns to use for the menu")
+    pdf_parser.add_argument('-l', '--liquor_list', action='store_true', help="Show list of the available ingredients")
+    pdf_parser.add_argument('-L', '--liquor_list_own_page', action='store_true', help="Show list of the available ingredients on a separate page")
+    pdf_parser.add_argument('-D', '--debug', action='store_true', help="Add debugging output to the pdf")
     pdf_parser.add_argument('--align', action='store_true', help="Align drink names across columns")
     pdf_parser.add_argument('--title', default=None, help="Title to use")
     pdf_parser.add_argument('--tagline', default=None, help="Tagline to use below the title")
@@ -287,9 +288,12 @@ def main():
 
     else:
         base_recipes = load_recipe_json(args.recipes.split(','))
-        barstock = Barstock.load(args.barstock, args.all)
-        recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
+        if args.barstock:
+            barstock = Barstock.load(args.barstock, args.all)
+            recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
                 for name, recipe in base_recipes.iteritems()]
+        else:
+            recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()]
         if args.convert:
             print "Converting recipes to unit: {}".format(args.convert)
             map(lambda r: r.convert(args.convert), recipes)
