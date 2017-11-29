@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """
 Turn recipes json into a readable menu
-TODO figure out how to handle recipes calling for an ingredient by name instead of type
-TODO jsonschema for recipes
 """
 
 import argparse
@@ -276,10 +274,6 @@ def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
 
 def main():
-    # TODO refactor the passing of options into the pdf generator
-    # TODO category sorting of recipes i.e. After Dinner/Longdrink/Before Dinner ...
-    # pass display options to Recipes when generating
-
     args = get_parser().parse_args()
     display_options = bundle_options(DisplayOptions, args)
     filter_options = bundle_options(FilterOptions, args)

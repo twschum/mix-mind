@@ -12,7 +12,6 @@ class Barstock(object):
     def __init__(self, df):
         self.df = df
 
-    # TODO move to own file
     def get_all_bottle_combinations(self, specifiers):
         """ For a given list of ingredient specifiers, return a list of lists
         where each list is a specific way to make the drink
