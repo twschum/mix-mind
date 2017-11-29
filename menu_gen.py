@@ -272,7 +272,7 @@ def main():
 
     if args.command == 'txt':
         if args.names or args.ingredients:
-            if args.ingredients:
+            if args.ingredients and len(recipes):
                 name_w = max((len(recipe.name) for recipe in recipes))
             for recipe in recipes:
                 try:
