@@ -325,15 +325,27 @@ def main():
     if args.command == 'pdf':
         # sort recipes loosely by approximate display length
         #recipes.sort(key=lambda r: len(str(r).split('\n'))/3, reverse=True)
+        if not args.barstock:
+            if args.liquor_list or args.liquor_list_own_page or args.examples or args.prices:
+                print "Must have a barstock file for these options"
+                return
+            barstock_df = None
+        else:
+            barstock_df = barstock.df
         pdf_options = bundle_options(PdfOptions, args)
-        formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, barstock.df)
+        formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, barstock_df)
         return
 
     if args.command == 'txt':
-        if args.names:
+        if args.names or args.ingredients:
+            if args.ingredients:
+                name_w = max((len(recipe.name) for recipe in recipes))
             for recipe in recipes:
                 try:
-                    print recipe.name
+                    if args.ingredients:
+                        print "{{:<{}}} - {{}}".format(name_w).format(recipe.name, ', '.join(recipe.get_ingredient_list()))
+                    else:
+                        print recipe.name
                 except UnicodeEncodeError:
                     from pprint import pprint; import ipdb; ipdb.set_trace()
                     print recipe
@@ -341,11 +353,7 @@ def main():
             print '------------\n{} recipes\n'.format(len(recipes))
             return
 
-        if args.ingredients:
-            name = max((len(recipe.name) for recipe in recipes))
-
-
-        if args.write:
+        #if args.write:
             #with open(args.write, 'w') as fp:
                 #fp.write('\n\n'.join(menu))
         else:
