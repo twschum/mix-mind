@@ -136,9 +136,11 @@ class DrinkRecipe(object):
         self.stats.volume = _find_example(self.examples, 'volume', max_=True).volume
         return True
 
-    def _get_quantized_ingredients(self, include_optional=False):
-        return [i for i in self.ingredients if isinstance(i, QuantizedIngredient) \
-                and (not isinstance(i, OptionalIngredient) or include_optional)]
+    def get_ingredient_list(self, all=True, optional=False):
+        if all:
+            return [i.specifier.what for i in self.ingredients]
+        else:
+            return [i.specifier.what for i in self._get_quantized_ingredients(include_optional=optional)]
 
     def primary_spirit(self):
         max_amount = 0
@@ -150,10 +152,15 @@ class DrinkRecipe(object):
                 max_ingredient = i.specifier.what
         return max_ingredient
 
-    def contains_ingredient(self, ingredient):
+    def contains_ingredient(self, ingredient, include_optional=False):
         return any(( ingredient in i.specifier.what \
                 or (i.specifier.bottle and ingredient in i.specifier.bottle) \
-                for i in self._get_quantized_ingredients()))
+                for i in self._get_quantized_ingredients(include_optional=include_optional)))
+
+    def _get_quantized_ingredients(self, include_optional=False):
+        return [i for i in self.ingredients if isinstance(i, QuantizedIngredient) \
+                and (not isinstance(i, OptionalIngredient) or include_optional)]
+
 
 class Ingredient(object):
     """ An "ingredient" is every item that should be represented in standard text

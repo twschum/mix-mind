@@ -23,10 +23,12 @@ def filter_recipes(all_recipes, filter_options):
     recipes = [recipe for recipe in all_recipes if recipe.can_make or filter_options.all]
     if filter_options.include:
         recipes = [recipe for recipe in recipes if
-                reduce_fn((recipe.contains_ingredient(ingredient) for ingredient in filter_options.include))]
+                reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
+                for ingredient in filter_options.include))]
     if filter_options.exclude:
         recipes = [recipe for recipe in recipes if
-                reduce_fn((not recipe.contains_ingredient(ingredient) for ingredient in filter_options.exclude))]
+                reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
+                for ingredient in filter_options.exclude))]
     for attr in 'style glass prep ice'.split():
         recipes = filter_on_attribute(recipes, filter_options, attr)
 
