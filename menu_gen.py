@@ -27,11 +27,21 @@ def filter_recipes(all_recipes, filter_options):
     if filter_options.exclude:
         recipes = [recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient) for ingredient in filter_options.exclude))]
+    for attr in 'style glass prep ice'.split():
+        recipes = filter_on_attribute(recipes, filter_options, attr)
+
     def get_names(items):
         return set(map(lambda i: i.name, items))
     excluded = ', '.join(sorted(list(get_names(all_recipes) - get_names(recipes))))
     print "    Can't make: {}\n".format(excluded)
     return recipes
+
+def filter_on_attribute(recipes, filter_options, attribute):
+    if getattr(filter_options, attribute):
+        attr_value = getattr(filter_options, attribute).lower()
+        recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
+    return recipes
+
 
 
 class StatTracker(dict):
@@ -213,8 +223,8 @@ Example usage:
     p.add_argument('--load_cache', action='store_true', help="Load the generated recipes from cache for use")
 
     # display options
-    p.add_argument('-p', '--prices', action='store_true', help="Display prices for drinks based on stock")
-    p.add_argument('--prep', action='store_true', help="Display a line showing glass, ice, and prep")
+    p.add_argument('-$', '--prices', action='store_true', help="Display prices for drinks based on stock")
+    p.add_argument('-p', '--prep-line', action='store_true', help="Display a line showing glass, ice, and prep")
     p.add_argument('-s', '--stats', action='store_true', help="Print out a detailed statistics block for the selected recipes")
     p.add_argument('-e', '--examples', action='store_true', help="Show specific examples of a recipe based on the ingredient stock")
     p.add_argument('-c', '--convert', default='oz', choices=['oz','mL','cL'], help="Convert recipes to a different primary unit")
@@ -229,11 +239,15 @@ Example usage:
     p.add_argument('-i', '--include', nargs='+', help="Filter by ingredient(s) that must be contained in the recipe")
     p.add_argument('-x', '--exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
     p.add_argument('--or', dest='use_or', action='store_true', help="use logical OR for included and excluded ingredient lists instead of default AND")
-    p.add_argument('-t', '--category', help="Include drinks matching the IBA category such as After Dinner or Longdrink")
+    p.add_argument('--style', help="Include drinks matching the style such as After Dinner or Longdrink")
+    p.add_argument('--glass', help="Include drinks matching the style such as After Dinner or Longdrink")
+    p.add_argument('--prep', help="Include drinks matching the style such as After Dinner or Longdrink")
+    p.add_argument('--ice', help="Include drinks matching the style such as After Dinner or Longdrink")
 
     # txt output
     txt_parser = subparsers.add_parser('txt', help='Simple plain text output')
     txt_parser.add_argument('--names', action='store_true', help="Show the names of drinks only")
+    txt_parser.add_argument('--ingredients', action='store_true', help="Show name and ingredients but not full recipe")
     txt_parser.add_argument('-w', '--write', default=None, help="Save text menu out to a file")
 
     # pdf (latex) output and options
@@ -253,8 +267,8 @@ Example usage:
     return p
 
 # make passing a bunch of options around a bit cleaner
-DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep,ignore_origin,ignore_info,ignore_variants')
-FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or')
+DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,ignore_origin,ignore_info,ignore_variants')
+FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
@@ -326,7 +340,12 @@ def main():
             #print '\n'.join([str(len(str(recipe).split('\n')))+' '+recipe.name for recipe in recipes])
             print '------------\n{} recipes\n'.format(len(recipes))
             return
-        #if args.write:
+
+        if args.ingredients:
+            name = max((len(recipe.name) for recipe in recipes))
+
+
+        if args.write:
             #with open(args.write, 'w') as fp:
                 #fp.write('\n\n'.join(menu))
         else:
