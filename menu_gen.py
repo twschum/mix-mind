@@ -43,6 +43,29 @@ def filter_on_attribute(recipes, filter_options, attribute):
     return recipes
 
 
+def report_stats(recipes):
+    most_expensive = StatTracker('cost', 'max', 'Most Expensive')
+    most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
+    most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
+    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
+    least_booze = StatTracker('std_drinks', 'min', 'Fewest Std Drinks')
+    least_abv = StatTracker('abv', 'min', 'Lowest Estimated ABV')
+    for recipe in recipes:
+        if recipe.calculate_stats():
+            most_expensive.update_stat(recipe)
+            most_booze.update_stat(recipe)
+            most_abv.update_stat(recipe)
+            least_expensive.update_stat(recipe)
+            least_booze.update_stat(recipe)
+            least_abv.update_stat(recipe)
+    print
+    print most_expensive
+    print most_booze
+    print most_abv
+    print least_expensive
+    print least_booze
+    print least_abv
+    print
 
 class StatTracker(dict):
     # mutable class variables
@@ -74,92 +97,6 @@ class StatTracker(dict):
             if len(recipe.name) > StatTracker._name_width:
                 StatTracker._name_width = len(recipe.name)
 
-def report_stats(recipes):
-    most_expensive = StatTracker('cost', 'max', 'Most Expensive')
-    most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
-    most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
-    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
-    least_booze = StatTracker('std_drinks', 'min', 'Fewest Std Drinks')
-    least_abv = StatTracker('abv', 'min', 'Lowest Estimated ABV')
-    for recipe in recipes:
-        if recipe.calculate_stats():
-            most_expensive.update_stat(recipe)
-            most_booze.update_stat(recipe)
-            most_abv.update_stat(recipe)
-            least_expensive.update_stat(recipe)
-            least_booze.update_stat(recipe)
-            least_abv.update_stat(recipe)
-    print
-    print most_expensive
-    print most_booze
-    print most_abv
-    print least_expensive
-    print least_booze
-    print least_abv
-    print
-
-def convert_to_menu(recipes, prices=True, all_=True, stats=True):
-    """ Convert recipe json into readable format
-    """
-
-    menu = []
-    menu_tuples = []
-    for drink_name, recipe in recipes.iteritems():
-        lines = []
-        lines.append(drink_name)
-        unit = recipe.get('unit', 'oz')
-        origin = recipe.get('origin', '')
-        prep = recipe.get('prep', 'shake')
-        ice = recipe.get('origin', 'cubed')
-        glass = recipe.get('glass', 'up')
-
-        info = recipe.get('info')
-        if info:
-            lines.append('\t"{}"'.format(info))
-
-        ingredients = []
-        for ingredient, amount in recipe['ingredients'].iteritems():
-            item_str = get_ingredient_str(ingredient, amount, unit)
-            lines.append('\t'+item_str)
-            ingredients.append(item_str)
-
-        for ingredient, amount in recipe.get('optional', {}).iteritems():
-            item_str = "{} (optional)".format(get_ingredient_str(ingredient, amount, unit))
-            lines.append('\t'+item_str)
-            ingredients.append(item_str)
-
-        misc = recipe.get('misc')
-        if misc:
-            lines.append("\t{}".format(misc))
-            ingredients.append(misc)
-
-        garnish = recipe.get('garnish')
-        if garnish:
-            garnish = "{}, for garnish".format(garnish)
-            lines.append('\t'+garnish)
-            ingredients.append(garnish)
-
-        examples = recipe.get('examples', [])
-        if examples:
-            if prices:
-                lines.append("\t    Examples: ".format(examples))
-            for e in examples:
-                if prices:
-                    lines.append("\t    ${cost:.2f} | {abv:.2f}% ABV | {drinks:.2f} | {bottles}".format(**e))
-
-        variants = recipe.get('variants', [])
-        if variants:
-            lines.append("\t    Variant{}:".format('s' if len(variants) > 1 else ''))
-            for v in variants:
-                lines.append("\t    {}".format(v))
-
-        if all_ or examples:
-            menu.append('\n'.join(lines))
-            menu_tuples.append(RecipeContent(drink_name, info, ingredients, variants, origin, examples, prep, ice, glass, recipe.get('max_cost',0)))
-        else:
-            print "Can't make {}".format(drink_name)
-
-    return menu, menu_tuples
 
 def load_recipe_json(recipe_files):
     base_recipes = OrderedDict()
@@ -174,6 +111,7 @@ def load_recipe_json(recipe_files):
                 del other_recipes[name]
             base_recipes.update(other_recipes)
     return base_recipes
+
 
 def get_parser():
     p = argparse.ArgumentParser(description="""
