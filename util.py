@@ -159,6 +159,11 @@ class IngredientSpecifier(object):
     def __init__(self, what, bottle=None):
         if what is None:
             raise ValueError("IngredientSpecifier what (type) cannot be None")
+        if '(' in what and ')' in what:
+            self.extra = what.strip()[what.find('('):]
+            self.what = what.strip()[:what.find('(')].strip()
+        else:
+            self.extra = None
 
     @classmethod
     def from_string(cls, type_str):
@@ -175,7 +180,7 @@ class IngredientSpecifier(object):
         return cls(what, bottle)
 
     def __str__(self):
-        return self.bottle if self.bottle else self.what
+        return self.bottle if self.bottle else "{}{}".format(self.what, ' '+self.extra if self.extra else '')
 
     def __repr__(self):
         return "{}:{}".format(self.what, self.bottle if self.bottle else '')
