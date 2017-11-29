@@ -93,7 +93,7 @@ def format_recipe(recipe, display_opts):
     name_line.append('\n')
     recipe_page.append(name_line)
 
-    if display_opts.prep:
+    if display_opts.prep_line:
         recipe_page.append(FootnoteText(recipe.prep_line(extended=True, caps=False)+'\n'))
 
     if not display_opts.ignore_info and recipe.info:

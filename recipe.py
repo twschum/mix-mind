@@ -29,6 +29,7 @@ class DrinkRecipe(object):
     def __init__(self, name, recipe_dict, stock_df=None):
         # from recipe dict pull out other info and set defaults
         self.info      =  recipe_dict.get('info', '')
+        self.style     =  recipe_dict.get('style', '')
         self.iba_info  =  recipe_dict.get('IBA_description', '')
         self.origin    =  recipe_dict.get('origin', '')
         self.unit      =  recipe_dict.get('unit', 'oz') # cL, mL, tsp, dash, drop
