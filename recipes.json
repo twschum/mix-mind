@@ -534,5 +534,22 @@
         "glass": "rocks",
         "ice": "cubed",
         "garnish": "Orange peel or slice"
+    },
+    
+    "Brown Derby": {
+        "ingredients": {
+            "rye whiskey": 1.5,
+            "simple syrup": 0.75,
+            "grapefruit juice": 1
+        }
+    },
+    
+    "???": {
+        "ingredients": {
+            "tequila": 1.5,
+            "simple syrup": 0.75,
+            "grapefruit juice": 1.5
+        },
+        "garnish": "Flamed rosemary"
     }
 }
