@@ -47,14 +47,14 @@ def superscript(item):
 
 def append_liquor_list(doc, df, own_page):
     bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
-    listing = SamepageEnvironment()
-    block = Center()
     if own_page:
         print "Appending list as new page"
-        block.append(NewPage())
+        doc.append(NewPage())
+    listing = SamepageEnvironment()
+    block = Center()
     if not own_page:
         block.append(HRuleFill())
-    block.append(Command('\\'))
+        block.append(Command('\\'))
     block.append(VerticalSpace('16pt'))
     block.append(TitleText("Included Ingredients"))
     block.append(Command('\\'))
