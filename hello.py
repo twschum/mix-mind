@@ -23,6 +23,8 @@ mms = MixMindServer()
 
 class ReusableForm(Form):
     name = TextField('Name:', validators=[validators.required()])
+    email = TextField('Email:', validators=[validators.required(), validators.Length(min=6, max=35)])
+    password = TextField('Password:', validators=[validators.required(), validators.Length(min=3, max=35)])
 
     def reset(self):
         blankData = MultiDict([ ('csrf', self.reset_csrf() ) ])
@@ -35,16 +37,19 @@ def hello():
 
     print form.errors
     if request.method == 'POST':
-        name = request.form['name']
-        print name
+        name=request.form['name']
+        password=request.form['password']
+        email=request.form['email']
+        print name, " ", email, " ", password
 
         if form.validate():
             # Save the comment here.
-            flash('Hello ' + name)
+            flash('Thanks for registration ' + name)
+            drink = str(mms.recipes[recipe_name])
         else:
-            flash('All the form fields are required. ')
+            flash('Error: All the form fields are required. ')
 
-    return render_template('hello.html', form=form)
+    return render_template('hello.html', form=form, drink=drink)
 
 
 @app.route('/json/<recipe_name>')
