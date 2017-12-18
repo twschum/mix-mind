@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, flash, request
-from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField, BooleanField, DecimalField
+from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField, BooleanField, DecimalField, widgets
 
 import menu_gen
 import recipe as drink_recipe
@@ -30,18 +30,30 @@ class ReusableForm(Form):
         blankData = MultiDict([ ('csrf', self.reset_csrf() ) ])
         self.process(blankData)
 
+class ToggleField(BooleanField):
+    def __call__(self, **kwargs):
+        return super(ToggleField, self).__call__(
+                data_toggle="toggle",
+                data_on="{} Enabled".format(self.label.text),
+                data_off="{} Disabled".format(self.label.text),
+                data_width="300",
+                **kwargs)
+
+class ToggleButtonWidget(widgets.Input):
+    pass
+
 class DrinksForm(Form):
     # display options
-    prices = BooleanField("Show Prices", description="Display prices for drinks based on stock")
-    prep_line = BooleanField("Display a line showing glass, ice, and prep")
-    stats = BooleanField("Print out a detailed statistics block for the selected recipes")
-    examples = BooleanField("Show specific examples of a recipe based on the ingredient stock")
-    convert = TextField("Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(['oz','mL','cL']), validators.Optional()])
-    all_ingredients = BooleanField("Show every ingredient instead of just the main liquors with each example")
-    markup = DecimalField("Drink markup: price = ceil((base_cost+1)*markup)", default=1.2)
-    ignore_info = BooleanField("Don't show the info line for recipes", default="false")
-    ignore_origin = BooleanField("Don't check origin and mark drinks as Schubar originals")
-    ignore_variants = BooleanField("Don't show variants for drinks")
+    prices = BooleanField("Prices", description="Display prices for drinks based on stock")
+    prep_line = BooleanField("Preparation", description="Display a line showing glass, ice, and prep")
+    stats = BooleanField("Stats", description="Print out a detailed statistics block for the selected recipes")
+    examples = BooleanField("Examples", description="Show specific examples of a recipe based on the ingredient stock")
+    convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(['oz','mL','cL']), validators.Optional()])
+    all_ingredients = BooleanField("All_ingredients", description="Show every ingredient instead of just the main liquors with each example")
+    markup = DecimalField("Markup", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.2)
+    ignore_info = BooleanField("Ignore_info", description="Don't show the info line for recipes", default="false")
+    ignore_origin = BooleanField("Ignore_origin", description="Don't check origin and mark drinks as Schubar originals")
+    ignore_variants = BooleanField("Ignore_variants", description="Don't show variants for drinks")
 
     # filtering options
     #p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
