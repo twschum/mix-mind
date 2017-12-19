@@ -7,6 +7,8 @@ from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniP
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
+import yattag
+
 import time
 
 class TitleText(HugeText):
@@ -113,6 +115,54 @@ def format_recipe(recipe, display_opts):
     recipe_page.append(Command('par'))
     return recipe_page
 
+def format_recipe_html(recipe, display_opts):
+    """ use yattag lib to build an html blob contained in a div for the recipe"""
+    doc, tag, text, line = yattag.Doc().ttl()
+
+    def close(s, tag):
+        return '<{0}>{1}</{0}>'.format(tag, s)
+    def em(s):
+        return close(s, 'em')
+    def small(s):
+        return close(s, 'small')
+    def sup(s):
+        return close(s, 'sup')
+    def small_br(s):
+        return small(s+'<br>')
+
+    with tag('p', id=recipe.name):
+
+        name_line = [recipe.name]
+        if not display_opts.ignore_origin and 'schubar original' in recipe.origin.lower():
+            name_line.append(sup('*'))
+        if display_opts.prices and recipe.max_cost:
+            price = int(((recipe.max_cost+1) * float(display_opts.markup)) +1)
+            name_line.append('  -  {}{}'.format(sup('$'), price))
+        doc.asis(close(''.join(name_line), 'h4'))
+
+        if display_opts.prep_line:
+            doc.asis(small_br(recipe.prep_line(extended=True, caps=False)))
+
+        if not display_opts.ignore_info and recipe.info:
+            doc.asis(small_br(em(recipe.info)))
+
+        with tag('ul', id='ingredients'):
+            for item in recipe.ingredients:
+                line('li', item.str(), type="none")
+
+        if not display_opts.ignore_variants:
+            with tag('ul', id='variants'):
+                for variant in recipe.variants:
+                    with tag('small'):
+                        with tag('li', type="none"):
+                            line('em', variant)
+
+        if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
+            for e in recipe.examples:
+                doc.asis(small_br("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
+        doc.asis('<br>')
+
+    return unicode(doc.getvalue())
 
 def setup_header_footer(doc, pdf_opts, display_opts):
     # Header with title, tagline, page number right, date left
