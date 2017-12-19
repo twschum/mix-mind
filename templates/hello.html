@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
   <head>
-    <title>Reusable Form Demo</title>
+    <title>Mix Mind Live</title>
     <link rel="stylesheet" media="screen" href ="static/css/bootstrap.min.css"></link>
     <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"></link>
     <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"></link>
@@ -71,7 +71,6 @@
         {{ drink }}
       </div>
 
-      <br></br>
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
 
@@ -92,9 +91,11 @@
       {% endwith %}
 
     </div>
-    <br></br>
     </div>
     </div> <!-- end of the form div -->
+
+    {% for recipe in recipes %}
+    {{ recipe }}
 
 
   </body>

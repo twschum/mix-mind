@@ -3,7 +3,55 @@
 
 from functools import wraps
 from fractions import Fraction
+from collections import OrderedDict, namedtuple
+import json
 import inspect
+
+# make passing a bunch of options around a bit cleaner
+DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,ignore_origin,ignore_info,ignore_variants')
+FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice')
+PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
+
+def filter_recipes(all_recipes, filter_options):
+    reduce_fn = any if filter_options.use_or else all
+    recipes = [recipe for recipe in all_recipes if recipe.can_make or filter_options.all]
+    if filter_options.include:
+        recipes = [recipe for recipe in recipes if
+                reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
+                for ingredient in filter_options.include))]
+    if filter_options.exclude:
+        recipes = [recipe for recipe in recipes if
+                reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
+                for ingredient in filter_options.exclude))]
+    for attr in 'style glass prep ice'.split():
+        recipes = filter_on_attribute(recipes, filter_options, attr)
+
+    def get_names(items):
+        return set(map(lambda i: i.name, items))
+    excluded = ', '.join(sorted(list(get_names(all_recipes) - get_names(recipes))))
+    print "    Can't make: {}\n".format(excluded)
+    return recipes
+
+def filter_on_attribute(recipes, filter_options, attribute):
+    if getattr(filter_options, attribute):
+        attr_value = getattr(filter_options, attribute).lower()
+        recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
+    return recipes
+
+def load_recipe_json(recipe_files):
+    base_recipes = OrderedDict()
+    for recipe_json in recipe_files:
+        with open(recipe_json) as fp:
+            other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+            print "Recipes loaded from {}".format(recipe_json)
+            for item in other_recipes.itervalues():
+                item.update({'source_file': recipe_json})
+            for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
+                print "Keeping {} from {} over {}".format(name, base_recipes[name]['source_file'], other_recipes[name]['source_file'])
+                del other_recipes[name]
+            base_recipes.update(other_recipes)
+    return base_recipes
+
 
 def default_initializer(func):
     names, varargs, keywords, defaults = inspect.getargspec(func)

@@ -99,6 +99,19 @@ def hello():
 
     return render_template('hello.html', form=form, recipes=recipes)
 
+def generate_recipes(form):
+    base_recipes = util.load_recipe_json(args.recipes)
+    if args.barstock:
+        barstock = Barstock.load(args.barstock, args.all)
+        recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
+            for name, recipe in base_recipes.iteritems()]
+    else:
+        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()]
+    if args.convert:
+        print "Converting recipes to unit: {}".format(args.convert)
+        map(lambda r: r.convert(args.convert), recipes)
+    recipes = filter_recipes(recipes, filter_options)
+
 
 @app.route('/json/<recipe_name>')
 def recipe_json(recipe_name):
