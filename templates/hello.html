@@ -98,8 +98,16 @@
     <div class="container">
       {% if recipes %}
       <h3>Recipes</h3>
-      {% for recipe in recipes %}
-      {{ recipe | safe }}
+      {% for n in range(nrecipes) %}
+        {% if n % 2 == 0 %}
+        <div class="row">
+        {% endif %}
+          <div class="col-sm">
+          {{ recipes[n] | safe }}
+          </div>
+        {% if n % 2 == 1 %}
+        </div>
+        {% endif %}
       {% endfor %}
       {% endif %}
     </div>

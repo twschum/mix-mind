@@ -130,7 +130,7 @@ def format_recipe_html(recipe, display_opts):
     def small_br(s):
         return small(s+'<br>')
 
-    with tag('p', id=recipe.name):
+    with tag('div', id=recipe.name):
 
         name_line = [recipe.name]
         if not display_opts.ignore_origin and 'schubar original' in recipe.origin.lower():

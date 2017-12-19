@@ -111,7 +111,7 @@ def hello():
         else:
             flash("Error in form validation")
 
-    return render_template('hello.html', form=form, recipes=recipes)
+    return render_template('hello.html', form=form, recipes=recipes, nrecipes=len(recipes))
 
 
 @app.route('/drinks.html')
