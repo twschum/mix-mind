@@ -38,6 +38,23 @@ def filter_on_attribute(recipes, filter_options, attribute):
         recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
     return recipes
 
+def report_stats(recipes):
+    most_expensive = StatTracker('cost', 'max', 'Most Expensive')
+    most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
+    most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
+    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
+    least_booze = StatTracker('std_drinks', 'min', 'Fewest Std Drinks')
+    least_abv = StatTracker('abv', 'min', 'Lowest Estimated ABV')
+    for recipe in recipes:
+        if recipe.calculate_stats():
+            most_expensive.update_stat(recipe)
+            most_booze.update_stat(recipe)
+            most_abv.update_stat(recipe)
+            least_expensive.update_stat(recipe)
+            least_booze.update_stat(recipe)
+            least_abv.update_stat(recipe)
+    return [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]
+
 def load_recipe_json(recipe_files):
     base_recipes = OrderedDict()
     for recipe_json in recipe_files:

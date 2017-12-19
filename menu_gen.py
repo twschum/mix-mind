@@ -17,31 +17,6 @@ import util
 
 
 
-
-def report_stats(recipes):
-    most_expensive = StatTracker('cost', 'max', 'Most Expensive')
-    most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
-    most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
-    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
-    least_booze = StatTracker('std_drinks', 'min', 'Fewest Std Drinks')
-    least_abv = StatTracker('abv', 'min', 'Lowest Estimated ABV')
-    for recipe in recipes:
-        if recipe.calculate_stats():
-            most_expensive.update_stat(recipe)
-            most_booze.update_stat(recipe)
-            most_abv.update_stat(recipe)
-            least_expensive.update_stat(recipe)
-            least_booze.update_stat(recipe)
-            least_abv.update_stat(recipe)
-    print
-    print most_expensive
-    print most_booze
-    print most_abv
-    print least_expensive
-    print least_booze
-    print least_abv
-    print
-
 class StatTracker(dict):
     # mutable class variables
     _title_width = 0
@@ -211,7 +186,7 @@ def main():
             print "Saved recipes and barstock to cache file".format(len(recipes))
 
     if args.stats:
-        report_stats(recipes)
+        print '\n'.join(report_stats(recipes))
 
     if args.command == 'pdf':
         # sort recipes loosely by approximate display length
