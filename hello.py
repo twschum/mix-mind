@@ -3,8 +3,9 @@
 from flask import Flask, render_template, flash, request
 from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, StringField, SubmitField, BooleanField, DecimalField
 
-import menu_gen
 import recipe as drink_recipe
+import util
+from formatted_menu import format_recipe
 
 # app config
 app = Flask(__name__)
@@ -15,8 +16,10 @@ with open('local_secret') as fp:
 
 class MixMindServer():
     def __init__(self):
-        base_recipes = menu_gen.load_recipe_json(['recipes.json'])
-        self.recipes = {name:drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()}
+        base_recipes = util.load_recipe_json(['recipes.json'])
+        barstock = Barstock.load('Barstock\ -\ Sheet1.csv', form.all_)
+        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock) for name, recipe in base_recipes.iteritems()]
+        #self.recipes = {name:drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()}
 
 mms = MixMindServer()
 
@@ -82,11 +85,14 @@ class DrinksForm(Form):
         blankData = MultiDict([ ('csrf', self.reset_csrf() ) ])
         self.process(blankData)
 
+def bundle_options(tuple_class, args):
+    return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
+
 @app.route("/", methods=['GET', 'POST'])
 def hello():
     #form = ReusableForm(request.form)
     form = DrinksForm(request.form)
-    recipes = []
+    recipes = mms.recipes
 
     print form.errors
     if request.method == 'POST':
@@ -94,23 +100,19 @@ def hello():
             # Save the comment here.
             flash("Settings applied")
             print request
+
+            display_options = bundle_options(util.DisplayOptions, args)
+            filter_options = bundle_options(util.FilterOptions, args)
+            recipes = util.filter_recipes(recipes, filter_options)
+
+            from pprint import pprint; import ipdb; ipdb.set_trace()
+            recipe = format_recipe(recipes[0], display_options)
+
         else:
             flash("Error in form validation")
 
     return render_template('hello.html', form=form, recipes=recipes)
 
-def generate_recipes(form):
-    base_recipes = util.load_recipe_json(args.recipes)
-    if args.barstock:
-        barstock = Barstock.load(args.barstock, args.all)
-        recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
-            for name, recipe in base_recipes.iteritems()]
-    else:
-        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()]
-    if args.convert:
-        print "Converting recipes to unit: {}".format(args.convert)
-        map(lambda r: r.convert(args.convert), recipes)
-    recipes = filter_recipes(recipes, filter_options)
 
 
 @app.route('/json/<recipe_name>')

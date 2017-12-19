@@ -186,7 +186,7 @@ def main():
             print "Saved recipes and barstock to cache file".format(len(recipes))
 
     if args.stats:
-        print '\n'.join(report_stats(recipes))
+        print '\n'.join(util.report_stats(recipes))
 
     if args.command == 'pdf':
         # sort recipes loosely by approximate display length
