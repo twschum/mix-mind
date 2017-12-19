@@ -28,36 +28,39 @@
         <div class="form-group">
           <a href="#display-controls" data-toggle="collapse"><h3>Display Controls</h3></a>
           <div id="display-controls" class="collapse">
-          <dl>
-            {{ render_field(form.prices, data_toggle="collapse", data_target="#markup-div") }}
-            <div id="markup-div" class="collapse">
-              {{ render_field(form.markup) }}
-            </div>
-            {{ render_field(form.prep_line) }}
-            {{ render_field(form.stats) }}
-            {{ render_field(form.examples) }}
-            {{ render_field(form.all_ingredients) }}
-            {{ render_field(form.ignore_info) }}
-            {{ render_field(form.ignore_origin) }}
-            {{ render_field(form.ignore_variants) }}
-            <label><input data-target="#convert-div" data-toggle="collapse" type="checkbox" value=""> Convert Primary Unit</input></label>
-            <div id="convert-div" class="collapse">
-              {{ render_field(form.convert) }}
-            </div>
-          </dl>
+            <dl>
+              {{ render_field(form.prices, data_toggle="collapse", data_target="#markup-div") }}
+              <div id="markup-div" class="collapse">
+                {{ render_field(form.markup) }}
+              </div>
+              {{ render_field(form.prep_line) }}
+              {{ render_field(form.stats) }}
+              {{ render_field(form.examples) }}
+              {{ render_field(form.all_ingredients) }}
+              {{ render_field(form.ignore_info) }}
+              {{ render_field(form.ignore_origin) }}
+              {{ render_field(form.ignore_variants) }}
+              <label><input data-target="#convert-div" data-toggle="collapse" type="checkbox" value=""> Convert Primary Unit</input></label>
+              <div id="convert-div" class="collapse">
+                {{ render_field(form.convert) }}
+              </div>
+            </dl>
           </div>
-          <br></br>
         </div>
         <div class="form-group">
-          <h3>Filtering Parameters</h3>
-          <label for="name">Name:</label>
-          <input type="text" class="form-control" id="name" name="name" placeholder="What's your name?">
-          <br></br>
-          <label for="email">Email:</label>
-          <input type="text" class="form-control" id="email" name="email" placeholder="Your email will be used to contact you.">
-          <br></br>
-          <label for="password">Password:</label>
-          <input type="password" class="form-control" id="password" name="password" placeholder="Enter a password.">
+          <a href="#filtering-parameters" data-toggle="collapse"><h3>Filtering Parameters</h3></a>
+          <div id="filtering-parameters" class="collapse">
+          <dl>
+            {{ render_field(form.all_) }}
+            {{ render_field(form.include) }}
+            {{ render_field(form.exclude) }}
+            {{ render_field(form.use_or) }}
+            {{ render_field(form.style) }}
+            {{ render_field(form.glass) }}
+            {{ render_field(form.prep) }}
+            {{ render_field(form.ice) }}
+          </dl>
+          </div>
         </div>
         <button type="submit" class="btn btn-success">Apply</button>
       </form>

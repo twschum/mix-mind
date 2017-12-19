@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, flash, request
-from wtforms import Form, TextField, TextAreaField, validators, StringField, SubmitField, BooleanField, DecimalField, widgets
+from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, StringField, SubmitField, BooleanField, DecimalField
 
 import menu_gen
 import recipe as drink_recipe
@@ -37,7 +37,7 @@ class ToggleField(BooleanField):
                 **kwargs)
 
 class CSVField(Field):
-    widget = TextInput()
+    widget = widgets.TextInput()
 
     def _value(self):
         if self.data:
@@ -69,14 +69,14 @@ class DrinksForm(Form):
 
     # filtering options
     all_ = BooleanField("Allow all ingredients", description="Include all ingredients from barstock whether or not that are marked in stock")
-    include = CSVField("Include", "Filter by ingredient(s) that must be contained in the recipe")
-    exclude = CSVField("Include", "Filter by ingredient(s) that must NOT be contained in the recipe")
-    use_or = BooleanField("Logical OR", "Use logical OR for included and excluded ingredient lists instead of default AND")
+    include = CSVField("Include", description="Filter by ingredient(s) that must be contained in the recipe")
+    exclude = CSVField("Include", description="Filter by ingredient(s) that must NOT be contained in the recipe")
+    use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
     # TODO make these selection fields
-    style = TextField("Style", "Include drinks matching the style such as After Dinner or Longdrink")
-    glass = TextField("Glass", "Include drinks matching the style such as cocktail or rocks")
-    prep = TextField("Prep", "Include drinks matching the style such as shake or build")
-    ice = TextField("Ice", "Include drinks matching the ice such as crushed")
+    style = TextField("Style", description="Include drinks matching the style such as After Dinner or Longdrink")
+    glass = TextField("Glass", description="Include drinks matching the glass type such as cocktail or rocks")
+    prep = TextField("Prep", description="Include drinks matching the prep method such as shake or build")
+    ice = TextField("Ice", description="Include drinks matching the ice used such as crushed")
 
     def reset(self):
         blankData = MultiDict([ ('csrf', self.reset_csrf() ) ])
@@ -88,20 +88,14 @@ def hello():
     form = DrinksForm(request.form)
     recipes = []
 
-
     print form.errors
     if request.method == 'POST':
-        name = request.form['name']
-        password = request.form['password']
-        email = request.form['email']
-        print name, " ", email, " ", password
-
         if form.validate():
             # Save the comment here.
-            flash('Thanks for registration ' + name)
+            flash("Settings applied")
             print request
         else:
-            flash("Error: something")
+            flash("Error in form validation")
 
     return render_template('hello.html', form=form, recipes=recipes)
 
