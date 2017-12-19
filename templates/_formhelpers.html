@@ -1,20 +1,19 @@
 {% macro render_field(field) %}
-  {% if field.type != 'BooleanField' %}
+  {% if field.type == 'ToggleField' %}
   <dt>{{ field.label }}
-  <em> {{ field.description }} </em>
   {% endif %}
   <dd>
 
   {% if field.type in ['BooleanField'] %}
   <label>
-  {{ field(autocomplete="off", **kwargs)|safe }}
+  {{ field(**kwargs)|safe }}
   {{ field.label.text }}
   </label>
   <em> {{ field.description }} </em>
 
   {% elif field.type in ['ToggleField'] %}
   <label class="btn btn-outline-primary">
-    {{ field(autocomplete="off", **kwargs)|safe }}
+    {{ field(**kwargs)|safe }}
     {{ field.label.text }}
   </label>
   {{ field(**kwargs)|safe }}
@@ -22,6 +21,7 @@
 
   {% else %}
   {{ field(**kwargs)|safe }}
+  <em> {{ field.description }} </em>
 
   {% endif %}
 
