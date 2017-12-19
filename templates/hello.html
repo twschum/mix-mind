@@ -50,16 +50,16 @@
         <div class="form-group">
           <a href="#filtering-parameters" data-toggle="collapse"><h3>Filtering Parameters</h3></a>
           <div id="filtering-parameters" class="collapse">
-          <dl>
-            {{ render_field(form.all) }}
-            {{ render_field(form.include) }}
-            {{ render_field(form.exclude) }}
-            {{ render_field(form.use_or) }}
-            {{ render_field(form.style) }}
-            {{ render_field(form.glass) }}
-            {{ render_field(form.prep) }}
-            {{ render_field(form.ice) }}
-          </dl>
+            <dl>
+              {{ render_field(form.all) }}
+              {{ render_field(form.include) }}
+              {{ render_field(form.exclude) }}
+              {{ render_field(form.use_or) }}
+              {{ render_field(form.style) }}
+              {{ render_field(form.glass) }}
+              {{ render_field(form.prep) }}
+              {{ render_field(form.ice) }}
+            </dl>
           </div>
         </div>
         <button type="submit" class="btn btn-success">Apply</button>
@@ -94,11 +94,16 @@
     </div>
     </div> <!-- end of the form div -->
 
-    <a href='drinks.html'>Drinks</a>
+    <!-- Result recipes -->
+    <div class="container">
+      {% if recipes %}
+      <h3>Recipes</h3>
+      {% for recipe in recipes %}
+      {{ recipe | safe }}
+      {% endfor %}
+      {% endif %}
+    </div>
 
-    {% for recipe in recipes %}
-    {{ recipe }}
-    {% endfor %}
 
 
   </body>

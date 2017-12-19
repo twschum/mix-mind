@@ -5,7 +5,7 @@ from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, 
 
 import recipe as drink_recipe
 import util
-from formatted_menu import format_recipe
+from formatted_menu import format_recipe_html
 from barstock import Barstock
 
 # app config
@@ -93,6 +93,8 @@ def bundle_options(tuple_class, args):
 def hello():
     #form = ReusableForm(request.form)
     form = DrinksForm(request.form)
+    recipes = []
+    display_options = None
 
     print form.errors
     if request.method == 'POST':
@@ -103,14 +105,14 @@ def hello():
 
             display_options = bundle_options(util.DisplayOptions, form)
             filter_options = bundle_options(util.FilterOptions, form)
-            recipes = util.filter_recipes(mms.recipes, filter_options)
-
-            recipe = format_recipe(mms.recipes[0], display_options)
+            #recipes = util.filter_recipes(mms.recipes, filter_options)
+            recipes = [format_recipe_html(recipe, display_options) for recipe in mms.recipes]
 
         else:
             flash("Error in form validation")
 
     return render_template('hello.html', form=form, recipes=recipes)
+
 
 @app.route('/drinks.html')
 def drinks_page():
