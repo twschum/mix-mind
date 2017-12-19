@@ -51,7 +51,7 @@
           <a href="#filtering-parameters" data-toggle="collapse"><h3>Filtering Parameters</h3></a>
           <div id="filtering-parameters" class="collapse">
           <dl>
-            {{ render_field(form.all_) }}
+            {{ render_field(form.all) }}
             {{ render_field(form.include) }}
             {{ render_field(form.exclude) }}
             {{ render_field(form.use_or) }}
@@ -94,8 +94,11 @@
     </div>
     </div> <!-- end of the form div -->
 
+    <a href='drinks.html'>Drinks</a>
+
     {% for recipe in recipes %}
     {{ recipe }}
+    {% endfor %}
 
 
   </body>

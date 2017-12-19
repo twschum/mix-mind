@@ -6,6 +6,7 @@ from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, 
 import recipe as drink_recipe
 import util
 from formatted_menu import format_recipe
+from barstock import Barstock
 
 # app config
 app = Flask(__name__)
@@ -17,7 +18,7 @@ with open('local_secret') as fp:
 class MixMindServer():
     def __init__(self):
         base_recipes = util.load_recipe_json(['recipes.json'])
-        barstock = Barstock.load('Barstock\ -\ Sheet1.csv', form.all_)
+        barstock = Barstock.load('Barstock - Sheet1.csv', False)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock) for name, recipe in base_recipes.iteritems()]
         #self.recipes = {name:drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()}
 
@@ -71,7 +72,7 @@ class DrinksForm(Form):
     ignore_variants = BooleanField("Variants", description="Show variants for drinks", default=True)
 
     # filtering options
-    all_ = BooleanField("Allow all ingredients", description="Include all ingredients from barstock whether or not that are marked in stock")
+    all = BooleanField("Allow all ingredients", description="Include all ingredients from barstock whether or not that are marked in stock")
     include = CSVField("Include", description="Filter by ingredient(s) that must be contained in the recipe")
     exclude = CSVField("Include", description="Filter by ingredient(s) that must NOT be contained in the recipe")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
@@ -86,13 +87,12 @@ class DrinksForm(Form):
         self.process(blankData)
 
 def bundle_options(tuple_class, args):
-    return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
+    return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
 
 @app.route("/", methods=['GET', 'POST'])
 def hello():
     #form = ReusableForm(request.form)
     form = DrinksForm(request.form)
-    recipes = mms.recipes
 
     print form.errors
     if request.method == 'POST':
@@ -101,19 +101,20 @@ def hello():
             flash("Settings applied")
             print request
 
-            display_options = bundle_options(util.DisplayOptions, args)
-            filter_options = bundle_options(util.FilterOptions, args)
-            recipes = util.filter_recipes(recipes, filter_options)
+            display_options = bundle_options(util.DisplayOptions, form)
+            filter_options = bundle_options(util.FilterOptions, form)
+            recipes = util.filter_recipes(mms.recipes, filter_options)
 
-            from pprint import pprint; import ipdb; ipdb.set_trace()
-            recipe = format_recipe(recipes[0], display_options)
+            recipe = format_recipe(mms.recipes[0], display_options)
 
         else:
             flash("Error in form validation")
 
     return render_template('hello.html', form=form, recipes=recipes)
 
-
+@app.route('/drinks.html')
+def drinks_page():
+    return app.send_static_file('drinks.html')
 
 @app.route('/json/<recipe_name>')
 def recipe_json(recipe_name):
