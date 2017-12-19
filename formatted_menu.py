@@ -83,7 +83,7 @@ def format_recipe(recipe, display_opts):
     recipe_page = SamepageEnvironment()
     name_line = LargeText(recipe.name)
 
-    if not display_opts.ignore_origin and 'schubar original' in recipe.origin.lower():
+    if display_opts.origin and 'schubar original' in recipe.origin.lower():
         name_line.append(superscript('*'))
         #name_line.append(superscript(NoEscape('\dag')))
 
@@ -98,12 +98,12 @@ def format_recipe(recipe, display_opts):
     if display_opts.prep_line:
         recipe_page.append(FootnoteText(recipe.prep_line(extended=True, caps=False)+'\n'))
 
-    if not display_opts.ignore_info and recipe.info:
+    if display_opts.info and recipe.info:
         recipe_page.append(SmallText(italic(recipe.info +'\n')))
     for item in recipe.ingredients:
         recipe_page.append(item.str() +'\n')
 
-    if not display_opts.ignore_variants:
+    if display_opts.variants:
         for variant in recipe.variants:
             recipe_page.append(HorizontalSpace('8pt'))
             recipe_page.append(SmallText(italic(variant +'\n')))
@@ -133,7 +133,7 @@ def format_recipe_html(recipe, display_opts):
     with tag('div', id=recipe.name):
 
         name_line = [recipe.name]
-        if not display_opts.ignore_origin and 'schubar original' in recipe.origin.lower():
+        if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
             price = int(((recipe.max_cost+1) * float(display_opts.markup)) +1)
@@ -143,14 +143,14 @@ def format_recipe_html(recipe, display_opts):
         if display_opts.prep_line:
             doc.asis(small_br(recipe.prep_line(extended=True, caps=False)))
 
-        if not display_opts.ignore_info and recipe.info:
+        if display_opts.info and recipe.info:
             doc.asis(small_br(em(recipe.info)))
 
         with tag('ul', id='ingredients'):
             for item in recipe.ingredients:
                 line('li', item.str(), type="none")
 
-        if not display_opts.ignore_variants:
+        if display_opts.variants:
             with tag('ul', id='variants'):
                 for variant in recipe.variants:
                     with tag('small'):
@@ -181,7 +181,7 @@ def setup_header_footer(doc, pdf_opts, display_opts):
         hf.append(FootnoteText(italic(tagline)))
     with hf.create(Head('R')):
         hf.append(FootnoteText(time.strftime("%b %d, %Y")))
-    if not display_opts.ignore_origin:
+    if display_opts.origin:
         with hf.create(Foot('L')):
             hf.append(superscript("*"))
             #hf.append(superscript(NoEscape("\dag")))

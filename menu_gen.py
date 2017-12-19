@@ -104,9 +104,9 @@ Example usage:
     p.add_argument('-c', '--convert', default='oz', choices=['oz','mL','cL'], help="Convert recipes to a different primary unit")
     p.add_argument('-g', '--all-ingredients', action='store_true', help="Show every ingredient instead of just the main liquors with each example")
     p.add_argument('-m', '--markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
-    p.add_argument('--ignore-info', action='store_true', help="Don't show the info line for recipes")
-    p.add_argument('--ignore-origin', action='store_true', help="Don't check origin and mark drinks as Schubar originals")
-    p.add_argument('--ignore-variants', action='store_true', help="Don't show variants for drinks")
+    p.add_argument('--info', action='store_true', help="Show the info line for recipes")
+    p.add_argument('--origin', action='store_true', help="Check origin and mark drinks as Schubar originals")
+    p.add_argument('--variants', action='store_true', help="Show variants for drinks")
 
     # filtering options
     p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
