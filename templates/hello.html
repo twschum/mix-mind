@@ -62,6 +62,23 @@
             </dl>
           </div>
         </div>
+        <div class="form-group">
+          <a href="#pdf-download" data-toggle="collapse"><h3>PDF Download Options</h3></a>
+          <div id="pdf-download" class="collapse">
+            <dl>
+              {{ render_field(form.download_pdf, data_toggle="collapse", data_target="#options-div") }}
+              <div id="options-div" class="collapse">
+                {{ render_field(form.ncols) }}
+                {{ render_field(form.align) }}
+                {{ render_field(form.liquor_list) }}
+                {{ render_field(form.liquor_list_own_page) }}
+                {{ render_field(form.title) }}
+                {{ render_field(form.tagline) }}
+                {{ render_field(form.debug) }}
+              </div>
+            </dl>
+          </div>
+        </div>
         <button type="submit" class="btn btn-success">Apply</button>
       </form>
 

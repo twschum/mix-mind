@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, flash, request
-from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, StringField, SubmitField, BooleanField, DecimalField
+from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, StringField, SubmitField, BooleanField, DecimalField, IntegerField
 
 import recipe as drink_recipe
 import util
@@ -59,6 +59,10 @@ class ToggleButtonWidget(widgets.Input):
     pass
 
 class DrinksForm(Form):
+    def reset(self):
+        blankData = MultiDict([ ('csrf', self.reset_csrf() ) ])
+        self.process(blankData)
+
     # display options
     prices = BooleanField("Prices", description="Display prices for drinks based on stock")
     prep_line = BooleanField("Preparation", description="Display a line showing glass, ice, and prep")
@@ -74,7 +78,7 @@ class DrinksForm(Form):
     # filtering options
     all = BooleanField("Allow all ingredients", description="Include all ingredients from barstock whether or not that are marked in stock")
     include = CSVField("Include", description="Filter by ingredient(s) that must be contained in the recipe")
-    exclude = CSVField("Include", description="Filter by ingredient(s) that must NOT be contained in the recipe")
+    exclude = CSVField("Exclude", description="Filter by ingredient(s) that must NOT be contained in the recipe")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
     # TODO make these selection fields
     style = TextField("Style", description="Include drinks matching the style such as After Dinner or Longdrink")
@@ -82,9 +86,16 @@ class DrinksForm(Form):
     prep = TextField("Prep", description="Include drinks matching the prep method such as shake or build")
     ice = TextField("Ice", description="Include drinks matching the ice used such as crushed")
 
-    def reset(self):
-        blankData = MultiDict([ ('csrf', self.reset_csrf() ) ])
-        self.process(blankData)
+    # pdf options
+    download_pdf = BooleanField("Download the Menu", description="Basename of the pdf and tex files generated")
+    ncols = IntegerField("Number of columns", default=2, description="Number of columns to use for the menu")
+    liquor_list = BooleanField("Liquor list", description="Show list of the available ingredients")
+    liquor_list_own_page = BooleanField("Liquor list (own page)", description="Show list of the available ingredients on a separate page")
+    debug = BooleanField("LaTeX debug output", description="Add debugging output to the pdf")
+    align = BooleanField("Align items", description="Align drink names across columns")
+    title = TextField("Title", description="Title to use")
+    tagline = TextField("Tagline", description="Tagline to use below the title")
+
 
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
