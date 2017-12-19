@@ -68,8 +68,8 @@ class DrinksForm(Form):
     convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(['oz','mL','cL']), validators.Optional()])
     markup = DecimalField("Markup", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.2)
     ignore_info = BooleanField("Info", description="Show the info line for recipes")
-    ignore_origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals", default=True)
-    ignore_variants = BooleanField("Variants", description="Show variants for drinks", default=True)
+    ignore_origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals")
+    ignore_variants = BooleanField("Variants", description="Show variants for drinks")
 
     # filtering options
     all = BooleanField("Allow all ingredients", description="Include all ingredients from barstock whether or not that are marked in stock")
@@ -102,6 +102,9 @@ def hello():
             # Save the comment here.
             flash("Settings applied")
             print request
+            form.ignore_info.data = not form.ignore_info.data
+            form.ignore_origin.data = not form.ignore_origin.data
+            form.ignore_variants.data = not form.ignore_variants.data
 
             display_options = bundle_options(util.DisplayOptions, form)
             filter_options = bundle_options(util.FilterOptions, form)
