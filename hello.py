@@ -51,7 +51,7 @@ class CSVField(Field):
 
     def process_formdata(self, valuelist):
         if valuelist[0]:
-            self.data = [x.strip() for x in valuelist[0].split(',')]
+            self.data = [x.strip() for x in valuelist[0].split(',') if x.strip()]
         else:
             self.data = []
 

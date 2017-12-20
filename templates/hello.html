@@ -108,7 +108,11 @@
       <h3>Recipes</h3>
       <div class="row">
         {% for n in range(nrecipes) %}
+        {% if form.examples.data %}
+        <div class="col-xs-12 col-sm-12 col-md-6 col-xl-6">
+        {% else %}
         <div class="col-xs-12 col-sm-6 col-md-4 col-xl-3">
+        {% endif %}
           {{ recipes[n] | safe }}
         </div>
         {% endfor %}
