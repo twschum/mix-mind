@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, flash, request, send_file
-from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, StringField, SubmitField, BooleanField, DecimalField, IntegerField
+from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField
 
 import os
 
@@ -52,7 +52,7 @@ class DrinksForm(Form):
     stats = BooleanField("Stats", description="Print out a detailed statistics block for the selected recipes")
     examples = BooleanField("Examples", description="Show specific examples of a recipe based on the ingredient stock")
     all_ingredients = BooleanField("All Ingredients", description="Show every ingredient instead of just the main liquors with each example")
-    convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(['oz','mL','cL']), validators.Optional()])
+    convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(util.VALID_UNITS), validators.Optional()])
     markup = DecimalField("Markup", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.2)
     info = BooleanField("Info", description="Show the info line for recipes")
     origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals")
@@ -78,6 +78,23 @@ class DrinksForm(Form):
     align = BooleanField("Align items", description="Align drink names across columns")
     title = TextField("Title", description="Title to use")
     tagline = TextField("Tagline", description="Tagline to use below the title")
+
+
+class IngredientField(Form):
+    ingredient = TextField("Ingredient", validators=[validators.required()])
+    quantity = DecimalField("Quantity", validators=[validators.required()])
+    is_optional = BooleanField("Optional")
+
+class RecipeForm(Form):
+    name = TextField("Name", description="The recipe name", validators=[validators.required()])
+    info = TextField("Info", description="Additional information about the recipe")
+    ingredients = FieldList(FormField(IngredientField), min_entries=1, validators=[validators.required()])
+    unit = SelectField("Unit", choices=[util.VALID_UNITS], validators=[validators.required()])
+    #glass =
+    #unit =
+    #prep =
+    #ice =
+    #garnish =
 
 
 def bundle_options(tuple_class, args):
@@ -130,6 +147,19 @@ def menu_download():
     else:
         flash("Error in form validation")
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
+
+@app.route("/recipes/", methods=['GET','POST'])
+def recipe_edit():
+    form = RecipeForm(request.form)
+    print form.errors
+
+    if request.method == 'POST':
+        print request
+
+        print form.name
+
+    return render_template('recipes.html', form=form)
+
 
 @app.route('/drinks.html')
 def drinks_page():

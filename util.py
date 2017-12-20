@@ -12,6 +12,8 @@ DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredi
 FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 
+VALID_UNITS = ['oz', 'mL', 'cL']
+
 def filter_recipes(all_recipes, filter_options):
     reduce_fn = any if filter_options.use_or else all
     recipes = [recipe for recipe in all_recipes if recipe.can_make or filter_options.all]
