@@ -50,7 +50,7 @@ class CSVField(Field):
             return u''
 
     def process_formdata(self, valuelist):
-        if valuelist:
+        if valuelist[0]:
             self.data = [x.strip() for x in valuelist[0].split(',')]
         else:
             self.data = []
@@ -112,7 +112,6 @@ def hello():
     if request.method == 'POST':
         if form.validate():
             # Save the comment here.
-            flash("Settings applied")
             print request
 
             display_options = bundle_options(util.DisplayOptions, form)
@@ -121,6 +120,7 @@ def hello():
             if form.convert.data:
                 map(lambda r: r.convert(form.convert.data), recipes)
             recipes = [format_recipe_html(recipe, display_options) for recipe in recipes]
+            flash("Settings applied. Showing {} available recipes".format(len(recipes)))
 
         else:
             flash("Error in form validation")
