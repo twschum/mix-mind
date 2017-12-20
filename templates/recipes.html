@@ -1,0 +1,65 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+  <head>
+    <title>Mix Mind Recipe Editor</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous"></link>
+    <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"></link>
+    <!-- Bootstrap Toggle -->
+    <!--link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"></link>
+      <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script> -->
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+  </head>
+  <body>
+
+    <!-- Main form -->
+    <div class="container">
+      {% from "_formhelpers.html" import render_field %}
+      <h2>Recipe Editor</h2>
+      <form  id="menu-settings" action="" method="post" role="form">
+        {{ form.csrf }}
+        <div class="form-group">
+          <a href="#add-recipe" data-toggle="collapse"><h3>Add a recipe</h3></a>
+          <div id="display-controls" class="collapse">
+            <dl>
+              {{ render_field(form.name) }}
+              {{ render_field(form.info) }}
+              {{ render_field(form.ingredients) }}
+              {{ render_field(form.unit) }}
+              <input type="submit" class="btn btn-success" target="_blank" value="Submit" formaction="/download/"></input>
+            </dl>
+          </div>
+        </div>
+        <!--<input type="submit" class="btn btn-success" value="Apply"></input>-->
+      </form>
+
+      <!-- Show flashed messaged -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <br></br>
+
+      {% for message in messages %}
+      {% if "Error" not in message[1]: %}
+      <div class="alert alert-info">
+        <strong>Success! </strong> {{ message[1] }}
+      </div>
+      {% endif %}
+
+      {% if "Error" in message[1]: %}
+      <div class="alert alert-warning">
+        {{ message[1] }}
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+
+      </div> <!-- top level container -->
+
+      <!-- Optional JavaScript -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+  </body>
+</html>
