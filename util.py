@@ -28,9 +28,9 @@ def filter_recipes(all_recipes, filter_options):
 
     def get_names(items):
         return set(map(lambda i: i.name, items))
-    excluded = ', '.join(sorted(list(get_names(all_recipes) - get_names(recipes))))
-    print "    Can't make: {}\n".format(excluded)
-    return recipes
+    excluded = sorted(list(get_names(all_recipes) - get_names(recipes)))
+    print "    Can't make: {}\n".format(', '.join(excluded))
+    return recipes, excluded
 
 def filter_on_attribute(recipes, filter_options, attribute):
     if getattr(filter_options, attribute):

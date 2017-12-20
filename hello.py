@@ -106,6 +106,7 @@ def hello():
     form = DrinksForm(request.form)
     recipes = []
     display_options = None
+    excluded = None
 
     print form.errors
     if request.method == 'POST':
@@ -116,13 +117,15 @@ def hello():
 
             display_options = bundle_options(util.DisplayOptions, form)
             filter_options = bundle_options(util.FilterOptions, form)
-            #recipes = util.filter_recipes(mms.recipes, filter_options)
-            recipes = [format_recipe_html(recipe, display_options) for recipe in mms.recipes]
+            recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+            if form.convert.data:
+                map(lambda r: r.convert(form.convert.data), recipes)
+            recipes = [format_recipe_html(recipe, display_options) for recipe in recipes]
 
         else:
             flash("Error in form validation")
 
-    return render_template('hello.html', form=form, recipes=recipes, nrecipes=len(recipes))
+    return render_template('hello.html', form=form, recipes=recipes, nrecipes=len(recipes), excluded=excluded)
 
 
 @app.route('/drinks.html')

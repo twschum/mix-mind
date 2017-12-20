@@ -2,27 +2,26 @@
 <html>
   <head>
     <title>Mix Mind Live</title>
-    <link rel="stylesheet" media="screen" href ="static/css/bootstrap.min.css"></link>
-    <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"></link>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous"></link>
+    <!--<link rel="stylesheet" media="screen" href ="static/css/bootstrap.min.css"></link>-->
     <link rel="stylesheet" href="static/css/bootstrap-theme.min.css"></link>
     <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
     <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>-->
     <!-- Bootstrap Toggle -->
-    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"></link>
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <!--link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"></link>
+      <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script> -->
 
-    <meta name="viewport" content = "width=device-width, initial-scale=1.0"></meta>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 
   </head>
   <body>
 
-
     <!-- Main form -->
     <div class="container">
       {% from "_formhelpers.html" import render_field %}
-      <h2>Mid Mind Drink Recipes</h2>
+      <h2>Mix Mind Drink Recipes</h2>
       <form  action="" method="post" role="form">
         {{ form.csrf }}
         <div class="form-group">
@@ -84,10 +83,6 @@
 
       <br></br>
 
-      <div class="row">
-        {{ drink }}
-      </div>
-
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
 
@@ -107,25 +102,26 @@
       {% endif %}
       {% endwith %}
 
-    </div>
-    </div>
-    </div> <!-- end of the form div -->
 
-    <!-- Result recipes -->
-    <div class="container">
+      <!-- Result recipes -->
       {% if recipes %}
       <h3>Recipes</h3>
-      {% for n in range(nrecipes) %}
-        {% if n % 2 == 0 %}
-        {% endif %}
+      <div class="row">
+        {% for n in range(nrecipes) %}
+        <div class="col-xs-12 col-sm-6 col-md-4 col-xl-3">
           {{ recipes[n] | safe }}
-        {% if n % 2 == 1 %}
-        {% endif %}
-      {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
       {% endif %}
-    </div>
 
 
+    </div> <!-- top level container -->
 
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
   </body>
 </html>
