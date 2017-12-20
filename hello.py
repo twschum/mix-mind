@@ -22,25 +22,8 @@ class MixMindServer():
         base_recipes = util.load_recipe_json(['recipes.json'])
         self.barstock = Barstock.load('Barstock - Sheet1.csv', False)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
-        #self.recipes = {name:drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()}
-
 mms = MixMindServer()
 
-
-class ReusableForm(Form):
-    name = TextField('Name:', validators=[validators.required()])
-    email = TextField('Email:', validators=[validators.required(), validators.Length(min=6, max=35)])
-    password = TextField('Passwords:', validators=[validators.required(), validators.Length(min=3, max=35)])
-
-
-class ToggleField(BooleanField):
-    def __call__(self, **kwargs):
-        return super(ToggleField, self).__call__(
-                data_toggle="toggle",
-                data_on="{} Enabled".format(self.label.text),
-                data_off="{} Disabled".format(self.label.text),
-                data_width="300",
-                **kwargs)
 
 class CSVField(Field):
     widget = widgets.TextInput()
@@ -57,8 +40,6 @@ class CSVField(Field):
         else:
             self.data = []
 
-class ToggleButtonWidget(widgets.Input):
-    pass
 
 class DrinksForm(Form):
     def reset(self):
@@ -102,29 +83,28 @@ class DrinksForm(Form):
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
 
+def recipes_from_options(form, to_html=False):
+    display_options = bundle_options(util.DisplayOptions, form)
+    filter_options = bundle_options(util.FilterOptions, form)
+    recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+    if form.convert.data:
+        map(lambda r: r.convert(form.convert.data), recipes)
+    if to_html:
+        recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
+    return recipes
+
 @app.route("/", methods=['GET', 'POST'])
-def hello():
-    #form = ReusableForm(request.form)
+def mainpage():
     form = DrinksForm(request.form)
+    print form.errors
     recipes = []
-    display_options = None
     excluded = None
 
-    print form.errors
-    print "NORMAL"
     if request.method == 'POST':
         if form.validate():
-            # Save the comment here.
             print request
-
-            display_options = bundle_options(util.DisplayOptions, form)
-            filter_options = bundle_options(util.FilterOptions, form)
-            recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
-            if form.convert.data:
-                map(lambda r: r.convert(form.convert.data), recipes)
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
+            recipes = recipes_from_options(form, to_html=True)
             flash("Settings applied. Showing {} available recipes".format(len(recipes)))
-
         else:
             flash("Error in form validation")
 
@@ -133,36 +113,22 @@ def hello():
 @app.route("/download/", methods=['POST'])
 def menu_download():
     form = DrinksForm(request.form)
-    recipes = []
-    display_options = None
-    excluded = None
     print form.errors
-    print "DOWNLOAD"
 
     if form.validate():
-        # Save the comment here.
         print request
-
-        display_options = bundle_options(util.DisplayOptions, form)
-        filter_options = bundle_options(util.FilterOptions, form)
-        recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
-        if form.convert.data:
-            map(lambda r: r.convert(form.convert.data), recipes)
+        recipes = recipes_from_options(form)
 
         form.pdf_filename.data = formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options)
         pdf_options = bundle_options(util.PdfOptions, form)
         pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
 
-        flash("Generating file {} - includes {} available recipes".format(pdf_file, len(recipes)))
         formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
-        try:
-            return send_file(os.path.abspath(pdf_file), attachment_filename=pdf_file)
-        except Exception as e:
-            return str(e)
+        return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file)
 
     else:
         flash("Error in form validation")
-
+        return render_template('hello.html', form=form, recipes=[], excluded=None)
 
 @app.route('/drinks.html')
 def drinks_page():
