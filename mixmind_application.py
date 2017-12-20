@@ -36,7 +36,7 @@ class CSVField(Field):
 
     def process_formdata(self, valuelist):
         if valuelist[0]:
-            self.data = [x.strip() for x in valuelist[0].split(',') if x.strip()]
+            self.data = [x.strip().lower() for x in valuelist[0].split(',') if x.strip()]
         else:
             self.data = []
 
@@ -108,7 +108,7 @@ def mainpage():
         else:
             flash("Error in form validation")
 
-    return render_template('hello.html', form=form, recipes=recipes, excluded=excluded)
+    return render_template('application_main.html', form=form, recipes=recipes, excluded=excluded)
 
 @app.route("/download/", methods=['POST'])
 def menu_download():
@@ -119,6 +119,7 @@ def menu_download():
         print request
         recipes = recipes_from_options(form)
 
+        display_options = bundle_options(util.DisplayOptions, form)
         form.pdf_filename.data = formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options)
         pdf_options = bundle_options(util.PdfOptions, form)
         pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
@@ -128,7 +129,7 @@ def menu_download():
 
     else:
         flash("Error in form validation")
-        return render_template('hello.html', form=form, recipes=[], excluded=None)
+        return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
 @app.route('/drinks.html')
 def drinks_page():
