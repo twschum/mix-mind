@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, send_file
 from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, StringField, SubmitField, BooleanField, DecimalField, IntegerField
+
+import os
 
 import recipe as drink_recipe
 import util
@@ -18,8 +20,8 @@ with open('local_secret') as fp:
 class MixMindServer():
     def __init__(self):
         base_recipes = util.load_recipe_json(['recipes.json'])
-        barstock = Barstock.load('Barstock - Sheet1.csv', False)
-        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock) for name, recipe in base_recipes.iteritems()]
+        self.barstock = Barstock.load('Barstock - Sheet1.csv', False)
+        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
         #self.recipes = {name:drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()}
 
 mms = MixMindServer()
@@ -87,7 +89,7 @@ class DrinksForm(Form):
     ice = TextField("Ice", description="Include drinks matching the ice used such as crushed")
 
     # pdf options
-    pdf_filename = TextField("Filename to use", description="Basename of the pdf and tex files generated", default="drinks")
+    pdf_filename = TextField("Filename to use", description="Basename of the pdf and tex files generated", default="web_drinks_file")
     ncols = IntegerField("Number of columns", default=2, description="Number of columns to use for the menu")
     liquor_list = BooleanField("Liquor list", description="Show list of the available ingredients")
     liquor_list_own_page = BooleanField("Liquor list (own page)", description="Show list of the available ingredients on a separate page")
@@ -126,7 +128,7 @@ def hello():
         else:
             flash("Error in form validation")
 
-    return render_template('hello.html', form=form, recipes=recipes, nrecipes=len(recipes), excluded=excluded)
+    return render_template('hello.html', form=form, recipes=recipes, excluded=excluded)
 
 @app.route("/download/", methods=['POST'])
 def menu_download():
@@ -143,18 +145,24 @@ def menu_download():
 
         display_options = bundle_options(util.DisplayOptions, form)
         filter_options = bundle_options(util.FilterOptions, form)
-        pdf_options = bundle_options(util.PdfOptions, form)
         recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
         if form.convert.data:
             map(lambda r: r.convert(form.convert.data), recipes)
-        recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
-        filename = formatted_menu.filename_from_options(pdf_options, display_options)
-        flash("Downloading file {}! Settings applied. Showing {} available recipes".format(filename, len(recipes)))
+
+        form.pdf_filename.data = formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options)
+        pdf_options = bundle_options(util.PdfOptions, form)
+        pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
+
+        flash("Generating file {} - includes {} available recipes".format(pdf_file, len(recipes)))
+        formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
+        try:
+            return send_file(os.path.abspath(pdf_file), attachment_filename=pdf_file)
+        except Exception as e:
+            return str(e)
 
     else:
         flash("Error in form validation")
 
-    return render_template('hello.html', form=form, recipes=recipes, nrecipes=len(recipes), excluded=excluded)
 
 @app.route('/drinks.html')
 def drinks_page():

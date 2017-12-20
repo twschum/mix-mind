@@ -88,7 +88,7 @@ def format_recipe(recipe, display_opts):
         #name_line.append(superscript(NoEscape('\dag')))
 
     if display_opts.prices and recipe.max_cost:
-        price = int(((recipe.max_cost+1) * display_opts.markup) +1)
+        price = int(((recipe.max_cost+1) * float(display_opts.markup)) +1)
         name_line.append(DotFill())
         name_line.append(superscript('$'))
         name_line.append(price)
@@ -257,6 +257,7 @@ def generate_recipes_pdf(recipes, pdf_opts, display_opts, ingredient_df):
     print "Compiling {}.pdf".format(pdf_opts.pdf_filename)
     doc.generate_pdf(pdf_opts.pdf_filename, clean_tex=False)
     print "Done"
+    return True
 
 def filename_from_options(pdf_opts, display_opts, base_name='drinks'):
     opts_tag = "{}c".format(pdf_opts.ncols)
@@ -265,11 +266,11 @@ def filename_from_options(pdf_opts, display_opts, base_name='drinks'):
     opts_tag += 'A' if pdf_opts.align else ''
     opts_tag += 'D' if pdf_opts.debug else ''
     opts_tag += '_'
-    opts_tag += '${}m'.format(display_opts.markup) if display_opts.prices else ''
+    opts_tag += 'p{}m'.format(int(display_opts.markup)) if display_opts.prices else ''
     opts_tag += 'e' if display_opts.examples else ''
     opts_tag += 'a' if display_opts.all_ingredients else ''
     opts_tag += 'p' if display_opts.prep_line else ''
-    opts_tag += 'o' if display_opts.origin else ''
     opts_tag += 'v' if display_opts.variants else ''
+    opts_tag += 'o' if display_opts.origin else ''
     return '_'.join([base_name, opts_tag])
 
