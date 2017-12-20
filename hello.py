@@ -5,7 +5,7 @@ from wtforms import validators, widgets, Form, Field, TextField, TextAreaField, 
 
 import recipe as drink_recipe
 import util
-from formatted_menu import format_recipe_html
+import formatted_menu
 from barstock import Barstock
 
 # app config
@@ -87,7 +87,7 @@ class DrinksForm(Form):
     ice = TextField("Ice", description="Include drinks matching the ice used such as crushed")
 
     # pdf options
-    download_pdf = BooleanField("Download the Menu", description="Basename of the pdf and tex files generated")
+    pdf_filename = TextField("Filename to use", description="Basename of the pdf and tex files generated", default="drinks")
     ncols = IntegerField("Number of columns", default=2, description="Number of columns to use for the menu")
     liquor_list = BooleanField("Liquor list", description="Show list of the available ingredients")
     liquor_list_own_page = BooleanField("Liquor list (own page)", description="Show list of the available ingredients on a separate page")
@@ -109,6 +109,7 @@ def hello():
     excluded = None
 
     print form.errors
+    print "NORMAL"
     if request.method == 'POST':
         if form.validate():
             # Save the comment here.
@@ -119,7 +120,7 @@ def hello():
             recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
             if form.convert.data:
                 map(lambda r: r.convert(form.convert.data), recipes)
-            recipes = [format_recipe_html(recipe, display_options) for recipe in recipes]
+            recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
             flash("Settings applied. Showing {} available recipes".format(len(recipes)))
 
         else:
@@ -127,6 +128,33 @@ def hello():
 
     return render_template('hello.html', form=form, recipes=recipes, nrecipes=len(recipes), excluded=excluded)
 
+@app.route("/download/", methods=['POST'])
+def menu_download():
+    form = DrinksForm(request.form)
+    recipes = []
+    display_options = None
+    excluded = None
+    print form.errors
+    print "DOWNLOAD"
+
+    if form.validate():
+        # Save the comment here.
+        print request
+
+        display_options = bundle_options(util.DisplayOptions, form)
+        filter_options = bundle_options(util.FilterOptions, form)
+        pdf_options = bundle_options(util.PdfOptions, form)
+        recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+        if form.convert.data:
+            map(lambda r: r.convert(form.convert.data), recipes)
+        recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
+        filename = formatted_menu.filename_from_options(pdf_options, display_options)
+        flash("Downloading file {}! Settings applied. Showing {} available recipes".format(filename, len(recipes)))
+
+    else:
+        flash("Error in form validation")
+
+    return render_template('hello.html', form=form, recipes=recipes, nrecipes=len(recipes), excluded=excluded)
 
 @app.route('/drinks.html')
 def drinks_page():
@@ -138,6 +166,4 @@ def recipe_json(recipe_name):
         return str(mms.recipes[recipe_name])
     except KeyError:
         return "{} not found".format(recipe_name)
-
-
 

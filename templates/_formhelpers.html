@@ -7,7 +7,7 @@
   {% if field.type in ['BooleanField'] %}
   <label>
   {{ field(**kwargs)|safe }}
-  {{ field.label.text }}
+  <b>{{ field.label.text }}</b>
   </label>
   <em> {{ field.description }} </em>
 
