@@ -137,12 +137,12 @@ def menu_download():
         recipes = recipes_from_options(form)
 
         display_options = bundle_options(util.DisplayOptions, form)
-        form.pdf_filename.data = formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options)
+        form.pdf_filename.data = 'menus/{}'.format(formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options))
         pdf_options = bundle_options(util.PdfOptions, form)
         pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
 
         formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
-        return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file)
+        return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
 
     else:
         flash("Error in form validation")
