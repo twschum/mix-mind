@@ -22,6 +22,9 @@ class MixMindServer():
         base_recipes = util.load_recipe_json(['recipes.json'])
         self.barstock = Barstock.load('Barstock - Sheet1.csv', False)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
+    def get_ingredients_table(self):
+        table = self.barstock.df.to_html(index=False, columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
+        return table
 mms = MixMindServer()
 
 
@@ -40,10 +43,12 @@ class CSVField(Field):
         else:
             self.data = []
 
+def pairs(l):
+    return [(x,x) for x in l]
 
 class DrinksForm(Form):
     def reset(self):
-        blankData = MultiDict([ ('csrf', self.reset_csrf() ) ])
+        blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
 
     # display options
@@ -63,11 +68,10 @@ class DrinksForm(Form):
     include = CSVField("Include", description="Filter by ingredient(s) that must be contained in the recipe")
     exclude = CSVField("Exclude", description="Filter by ingredient(s) that must NOT be contained in the recipe")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
-    # TODO make these selection fields
-    style = TextField("Style", description="Include drinks matching the style such as After Dinner or Longdrink")
-    glass = TextField("Glass", description="Include drinks matching the glass type such as cocktail or rocks")
-    prep = TextField("Prep", description="Include drinks matching the prep method such as shake or build")
-    ice = TextField("Ice", description="Include drinks matching the ice used such as crushed")
+    style = SelectField("Style", description="Include drinks matching the style such as After Dinner or Longdrink", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Sparkling Cocktail', 'Wine Cocktail']))
+    glass = SelectField("Glass", description="Include drinks matching the glass type such as cocktail or rocks", choices=pairs(['','cocktail','rocks','highball','flute','shot']))
+    prep = SelectField("Prep", description="Include drinks matching the prep method such as shake or build", choices=pairs(['','shake', 'stir', 'build']))
+    ice = SelectField("Ice", description="Include drinks matching the ice used such as crushed", choices=pairs(['','cubed','chushed','neat']))
 
     # pdf options
     pdf_filename = TextField("Filename to use", description="Basename of the pdf and tex files generated", default="web_drinks_file")
@@ -80,21 +84,40 @@ class DrinksForm(Form):
     tagline = TextField("Tagline", description="Tagline to use below the title")
 
 
-class IngredientField(Form):
+class RecipeIngredientForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
     ingredient = TextField("Ingredient", validators=[validators.required()])
     quantity = DecimalField("Quantity", validators=[validators.required()])
     is_optional = BooleanField("Optional")
 
 class RecipeForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
     name = TextField("Name", description="The recipe name", validators=[validators.required()])
     info = TextField("Info", description="Additional information about the recipe")
-    ingredients = FieldList(FormField(IngredientField), min_entries=1, validators=[validators.required()])
-    unit = SelectField("Unit", choices=[util.VALID_UNITS], validators=[validators.required()])
+    ingredients = FieldList(FormField(RecipeIngredientForm), min_entries=1, validators=[validators.required()])
+    unit = SelectField("Unit", choices=pairs([util.VALID_UNITS]), validators=[validators.required()])
     #glass =
     #unit =
     #prep =
     #ice =
     #garnish =
+
+class BarstockForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+    categories = 'Spirit,Liqueur,Vermouth,Bitters,Syrup,Dry,Juice,Mixer,Wine,Ice'.split(',')
+    types = 'Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
+    category = SelectField("Category", validators=[validators.required()], choices=pairs(categories))
+    type_ = SelectField("Type", validators=[validators.required()], choices=pairs(types))
+    bottle = TextField("Bottle", description='Specify the bottle, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.required()])
+    proof = DecimalField("Proof", description="Proof rating of the ingredient, if any", validators=[validators.required(), validators.NumberRange(min=0, max=200)])
+    size_ml = DecimalField("Size (mL)", description="Size of the ingredient in mL", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
+    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=2000)])
 
 
 def bundle_options(tuple_class, args):
@@ -159,6 +182,19 @@ def recipe_edit():
         print form.name
 
     return render_template('recipes.html', form=form)
+
+@app.route("/ingredients/", methods=['GET','POST'])
+def ingredients():
+    form = BarstockForm(request.form)
+    print form.errors
+
+    if request.method == 'POST':
+        print request
+
+        print form.name
+
+    table = mms.get_ingredients_table()
+    return render_template('ingredients.html', form=form, table=table)
 
 
 @app.route('/drinks.html')
