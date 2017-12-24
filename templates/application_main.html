@@ -15,6 +15,11 @@
 
     <!-- Main form -->
     <div class="container">
+      <div class="row" id="navigation">
+        <div class="col"><a href="/">Home</a></div>
+        <div class="col"><a href="/recipes/">Recipes</a></div>
+        <div class="col"><a href="/ingredients/">Ingredients</a></div>
+      </div>
       {% from "_formhelpers.html" import render_field %}
       <h2>Mix Mind Drink Recipes</h2>
       <form  id="menu-settings" action="" method="post" role="form">
@@ -69,11 +74,11 @@
               {{ render_field(form.title) }}
               {{ render_field(form.tagline) }}
               {{ render_field(form.debug) }}
-              <input type="submit" class="btn btn-success" target="_blank" value="Download Custom Menu PDF!" formaction="/download/"></input>
+              <input type="submit" class="btn btn-success" target="_blank" name="download-menu" value="Download Custom Menu PDF!" formaction="/download/"></input>
             </dl>
           </div>
         </div>
-        <input type="submit" class="btn btn-success" value="Apply"></input>
+        <input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
       </form>
 
       <!-- Show flashed messaged -->

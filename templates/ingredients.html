@@ -10,6 +10,11 @@
 
     <!-- Main form -->
     <div class="container">
+      <div class="row" id="navigation">
+        <div class="col"><a href="/">Home</a></div>
+        <div class="col"><a href="/recipes/">Recipes</a></div>
+        <div class="col"><a href="/ingredients/">Ingredients</a></div>
+      </div>
       {% from "_formhelpers.html" import render_field %}
       <h2>Ingredient Editor</h2>
       <form  id="menu-settings" action="" method="post" role="form">

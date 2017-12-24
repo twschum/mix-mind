@@ -11,25 +11,35 @@
   </head>
   <body>
 
-    <!-- Main form -->
+    <!-- Main container -->
     <div class="container">
+      <div class="row" id="navigation">
+        <div class="col"><a href="/">Home</a></div>
+        <div class="col"><a href="/recipes/">Recipes</a></div>
+        <div class="col"><a href="/ingredients/">Ingredients</a></div>
+      </div>
+
+      <!-- Main form -->
       {% from "_formhelpers.html" import render_field %}
+      <h2>Recipe Settings</h2>
+      <form id="recipe-list-select" action="" method="post" role="form">
+        {{ render_field(select_form.recipes) }}
+        <input type="submit" class="btn btn-success" name="recipe-list-select" value="Apply"></input>
+      </form>
       <h2>Recipe Editor</h2>
-      <form  id="menu-settings" action="" method="post" role="form">
-        {{ form.csrf }}
+      <form  id="recipe-editor" action="" method="post" role="form">
         <div class="form-group">
           <a href="#add-recipe" data-toggle="collapse"><h3>Add a recipe</h3></a>
           <div id="add-recipe" class="collapse">
             <dl>
-              {{ render_field(form.name) }}
-              {{ render_field(form.info) }}
-              {{ render_field(form.ingredients) }}
-              {{ render_field(form.unit) }}
-              <input type="submit" class="btn btn-success" target="_blank" value="Submit" formaction="/download/"></input>
+              {{ render_field(add_form.name) }}
+              {{ render_field(add_form.info) }}
+              {{ render_field(add_form.ingredients) }}
+              {{ render_field(add_form.unit) }}
             </dl>
           </div>
         </div>
-        <!--<input type="submit" class="btn btn-success" value="Apply"></input>-->
+        <input type="submit" class="btn btn-success" name="add-recipe" value="Apply"></input>
       </form>
 
       <!-- Show flashed messaged -->

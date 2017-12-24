@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, flash, request, send_file
-from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField
+from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField
 
 import os
 
@@ -18,9 +18,11 @@ with open('local_secret') as fp:
 
 
 class MixMindServer():
-    def __init__(self, recipes, barstock_files):
-        base_recipes = util.load_recipe_json(['recipes.json'])
-        self.barstock = Barstock.load('Barstock - Sheet1.csv', False)
+    def __init__(self, recipes=['recipes_schubar.json'], barstock_files='Barstock - Sheet1.csv'):
+        self.barstock_files = barstock_files
+        base_recipes = util.load_recipe_json(recipes)
+        # TODO barstock from multiple files
+        self.barstock = Barstock.load(barstock_files, False)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
     def get_ingredients_table(self):
         output_df = self.barstock.df.sort_values(['Category','Type','Price Paid'])
@@ -107,9 +109,11 @@ class RecipeListSelector(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
-
-
-
+    recipes = SelectMultipleField("Available Recipe Lists", description="Select recipe lists to be used for generating a menu",
+            choices=[("recipes_schubar.json", "Core Recipes (from @Schubar)"),
+                ("IBA_unforgettables.json", "IBA Unforgettables"),
+                ("IBA_contemporary_classics.json", "IBA Contemporary Classics"),
+                ("IBA_new_era_drinks.json", "IBA New Era Drinks")])
 
 
 class BarstockForm(Form):
@@ -178,16 +182,21 @@ def menu_download():
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
 @app.route("/recipes/", methods=['GET','POST'])
-def recipe_edit():
-    form = RecipeForm(request.form)
-    print form.errors
+def recipes():
+    select_form = RecipeListSelector(request.form)
+    print select_form.errors
+    add_form = RecipeForm(request.form)
+    print add_form.errors
+    global mms
 
     if request.method == 'POST':
         print request
+        if 'recipe-list-select' in request.form:
+            recipes = select_form.recipes.data
+            mms = MixMindServer(recipes=recipes, barstock_files=mms.barstock_files)
+            flash("Now using recipes from {}".format(recipes))
 
-        print form.name
-
-    return render_template('recipes.html', form=form)
+    return render_template('recipes.html', select_form=select_form, add_form=add_form)
 
 @app.route("/ingredients/", methods=['GET','POST'])
 def ingredients():
