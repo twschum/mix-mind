@@ -3,7 +3,7 @@ import string
 import itertools
 import pandas as pd
 
-from util import IngredientSpecifier
+import util
 
 class Barstock(object):
     """ Wrap up a csv of bottle info with some helpful methods
@@ -61,6 +61,17 @@ class Barstock(object):
             return matching[matching['Bottle'] == specifier.bottle].reset_index(drop=True)
         else:
             return matching
+
+    def add_row(self, row):
+        """ where row is a dict """
+        row['Size (oz)'] = util.convert_units(row['Size (mL)'], 'mL', 'oz')
+        row['$/mL'] = row['Price Paid'] / row['Size (mL)']
+        row['$/cL'] = row['Price Paid']*10 / row['Size (mL)']
+        row['$/oz'] = row['Price Paid'] / row['Size (oz)']
+
+        row = {k:[v] for k,v in row.iteritems()}
+        row = pd.DataFrame.from_dict(row)
+        self.df = pd.concat([self.df, row])
 
     @classmethod
     def load(cls, barstock_csv, include_all=False):

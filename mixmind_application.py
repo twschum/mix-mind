@@ -18,12 +18,13 @@ with open('local_secret') as fp:
 
 
 class MixMindServer():
-    def __init__(self):
+    def __init__(self, recipes, barstock_files):
         base_recipes = util.load_recipe_json(['recipes.json'])
         self.barstock = Barstock.load('Barstock - Sheet1.csv', False)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
     def get_ingredients_table(self):
-        table = self.barstock.df.to_html(index=False, columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
+        output_df = self.barstock.df.sort_values(['Category','Type','Price Paid'])
+        table = output_df.to_html(index=False, columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
         return table
 mms = MixMindServer()
 
@@ -85,13 +86,9 @@ class DrinksForm(Form):
 
 
 class RecipeIngredientForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
     ingredient = TextField("Ingredient", validators=[validators.required()])
     quantity = DecimalField("Quantity", validators=[validators.required()])
     is_optional = BooleanField("Optional")
-
 class RecipeForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
@@ -106,12 +103,21 @@ class RecipeForm(Form):
     #ice =
     #garnish =
 
+class RecipeListSelector(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+
+
+
+
+
 class BarstockForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
     categories = 'Spirit,Liqueur,Vermouth,Bitters,Syrup,Dry,Juice,Mixer,Wine,Ice'.split(',')
-    types = 'Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
+    types = ',Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
     category = SelectField("Category", validators=[validators.required()], choices=pairs(categories))
     type_ = SelectField("Type", validators=[validators.required()], choices=pairs(types))
     bottle = TextField("Bottle", description='Specify the bottle, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.required()])
@@ -190,8 +196,14 @@ def ingredients():
 
     if request.method == 'POST':
         print request
-
-        print form.name
+        row = {}
+        row['Category'] = form.category.data
+        row['Type'] = form.type_.data
+        row['Bottle'] = form.bottle.data
+        row['Proof'] = float(form.proof.data)
+        row['Size (mL)'] = float(form.size_ml.data)
+        row['Price Paid'] = float(form.price.data)
+        mms.barstock.add_row(row)
 
     table = mms.get_ingredients_table()
     return render_template('ingredients.html', form=form, table=table)
