@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 from flask import Flask, render_template, flash, request, send_file
-from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField
+from flask_uploads import UploadSet, DATA, configure_uploads
+from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField
+from werkzeug.utils import secure_filename
 
 import os
 
@@ -15,14 +17,17 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 with open('local_secret') as fp:
     app.config['SECRET_KEY'] = fp.read().strip()
+app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
+datafiles = UploadSet('datafiles', DATA)
+configure_uploads(app, (datafiles,))
 
 
 class MixMindServer():
-    def __init__(self, recipes=['recipes_schubar.json'], barstock_files='Barstock - Sheet1.csv'):
+    def __init__(self, recipes=['recipes_schubar.json'], barstock_files=['Barstock - Sheet1.csv']):
+        self.recipe_files = recipes
         self.barstock_files = barstock_files
         base_recipes = util.load_recipe_json(recipes)
-        # TODO barstock from multiple files
-        self.barstock = Barstock.load(barstock_files, False)
+        self.barstock = Barstock.load(barstock_files, True)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
     def get_ingredients_table(self):
         output_df = self.barstock.df.sort_values(['Category','Type','Price Paid'])
@@ -120,6 +125,8 @@ class BarstockForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
+    upload_csv = FileField("Upload a Barstock CSV", [validators.regexp(ur'^[^/\\]\.csv$')])
+
     categories = 'Spirit,Liqueur,Vermouth,Bitters,Syrup,Dry,Juice,Mixer,Wine,Ice'.split(',')
     types = ',Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
     category = SelectField("Category", validators=[validators.required()], choices=pairs(categories))
@@ -183,11 +190,11 @@ def menu_download():
 
 @app.route("/recipes/", methods=['GET','POST'])
 def recipes():
+    global mms
     select_form = RecipeListSelector(request.form)
     print select_form.errors
     add_form = RecipeForm(request.form)
     print add_form.errors
-    global mms
 
     if request.method == 'POST':
         print request
@@ -200,19 +207,27 @@ def recipes():
 
 @app.route("/ingredients/", methods=['GET','POST'])
 def ingredients():
+    global mms
     form = BarstockForm(request.form)
     print form.errors
 
     if request.method == 'POST':
         print request
-        row = {}
-        row['Category'] = form.category.data
-        row['Type'] = form.type_.data
-        row['Bottle'] = form.bottle.data
-        row['Proof'] = float(form.proof.data)
-        row['Size (mL)'] = float(form.size_ml.data)
-        row['Price Paid'] = float(form.price.data)
-        mms.barstock.add_row(row)
+        if 'add-ingredient' in request.form:
+            row = {}
+            row['Category'] = form.category.data
+            row['Type'] = form.type_.data
+            row['Bottle'] = form.bottle.data
+            row['Proof'] = float(form.proof.data)
+            row['Size (mL)'] = float(form.size_ml.data)
+            row['Price Paid'] = float(form.price.data)
+            mms.barstock.add_row(row)
+
+        elif 'upload-csv' in request.form:
+            filename = datafiles.save(request.files['upload_csv'])
+            print "CSV uploaded to {}".format(filename)
+            mms = MixMindServer(recipes=mms.recipe_files, barstock_files=[filename])
+            flash("Ingredients database reloaded from {}".format(filename))
 
     table = mms.get_ingredients_table()
     return render_template('ingredients.html', form=form, table=table)

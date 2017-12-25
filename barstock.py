@@ -62,28 +62,33 @@ class Barstock(object):
         else:
             return matching
 
+    @classmethod
+    def _calculated_columns(cls, thing):
+        thing['Size (oz)'] = util.convert_units(thing['Size (mL)'], 'mL', 'oz')
+        thing['$/mL'] = thing['Price Paid'] / thing['Size (mL)']
+        thing['$/cL'] = thing['Price Paid']*10 / thing['Size (mL)']
+        thing['$/oz'] = thing['Price Paid'] / thing['Size (oz)']
+
     def add_row(self, row):
         """ where row is a dict """
-        row['Size (oz)'] = util.convert_units(row['Size (mL)'], 'mL', 'oz')
-        row['$/mL'] = row['Price Paid'] / row['Size (mL)']
-        row['$/cL'] = row['Price Paid']*10 / row['Size (mL)']
-        row['$/oz'] = row['Price Paid'] / row['Size (oz)']
-
+        self._calculated_columns(row)
         row = {k:[v] for k,v in row.iteritems()}
         row = pd.DataFrame.from_dict(row)
         self.df = pd.concat([self.df, row])
 
     @classmethod
     def load(cls, barstock_csv, include_all=False):
-        df = pd.read_csv(barstock_csv)
+        if isinstance(barstock_csv, basestring):
+            barstock_csv = [barstock_csv]
+        # TODO validate columns, merge duplicates
+        df = pd.concat([pd.read_csv(filename) for filename in barstock_csv])
         df = df.dropna(subset=['Type'])
-        df['type'] = map(string.lower, df['Type'])
-
         # convert money columns to floats
-        for col in [col for col in df.columns if '$' in col]:
+        for col in [col for col in df.columns if '$' in col or 'Price' in col]:
             df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
-
-        df['Proof'] = df['Proof'].fillna(0)
+        df = df.fillna(0)
+        cls._calculated_columns(df)
+        df['type'] = map(string.lower, df['Type'])
 
         # drop out of stock items
         if not include_all:

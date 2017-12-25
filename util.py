@@ -130,7 +130,10 @@ OZ_PER_DROP         =  1.0/240.0
 def convert_units(amount, from_unit, to_unit, rounded=False):
     if from_unit == 'literal':
         return amount
-    amount = float(amount)
+    try:
+        amount = float(amount)
+    except TypeError: # pd series breaks this
+        amount = amount
     if from_unit == to_unit:
         return amount
     unit_conversions = {
