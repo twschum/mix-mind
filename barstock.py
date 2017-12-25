@@ -82,6 +82,7 @@ class Barstock(object):
             barstock_csv = [barstock_csv]
         # TODO validate columns, merge duplicates
         df = pd.concat([pd.read_csv(filename) for filename in barstock_csv])
+        df = df.drop_duplicates(['Type', 'Bottle'])
         df = df.dropna(subset=['Type'])
         # convert money columns to floats
         for col in [col for col in df.columns if '$' in col or 'Price' in col]:
