@@ -4,9 +4,8 @@ Turn recipes json into a readable menu
 """
 
 import argparse
-import json
 import cPickle as pickle
-from collections import OrderedDict, namedtuple, Counter
+from collections import Counter
 import operator
 
 import pandas as pd
@@ -14,58 +13,9 @@ import pandas as pd
 import recipe as drink_recipe
 from barstock import Barstock
 import formatted_menu
+import util
 
 
-def filter_recipes(all_recipes, filter_options):
-    reduce_fn = any if filter_options.use_or else all
-    recipes = [recipe for recipe in all_recipes if recipe.can_make or filter_options.all]
-    if filter_options.include:
-        recipes = [recipe for recipe in recipes if
-                reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
-                for ingredient in filter_options.include))]
-    if filter_options.exclude:
-        recipes = [recipe for recipe in recipes if
-                reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
-                for ingredient in filter_options.exclude))]
-    for attr in 'style glass prep ice'.split():
-        recipes = filter_on_attribute(recipes, filter_options, attr)
-
-    def get_names(items):
-        return set(map(lambda i: i.name, items))
-    excluded = ', '.join(sorted(list(get_names(all_recipes) - get_names(recipes))))
-    print "    Can't make: {}\n".format(excluded)
-    return recipes
-
-def filter_on_attribute(recipes, filter_options, attribute):
-    if getattr(filter_options, attribute):
-        attr_value = getattr(filter_options, attribute).lower()
-        recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
-    return recipes
-
-
-def report_stats(recipes):
-    most_expensive = StatTracker('cost', 'max', 'Most Expensive')
-    most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
-    most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
-    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
-    least_booze = StatTracker('std_drinks', 'min', 'Fewest Std Drinks')
-    least_abv = StatTracker('abv', 'min', 'Lowest Estimated ABV')
-    for recipe in recipes:
-        if recipe.calculate_stats():
-            most_expensive.update_stat(recipe)
-            most_booze.update_stat(recipe)
-            most_abv.update_stat(recipe)
-            least_expensive.update_stat(recipe)
-            least_booze.update_stat(recipe)
-            least_abv.update_stat(recipe)
-    print
-    print most_expensive
-    print most_booze
-    print most_abv
-    print least_expensive
-    print least_booze
-    print least_abv
-    print
 
 class StatTracker(dict):
     # mutable class variables
@@ -97,20 +47,6 @@ class StatTracker(dict):
             if len(recipe.name) > StatTracker._name_width:
                 StatTracker._name_width = len(recipe.name)
 
-
-def load_recipe_json(recipe_files):
-    base_recipes = OrderedDict()
-    for recipe_json in recipe_files:
-        with open(recipe_json) as fp:
-            other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
-            print "Recipes loaded from {}".format(recipe_json)
-            for item in other_recipes.itervalues():
-                item.update({'source_file': recipe_json})
-            for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
-                print "Keeping {} from {} over {}".format(name, base_recipes[name]['source_file'], other_recipes[name]['source_file'])
-                del other_recipes[name]
-            base_recipes.update(other_recipes)
-    return base_recipes
 
 
 def get_parser():
@@ -168,9 +104,9 @@ Example usage:
     p.add_argument('-c', '--convert', default='oz', choices=['oz','mL','cL'], help="Convert recipes to a different primary unit")
     p.add_argument('-g', '--all-ingredients', action='store_true', help="Show every ingredient instead of just the main liquors with each example")
     p.add_argument('-m', '--markup', default=1.2, type=float, help="Drink markup: price = ceil((base_cost+1)*markup)")
-    p.add_argument('--ignore-info', action='store_true', help="Don't show the info line for recipes")
-    p.add_argument('--ignore-origin', action='store_true', help="Don't check origin and mark drinks as Schubar originals")
-    p.add_argument('--ignore-variants', action='store_true', help="Don't show variants for drinks")
+    p.add_argument('--info', action='store_true', help="Show the info line for recipes")
+    p.add_argument('--origin', action='store_true', help="Check origin and mark drinks as Schubar originals")
+    p.add_argument('--variants', action='store_true', help="Show variants for drinks")
 
     # filtering options
     p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
@@ -204,21 +140,17 @@ Example usage:
 
     return p
 
-# make passing a bunch of options around a bit cleaner
-DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,ignore_origin,ignore_info,ignore_variants')
-FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice')
-PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field) for field in tuple_class._fields))
 
 def main():
     args = get_parser().parse_args()
-    display_options = bundle_options(DisplayOptions, args)
-    filter_options = bundle_options(FilterOptions, args)
+    display_options = bundle_options(util.DisplayOptions, args)
+    filter_options = bundle_options(util.FilterOptions, args)
 
     if args.command == 'test':
         print "This is a test"
-        recipes = load_recipe_json(args.recipes)
+        recipes = util.load_recipe_json(args.recipes)
         ingredients = Counter()
         for info in recipes.itervalues():
             ingredients.update(info.get('ingredients', {}).iterkeys())
@@ -235,7 +167,7 @@ def main():
             print "Loaded {} recipes from cache file with options:\n{}\n{}".format(len(recipes), filter_options)
 
     else:
-        base_recipes = load_recipe_json(args.recipes)
+        base_recipes = util.load_recipe_json(args.recipes)
         if args.barstock:
             barstock = Barstock.load(args.barstock, args.all)
             recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
@@ -245,7 +177,7 @@ def main():
         if args.convert:
             print "Converting recipes to unit: {}".format(args.convert)
             map(lambda r: r.convert(args.convert), recipes)
-        recipes = filter_recipes(recipes, filter_options)
+        recipes = util.filter_recipes(recipes, filter_options)
 
     if args.save_cache:
         barstock.df.to_pickle(BARSTOCK_CACHE_FILE)
@@ -254,7 +186,7 @@ def main():
             print "Saved recipes and barstock to cache file".format(len(recipes))
 
     if args.stats:
-        report_stats(recipes)
+        print '\n'.join(util.report_stats(recipes))
 
     if args.command == 'pdf':
         # sort recipes loosely by approximate display length

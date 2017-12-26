@@ -7,6 +7,8 @@ from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniP
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
 
+import yattag
+
 import time
 
 class TitleText(HugeText):
@@ -81,12 +83,12 @@ def format_recipe(recipe, display_opts):
     recipe_page = SamepageEnvironment()
     name_line = LargeText(recipe.name)
 
-    if not display_opts.ignore_origin and 'schubar original' in recipe.origin.lower():
+    if display_opts.origin and 'schubar original' in recipe.origin.lower():
         name_line.append(superscript('*'))
         #name_line.append(superscript(NoEscape('\dag')))
 
     if display_opts.prices and recipe.max_cost:
-        price = int(((recipe.max_cost+1) * display_opts.markup) +1)
+        price = int(((recipe.max_cost+1) * float(display_opts.markup)) +1)
         name_line.append(DotFill())
         name_line.append(superscript('$'))
         name_line.append(price)
@@ -96,12 +98,12 @@ def format_recipe(recipe, display_opts):
     if display_opts.prep_line:
         recipe_page.append(FootnoteText(recipe.prep_line(extended=True, caps=False)+'\n'))
 
-    if not display_opts.ignore_info and recipe.info:
+    if display_opts.info and recipe.info:
         recipe_page.append(SmallText(italic(recipe.info +'\n')))
     for item in recipe.ingredients:
         recipe_page.append(item.str() +'\n')
 
-    if not display_opts.ignore_variants:
+    if display_opts.variants:
         for variant in recipe.variants:
             recipe_page.append(HorizontalSpace('8pt'))
             recipe_page.append(SmallText(italic(variant +'\n')))
@@ -113,6 +115,54 @@ def format_recipe(recipe, display_opts):
     recipe_page.append(Command('par'))
     return recipe_page
 
+def format_recipe_html(recipe, display_opts):
+    """ use yattag lib to build an html blob contained in a div for the recipe"""
+    doc, tag, text, line = yattag.Doc().ttl()
+
+    def close(s, tag):
+        return '<{0}>{1}</{0}>'.format(tag, s)
+    def em(s):
+        return close(s, 'em')
+    def small(s):
+        return close(s, 'small')
+    def sup(s):
+        return close(s, 'sup')
+    def small_br(s):
+        return small(s+'<br>')
+
+    with tag('div', id=recipe.name):
+
+        name_line = [recipe.name]
+        if display_opts.origin and 'schubar original' in recipe.origin.lower():
+            name_line.append(sup('*'))
+        if display_opts.prices and recipe.max_cost:
+            price = int(((recipe.max_cost+1) * float(display_opts.markup)) +1)
+            name_line.append('  -  {}{}'.format(sup('$'), price))
+        doc.asis(close(''.join(name_line), 'h4'))
+
+        if display_opts.prep_line:
+            doc.asis(small_br(recipe.prep_line(extended=True, caps=False)))
+
+        if display_opts.info and recipe.info:
+            doc.asis(small_br(em(recipe.info)))
+
+        with tag('ul', id='ingredients'):
+            for item in recipe.ingredients:
+                line('li', item.str(), type="none")
+
+        if display_opts.variants:
+            with tag('ul', id='variants'):
+                for variant in recipe.variants:
+                    with tag('small'):
+                        with tag('li', type="none"):
+                            line('em', variant)
+
+        if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
+            for e in recipe.examples:
+                doc.asis(small_br("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
+        doc.asis('<br>')
+
+    return unicode(doc.getvalue())
 
 def setup_header_footer(doc, pdf_opts, display_opts):
     # Header with title, tagline, page number right, date left
@@ -131,7 +181,7 @@ def setup_header_footer(doc, pdf_opts, display_opts):
         hf.append(FootnoteText(italic(tagline)))
     with hf.create(Head('R')):
         hf.append(FootnoteText(time.strftime("%b %d, %Y")))
-    if not display_opts.ignore_origin:
+    if display_opts.origin:
         with hf.create(Foot('L')):
             hf.append(superscript("*"))
             #hf.append(superscript(NoEscape("\dag")))
@@ -207,3 +257,20 @@ def generate_recipes_pdf(recipes, pdf_opts, display_opts, ingredient_df):
     print "Compiling {}.pdf".format(pdf_opts.pdf_filename)
     doc.generate_pdf(pdf_opts.pdf_filename, clean_tex=False)
     print "Done"
+    return True
+
+def filename_from_options(pdf_opts, display_opts, base_name='drinks'):
+    opts_tag = "{}c".format(pdf_opts.ncols)
+    opts_tag += 'l' if pdf_opts.liquor_list else ''
+    opts_tag += 'L' if pdf_opts.liquor_list_own_page else ''
+    opts_tag += 'A' if pdf_opts.align else ''
+    opts_tag += 'D' if pdf_opts.debug else ''
+    opts_tag += '_'
+    opts_tag += 'p{}m'.format(int(display_opts.markup)) if display_opts.prices else ''
+    opts_tag += 'e' if display_opts.examples else ''
+    opts_tag += 'a' if display_opts.all_ingredients else ''
+    opts_tag += 'p' if display_opts.prep_line else ''
+    opts_tag += 'v' if display_opts.variants else ''
+    opts_tag += 'o' if display_opts.origin else ''
+    return '_'.join([base_name, opts_tag])
+

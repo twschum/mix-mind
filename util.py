@@ -3,7 +3,74 @@
 
 from functools import wraps
 from fractions import Fraction
+from collections import OrderedDict, namedtuple
+import json
 import inspect
+
+# make passing a bunch of options around a bit cleaner
+DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
+FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice')
+PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
+
+VALID_UNITS = ['oz', 'mL', 'cL']
+
+def filter_recipes(all_recipes, filter_options):
+    reduce_fn = any if filter_options.use_or else all
+    recipes = [recipe for recipe in all_recipes if filter_options.all or recipe.can_make]
+    if filter_options.include:
+        recipes = [recipe for recipe in recipes if
+                reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
+                for ingredient in filter_options.include))]
+    if filter_options.exclude:
+        recipes = [recipe for recipe in recipes if
+                reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
+                for ingredient in filter_options.exclude))]
+    for attr in 'style glass prep ice'.split():
+        recipes = filter_on_attribute(recipes, filter_options, attr)
+
+    def get_names(items):
+        return set(map(lambda i: i.name, items))
+    excluded = sorted(list(get_names(all_recipes) - get_names(recipes)))
+    print "    Can't make: {}\n".format(', '.join(excluded))
+    return recipes, excluded
+
+def filter_on_attribute(recipes, filter_options, attribute):
+    if getattr(filter_options, attribute):
+        attr_value = getattr(filter_options, attribute).lower()
+        recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
+    return recipes
+
+def report_stats(recipes):
+    most_expensive = StatTracker('cost', 'max', 'Most Expensive')
+    most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
+    most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
+    least_expensive = StatTracker('cost', 'min', 'Least Expensive')
+    least_booze = StatTracker('std_drinks', 'min', 'Fewest Std Drinks')
+    least_abv = StatTracker('abv', 'min', 'Lowest Estimated ABV')
+    for recipe in recipes:
+        if recipe.calculate_stats():
+            most_expensive.update_stat(recipe)
+            most_booze.update_stat(recipe)
+            most_abv.update_stat(recipe)
+            least_expensive.update_stat(recipe)
+            least_booze.update_stat(recipe)
+            least_abv.update_stat(recipe)
+    return [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]
+
+def load_recipe_json(recipe_files):
+    base_recipes = OrderedDict()
+    for recipe_json in recipe_files:
+        with open(recipe_json) as fp:
+            other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
+            print "Recipes loaded from {}".format(recipe_json)
+            for item in other_recipes.itervalues():
+                item.update({'source_file': recipe_json})
+            for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
+                print "Keeping {} from {} over {}".format(name, base_recipes[name]['source_file'], other_recipes[name]['source_file'])
+                del other_recipes[name]
+            base_recipes.update(other_recipes)
+    return base_recipes
+
 
 def default_initializer(func):
     names, varargs, keywords, defaults = inspect.getargspec(func)
@@ -63,7 +130,10 @@ OZ_PER_DROP         =  1.0/240.0
 def convert_units(amount, from_unit, to_unit, rounded=False):
     if from_unit == 'literal':
         return amount
-    amount = float(amount)
+    try:
+        amount = float(amount)
+    except TypeError: # pd series breaks this
+        amount = amount
     if from_unit == to_unit:
         return amount
     unit_conversions = {

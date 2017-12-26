@@ -194,6 +194,18 @@
         "glass": "flute"
     },
 
+    "Champagne Cocktail": {
+        "info": "Classic Cocktail topped off with bubbly",
+        "ingredients": {
+            "Champagne": 3,
+            "aromatic bitters": "4 to 6 dashes",
+            "sugar": "1 tsp"
+        },
+        "prep": "build",
+        "ice": "neat",
+        "glass": "flute"
+    },
+
     "Rose, Fruit, & Smoke": {
         "ingredients": {
             "tequila": 1.5,
@@ -335,7 +347,7 @@
         }
     },
 
-    "Smooth Cuba Libre": {
+    "Cuba Libre": {
         "ingredients": {
             "rum": 1.5,
             "cola": 6,

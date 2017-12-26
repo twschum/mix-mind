@@ -1,0 +1,36 @@
+{% macro render_field(field) %}
+  {% if field.type != 'BooleanField' %}
+  <dt>{{ field.label }}
+  {% endif %}
+  <dd>
+
+  {% if field.type in ['BooleanField'] %}
+  <label>
+  {{ field(**kwargs)|safe }}
+  <b>{{ field.label.text }}</b>
+  </label>
+  <em> {{ field.description }} </em>
+
+  {% elif field.type in ['ToggleField'] %}
+  <label class="btn btn-outline-primary">
+    {{ field(**kwargs)|safe }}
+    {{ field.label.text }}
+  </label>
+  {{ field(**kwargs)|safe }}
+  {{ field.description }}
+
+  {% else %}
+  {{ field(**kwargs)|safe }}
+  <em> {{ field.description }} </em>
+
+  {% endif %}
+
+  {% if field.errors %}
+    <ul class=errors>
+    {% for error in field.errors %}
+      <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </dd>
+{% endmacro %}
