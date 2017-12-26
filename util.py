@@ -16,7 +16,7 @@ VALID_UNITS = ['oz', 'mL', 'cL']
 
 def filter_recipes(all_recipes, filter_options):
     reduce_fn = any if filter_options.use_or else all
-    recipes = [recipe for recipe in all_recipes if recipe.can_make or filter_options.all]
+    recipes = [recipe for recipe in all_recipes if filter_options.all or recipe.can_make]
     if filter_options.include:
         recipes = [recipe for recipe in recipes if
                 reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)

@@ -72,7 +72,7 @@ class DrinksForm(Form):
     variants = BooleanField("Variants", description="Show variants for drinks")
 
     # filtering options
-    all = BooleanField("Allow all ingredients", description="Include all ingredients from barstock whether or not that are marked in stock")
+    all = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
     include = CSVField("Include", description="Filter by ingredient(s) that must be contained in the recipe")
     exclude = CSVField("Exclude", description="Filter by ingredient(s) that must NOT be contained in the recipe")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
