@@ -76,6 +76,7 @@ class DrinksForm(Form):
     include = CSVField("Include", description="Filter by ingredient(s) that must be contained in the recipe")
     exclude = CSVField("Exclude", description="Filter by ingredient(s) that must NOT be contained in the recipe")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
+    name = TextField("Name", description="Filter by a cocktail's name")
     style = SelectField("Style", description="Include drinks matching the style such as After Dinner or Longdrink", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Sparkling Cocktail', 'Wine Cocktail']))
     glass = SelectField("Glass", description="Include drinks matching the glass type such as cocktail or rocks", choices=pairs(['','cocktail','rocks','highball','flute','shot']))
     prep = SelectField("Prep", description="Include drinks matching the prep method such as shake or build", choices=pairs(['','shake', 'stir', 'build']))
