@@ -4,12 +4,17 @@
 
     <!-- Main form -->
     <div class="container">
+      <div class="row" id="navigation">
+        <div class="col"><a href="/">Home</a></div>
+        <div class="col"><a href="/recipes/">Recipes</a></div>
+        <div class="col"><a href="/ingredients/">Ingredients</a></div>
+      </div>
       {% from "_formhelpers.html" import render_field %}
       <h2>Recipe Selector</h2>
       <form  id="menu-settings" action="" method="post" role="form">
         {{ form.csrf }}
         <div class="form-group">
-          <a href="#ingredient-filters"><h4>Ingredient Filters</h4></a>
+          <!--<a href="#ingredient-filters"><h4>Ingredient Filters</h4></a>-->
           <dl>
             {{ render_field(form.include) }}
             {{ render_field(form.exclude) }}
@@ -23,6 +28,11 @@
               {{ render_field(form.glass) }}
               {{ render_field(form.prep) }}
               {{ render_field(form.ice) }}
+            </dl>
+          </div>
+          <!--<a href="#sorting" data-toggle="collapse"><h4>Sorting</h4></a>-->
+            <div id="sorting" class="collapse">
+            <dl>
             </dl>
           </div>
         </div>

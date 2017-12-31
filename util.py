@@ -4,6 +4,7 @@
 from functools import wraps
 from fractions import Fraction
 from collections import OrderedDict, namedtuple
+import operator
 import json
 import inspect
 
@@ -39,6 +40,40 @@ def filter_on_attribute(recipes, filter_options, attribute):
         attr_value = getattr(filter_options, attribute).lower()
         recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
     return recipes
+
+class StatTracker(dict):
+    # mutable class variables
+    _title_width = 0
+    _name_width = 0
+
+    def __init__(self, attr, magnitude, str_title):
+        if magnitude not in ('max', 'min'):
+            raise ValueError('StatTracker magnitude must be "max" or "min"')
+        self.op = operator.lt if magnitude == 'min' else operator.gt
+        self.stat = '{}_{}'.format(magnitude, attr)
+        self.val_attr = attr
+        self.val = float('inf') if magnitude == 'min' else 0.0
+        self['title'] = str_title
+        if len(str_title) > StatTracker._title_width:
+            StatTracker._title_width = len(str_title)
+
+    def __str__(self):
+        return "{{title:{}}} | {{drink_name:{}}} | ${{cost:.2f}} | {{abv:>5.2f}}% ABV | {{std_drinks:.2f}} | {{bottles}}"\
+            .format(self._title_width+1, self._name_width+1).format(**self)
+
+    def as_html(self):
+        return u"<tr><td> {{title:{}}} </td><td> {{drink_name:{}}} </td><td> ${{cost:.2f}} </td><td> {{abv:>5.2f}}% ABV </td><td> {{std_drinks:.2f}} </td><td> {{bottles}} </td></tr>"\
+            .format(self._title_width+1, self._name_width+1).format(**self)
+
+    def update_stat(self, recipe):
+        example = getattr(recipe.stats, self.stat)
+        ex_val = getattr(example, self.val_attr)
+        if self.op(ex_val, self.val):
+            self.val = ex_val
+            self.update(example._asdict())
+            self['drink_name'] = recipe.name
+            if len(recipe.name) > StatTracker._name_width:
+                StatTracker._name_width = len(recipe.name)
 
 def report_stats(recipes):
     most_expensive = StatTracker('cost', 'max', 'Most Expensive')

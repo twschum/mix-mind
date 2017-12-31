@@ -153,8 +153,9 @@ class DrinkRecipe(object):
         return max_ingredient
 
     def contains_ingredient(self, ingredient, include_optional=False):
-        return any(( ingredient in i.specifier.what \
-                or (i.specifier.bottle and ingredient in i.specifier.bottle) \
+        ingredient = ingredient.lower()
+        return any(( ingredient in i.specifier.what.lower() \
+                or (i.specifier.bottle and ingredient in i.specifier.bottle.lower()) \
                 for i in self._get_quantized_ingredients(include_optional=include_optional)))
 
     def _get_quantized_ingredients(self, include_optional=False):

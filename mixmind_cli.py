@@ -6,7 +6,6 @@ Turn recipes json into a readable menu
 import argparse
 import cPickle as pickle
 from collections import Counter
-import operator
 
 import pandas as pd
 
@@ -14,39 +13,6 @@ import recipe as drink_recipe
 from barstock import Barstock
 import formatted_menu
 import util
-
-
-
-class StatTracker(dict):
-    # mutable class variables
-    _title_width = 0
-    _name_width = 0
-
-    def __init__(self, attr, magnitude, str_title):
-        if magnitude not in ('max', 'min'):
-            raise ValueError('StatTracker magnitude must be "max" or "min"')
-        self.op = operator.lt if magnitude == 'min' else operator.gt
-        self.stat = '{}_{}'.format(magnitude, attr)
-        self.val_attr = attr
-        self.val = float('inf') if magnitude == 'min' else 0.0
-        self['title'] = str_title
-        if len(str_title) > StatTracker._title_width:
-            StatTracker._title_width = len(str_title)
-
-    def __str__(self):
-        return "{{title:{}}} | {{drink_name:{}}} | ${{cost:.2f}} | {{abv:>5.2f}}% ABV | {{std_drinks:.2f}} | {{bottles}}"\
-            .format(self._title_width+1, self._name_width+1).format(**self)
-
-    def update_stat(self, recipe):
-        example = getattr(recipe.stats, self.stat)
-        ex_val = getattr(example, self.val_attr)
-        if self.op(ex_val, self.val):
-            self.val = ex_val
-            self.update(example._asdict())
-            self['drink_name'] = recipe.name
-            if len(recipe.name) > StatTracker._name_width:
-                StatTracker._name_width = len(recipe.name)
-
 
 
 def get_parser():
@@ -184,7 +150,7 @@ def main():
         if args.convert:
             print "Converting recipes to unit: {}".format(args.convert)
             map(lambda r: r.convert(args.convert), recipes)
-        recipes = util.filter_recipes(recipes, filter_options)
+        recipes, excluded = util.filter_recipes(recipes, filter_options)
 
     if args.save_cache:
         barstock.df.to_pickle(BARSTOCK_CACHE_FILE)
@@ -192,8 +158,10 @@ def main():
             pickle.dump((recipes, filter_options), fp)
             print "Saved recipes and barstock to cache file".format(len(recipes))
 
-    if args.stats:
-        print '\n'.join(util.report_stats(recipes))
+    if args.stats and recipes:
+        stats = util.report_stats(recipes)
+        for stat in stats:
+            print stat
 
     if args.command == 'pdf':
         # sort recipes loosely by approximate display length
