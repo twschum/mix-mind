@@ -9,6 +9,8 @@ class Barstock(object):
     """ Wrap up a csv of bottle info with some helpful methods
     for data access and querying
     """
+    Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
+
     def __init__(self, df):
         self.df = df
 
@@ -62,6 +64,9 @@ class Barstock(object):
         else:
             return matching
 
+    def sorted_df(self):
+        return self.df.sort_values(['Category','Type','Price Paid'])
+
     @classmethod
     def _calculated_columns(cls, thing):
         thing['Size (oz)'] = util.convert_units(thing['Size (mL)'], 'mL', 'oz')
@@ -90,6 +95,7 @@ class Barstock(object):
         df = df.fillna(0)
         cls._calculated_columns(df)
         df['type'] = map(string.lower, df['Type'])
+        df['Category'] = pd.Categorical(df['Category'], cls.Categories)
 
         # drop out of stock items
         if not include_all:

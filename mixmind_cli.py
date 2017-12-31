@@ -152,12 +152,12 @@ def main():
     if args.command == 'test':
         print "This is a test"
         recipes = util.load_recipe_json(args.recipes)
-        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in recipes.iteritems()]
-        styles = set()
-        for recipe in recipes:
-            styles.add(recipe.style)
-        print styles
-        return
+        #recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in recipes.iteritems()]
+        #styles = set()
+        #for recipe in recipes:
+            #styles.add(recipe.style)
+        #print styles
+        #return
         ingredients = Counter()
         for info in recipes.itervalues():
             ingredients.update(info.get('ingredients', {}).iterkeys())

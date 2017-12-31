@@ -250,8 +250,8 @@ class IngredientSpecifier(object):
         return cls(what, bottle)
 
     def __str__(self):
-        return self.bottle if self.bottle else "{}{}".format(self.what, ' '+self.extra if self.extra else '')
+        return self.bottle if self.bottle else u"{}{}".format(self.what, u' '+self.extra if self.extra else u'')
 
     def __repr__(self):
-        return "{}:{}".format(self.what, self.bottle if self.bottle else '')
+        return u"{}:{}".format(self.what, self.bottle if self.bottle else '')
 
