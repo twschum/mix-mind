@@ -9,13 +9,14 @@
       <form  id="menu-settings" action="" method="post" role="form">
         {{ form.csrf }}
         <div class="form-group">
-            <h4>Ingredient Filters</h4>
-            <dl>
-              {{ render_field(form.include) }}
-              {{ render_field(form.exclude) }}
-              {{ render_field(form.use_or) }}
-            </dl>
-            <h4>Misc Filters</h4>
+          <a href="#ingredient-filters"><h4>Ingredient Filters</h4></a>
+          <dl>
+            {{ render_field(form.include) }}
+            {{ render_field(form.exclude) }}
+            {{ render_field(form.use_or) }}
+          </dl>
+          <a href="#misc-filters" data-toggle="collapse"><h4>Miscellaneous Filters</h4></a>
+            <div id="misc-filters" class="collapse">
             <dl>
               {{ render_field(form.name) }}
               {{ render_field(form.style) }}
@@ -23,6 +24,7 @@
               {{ render_field(form.prep) }}
               {{ render_field(form.ice) }}
             </dl>
+          </div>
         </div>
         <input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
       </form>
