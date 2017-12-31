@@ -113,10 +113,11 @@ Example usage:
     p.add_argument('-i', '--include', nargs='+', help="Filter by ingredient(s) that must be contained in the recipe")
     p.add_argument('-x', '--exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
     p.add_argument('--or', dest='use_or', action='store_true', help="use logical OR for included and excluded ingredient lists instead of default AND")
+    p.add_argument('--name', help="Include drinks matching on name")
     p.add_argument('--style', help="Include drinks matching the style such as After Dinner or Longdrink")
-    p.add_argument('--glass', help="Include drinks matching the style such as After Dinner or Longdrink")
-    p.add_argument('--prep', help="Include drinks matching the style such as After Dinner or Longdrink")
-    p.add_argument('--ice', help="Include drinks matching the style such as After Dinner or Longdrink")
+    p.add_argument('--glass', help="Include drinks matching the glassware")
+    p.add_argument('--prep', help="Include drinks matching the prep (shake, stir, build)")
+    p.add_argument('--ice', help="Include drinks matching the type of ice (crushed, cubed, neat)")
 
     # txt output
     txt_parser = subparsers.add_parser('txt', help='Simple plain text output')
@@ -151,6 +152,12 @@ def main():
     if args.command == 'test':
         print "This is a test"
         recipes = util.load_recipe_json(args.recipes)
+        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in recipes.iteritems()]
+        styles = set()
+        for recipe in recipes:
+            styles.add(recipe.style)
+        print styles
+        return
         ingredients = Counter()
         for info in recipes.itervalues():
             ingredients.update(info.get('ingredients', {}).iterkeys())
