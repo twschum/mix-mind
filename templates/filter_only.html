@@ -1,0 +1,70 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% from "_helpers.html" import header, footer %}
+{{ header("Schubar Recipe Selector") }}
+
+    <!-- Main form -->
+    <div class="container">
+      {% from "_formhelpers.html" import render_field %}
+      <h2>Recipe Selector</h2>
+      <form  id="menu-settings" action="" method="post" role="form">
+        {{ form.csrf }}
+        <div class="form-group">
+            <h4>Ingredient Filters</h4>
+            <dl>
+              {{ render_field(form.include) }}
+              {{ render_field(form.exclude) }}
+              {{ render_field(form.use_or) }}
+            </dl>
+            <h4>Misc Filters</h4>
+            <dl>
+              {{ render_field(form.name) }}
+              {{ render_field(form.style) }}
+              {{ render_field(form.glass) }}
+              {{ render_field(form.prep) }}
+              {{ render_field(form.ice) }}
+            </dl>
+        </div>
+        <input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+      </form>
+
+      <!-- Show flashed messaged -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <br></br>
+
+      {% for message in messages %}
+      {% if "Error" not in message[1]: %}
+      <div class="alert alert-info">
+        <strong>Success! </strong> {{ message[1] }}
+      </div>
+      {% endif %}
+
+      {% if "Error" in message[1]: %}
+      <div class="alert alert-warning">
+        {{ message[1] }}
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+
+      <!-- Result recipes -->
+      {% if recipes %}
+      <h3>Recipes</h3>
+      <div class="row">
+        {% for recipe in recipes %}
+        {% if form.examples.data %}
+        <div class="col-xs-12 col-sm-12 col-md-6 col-xl-6">
+          {% else %}
+          <div class="col-xs-12 col-sm-6 col-md-4 col-xl-3">
+            {% endif %}
+            {{ recipe | safe }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+
+      </div> <!-- top level container -->
+{{ footer() }}
