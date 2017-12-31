@@ -154,8 +154,8 @@
         "IBA_description": "Pour all ingredients into shaker filled with ice.",
         "unit": "cL",
         "ingredients": {
-            "cr\u00e8me de cacao (white)": 3.0,
-            "cr\u00e8me de menthe (green)": 3.0,
+            "Cr\u00e8me de Cacao (white)": 3.0,
+            "Cr\u00e8me de Menthe (green)": 3.0,
             "fresh cream": 3.0
         }
     },
@@ -211,7 +211,7 @@
         "unit": "cL",
         "ingredients": {
             "dry white wine": 9.0,
-            "cr\u00e8me de cassis": 1.0
+            "Cr\u00e8me de Cassis": 1.0
         },
         "prep": "build",
         "ice": "neat",
@@ -235,7 +235,7 @@
         "glass": "highball",
         "prep": "build"
     },
-    "Mai-tai": {
+    "Mai-Tai": {
         "style": "Longdrink",
         "IBA_description": "Shake and strain into highball glass.",
         "unit": "cL",
@@ -333,7 +333,7 @@
         "IBA_description": "Stir all ingredients with ice and strain into a cocktail glass.",
         "unit": "cL",
         "ingredients": {
-            "kirsch": 2.0,
+            "Kirschwasser": 2.0,
             "dry vermouth": 4.0,
             "strawberry syrup": "3 dashes"
         }
