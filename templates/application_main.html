@@ -102,6 +102,12 @@
       {% endif %}
       {% endwith %}
 
+      <!--Show stats block-->
+      {% if stats %}
+      <h3>Recipe Statistics</h3>
+      {{ stats | safe }}
+      {% endif %}
+
 
       <!-- Result recipes -->
       {% if recipes %}

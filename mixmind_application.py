@@ -156,9 +156,11 @@ def recipes_from_options(form, to_html=False):
     recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
     if form.convert.data:
         map(lambda r: r.convert(form.convert.data), recipes)
+    if form.stats and recipes:
+        stats = util.report_stats(recipes, as_html=True)
     if to_html:
         recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
-    return recipes
+    return recipes, excluded, stats
 
 @app.route("/", methods=['GET', 'POST'])
 def mainpage():
@@ -170,12 +172,12 @@ def mainpage():
     if request.method == 'POST':
         if form.validate():
             print request
-            recipes = recipes_from_options(form, to_html=True)
+            recipes, excluded, stats = recipes_from_options(form, to_html=True)
             flash("Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
             flash("Error in form validation")
 
-    return render_template('application_main.html', form=form, recipes=recipes, excluded=excluded)
+    return render_template('application_main.html', form=form, recipes=recipes, excluded=excluded, stats=stats)
 
 @app.route("/download/", methods=['POST'])
 def menu_download():
@@ -184,7 +186,7 @@ def menu_download():
 
     if form.validate():
         print request
-        recipes = recipes_from_options(form)
+        recipes, _, _ = recipes_from_options(form)
 
         display_options = bundle_options(util.DisplayOptions, form)
         form.pdf_filename.data = 'menus/{}'.format(formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options))

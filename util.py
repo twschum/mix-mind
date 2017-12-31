@@ -75,7 +75,7 @@ class StatTracker(dict):
             if len(recipe.name) > StatTracker._name_width:
                 StatTracker._name_width = len(recipe.name)
 
-def report_stats(recipes):
+def report_stats(recipes, as_html=False):
     most_expensive = StatTracker('cost', 'max', 'Most Expensive')
     most_booze = StatTracker('std_drinks', 'max', 'Most Std Drinks')
     most_abv = StatTracker('abv', 'max', 'Highest Estimated ABV')
@@ -90,7 +90,11 @@ def report_stats(recipes):
             least_expensive.update_stat(recipe)
             least_booze.update_stat(recipe)
             least_abv.update_stat(recipe)
-    return [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]
+    if as_html:
+        return u"<table>{}</table>".format(u''.join([s.as_html()
+            for s in [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]]))
+    else:
+        return [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]
 
 def load_recipe_json(recipe_files):
     base_recipes = OrderedDict()
