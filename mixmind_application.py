@@ -23,7 +23,7 @@ configure_uploads(app, (datafiles,))
 
 
 class MixMindServer():
-    def __init__(self, recipes=['recipes_schubar.json'], barstock_files=['castlemeadow.csv', 'christmas_schubar.csv']):
+    def __init__(self, recipes=['recipes_schubar.json'], barstock_files=['BarSchueyStock.csv', 'christmas_schubar.csv']):
         self.recipe_files = recipes
         self.barstock_files = barstock_files
         base_recipes = util.load_recipe_json(recipes)
@@ -81,6 +81,12 @@ class DrinksForm(Form):
     glass = SelectField("Glass", description="Include drinks matching the glass type such as cocktail or rocks", choices=pairs(['','cocktail','rocks','highball','flute','shot']))
     prep = SelectField("Prep", description="Include drinks matching the prep method such as shake or build", choices=pairs(['','shake', 'stir', 'build']))
     ice = SelectField("Ice", description="Include drinks matching the ice used such as crushed", choices=pairs(['','cubed','chushed','neat']))
+
+    # sorting options
+    # name
+    # main ingredient
+    # price
+    # IBA classification
 
     # pdf options
     pdf_filename = TextField("Filename to use", description="Basename of the pdf and tex files generated", default="web_drinks_file")
@@ -189,6 +195,27 @@ def menu_download():
         flash("Error in form validation")
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
+@app.route("/select/", methods=['GET', 'POST'])
+def mainpage_filter_only():
+    form = DrinksForm(request.form)
+    print form.errors
+    recipes = []
+    excluded = None
+
+    if request.method == 'POST':
+        if form.validate():
+            print request
+            display_options = util.DisplayOptions(False,False,False,False,0,False,False,True,True)
+            filter_options = bundle_options(util.FilterOptions, form)
+            recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+            recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
+            flash("Settings applied. Showing {} available recipes".format(len(recipes)))
+        else:
+            flash("Error in form validation")
+
+    return render_template('filter_only.html', form=form, recipes=recipes, excluded=excluded)
+
+
 @app.route("/recipes/", methods=['GET','POST'])
 def recipes():
     global mms
@@ -223,6 +250,14 @@ def ingredients():
             row['Size (mL)'] = float(form.size_ml.data)
             row['Price Paid'] = float(form.price.data)
             mms.barstock.add_row(row)
+
+        elif 'remove-ingredient' in request.form:
+            bottle = form.bottle.data
+            if bottle in mms.barstock.df.Bottle.values:
+                mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
+                flash("Removed {}".format(bottle))
+            else:
+                flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle))
 
         elif 'upload-csv' in request.form:
             filename = datafiles.save(request.files['upload_csv'])
