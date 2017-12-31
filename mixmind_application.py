@@ -30,7 +30,10 @@ class MixMindServer():
         self.barstock = Barstock.load(barstock_files, True)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
     def get_ingredients_table(self):
-        table = self.barstock.sorted_df().to_html(index=False,
+        df = self.barstock.sorted_df()
+        df.Proof = df.Proof.astype('int')
+        df['Size (mL)'] = df['Size (mL)'].astype('int')
+        table = df.to_html(index=False,
                 columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
         return table
 mms = MixMindServer()
