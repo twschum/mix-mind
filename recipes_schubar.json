@@ -69,7 +69,7 @@
             "any spirit": 1.5,
             "aromatic bitters": "1 to 2 dashes",
             "water": "1 tsp",
-            "sugar": "1 tsp"
+            "sugar (or sugar cube)": "1 tsp"
         },
         "glass": "rocks",
         "prep": "build",
@@ -215,7 +215,7 @@
         "ingredients": {
             "Champagne": 3,
             "aromatic bitters": "4 to 6 dashes",
-            "sugar": "1 tsp"
+            "sugar (or sugar cube)": "1 tsp"
         },
         "prep": "build",
         "ice": "neat",
