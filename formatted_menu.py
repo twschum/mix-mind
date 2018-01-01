@@ -88,7 +88,7 @@ def format_recipe(recipe, display_opts):
         #name_line.append(superscript(NoEscape('\dag')))
 
     if display_opts.prices and recipe.max_cost:
-        price = int(((recipe.max_cost+1) * float(display_opts.markup)) +1)
+        price = util.calculate_price(recipe.max_cost, display_opts.markup)
         name_line.append(DotFill())
         name_line.append(superscript('$'))
         name_line.append(price)
@@ -136,7 +136,7 @@ def format_recipe_html(recipe, display_opts):
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
-            price = int(((recipe.max_cost+1) * float(display_opts.markup)) +1)
+            price = util.calculate_price(recipe.max_cost, display_opts.markup)
             name_line.append('  -  {}{}'.format(sup('$'), price))
         doc.asis(close(''.join(name_line), 'h4'))
 

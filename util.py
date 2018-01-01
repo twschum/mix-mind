@@ -128,11 +128,8 @@ def to_fraction(amount):
     numer = fraction.numerator % fraction.denominator
     return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, fraction.denominator)
 
-def calculate_price(cost, markup, rounded=True):
-    price = (cost+1) * markup
-    if rounded:
-        price = int(price+1)
-    return price
+def calculate_price(cost, markup):
+    return int(((cost + 1) * float(markup)) +1)
 
 def calculate_std_drinks(proof, amount, unit):
     """ Standard drink is 1.5 oz or 45 ml at 80 proof
