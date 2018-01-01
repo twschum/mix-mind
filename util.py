@@ -62,7 +62,7 @@ class StatTracker(dict):
             .format(self._title_width+1, self._name_width+1).format(**self)
 
     def as_html(self):
-        return u"<tr><td> {{title:{}}} </td><td> {{drink_name:{}}} </td><td> ${{cost:.2f}} </td><td> {{abv:>5.2f}}% ABV </td><td> {{std_drinks:.2f}} </td><td> {{bottles}} </td></tr>"\
+        return u"<tr><td> {{title:{}}} </td><td> {{drink_name:{}}} </td><td> ${{cost:.2f}} </td><td> {{abv:>5.2f}}% ABV </td><td> {{std_drinks:.2f}} </td><td style:text-align=left> {{bottles}} </td></tr>"\
             .format(self._title_width+1, self._name_width+1).format(**self)
 
     def update_stat(self, recipe):
@@ -91,7 +91,7 @@ def report_stats(recipes, as_html=False):
             least_booze.update_stat(recipe)
             least_abv.update_stat(recipe)
     if as_html:
-        return u"<table>{}</table>".format(u''.join([s.as_html()
+        return u"<table class=dataframe>{}</table>".format(u''.join([s.as_html()
             for s in [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]]))
     else:
         return [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]
