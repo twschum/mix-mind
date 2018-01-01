@@ -33,6 +33,7 @@ class MixMindServer():
         df = self.barstock.sorted_df()
         df.Proof = df.Proof.astype('int')
         df['Size (mL)'] = df['Size (mL)'].astype('int')
+        df = df[df.Category != 'Ice']
         table = df.to_html(index=False,
                 columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
         return table
@@ -168,6 +169,7 @@ def mainpage():
     print form.errors
     recipes = []
     excluded = None
+    stats = None
 
     if request.method == 'POST':
         if form.validate():
