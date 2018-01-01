@@ -91,7 +91,7 @@ def report_stats(recipes, as_html=False):
             least_booze.update_stat(recipe)
             least_abv.update_stat(recipe)
     if as_html:
-        return u"<table class=dataframe>{}</table>".format(u''.join([s.as_html()
+        return u"<table class=statsbloc><thead><th></th><th>Drink</th><th style='text-align: right;'>Cost</th><th style='text-align: right;'>Est ABV</th><th style='text-align: right;'>Std Drinks</th><th>Ingredients</th></thead><tbody>{}</tbody></table>".format(u''.join([s.as_html()
             for s in [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]]))
     else:
         return [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]

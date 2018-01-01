@@ -157,8 +157,10 @@ def recipes_from_options(form, to_html=False):
     recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
     if form.convert.data:
         map(lambda r: r.convert(form.convert.data), recipes)
-    if form.stats and recipes:
+    if display_options.stats and recipes:
         stats = util.report_stats(recipes, as_html=True)
+    else:
+        stats = None
     if to_html:
         recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
     return recipes, excluded, stats
@@ -212,7 +214,7 @@ def mainpage_filter_only():
     if request.method == 'POST':
         if form.validate():
             print request
-            display_options = util.DisplayOptions(False,False,False,False,0,False,False,True,True)
+            display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True)
             filter_options = bundle_options(util.FilterOptions, form)
             recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
             recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
