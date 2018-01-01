@@ -6,10 +6,10 @@ from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniP
         FlushRight, FlushLeft, NewPage, \
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
-
 import yattag
-
 import time
+
+import util
 
 class TitleText(HugeText):
     _latex_name = 'LARGE'
