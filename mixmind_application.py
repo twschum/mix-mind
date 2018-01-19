@@ -6,6 +6,7 @@ from wtforms import validators, widgets, Form, Field, FormField, FieldList, Text
 from werkzeug.utils import secure_filename
 
 import os
+import random
 
 import recipe as drink_recipe
 import util
@@ -218,7 +219,11 @@ def mainpage_filter_only():
             filter_options = bundle_options(util.FilterOptions, form)
             recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
             recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
-            flash("Settings applied. Showing {} available recipes".format(len(recipes)))
+            if 'suprise-menu' in request.form:
+                recipes = [random.choice(recipes)]
+                flash("Bartender's choice applied. Just try again if you want something else!")
+            else:
+                flash("Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
             flash("Error in form validation")
 
