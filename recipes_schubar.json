@@ -475,6 +475,20 @@
         "garnish": "Cinnamon stick"
     },
 
+    "Scofflaw": {
+        "info": "Name given to those who drank during Prohibition",
+        "style": "After Dinner Cocktail",
+        "ingredients": {
+            "rye whiskey": 40,
+            "dry vermouth": 30,
+            "Grenadine": 20,
+            "lime juice": 25,
+            "orange bitters": "2 dashes"
+        },
+        "unit": "mL",
+        "garnish": "Orange twist"
+    },
+
     "Cowboy Martini": {
         "info": "Gin heavy, but more approachable than a classic Martini",
         "style": "Before Dinner Cocktail",
