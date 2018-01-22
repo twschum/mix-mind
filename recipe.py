@@ -13,7 +13,6 @@ import util
 
 # water volume added by preperation method for ABV estimate
 # TODO by ice and prep instead -e.g. build, highball, cubed vs build, flute, neat
-# TODO ignore (notes) in ingredients
 WATER_BY_PREP = {'shake': 1.65, 'stir': 1.3, 'build': 1.0}
 
 class RecipeError(StandardError):
@@ -151,6 +150,9 @@ class DrinkRecipe(object):
                 max_amount = amount
                 max_ingredient = i.specifier.what
         return max_ingredient
+
+    def first_ingredient(self):
+        return self.ingredients[0].specifier
 
     def contains_ingredient(self, ingredient, include_optional=False):
         ingredient = ingredient.lower()

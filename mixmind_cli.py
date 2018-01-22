@@ -5,7 +5,7 @@ Turn recipes json into a readable menu
 
 import argparse
 import cPickle as pickle
-from collections import Counter
+from collections import Counter, defaultdict
 
 import pandas as pd
 
@@ -178,6 +178,12 @@ def main():
         return
 
     if args.command == 'txt':
+        groups = defaultdict(list)
+        for recipe in recipes:
+            groups[str(recipe.first_ingredient())].append(recipe)
+        from pprint import pprint; import pandas as pd; pd.set_option('display.expand_frame_repr', False); import ipdb; ipdb.set_trace();
+        print groups.keys()
+
         if args.names or args.ingredients:
             if args.ingredients and len(recipes):
                 name_w = max((len(recipe.name) for recipe in recipes))
