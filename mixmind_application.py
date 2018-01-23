@@ -24,7 +24,7 @@ configure_uploads(app, (datafiles,))
 
 
 class MixMindServer():
-    def __init__(self, recipes=['recipes_schubar.json'], barstock_files=['BarSchueyStock.csv', 'christmas_schubar.csv']):
+    def __init__(self, recipes=['recipes_schubar.json'], barstock_files=['Barstock - Sheet1.csv']):
         self.recipe_files = recipes
         self.barstock_files = barstock_files
         base_recipes = util.load_recipe_json(recipes)
