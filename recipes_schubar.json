@@ -479,13 +479,12 @@
         "info": "Name given to those who drank during Prohibition",
         "style": "After Dinner Cocktail",
         "ingredients": {
-            "rye whiskey": 40,
-            "dry vermouth": 30,
-            "Grenadine": 20,
-            "lime juice": 25,
+            "rye whiskey": 1.5,
+            "dry vermouth": 1,
+            "Grenadine": 0.5,
+            "lime juice": 0.75,
             "orange bitters": "2 dashes"
         },
-        "unit": "mL",
         "garnish": "Orange twist"
     },
 
