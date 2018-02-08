@@ -27,6 +27,7 @@
             "aromatic bitters": "dash"
         },
         "variants": ["Rum-hattan: spiced rum, sweet vermouth, orange bitters",
+                     "Rob Roy: substitute Scotch whisky",
                      "Reverse Manhattan: 2 parts vermouth to 1 part whiskey"],
         "profile": ["strong"],
         "prep": "stir",
@@ -96,7 +97,10 @@
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
-            "honey syrup": 0.75
+            "honey syrup": 0.75,
+            "optional": {
+                "lavender bitters": "2 dashes"
+            }
         },
         "profile": ["tangy", "citrusy"],
         "garnish": "Orange twist"
