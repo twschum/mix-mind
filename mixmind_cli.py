@@ -165,8 +165,7 @@ def main():
             print stat
 
     if args.command == 'pdf':
-        # sort recipes loosely by approximate display length
-        #recipes.sort(key=lambda r: len(str(r).split('\n'))/3, reverse=True)
+        #recipes.sort(key=lambda x: x.name)
         if not args.barstock:
             if args.liquor_list or args.liquor_list_own_page or args.examples or args.prices:
                 print "Must have a barstock file for these options"
