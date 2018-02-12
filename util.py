@@ -26,7 +26,7 @@ def filter_recipes(all_recipes, filter_options):
         recipes = [recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
                 for ingredient in filter_options.exclude))]
-    for attr in 'style glass prep ice name'.split():
+    for attr in 'style list glass prep ice name'.split():
         recipes = filter_on_attribute(recipes, filter_options, attr)
 
     def get_names(items):

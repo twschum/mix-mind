@@ -174,16 +174,15 @@ def main():
             barstock_df = None
         else:
             barstock_df = barstock.df
-        pdf_options = bundle_options(PdfOptions, args)
+        pdf_options = bundle_options(util.PdfOptions, args)
         formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, barstock_df)
         return
 
     if args.command == 'txt':
         groups = defaultdict(list)
-        for recipe in recipes:
-            groups[str(recipe.first_ingredient())].append(recipe)
-        from pprint import pprint; import pandas as pd; pd.set_option('display.expand_frame_repr', False); import ipdb; ipdb.set_trace();
-        print groups.keys()
+        #for recipe in recipes:
+            #groups[str(recipe.first_ingredient())].append(recipe)
+        #print groups.keys()
 
         if args.names or args.ingredients:
             if args.ingredients and len(recipes):
