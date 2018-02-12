@@ -37,6 +37,7 @@
     },
 
     "Margarita": {
+        "info": "A clean, classic version of the iconic tequila sour",
         "style": "All Day Cocktail",
         "list": "core",
         "ingredients": {
@@ -104,10 +105,10 @@
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
-            "honey syrup": 0.75,
-            "optional": {
-                "lavender bitters": "2 dashes"
-            }
+            "honey syrup": 0.75
+        },
+        "optional": {
+            "lavender bitters": "2 dashes"
         },
         "profile": ["tangy", "citrusy"],
         "garnish": "Orange twist"
@@ -180,7 +181,9 @@
             "dry vermouth": 0.5
         },
         "prep": "shake",
-        "variants": ["Silver Bronx: add egg white", "Income Tax: add Angostura"],
+        "variants": ["Silver Bronx: add egg white",
+                     "Income Tax: add Angostura",
+                     "Satan's Whiskers: add orange liqueur all at 1/2 oz, and a dash of orange bitters"],
         "origin": "The Savoy Cocktail Book",
         "garnish": "Orange zest"
     },
@@ -201,6 +204,7 @@
     },
 
     "The Fitzgerald": {
+        "info": "Bitters add roundness and subtle complexity",
         "style": "All Day Cocktail",
         "list": "core",
         "ingredients": {
@@ -302,6 +306,7 @@
     },
 
     "Gin Rickey": {
+        "info": "Versatile longdrink format, with many simple variants",
         "style": "Longdrink",
         "list": "core",
         "ingredients": {
@@ -313,20 +318,10 @@
         "profile": ["tangy", "citrusy"],
         "prep": "build",
         "glass": "collins",
-        "variants": ["Circus Rickey: Add 1 dash of Grenadine"]
-    },
-
-    "Gin Buck": {
-        "style": "Longdrink",
-        "ingredients": {
-            "dry gin": 2,
-            "lime juice": 0.75,
-            "ginger beer": "Top with"
-        },
-        "profile": ["tangy", "citrusy"],
-        "prep": "build",
-        "glass": "collins",
-        "misc": "Squeezed shell of 1/2 a lime"
+        "variants": ["Circus Rickey: Add 1 dash of Grenadine",
+                     "Tom Collins: Swap in lemon and add some sugar",
+                     "Gin Buck: Swap in ginger beer",
+                     "Gin Fizz: Swap in lemon"]
     },
 
     "Tom Collins": {
@@ -340,17 +335,6 @@
         "profile": ["tangy", "citrusy"],
         "prep": "build",
         "glass": "collins"
-    },
-
-    "Gin Fizz": {
-        "style": "Longdrink",
-        "ingredients": {
-            "dry gin": 2,
-            "lime juice": 0.75,
-            "soda water": "Top with"
-        },
-        "prep": "shake",
-        "glass": "rocks"
     },
 
     "White Lady": {
@@ -428,6 +412,7 @@
     },
 
     "Small-Dinger": {
+        "info": "Originates at a small, dockside Florida bar",
         "style": "All Day Cocktail",
         "list": "core",
         "ingredients": {
@@ -534,10 +519,10 @@
         "style": "After Dinner Cocktail",
         "list": "core",
         "ingredients": {
-            "whiskey": 1.5,
-            "Cognac": 1.5,
-            "maple syrup": 0.5,
-            "aromatic bitters": "2 dashes"
+            "whiskey": 0.75,
+            "Cognac": 0.75,
+            "maple syrup": 0.25,
+            "aromatic bitters": "dash"
         },
         "glass": "rocks",
         "garnish": "Cinnamon stick"
