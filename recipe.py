@@ -66,7 +66,7 @@ class DrinkRecipe(object):
         return '\n'.join(lines)
 
     def __repr__(self):
-        return "{}:{},[{}]".format(self.__class__.__name__, self.name, ','.join((i.__repr__() for i in self.ingredients)))
+        return "{}:{}".format(self.__class__.__name__, self.name)
 
     def prep_line(self, extended=True, caps=True):
         case_fn = string.upper if caps else string.lower
