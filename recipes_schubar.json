@@ -37,7 +37,7 @@
     },
 
     "Margarita": {
-        "info": "A clean, classic version of the iconic tequila sour",
+        "info": "Classic version of the tequila icon",
         "style": "All Day Cocktail",
         "list": "core",
         "ingredients": {
@@ -50,7 +50,7 @@
     },
 
     "Rye Whiskey Sour": {
-        "info": "The most popular drink among regulars",
+        "info": "Most popular drink among regulars",
         "list": "core",
         "style": "All Day Cocktail",
         "ingredients": {
@@ -115,11 +115,11 @@
     },
 
     "Honey Flannel": {
-        "info": "The best thing to do with fresh honey on a crisp day",
+        "info": "Co-created with Brent Zablocki",
         "style": "All Day Cocktail",
         "list": "core",
         "ingredients": {
-            "amber rum": 1.5,
+            "amber rum": 1,
             "brandy": 0.75,
             "honey syrup": 0.75,
             "lemon juice": 0.75
@@ -230,23 +230,6 @@
         "origin": "Schubar original"
     },
 
-    "French 75": {
-        "style": "Sparkling Cocktail",
-        "info": "An early form was created in 1915 at the New York Bar in Paris. The combination was said to have such a kick that it felt like being shelled with the powerful French 75mm field gun ",
-        "list": "core",
-        "ingredients": {
-            "dry gin": 1.5,
-            "lemon juice": 0.75,
-            "simple syrup": 0.75,
-            "Champagne": 3
-        },
-        "profile": ["tangy", "citrusy"],
-        "variants": ["French 125: Use Cognac instead of gin"],
-        "prep": "build",
-        "ice": "neat",
-        "glass": "flute"
-    },
-
     "Champagne Cocktail": {
         "style": "Sparkling Cocktail",
         "info": "Classic Cocktail topped off with bubbly",
@@ -283,6 +266,23 @@
         },
         "profile": ["tangy", "citrusy"],
         "garnish": "Fresh mint sprig or cucumber slice"
+    },
+
+    "French 75": {
+        "style": "Sparkling Cocktail",
+        "info": "An early form was created in 1915 at the New York Bar in Paris. The combination was said to have such a kick that it felt like being shelled with the powerful French 75mm field gun ",
+        "list": "core",
+        "ingredients": {
+            "dry gin": 1.5,
+            "lemon juice": 0.75,
+            "simple syrup": 0.75,
+            "Champagne": 3
+        },
+        "profile": ["tangy", "citrusy"],
+        "variants": ["French 125: Use Cognac instead of gin"],
+        "prep": "build",
+        "ice": "neat",
+        "glass": "flute"
     },
 
     "Negroni": {
@@ -368,7 +368,7 @@
     },
 
     "Between the Sheets": {
-        "info": "Popular \"sexy cocktail\" of the Prohibition era",
+        "info": "Popular Prohibition era \"sexy cocktail\"",
         "style": "All Day Cocktail",
         "list": "core",
         "ingredients": {
@@ -469,6 +469,7 @@
     },
 
     "Kamikaze": {
+        "info": "Clean and simple sour, without the heavy or herbal flavors of other spirits",
         "style": "All Day Cocktail",
         "list": "core",
         "ingredients": {
@@ -481,6 +482,7 @@
 
     "Moscow Mule (Vodka Buck)": {
         "style": "Longdrink",
+        "list": "core",
         "ingredients": {
             "vodka": 2,
             "ginger beer": "Top with"
