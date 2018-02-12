@@ -10,7 +10,7 @@ import inspect
 
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
-FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice,name')
+FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,list,glass,prep,ice,name')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 
 VALID_UNITS = ['oz', 'mL', 'cL']
