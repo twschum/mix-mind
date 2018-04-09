@@ -19,7 +19,7 @@ def get_parser():
     p = argparse.ArgumentParser(description="""
 MixMind Drink Menu Generator by twschum
 You'll need:
- - A json file of recipes  TODO add a jsonschema
+A json file of recipes  TODO add a jsonschema
 {{
     "Martini": {{
         "info": "The King of Cocktails",
@@ -32,23 +32,24 @@ You'll need:
         }},
         "variants": ["Reverse Martini: 5 parts vermouth to 1 part gin",
                      "Perfect Martini: equal parts dry and sweet vermouth"],
-        "unit": "oz",
-        "prep": "stir",
-        "ice": "none",
-        "glass": "martini",
+        "misc": "This line shows up below the ingredients",
+        "unit": "oz", # or mL, whatever the primary unit is for ingredients
+        "prep": "stir", # shake, build, throw
+        "ice": "none", # cubed, crushed
+        "glass": "martini", # rocks, collins, flute, cocktail
         "garnish": "Lemon twist or olives"
     }}
 }}
- - A csv of liquer bottles based on the following format:
-Category  Type              Bottle           In Stock  Proof  Size (mL)  Price Paid  Size (oz)  $/mL    $/oz
-Spirit    Rye Whiskey       Bulleit Rye      1         90     750        $28.96      25.4       $0.039  $1.14
-Spirit    Dry Gin           New Amsterdam    0         88     1750       $25.49      59.2       $0.015  $0.43
-Liqueur   Orange Liqueur    Triple Sec       1         30     750        $5.99       25.4       $0.008  $0.24
-Vermouth  Dry Vermouth      Noilly Prat Dry  1         32     375        $6.99       12.7       $0.019  $0.55
-Bitters   Aromatic Bitters  Angostura        1         89.4   118        $7.95       4.0        $0.067  $1.99
-Syrup     Simple Syrup      Homemade         1         0      4000       $2.79       135.3      $0.001  $0.02
-Juice     Lemon Juice       Fresh            1         0      45         $0.80       1.5        $0.018  $0.53
-Mixer     Club Soda         Club Soda        0         0      178        $1.00       6.0        $0.006  $0.17
+A csv of ingredients based on the following format:
+Category  Type              Bottle           In Stock  Proof  Size (mL)  Price Paid
+Spirit    Rye Whiskey       Bulleit Rye      1         90     750        $28.96
+Spirit    Dry Gin           New Amsterdam    0         88     1750       $25.49
+Liqueur   Orange Liqueur    Triple Sec       1         30     750        $5.99
+Vermouth  Dry Vermouth      Noilly Prat Dry  1         32     375        $6.99
+Bitters   Aromatic Bitters  Angostura        1         89.4   118        $7.95
+Syrup     Simple Syrup      Homemade         1         0      4000       $2.79
+Juice     Lemon Juice       Fresh            1         0      45         $0.80
+Mixer     Club Soda         Club Soda        0         0      178        $1.00
 
 Example usage:
     {} -b 'Barstock.csv' -r 'my_recipes.json' -p -e -i lime rum -x 'lemon juice'  pdf my_menu -n 2 -l
