@@ -116,6 +116,7 @@ def main():
     args = get_parser().parse_args()
     display_options = bundle_options(util.DisplayOptions, args)
     filter_options = bundle_options(util.FilterOptions, args)
+    pd.set_option('display.expand_frame_repr', False)
 
     if args.command == 'test':
         print "This is a test"
