@@ -669,5 +669,59 @@
             "simple syrup": 0.75,
             "grapefruit juice": 1
         }
+    },
+
+    "Grapefruit Julip": {
+        "style": "All Day Cocktail",
+        "unit": "mL",
+        "ingredients": {
+            "vodka": 40,
+            "grapefruit juice": 40,
+            "lime juice": 15,
+            "honey syrup": 15,
+            "mint syrup": 15,
+            "Grenadine": 10
+        },
+        "glass": "collins",
+        "ice": "crushed",
+        "prep": "shake",
+        "garnish": "Mint leaves with a grapefruit twist"
+    },
+
+    "Reality Check": {
+        "style": "All Day Cocktail",
+        "info": "Becherovka is a cinnamon and clove liqueur",
+        "unit": "mL",
+        "ingredients": {
+            "raspberries": "five",
+            "vodka": 20,
+            "Becherovka liqueur": 20,
+            "lime juice": 7.5,
+            "simple syrup": 10,
+            "aromatic bitters": "dash",
+            "lager": 90
+        },
+        "glass": "pint",
+        "prep": "thrown"
+    },
+
+    "Russian Spring Punch": {
+        "style": "All Day Cocktail",
+        "info": "Becherovka is a cinnamon and clove liqueur",
+        "unit": "mL",
+        "ingredients": {
+            "raspberries": "seven",
+            "raspberry liqueur": 7.5,
+            "Creme de Cassis": 7.5,
+            "simple syrup": 10,
+            "lemon juice": 25,
+            "vodka": 50,
+            "Champagne": "top with"
+        },
+        "glass": "collins",
+        "ice": "cubed",
+        "prep": "built",
+        "garnish": "Flag of lemon peel and raspberries"
     }
+
 }

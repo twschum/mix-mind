@@ -242,7 +242,7 @@ class QuantizedIngredient(Ingredient):
                 else:
                     raise RecipeError("Unknown format for drop amount: {} {}".format(raw_quantity, type_str))
 
-            elif raw_quantity in ['one', 'two', 'three', 'four', 'five', 'six']:
+            elif raw_quantity in ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']:
                 self.amount = raw_quantity
                 self.unit = 'literal'
             else:
