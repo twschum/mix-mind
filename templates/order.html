@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% from "_helpers.html" import header, footer %}
+{{ header("Schubar - Place Order ") }}
+
+    <!-- Main form -->
+    <div class="container">
+      <div class="row" id="navigation">
+        <div class="col"><a href="/select/">Back</a></div>
+      </div>
+      <h2>Place Order</h2>
+      {% if show_form %}
+      {% from "_formhelpers.html" import render_field %}
+      <form  id="menu-settings" action="" method="post" role="form">
+        {{ form.csrf }}
+        <div class="form-group">
+            {{ recipe | safe }}
+            {{ render_field(form.notes) }}
+        </div>
+        <input type="submit" name="submit-order" class="btn btn-success" value="Submit Order"></input>
+        <input type="submit" name="cancel-order" class="btn btn-danger" value="Cancel"></input>
+      </form>
+      {% endif %}
+
+      <!-- Show flashed messaged -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <br></br>
+
+      {% for message in messages %}
+      {% if "Error" not in message[1]: %}
+      <div class="alert alert-info">
+        <strong>Success! </strong> {{ message[1] }}
+      </div>
+      {% endif %}
+
+      {% if "Error" in message[1]: %}
+      <div class="alert alert-warning">
+        {{ message[1] }}
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      </div> <!-- top level container -->
+{{ footer() }}

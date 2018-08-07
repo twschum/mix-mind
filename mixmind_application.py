@@ -148,6 +148,11 @@ class BarstockForm(Form):
     size_ml = DecimalField("Size (mL)", description="Size of the ingredient in mL", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
     price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=2000)])
 
+class OrderForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+    notes = TextField("Notes:", description="Additional instructions for the order")
 
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
@@ -228,6 +233,38 @@ def mainpage_filter_only():
             flash("Error in form validation")
 
     return render_template('filter_only.html', form=form, recipes=recipes, excluded=excluded)
+
+@app.route("/order/<recipe_name>", methods=['GET', 'POST'])
+def order(recipe_name):
+    form = OrderForm(request.form)
+    recipe = None
+    show_form = False
+
+    # TODO failure mode because of missing ingredients
+
+    if request.method == 'GET':
+        recipe = util.find_recipe(mms.recipes, recipe_name)
+        if not recipe:
+            flash('Error: unknown recipe "{}"'.format(recipe_name))
+        else:
+            display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True) # TODO make var
+            recipe = formatted_menu.format_recipe_html(recipe, display_options)
+            show_form = True
+
+    if request.method == 'POST':
+        if 'submit-order' in request.form:
+            if form.validate():
+                # get request arg
+                print "order email sent! with note: {}".format(form.notes.text)
+                flash("Successfully placed order!")
+            else:
+                flash("Error in form validation")
+        elif 'cancel-order' in request.form:
+            flash("Order canceled")
+
+    # either provide the recipe and the form,
+    # or after the post show the result
+    return render_template('order.html', form=form, recipe=recipe, show_form=show_form)
 
 
 @app.route("/recipes/", methods=['GET','POST'])
