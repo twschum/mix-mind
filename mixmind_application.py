@@ -4,6 +4,7 @@ from flask import Flask, render_template, flash, request, send_file
 from flask_uploads import UploadSet, DATA, configure_uploads
 from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField
 from werkzeug.utils import secure_filename
+import urllib
 
 import os
 import random
@@ -223,7 +224,8 @@ def mainpage_filter_only():
             display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True)
             filter_options = bundle_options(util.FilterOptions, form)
             recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options, order_link=True) for recipe in recipes]
+            recipes = [formatted_menu.format_recipe_html(recipe, display_options,
+                order_link="/order/{}".format(urllib.quote_plus(recipe.name))) for recipe in recipes]
             if 'suprise-menu' in request.form:
                 recipes = [random.choice(recipes)]
                 flash("Bartender's choice applied. Just try again if you want something else!")
@@ -237,6 +239,7 @@ def mainpage_filter_only():
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
     form = OrderForm(request.form)
+    recipe_name = urllib.unquote_plus(recipe_name)
     recipe = None
     show_form = False
 

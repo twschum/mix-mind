@@ -115,7 +115,7 @@ def format_recipe(recipe, display_opts):
     recipe_page.append(Command('par'))
     return recipe_page
 
-def format_recipe_html(recipe, display_opts):
+def format_recipe_html(recipe, display_opts, order_link=None):
     """ use yattag lib to build an html blob contained in a div for the recipe"""
     doc, tag, text, line = yattag.Doc().ttl()
 
@@ -129,10 +129,15 @@ def format_recipe_html(recipe, display_opts):
         return close(s, 'sup')
     def small_br(s):
         return small(s+'<br>')
+    def wrap_link(link, s):
+        return '<a href={}>{}</a>'.format(link, s)
 
     with tag('div', id=recipe.name):
-
-        name_line = [recipe.name]
+        if order_link:
+            name_line = [wrap_link(order_link, recipe.name)]
+        else:
+            name_line = [recipe.name]
+        # add link to order functionality here
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
