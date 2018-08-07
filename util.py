@@ -9,6 +9,7 @@ import json
 import inspect
 
 # make passing a bunch of options around a bit cleaner
+# TODO make new tag field to replace what the "list" field was
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
 FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice,name')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
@@ -34,6 +35,12 @@ def filter_recipes(all_recipes, filter_options):
     excluded = sorted(list(get_names(all_recipes) - get_names(recipes)))
     print "    Can't make: {}\n".format(', '.join(excluded))
     return recipes, excluded
+
+def find_recipe(recipes, name):
+    for recipe in recipes:
+        if recipe.name == name:
+            return recipe
+    return None
 
 def filter_on_attribute(recipes, filter_options, attribute):
     if getattr(filter_options, attribute):
