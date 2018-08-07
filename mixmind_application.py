@@ -258,7 +258,7 @@ def order(recipe_name):
         if 'submit-order' in request.form:
             if form.validate():
                 # get request arg
-                print "order email sent! with note: {}".format(form.notes.text)
+                print "order email sent! with note: {}".format(form.notes.data)
                 flash("Successfully placed order!")
             else:
                 flash("Error in form validation")
