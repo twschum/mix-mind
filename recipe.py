@@ -100,6 +100,8 @@ class DrinkRecipe(object):
         """
         ingredients = self._get_quantized_ingredients()
         example_bottles = barstock.get_all_bottle_combinations((i.specifier for i in ingredients))
+        del self.examples # need to make possible to run again
+        self.examples = []
         for bottles in example_bottles:
             # TODO refactor to generate IngredientSpecifiers for the bottle lists
             example = DrinkRecipe.RecipeExample(); example.bottles = []
