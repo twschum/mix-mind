@@ -71,7 +71,7 @@ class DrinksForm(Form):
     examples = BooleanField("Examples", description="Show specific examples of a recipe based on the ingredient stock")
     all_ingredients = BooleanField("All Ingredients", description="Show every ingredient instead of just the main liquors with each example")
     convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(util.VALID_UNITS), validators.Optional()])
-    markup = DecimalField("Markup", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.2)
+    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.2)
     info = BooleanField("Info", description="Show the info line for recipes")
     origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals")
     variants = BooleanField("Variants", description="Show variants for drinks")
@@ -218,7 +218,7 @@ def mainpage_filter_only():
             display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True)
             filter_options = bundle_options(util.FilterOptions, form)
             recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
+            recipes = [formatted_menu.format_recipe_html(recipe, display_options, order_link=True) for recipe in recipes]
             if 'suprise-menu' in request.form:
                 recipes = [random.choice(recipes)]
                 flash("Bartender's choice applied. Just try again if you want something else!")
@@ -264,11 +264,13 @@ def ingredients():
             row['Size (mL)'] = float(form.size_ml.data)
             row['Price Paid'] = float(form.price.data)
             mms.barstock.add_row(row)
+            mms.recipes = [recipe.generate_examples(mms.barstock) for recipe in  mms.recipes]
 
         elif 'remove-ingredient' in request.form:
             bottle = form.bottle.data
             if bottle in mms.barstock.df.Bottle.values:
                 mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
+                mms.recipes = [recipe.generate_examples(mms.barstock) for recipe in  mms.recipes]
                 flash("Removed {}".format(bottle))
             else:
                 flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle))
