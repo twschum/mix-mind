@@ -15,10 +15,10 @@
 
     <!-- Main form -->
     <div class="container">
-      <div class="row" id="navigation">
-        <div class="col"><a href="/">Browse</a></div>
-        <div class="col"><a href="/recipes/">Recipes</a></div>
-        <div class="col"><a href="/ingredients/">Ingredients</a></div>
+      <div class="row btn-group" id="navigation">
+        <form action="/"> <div class="col"> <input type="submit" class="btn btn-default" value="Browse"></input> </div> </form>
+        <form action="/recipes/"> <div class="col"> <input type="submit" class="btn btn-default" value="Recipes"></input> </div> </form>
+        <form action="/ingredients/"> <div class="col"> <input type="submit" class="btn btn-default" value="Ingredients"></input> </div> </form>
       </div>
       {% from "_formhelpers.html" import render_field %}
       <h2>Mix Mind Drink Menu Generator</h2>
