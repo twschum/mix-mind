@@ -145,6 +145,20 @@
         "garnish": "Flamed orange peel, mint, orange, or cherry"
     },
 
+    "Rude Cosmo": {
+        "style": "All Day Cocktail",
+        "unit": "mL",
+        "info": "Dale DeGroff riff on the classic Cosmopolitan",
+        "ingredients": {
+            "tequila": 40,
+            "orange liqueur": 20,
+            "cranberry juice": 10,
+            "lime juice": 20,
+            "orange bitters": "2 dashes"
+        },
+        "garnish": "Orange peel, preferably flamed"
+    },
+
     "Sidecar": {
         "info": "The first recipes for the Sidecar appear in 1922, in Harry MacElhone's \"Harry's ABC of Mixing Cocktails\"",
         "list": "core",
@@ -716,7 +730,7 @@
             "simple syrup": 10,
             "lemon juice": 25,
             "vodka": 50,
-            "Champagne": "top with"
+            "Champagne": "Top with"
         },
         "glass": "collins",
         "ice": "cubed",
