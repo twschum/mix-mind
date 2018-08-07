@@ -4,13 +4,8 @@
 
     <!-- Main form -->
     <div class="container">
-      <div class="row" id="navigation">
-        <div class="col"><a href="/">Home</a></div>
-        <div class="col"><a href="/recipes/">Recipes</a></div>
-        <div class="col"><a href="/ingredients/">Ingredients</a></div>
-      </div>
       {% from "_formhelpers.html" import render_field %}
-      <h2>Recipe Selector</h2>
+      <h2>Browse @Schubar</h2>
       <form  id="menu-settings" action="" method="post" role="form">
         {{ form.csrf }}
         <div class="form-group">
@@ -18,11 +13,11 @@
           <dl>
             {{ render_field(form.include) }}
             {{ render_field(form.exclude) }}
-            {{ render_field(form.use_or) }}
           </dl>
           <a href="#misc-filters" data-toggle="collapse"><h4>Miscellaneous Filters</h4></a>
             <div id="misc-filters" class="collapse">
             <dl>
+              {{ render_field(form.use_or) }}
               {{ render_field(form.name) }}
               {{ render_field(form.style) }}
               {{ render_field(form.glass) }}
@@ -36,7 +31,7 @@
             </dl>
           </div>
         </div>
-        <input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+        <input type="submit" name="apply-menu" class="btn btn-success" value="Apply Filter"></input>
         <input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
       </form>
 

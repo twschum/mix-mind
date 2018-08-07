@@ -16,12 +16,12 @@
     <!-- Main form -->
     <div class="container">
       <div class="row" id="navigation">
-        <div class="col"><a href="/select/">Selector</a></div>
+        <div class="col"><a href="/">Browse</a></div>
         <div class="col"><a href="/recipes/">Recipes</a></div>
         <div class="col"><a href="/ingredients/">Ingredients</a></div>
       </div>
       {% from "_formhelpers.html" import render_field %}
-      <h2>Mix Mind Drink Recipes</h2>
+      <h2>Mix Mind Drink Menu Generator</h2>
       <form  id="menu-settings" action="" method="post" role="form">
         {{ form.csrf }}
         <div class="form-group">

@@ -4,9 +4,6 @@
 
     <!-- Main form -->
     <div class="container">
-      <div class="row" id="navigation">
-        <div class="col"><a href="/select/">Back</a></div>
-      </div>
       <h2>Place Order</h2>
       {% if show_form %}
       {% from "_formhelpers.html" import render_field %}
@@ -41,6 +38,15 @@
       {% endfor %}
       {% endif %}
       {% endwith %}
+
+      <!-- return to main page -->
+      {% if not show_form %}
+      <div class="row" id="navigation">
+        <form action="/select/">
+          <div class="col"> <input type="submit" class="btn btn-primary" value="Back to Browse"></input> </div>
+        </form>
+      </div>
+      {% endif %}
 
       </div> <!-- top level container -->
 {{ footer() }}
