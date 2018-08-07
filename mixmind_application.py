@@ -172,7 +172,7 @@ def recipes_from_options(form, to_html=False):
         recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
     return recipes, excluded, stats
 
-@app.route("/", methods=['GET', 'POST'])
+@app.route("/main/", methods=['GET', 'POST'])
 def mainpage():
     form = DrinksForm(request.form)
     print form.errors
@@ -211,7 +211,7 @@ def menu_download():
         flash("Error in form validation")
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
-@app.route("/select/", methods=['GET', 'POST'])
+@app.route("/", methods=['GET', 'POST'])
 def mainpage_filter_only():
     form = DrinksForm(request.form)
     print form.errors
@@ -234,7 +234,7 @@ def mainpage_filter_only():
         else:
             flash("Error in form validation")
 
-    return render_template('filter_only.html', form=form, recipes=recipes, excluded=excluded)
+    return render_template('browse.html', form=form, recipes=recipes, excluded=excluded)
 
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
