@@ -14,6 +14,8 @@ import util
 import formatted_menu
 from barstock import Barstock
 
+# TODO refactor messages to look nicer
+
 # app config
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -31,6 +33,7 @@ class MixMindServer():
         base_recipes = util.load_recipe_json(recipes)
         self.barstock = Barstock.load(barstock_files, True)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
+        self.default_display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True)
     def get_ingredients_table(self):
         df = self.barstock.sorted_df()
         df.Proof = df.Proof.astype('int')
@@ -215,17 +218,18 @@ def menu_download():
 def mainpage_filter_only():
     form = DrinksForm(request.form)
     print form.errors
-    recipes = []
     excluded = None
+
+    def get_html_recipes(recipes):
+        return [formatted_menu.format_recipe_html(recipe, mms.default_display_options,
+                order_link="/order/{}".format(urllib.quote_plus(recipe.name))) for recipe in recipes]
 
     if request.method == 'POST':
         if form.validate():
             print request
-            display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True)
             filter_options = bundle_options(util.FilterOptions, form)
             recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options,
-                order_link="/order/{}".format(urllib.quote_plus(recipe.name))) for recipe in recipes]
+            recipes = get_html_recipes(recipes)
             if 'suprise-menu' in request.form:
                 recipes = [random.choice(recipes)]
                 flash("Bartender's choice applied. Just try again if you want something else!")
@@ -233,6 +237,9 @@ def mainpage_filter_only():
                 flash("Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
             flash("Error in form validation")
+
+    elif request.method == 'GET':
+        recipes = get_html_recipes(mms.recipes)
 
     return render_template('browse.html', form=form, recipes=recipes, excluded=excluded)
 
@@ -250,8 +257,7 @@ def order(recipe_name):
         if not recipe:
             flash('Error: unknown recipe "{}"'.format(recipe_name))
         else:
-            display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True) # TODO make var
-            recipe = formatted_menu.format_recipe_html(recipe, display_options)
+            recipe = formatted_menu.format_recipe_html(recipe, mms.default_display_options)
             show_form = True
 
     if request.method == 'POST':
