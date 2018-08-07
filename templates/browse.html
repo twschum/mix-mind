@@ -6,6 +6,8 @@
     <div class="container">
       {% from "_formhelpers.html" import render_field %}
       <h2>Browse @Schubar</h2>
+      <a href="#filters" data-toggle="collapse"><h4>Filters</h4></a>
+      <div id="filters" class="collapse">
       <form  id="menu-settings" action="" method="post" role="form">
         {{ form.csrf }}
         <div class="form-group">
@@ -14,7 +16,7 @@
             {{ render_field(form.include) }}
             {{ render_field(form.exclude) }}
           </dl>
-          <a href="#misc-filters" data-toggle="collapse"><h4>Miscellaneous Filters</h4></a>
+          <a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
             <div id="misc-filters" class="collapse">
             <dl>
               {{ render_field(form.use_or) }}
@@ -34,11 +36,11 @@
         <input type="submit" name="apply-menu" class="btn btn-success" value="Apply Filter"></input>
         <input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
       </form>
+      </div>
 
       <!-- Show flashed messaged -->
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-      <br></br>
 
       {% for message in messages %}
       {% if "Error" not in message[1]: %}

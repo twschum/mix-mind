@@ -21,7 +21,6 @@
       <!-- Show flashed messaged -->
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-      <br></br>
 
       {% for message in messages %}
       {% if "Error" not in message[1]: %}
