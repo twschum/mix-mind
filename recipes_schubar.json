@@ -1,7 +1,7 @@
 {
     "Martini": {
         "info": "The \"King of Cocktails\"",
-        "list": "core",
+        "tag": "core",
         "style": "Before Dinner Cocktail",
         "ingredients": {
             "dry gin": 2.5,
@@ -21,7 +21,7 @@
 
     "Manhattan": {
         "info": "An example of the perfect marriage between spirit, vermouth, & bitters",
-        "list": "core",
+        "tag": "core",
         "style": "Before Dinner Cocktail",
         "ingredients": {
             "rye whiskey": 2,
@@ -39,7 +39,7 @@
     "Margarita": {
         "info": "Classic version of the tequila icon",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "silver tequila": 2,
             "orange liqueur": 1,
@@ -51,7 +51,7 @@
 
     "Rye Whiskey Sour": {
         "info": "Most popular drink among regulars",
-        "list": "core",
+        "tag": "core",
         "style": "All Day Cocktail",
         "ingredients": {
             "rye whiskey": 1.5,
@@ -71,7 +71,7 @@
     "The Cocktail": {
         "info": "The original mixed drink, c. 1790s.",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "any spirit": 1.5,
             "aromatic bitters": "1 to 2 dashes",
@@ -86,7 +86,7 @@
     "Blackberry Garden": {
         "info": "Created after I made a batch of blackberry liqueur",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "brandy": 1,
             "blackberry liqueur": 1,
@@ -101,7 +101,7 @@
     "Bee's Knees": {
         "info": "Gin sour with honey",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
@@ -117,7 +117,7 @@
     "Honey Flannel": {
         "info": "Co-created with Brent Zablocki",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "amber rum": 1,
             "brandy": 0.75,
@@ -129,7 +129,7 @@
 
     "Mai-Tai": {
         "style": "Longdrink",
-        "list": "core",
+        "tag": "core",
         "info": "Legendary tiki cocktail taken back to its roots",
         "ingredients": {
             "amber rum": 2,
@@ -161,7 +161,7 @@
 
     "Sidecar": {
         "info": "The first recipes for the Sidecar appear in 1922, in Harry MacElhone's \"Harry's ABC of Mixing Cocktails\"",
-        "list": "core",
+        "tag": "core",
         "style": "All Day Cocktail",
         "ingredients": {
             "brandy": 2,
@@ -174,7 +174,7 @@
     "Box Car": {
         "info": "Gin cousin to the Sidecar",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
@@ -187,7 +187,7 @@
     "Bronx": {
         "info": "was ranked number three in \"The World's 10 Most Famous Cocktails in 1934\" after the Martini and Manhattan",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "orange juice": 1.5,
@@ -205,7 +205,7 @@
     "The Panky Hanky": {
         "info": "Riff on the Savoy classic, utilizing a bigger herbal punch of Fernet",
         "style": "Before Dinner Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "Fernet": 1.5,
@@ -220,7 +220,7 @@
     "The Fitzgerald": {
         "info": "Bitters add roundness and subtle complexity",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
@@ -233,7 +233,7 @@
     "Ruby Fizz": {
         "info": "Sarah Andrews wanted something, \"Fruity but, like, classy?\" This is what I came up with",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 2,
             "lemon juice": 0.75,
@@ -247,7 +247,7 @@
     "Champagne Cocktail": {
         "style": "Sparkling Cocktail",
         "info": "Classic Cocktail topped off with bubbly",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "Champagne": 5,
             "aromatic bitters": "4 to 6 dashes",
@@ -260,7 +260,7 @@
 
     "Rose, Fruit, & Smoke": {
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "tequila": 1.5,
             "simple syrup": 0.75,
@@ -272,20 +272,21 @@
 
     "Fresh Lime Gimlet": {
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "lime juice": 0.75,
             "simple syrup": 0.5
         },
         "profile": ["tangy", "citrusy"],
-        "garnish": "Fresh mint sprig or cucumber slice"
+        "garnish": "Fresh mint sprig or cucumber slice",
+        "variants": ["Aquavit Gimlet: substitute Aquavit for herbal depth"]
     },
 
     "French 75": {
         "style": "Sparkling Cocktail",
         "info": "An early form was created in 1915 at the New York Bar in Paris. The combination was said to have such a kick that it felt like being shelled with the powerful French 75mm field gun ",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "lemon juice": 0.75,
@@ -302,7 +303,7 @@
     "Negroni": {
         "style": "Before Dinner Cocktail",
         "info": "First mixed in Florence, 1919, at the request of Count Camillo Negroni",
-        "list": "core",
+        "tag": "core",
         "IBA_description": "Pour all ingredients directly into old-fashioned glass filled with ice. Stir gently.Garnish with half orange slice.",
         "unit": "cL",
         "ingredients": {
@@ -322,7 +323,7 @@
     "Gin Rickey": {
         "info": "Versatile longdrink format, with many simple variants",
         "style": "Longdrink",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 2,
             "lime juice": 0.75,
@@ -367,7 +368,7 @@
 
     "Brandy Daisy": {
         "style": "Longdrink",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "brandy": 1.5,
             "lemon juice": 0.75,
@@ -384,7 +385,7 @@
     "Between the Sheets": {
         "info": "Popular Prohibition era \"sexy cocktail\"",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "brandy": 0.75,
             "dry gin": 0.75,
@@ -396,7 +397,7 @@
     "Embassy": {
         "info": "Created by Eddie Brandsatter at his Prohibition era Hollywood club, The Embassy",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "brandy": 1,
             "amber rum": 1,
@@ -428,7 +429,7 @@
     "Small-Dinger": {
         "info": "Originates at a small, dockside Florida bar",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "white rum": 1,
             "dry gin": 1,
@@ -438,8 +439,9 @@
     },
 
     "Cuba Libre": {
+        "info": "Bitters bring a balance and sophistication to this classic refresher",
         "style": "Longdrink",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "rum": 1.5,
             "cola": 6,
@@ -450,8 +452,9 @@
     },
 
     "Jamaica Honey Bee": {
+        "info": "A decadently sweet, tropical sour",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "amber rum": 2,
             "honey syrup": 0.5,
@@ -471,7 +474,8 @@
         "prep": "stir"
     },
 
-    "Classic Cosmopolitan": {
+    "Cosmopolitan": {
+        "info": "A respectable and balanced cocktail when made fresh",
         "style": "All Day Cocktail",
         "ingredients": {
             "vodka": 1.5,
@@ -485,7 +489,7 @@
     "Kamikaze": {
         "info": "Clean and simple sour, without the heavy or herbal flavors of other spirits",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "vodka": 1.5,
             "orange liqueur": 0.75,
@@ -494,9 +498,10 @@
         }
     },
 
-    "Moscow Mule (Vodka Buck)": {
+    "Moscow Mule": {
+        "info": "Call it a mule or a buck, ginger beer & citrus with spirit is delicious",
         "style": "Longdrink",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "vodka": 2,
             "ginger beer": "Top with"
@@ -509,7 +514,7 @@
     "Amaretto Sour": {
         "info": "Just enough fresh tartness to balance the rich, sweet almond flavor",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "amaretto": 2,
             "lemon juice": 0.75
@@ -520,7 +525,7 @@
     "Japanese Cocktail #1": {
         "info": "One of the original 13 cocktails included in Jerry Thomas' revolutionary work, \"The Bar-Tender's Guide\" and likely the only one created by Jerry Thomas himself",
         "style": "After Dinner Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "Cognac": 2.5,
             "orgeat": 0.5,
@@ -533,7 +538,7 @@
     "Blue Christmas": {
         "info": "Inspired by the collection of short stories, Blue Christmas: Holiday Stories for the Rest of Us, by John Dufresne",
         "style": "After Dinner Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "whiskey": 0.75,
             "Cognac": 0.75,
@@ -547,7 +552,7 @@
     "Scofflaw": {
         "info": "Name given to those who drank during Prohibition",
         "style": "After Dinner Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "rye whiskey": 1.5,
             "dry vermouth": 1,
@@ -561,6 +566,7 @@
     "Cowboy Martini": {
         "info": "Gin heavy, but more approachable than a classic Martini",
         "style": "Before Dinner Cocktail",
+        "tag": "core",
         "ingredients": {
             "dry gin": 60,
             "simple syrup": 10,
@@ -574,7 +580,7 @@
     "Trinidad Sour": {
         "info": "This oddball cocktail was conceived by Giuseppe Gonzalez while he was at the celebrated Clover Club in Brooklyn",
         "style": "Before Dinner Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "aromatic bitters:Angostura": 1,
             "orgeat": 1,
@@ -589,7 +595,7 @@
     "Clipper Cocktail": {
         "info": "from Pan Am's North Pacific run, in the 1930s",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "white rum": 1.5,
             "dry vermouth": 1.5,
@@ -600,7 +606,7 @@
     "Vermouth De Mure": {
         "info": "Perfect refresher on a warm afternoon",
         "style": "Longdrink",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry vermouth": 3,
             "blackberry liqueur": 0.5,
@@ -616,7 +622,7 @@
     "Victory": {
         "info": "Light and herbal with lower alcohol content",
         "style": "All Day Cocktail",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry vermouth": 0.75,
             "sweet vermouth": 0.75,
@@ -630,6 +636,7 @@
     "The Vampire": {
         "info": "The missing link between modern and ancestral martini styles",
         "style": "Before Dinner Cocktail",
+        "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
             "dry vermouth": 1.5,
@@ -642,7 +649,7 @@
     "Aquavit Gimlet": {
         "style": "All Day Cocktail",
         "info": "Aquavit (ahh-ka-vitt) is a traditional scandinavian spirit with caraway and dill as the primary botanicals",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "aquavit": 1.5,
             "lime juice": 0.75,
@@ -653,7 +660,7 @@
     "Turf Cocktail": {
         "style": "Before Dinner Cocktail",
         "info": "Dutch cousin to the Manhattan from the early 20th century",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "genever": 2,
             "sweet vermouth": 1,
@@ -667,7 +674,7 @@
     "Last Word": {
         "style": "Before Dinner Cocktail",
         "info": "From the Detroit Athletic Club, first seen on their 1916 menu for 35 cents",
-        "list": "core",
+        "tag": "core",
         "ingredients": {
             "dry gin": 0.75,
             "Maraschino liqueur": 0.75,
