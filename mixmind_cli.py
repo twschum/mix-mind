@@ -76,7 +76,7 @@ Example usage:
     p.add_argument('--variants', action='store_true', help="Show variants for drinks")
 
     # filtering options
-    p.add_argument('-a', '--all', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
+    p.add_argument('-a', dest='all_', action='store_true', help="Include all ingredients from barstock whether or not that are marked in stock")
     p.add_argument('-i', '--include', nargs='+', help="Filter by ingredient(s) that must be contained in the recipe")
     p.add_argument('-x', '--exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
     p.add_argument('--or', dest='use_or', action='store_true', help="use logical OR for included and excluded ingredient lists instead of default AND")
@@ -145,7 +145,7 @@ def main():
     else:
         base_recipes = util.load_recipe_json(args.recipes)
         if args.barstock:
-            barstock = Barstock.load(args.barstock, args.all)
+            barstock = Barstock.load(args.barstock, args.all_)
             recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
                 for name, recipe in base_recipes.iteritems()]
         else:

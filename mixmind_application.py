@@ -19,10 +19,7 @@ from notifier import Notifier
 
 """
 NOTES:
-Images
-* Header on page regenerates GET to self
-* default markup
-* add a clear filtes button
+* Images on order page?
 """
 
 # app config
@@ -47,6 +44,7 @@ class MixMindServer():
             'A customer has ordered:\n{}',
             'Mix-Mind \@Schubar'
         )
+        self.default_margin = 1.2
 
     def get_ingredients_table(self):
         df = self.barstock.sorted_df()
@@ -90,13 +88,13 @@ class DrinksForm(Form):
     examples = BooleanField("Examples", description="Show specific examples of a recipe based on the ingredient stock")
     all_ingredients = BooleanField("All Ingredients", description="Show every ingredient instead of just the main liquors with each example")
     convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(util.VALID_UNITS), validators.Optional()])
-    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.2)
+    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=mms.default_margin)
     info = BooleanField("Info", description="Show the info line for recipes")
     origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals")
     variants = BooleanField("Variants", description="Show variants for drinks")
 
     # filtering options
-    all = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
+    all_ = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
     include = CSVField("Include Ingredients", description="Filter by ingredient(s) that must be contained in the recipe")
     exclude = CSVField("Exclude Ingredients", description="Filter by ingredient(s) that must NOT be contained in the recipe")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
@@ -234,13 +232,13 @@ def mainpage_filter_only():
 
     if request.method == 'GET':
         # filter for current recipes that can be made
-        filter_options = util.FilterOptions(all=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="")
+        filter_options = util.FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="")
     else:
         filter_options = bundle_options(util.FilterOptions, form)
 
     recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
     recipes = [formatted_menu.format_recipe_html(recipe,
-        util.DisplayOptions(True,False,False,False,1,False,False,True,False),
+        util.DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
         order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
         condense_ingredients=True) for recipe in recipes]
 
@@ -263,7 +261,7 @@ class OrderForm(Form):
         self.process(blankData)
     name = TextField("Your Name", validators=[validators.required()])
     email = TextField("Confirmation Email", validators=[validators.Email("Invalid email address"), validators.required()])
-    notes = TextAreaField("Notes")
+    notes = TextField("Notes")
 
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
@@ -278,7 +276,7 @@ def order(recipe_name):
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)
     else:
-        recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,1,True,False,True,True))
+        recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,mms.default_margin,True,False,True,True))
 
     if request.method == 'GET':
         show_form = True
