@@ -16,6 +16,8 @@ from barstock import Barstock
 from notifier import Notifier
 
 # TODO refactor messages to look nicer
+# TODO menu schemas
+#   would be able to include definitive item lists for serving, ice, tag, etc.
 
 """
 NOTES:
@@ -33,7 +35,7 @@ configure_uploads(app, (datafiles,))
 
 
 class MixMindServer():
-    def __init__(self, recipes=['recipes_schubar.json'], barstock_files=['Barstock - Sheet1.csv']):
+    def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
         self.recipe_files = recipes
         self.barstock_files = barstock_files
         base_recipes = util.load_recipe_json(recipes)
@@ -44,7 +46,7 @@ class MixMindServer():
             'A customer has ordered:\n{}',
             'Mix-Mind \@Schubar'
         )
-        self.default_margin = 1.2
+        self.default_margin = 1.10
 
     def get_ingredients_table(self):
         df = self.barstock.sorted_df()
@@ -99,6 +101,7 @@ class DrinksForm(Form):
     exclude = CSVField("Exclude Ingredients", description="Filter by ingredient(s) that must NOT be contained in the recipe")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
     name = TextField("Name", description="Filter by a cocktail's name")
+    tag = TextField("Tag", description="Filter by tag")
     style = SelectField("Style", description="Include drinks matching the style such as After Dinner or Longdrink", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
     glass = SelectField("Glass", description="Include drinks matching the glass type such as cocktail or rocks", choices=pairs(['','cocktail','rocks','highball','flute','shot']))
     prep = SelectField("Prep", description="Include drinks matching the prep method such as shake or build", choices=pairs(['','shake', 'stir', 'build']))
@@ -168,9 +171,14 @@ class BarstockForm(Form):
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
 
-def recipes_from_options(form, to_html=False):
-    display_options = bundle_options(util.DisplayOptions, form)
-    filter_options = bundle_options(util.FilterOptions, form)
+def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=False, order_link=False, **kwargs_for_html):
+    """ Apply display formmatting, filtering, sorting to
+    the currently loaded recipes.
+    Also can generate stats
+    May convert to html, including extra options for that
+    """
+    display_options = bundle_options(util.DisplayOptions, form) if not display_opts else display_opts
+    filter_options = bundle_options(util.FilterOptions, form) if not filter_opts else filter_opts
     recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
     if form.convert.data:
         map(lambda r: r.convert(form.convert.data), recipes)
@@ -179,7 +187,12 @@ def recipes_from_options(form, to_html=False):
     else:
         stats = None
     if to_html:
-        recipes = [formatted_menu.format_recipe_html(recipe, display_options) for recipe in recipes]
+        if order_link:
+            recipes = [formatted_menu.format_recipe_html(recipe, display_options,
+                order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
+                **kwargs_for_html) for recipe in recipes]
+        else:
+            recipes = [formatted_menu.format_recipe_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
     return recipes, excluded, stats
 
 @app.route("/main/", methods=['GET', 'POST'])
@@ -221,26 +234,21 @@ def menu_download():
         flash("Error in form validation")
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
-# Browse
 @app.route("/", methods=['GET', 'POST'])
-def mainpage_filter_only():
+def browse():
     form = DrinksForm(request.form)
+    filter_options = None
     print form.errors
 
     # TODO main browse with no filters shows core recipes,
     # but when filtering pull in the extended lists as well
 
     if request.method == 'GET':
-        # filter for current recipes that can be made
-        filter_options = util.FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="")
-    else:
-        filter_options = bundle_options(util.FilterOptions, form)
+        # filter for current recipes that can be made on the core list
+        filter_options = util.FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
-    recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
-    recipes = [formatted_menu.format_recipe_html(recipe,
-        util.DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
-        order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
-        condense_ingredients=True) for recipe in recipes]
+    recipes, _, _ = recipes_from_options(form, display_opts=util.DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
+            filter_opts=filter_options, to_html=True, order_link=True, condense_ingredients=True)
 
     if request.method == 'POST':
         if form.validate():
@@ -253,7 +261,7 @@ def mainpage_filter_only():
         else:
             flash("Error in form validation")
 
-    return render_template('browse.html', form=form, recipes=recipes, excluded=excluded)
+    return render_template('browse.html', form=form, recipes=recipes)
 
 class OrderForm(Form):
     def reset(self):
@@ -272,6 +280,7 @@ def order(recipe_name):
     # TODO failure mode because of missing ingredients
 
     recipe = util.find_recipe(mms.recipes, recipe_name)
+    recipe.convert('oz')
     if not recipe:
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)

@@ -148,6 +148,7 @@
     "Rude Cosmo": {
         "style": "All Day Cocktail",
         "unit": "mL",
+        "tag": "core",
         "info": "Dale DeGroff riff on the classic Cosmopolitan",
         "ingredients": {
             "tequila": 40,
@@ -272,7 +273,7 @@
 
     "Fresh Lime Gimlet": {
         "style": "All Day Cocktail",
-        "info": "Simple and sharp, lets the gin shine",
+        "info": "Simple and sharp, it lets the gin shine",
         "tag": "core",
         "ingredients": {
             "dry gin": 1.5,
@@ -281,7 +282,7 @@
         },
         "profile": ["tangy", "citrusy"],
         "garnish": "Fresh mint sprig or cucumber slice",
-        "variants": ["Aquavit Gimlet: substitute Aquavit for herbal depth"]
+        "variants": ["Aquavit Gimlet: substitute Aquavit for savory depth"]
     },
 
     "French 75": {
