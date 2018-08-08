@@ -81,6 +81,7 @@ Example usage:
     p.add_argument('-x', '--exclude', nargs='+', help="Filter by ingredient(s) that must NOT be contained in the recipe")
     p.add_argument('--or', dest='use_or', action='store_true', help="use logical OR for included and excluded ingredient lists instead of default AND")
     p.add_argument('--name', help="Include drinks matching on name")
+    p.add_argument('--tag', help="Include drinks matching a tag")
     p.add_argument('--style', help="Include drinks matching the style such as After Dinner or Longdrink")
     p.add_argument('--list', help="Include drinks matching the specified list")
     p.add_argument('--glass', help="Include drinks matching the glassware")
