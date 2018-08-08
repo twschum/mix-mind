@@ -41,7 +41,7 @@ class MixMindServer():
         self.recipe_files = recipes
         self.barstock_files = barstock_files
         base_recipes = util.load_recipe_json(recipes)
-        self.barstock = Barstock.load(barstock_files, True)
+        self.barstock = Barstock.load(barstock_files)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
         self.notifier = Notifier('secrets.json', 'twschum@gmail.com',
             'New @Schubar Order - {}',
@@ -54,6 +54,7 @@ class MixMindServer():
         df.Proof = df.Proof.astype('int')
         df['Size (mL)'] = df['Size (mL)'].astype('int')
         df = df[df.Category != 'Ice']
+        df = df[df['In Stock'] > 0]
         table = df.to_html(index=False,
                 columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
         return table

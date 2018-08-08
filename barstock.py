@@ -100,6 +100,6 @@ class Barstock(object):
         # drop out of stock items
         if not include_all:
             #log debug how many dropped
-            df = df[df["In Stock"] != 0]
+            df = df[df["In Stock"] > 0]
         return cls(df)
 
