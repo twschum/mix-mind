@@ -11,14 +11,14 @@ import inspect
 # make passing a bunch of options around a bit cleaner
 # TODO make new tag field to replace what the "list" field was
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
-FilterOptions = namedtuple('FilterOptions', 'all,include,exclude,use_or,style,glass,prep,ice,name')
+FilterOptions = namedtuple('FilterOptions', 'all_,include,exclude,use_or,style,glass,prep,ice,name,tag')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 
 VALID_UNITS = ['oz', 'mL', 'cL']
 
 def filter_recipes(all_recipes, filter_options):
     reduce_fn = any if filter_options.use_or else all
-    recipes = [recipe for recipe in all_recipes if filter_options.all or recipe.can_make]
+    recipes = [recipe for recipe in all_recipes if filter_options.all_ or recipe.can_make]
     if filter_options.include:
         recipes = [recipe for recipe in recipes if
                 reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
@@ -27,7 +27,7 @@ def filter_recipes(all_recipes, filter_options):
         recipes = [recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
                 for ingredient in filter_options.exclude))]
-    for attr in 'style glass prep ice name'.split():
+    for attr in 'style glass prep ice name tag'.split():
         recipes = filter_on_attribute(recipes, filter_options, attr)
 
     def get_names(items):
