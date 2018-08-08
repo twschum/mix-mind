@@ -13,6 +13,7 @@ import recipe as drink_recipe
 import util
 import formatted_menu
 from barstock import Barstock
+from notifier import Notifier
 
 # TODO refactor messages to look nicer
 
@@ -34,6 +35,12 @@ class MixMindServer():
         self.barstock = Barstock.load(barstock_files, True)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
         self.default_display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True)
+        self.notifier = Notifier('secrets.json', '',
+            'New @Schubar Order - {}',
+            'A customer has ordered:\n{}',
+            'Mix-Mind \@Schubar'
+        )
+
     def get_ingredients_table(self):
         df = self.barstock.sorted_df()
         df.Proof = df.Proof.astype('int')
@@ -247,23 +254,25 @@ def mainpage_filter_only():
 def order(recipe_name):
     form = OrderForm(request.form)
     recipe_name = urllib.unquote_plus(recipe_name)
-    recipe = None
     show_form = False
 
     # TODO failure mode because of missing ingredients
 
+    recipe = util.find_recipe(mms.recipes, recipe_name)
+    if not recipe:
+        flash('Error: unknown recipe "{}"'.format(recipe_name))
+        return render_template('order.html', form=form, recipe=None, show_form=False)
+    else:
+        recipe_html = formatted_menu.format_recipe_html(recipe, mms.default_display_options)
+
     if request.method == 'GET':
-        recipe = util.find_recipe(mms.recipes, recipe_name)
-        if not recipe:
-            flash('Error: unknown recipe "{}"'.format(recipe_name))
-        else:
-            recipe = formatted_menu.format_recipe_html(recipe, mms.default_display_options)
-            show_form = True
+        show_form = True
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
             if form.validate():
                 # get request arg
+                self.send(recipe.name, 'A customer has ordered!', recipe_html)
                 print "order email sent! with note: {}".format(form.notes.data)
                 flash("Successfully placed order!")
             else:
@@ -273,7 +282,7 @@ def order(recipe_name):
 
     # either provide the recipe and the form,
     # or after the post show the result
-    return render_template('order.html', form=form, recipe=recipe, show_form=show_form)
+    return render_template('order.html', form=form, recipe=recipe_html, show_form=show_form)
 
 
 @app.route("/recipes/", methods=['GET','POST'])
