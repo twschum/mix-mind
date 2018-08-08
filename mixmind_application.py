@@ -20,10 +20,9 @@ from notifier import Notifier
 """
 NOTES:
 Images
-* order page uses prep line and full menu
-* new condenced version
 * Header on page regenerates GET to self
 * default markup
+* add a clear filtes button
 """
 
 # app config
@@ -168,12 +167,6 @@ class BarstockForm(Form):
     size_ml = DecimalField("Size (mL)", description="Size of the ingredient in mL", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
     price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=2000)])
 
-class OrderForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
-    notes = TextField("Notes:", description="Additional instructions for the order")
-
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
 
@@ -235,18 +228,25 @@ def menu_download():
 def mainpage_filter_only():
     form = DrinksForm(request.form)
     print form.errors
-    excluded = None
 
-    def get_html_recipes(recipes):
-        return [formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,1,False,False,True,False),
-                order_link="/order/{}".format(urllib.quote_plus(recipe.name)), condense_ingredients=True) for recipe in recipes]
+    # TODO main browse with no filters shows core recipes,
+    # but when filtering pull in the extended lists as well
+
+    if request.method == 'GET':
+        # filter for current recipes that can be made
+        filter_options = util.FilterOptions(all=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="")
+    else:
+        filter_options = bundle_options(util.FilterOptions, form)
+
+    recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+    recipes = [formatted_menu.format_recipe_html(recipe,
+        util.DisplayOptions(True,False,False,False,1,False,False,True,False),
+        order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
+        condense_ingredients=True) for recipe in recipes]
 
     if request.method == 'POST':
         if form.validate():
             print request
-            filter_options = bundle_options(util.FilterOptions, form)
-            recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
-            recipes = get_html_recipes(recipes)
             if 'suprise-menu' in request.form:
                 recipes = [random.choice(recipes)]
                 flash("Bartender's choice applied. Just try again if you want something else!")
@@ -255,10 +255,15 @@ def mainpage_filter_only():
         else:
             flash("Error in form validation")
 
-    elif request.method == 'GET':
-        recipes = get_html_recipes(mms.recipes)
-
     return render_template('browse.html', form=form, recipes=recipes, excluded=excluded)
+
+class OrderForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+    name = TextField("Your Name", validators=[validators.required()])
+    email = TextField("Confirmation Email", validators=[validators.Email("Invalid email address"), validators.required()])
+    notes = TextAreaField("Notes")
 
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
@@ -277,18 +282,24 @@ def order(recipe_name):
 
     if request.method == 'GET':
         show_form = True
+        if not recipe.can_make:
+            flash('Ingredients to make this are out of stock!', 'error')
+
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
+            if not recipe.can_make:
+                flash('Ingredients to make this are out of stock!', 'error')
+                return render_template('order.html', form=form, recipe=recipe_html, show_form=True)
+
             if form.validate():
                 # get request arg
-                mms.notifier.send(recipe.name, 'A customer has ordered!', recipe_html)
+                #mms.notifier.send(recipe.name, 'A customer has ordered!', recipe_html)
                 print "order email sent! with note: {}".format(form.notes.data)
                 flash("Successfully placed order!")
             else:
-                flash("Error in form validation")
-        elif 'cancel-order' in request.form:
-            flash("Order canceled")
+                show_form=True
+                flash("Error in form validation", 'error')
 
     # either provide the recipe and the form,
     # or after the post show the result

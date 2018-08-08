@@ -5,38 +5,43 @@
     <!-- Main form -->
     <div class="container">
       <h2>Place Order</h2>
-      {% if show_form %}
-      {% from "_formhelpers.html" import render_field %}
-      <form  id="menu-settings" action="" method="post" role="form">
-        {{ form.csrf }}
-        <div class="form-group">
-            {{ recipe | safe }}
-            {{ render_field(form.notes) }}
-        </div>
-        <input type="submit" name="submit-order" class="btn btn-success" value="Submit Order"></input>
-        <input type="submit" name="cancel-order" class="btn btn-danger" value="Cancel"></input>
-      </form>
-      {% endif %}
 
       <!-- Show flashed messaged -->
       {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-
-      {% for message in messages %}
-      {% if "Error" not in message[1]: %}
-      <div class="alert alert-info">
-        <strong>Success! </strong> {{ message[1] }}
-      </div>
-      {% endif %}
-
-      {% if "Error" in message[1]: %}
-      <div class="alert alert-warning">
-        {{ message[1] }}
-      </div>
-      {% endif %}
-      {% endfor %}
-      {% endif %}
+        {% if messages %}
+          {% for category, message in messages %}
+            {% if category == 'error' %}
+            <div class="alert alert-warning">
+            {% else %}
+            <div class="alert alert-info">
+            {% endif %}
+              <strong>{{ message }}</strong>
+            </div>
+          {% endfor %}
+        {% endif %}
       {% endwith %}
+
+      {% if show_form %}
+      {% from "_formhelpers.html" import render_field %}
+      <form  id="order-form" action="" method="post" role="form">
+        {{ form.csrf }}
+        <div class="form-group">
+            {{ recipe | safe }}
+            {{ render_field(form.name) }}
+            {{ render_field(form.email) }}
+            {{ render_field(form.notes) }}
+        </div>
+      <div class="row">
+        &nbsp; &nbsp;
+        <input type="submit" name="submit-order" form="order-form" class="btn btn-success" value="Submit Order"></input>
+      </form>
+      <form id="cancel-nav" action="/">
+        &nbsp; &nbsp; &nbsp; &nbsp;
+        <input type="submit" name="cancel-order" form="cancel-nav" class="btn btn-danger" value="Cancel"></input>
+      </form>
+      </div>
+      <br>
+      {% endif %}
 
       <!-- return to main page -->
       {% if not show_form %}

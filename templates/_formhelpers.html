@@ -1,6 +1,6 @@
 {% macro render_field(field) %}
   {% if field.type != 'BooleanField' %}
-  <dt>{{ field.label }}
+  <dt>{{ field.label }} {% if field.flags.required %}*{% endif %}
   {% endif %}
   <dd>
 
@@ -26,7 +26,7 @@
   {% endif %}
 
   {% if field.errors %}
-    <ul class=errors>
+    <ul class=errors style="color:red">
     {% for error in field.errors %}
       <li>{{ error }}</li>
     {% endfor %}

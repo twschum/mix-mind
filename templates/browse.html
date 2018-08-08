@@ -5,7 +5,7 @@
     <!-- Main form -->
     <div class="container">
       {% from "_formhelpers.html" import render_field %}
-      <h2>Browse @Schubar</h2>
+      <h2><a href="/">Browse</a> @Schubar</h2>
       <a href="#filters" data-toggle="collapse"><h4>Filters</h4></a>
       <div id="filters" class="collapse">
       <form  id="menu-settings" action="" method="post" role="form">
@@ -45,7 +45,7 @@
       {% for message in messages %}
       {% if "Error" not in message[1]: %}
       <div class="alert alert-info">
-        <strong>Success! </strong> {{ message[1] }}
+        {{ message[1] }}
       </div>
       {% endif %}
 
