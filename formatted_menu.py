@@ -9,6 +9,7 @@ from pylatex.utils import italic, bold, NoEscape
 import yattag
 import time
 
+from recipe import QuantizedIngredient
 import util
 
 class TitleText(HugeText):
@@ -115,7 +116,7 @@ def format_recipe(recipe, display_opts):
     recipe_page.append(Command('par'))
     return recipe_page
 
-def format_recipe_html(recipe, display_opts, order_link=None):
+def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredients=False):
     """ use yattag lib to build an html blob contained in a div for the recipe"""
     doc, tag, text, line = yattag.Doc().ttl()
 
@@ -151,16 +152,26 @@ def format_recipe_html(recipe, display_opts, order_link=None):
         if display_opts.info and recipe.info:
             doc.asis(small_br(em(recipe.info)))
 
-        with tag('ul', id='ingredients'):
-            for item in recipe.ingredients:
-                line('li', item.str(), type="none")
+        if condense_ingredients:
+            ingredients = ', '.join([str(ingredient.specifier) for ingredient in recipe.ingredients
+                    if isinstance(ingredient, QuantizedIngredient)])
+            doc.asis(ingredients+'<br>')
+        else:
+            with tag('ul', id='ingredients'):
+                for item in recipe.ingredients:
+                    line('li', item.str(), type="none")
 
         if display_opts.variants:
-            with tag('ul', id='variants'):
+            if condense_ingredients:
+                # also need these to not be indented
                 for variant in recipe.variants:
-                    with tag('small'):
-                        with tag('li', type="none"):
-                            line('em', variant)
+                    doc.asis(small_br(em(variant)))
+            else:
+                with tag('ul', id='variants'):
+                    for variant in recipe.variants:
+                        with tag('small'):
+                            with tag('li', type="none"):
+                                line('em', variant)
 
         if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
             for e in recipe.examples:
