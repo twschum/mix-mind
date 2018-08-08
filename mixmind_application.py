@@ -17,6 +17,15 @@ from notifier import Notifier
 
 # TODO refactor messages to look nicer
 
+"""
+NOTES:
+Images
+* order page uses prep line and full menu
+* new condenced version
+* Header on page regenerates GET to self
+* default markup
+"""
+
 # app config
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -34,8 +43,7 @@ class MixMindServer():
         base_recipes = util.load_recipe_json(recipes)
         self.barstock = Barstock.load(barstock_files, True)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
-        self.default_display_options = util.DisplayOptions(True,False,False,False,1,False,False,True,True)
-        self.notifier = Notifier('secrets.json', '',
+        self.notifier = Notifier('secrets.json', 'twschum@gmail.com',
             'New @Schubar Order - {}',
             'A customer has ordered:\n{}',
             'Mix-Mind \@Schubar'
@@ -221,6 +229,7 @@ def menu_download():
         flash("Error in form validation")
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
+# Browse
 @app.route("/", methods=['GET', 'POST'])
 def mainpage_filter_only():
     form = DrinksForm(request.form)
@@ -228,8 +237,8 @@ def mainpage_filter_only():
     excluded = None
 
     def get_html_recipes(recipes):
-        return [formatted_menu.format_recipe_html(recipe, mms.default_display_options,
-                order_link="/order/{}".format(urllib.quote_plus(recipe.name))) for recipe in recipes]
+        return [formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,1,False,False,True,False),
+                order_link="/order/{}".format(urllib.quote_plus(recipe.name)), condense_ingredients=True) for recipe in recipes]
 
     if request.method == 'POST':
         if form.validate():
@@ -263,7 +272,7 @@ def order(recipe_name):
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)
     else:
-        recipe_html = formatted_menu.format_recipe_html(recipe, mms.default_display_options)
+        recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,1,True,False,True,True))
 
     if request.method == 'GET':
         show_form = True
@@ -272,7 +281,7 @@ def order(recipe_name):
         if 'submit-order' in request.form:
             if form.validate():
                 # get request arg
-                self.send(recipe.name, 'A customer has ordered!', recipe_html)
+                mms.notifier.send(recipe.name, 'A customer has ordered!', recipe_html)
                 print "order email sent! with note: {}".format(form.notes.data)
                 flash("Successfully placed order!")
             else:
