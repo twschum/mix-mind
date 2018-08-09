@@ -138,10 +138,14 @@ def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredien
             "martini": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg",
             "highball": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
             "collins": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
+            "hurricane": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
             "rocks": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg",
+            "copper mug": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg",
+            "tiki": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg",
             "mug": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg",
             "wine": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg",
             "shot": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
+            "shooter": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             "flute": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Flute_Glass.svg",
             }
 
