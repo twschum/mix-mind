@@ -43,6 +43,13 @@ class MixMindServer():
         self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
         self.default_margin = 1.10
 
+        url = "https://ipv4.icanhazip.com/"
+        try:
+            self.ip = urllib.urlopen(url).read().rstrip('\n')
+            print "Server running on: {}".format(self.ip)
+        except Exception as err:
+            print err
+
     def get_ingredients_table(self):
         df = self.barstock.sorted_df()
         df.Proof = df.Proof.astype('int')
@@ -312,8 +319,9 @@ def order(recipe_name):
                 # get request arg
                 subject = "New @Schubar Order - {}".format(recipe.name)
                 mms.notifier.send(subject, {
-                    '_GREETING_': 'Good Evening,',
-                    '_SUMMARY_': "{} has ordered a {}".format(form.name.data, recipe.name),
+                    '_GREETING_': "{} has ordered a {}".format(form.name.data, recipe.name),
+                    '_SUMMARY_': "<a href=http://{}/confirm?email={}&recipe={}>Send Confirmation</a>".format(mms.ip,
+                        urllib.quote(form.email.data), urllib.quote(recipe.name) ),
                     '_RECIPE_': "{}".format(recipe_html),
                     '_EXTRA_': "{}".format(form.notes.data)
                     })
@@ -326,6 +334,17 @@ def order(recipe_name):
     # or after the post show the result
     return render_template('order.html', form=form, recipe=recipe_html, show_form=show_form)
 
+@app.route('/confirm')
+def confirmation():
+    email = urllib.unquote(request.args.get('email'))
+    recipe = urllib.unquote(request.args.get('recipe'))
+    mms.notifier.send("Your @Schubar Confirmation",
+            { '_GREETING_': "You ordered {}".format(recipe),
+              '_SUMMARY_': 'Your drink order as been acknowledged by the Bartender and should be ready shortly.',
+              '_RECIPE_': 'Thanks for using Mix-Mind @Schubar!',
+              '_EXTRA_': ''}, alt_target=email)
+    flash('Confirmation sent')
+    return render_template('order.html', form=None, recipe=None, show_form=False)
 
 @app.route("/recipes/", methods=['GET','POST'])
 def recipes():
@@ -380,7 +399,6 @@ def ingredients():
 
     table = mms.get_ingredients_table()
     return render_template('ingredients.html', form=form, table=table)
-
 
 @app.route('/drinks.html')
 def drinks_page():
