@@ -21,7 +21,6 @@ from notifier import Notifier
 
 """
 NOTES:
-* Images on order page?
 """
 
 # app config
@@ -40,7 +39,7 @@ class MixMindServer():
         self.barstock_files = barstock_files
         base_recipes = util.load_recipe_json(recipes)
         self.barstock = Barstock.load(barstock_files)
-        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock) for name, recipe in base_recipes.iteritems()]
+        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in base_recipes.iteritems()]
         self.notifier = Notifier('secrets.json', 'twschum@gmail.com',
             'New @Schubar Order - {}',
             'A customer has ordered:\n{}',
@@ -57,6 +56,10 @@ class MixMindServer():
         table = df.to_html(index=False,
                 columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
         return table
+
+    def regenerate_recipes(self):
+        self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
+
 mms = MixMindServer()
 
 
@@ -108,10 +111,16 @@ class DrinksForm(Form):
     ice = SelectField("Ice", description="Include drinks matching the ice used such as crushed", choices=pairs(['','cubed','chushed','neat']))
 
     # sorting options
-    # name
-    # main ingredient
-    # price
-    # IBA classification
+    # abv, cost, alcohol content
+    sorting = SelectField("Sort Results", choices=[
+        ("", ""),
+        ('abv', "ABV (Low to High)"),
+        ('abvX', "ABV (High to Low)"),
+        ('cost', "Cost ($ to $$$)"),
+        ('costX', "Cost ($$$ to $)"),
+        ('std_drinks', "Total Alcohol (Low to High)"),
+        ('std_drinksX', "Total Alcohol (High to Low)"),
+    ])
 
     # pdf options
     pdf_filename = TextField("Filename to use", description="Basename of the pdf and tex files generated", default="web_drinks_file")
@@ -152,7 +161,6 @@ class RecipeListSelector(Form):
                 ("IBA_contemporary_classics.json", "IBA Contemporary Classics"),
                 ("IBA_new_era_drinks.json", "IBA New Era Drinks")])
 
-
 class BarstockForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
@@ -176,10 +184,15 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     the currently loaded recipes.
     Also can generate stats
     May convert to html, including extra options for that
+    Apply sorting
     """
     display_options = bundle_options(util.DisplayOptions, form) if not display_opts else display_opts
     filter_options = bundle_options(util.FilterOptions, form) if not filter_opts else filter_opts
     recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+    if form.sorting.data and form.sorting.data != 'None': # TODO this is weird
+        reverse = 'X' in form.sorting.data
+        attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
+        recipes = sorted(recipes, key=lambda r: getattr(r.stats, attr), reverse=reverse)
     if form.convert.data:
         map(lambda r: r.convert(form.convert.data), recipes)
     if display_options.stats and recipes:
@@ -347,13 +360,13 @@ def ingredients():
             row['Size (mL)'] = float(form.size_ml.data)
             row['Price Paid'] = float(form.price.data)
             mms.barstock.add_row(row)
-            mms.recipes = [recipe.generate_examples(mms.barstock) for recipe in  mms.recipes]
+            mms.regenerate_recipes()
 
         elif 'remove-ingredient' in request.form:
             bottle = form.bottle.data
             if bottle in mms.barstock.df.Bottle.values:
                 mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
-                mms.recipes = [recipe.generate_examples(mms.barstock) for recipe in  mms.recipes]
+                mms.regenerate_recipes()
                 flash("Removed {}".format(bottle))
             else:
                 flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle))
