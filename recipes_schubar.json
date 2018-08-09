@@ -511,6 +511,7 @@
         },
         "misc": "Squeezed shell of 1/2 a lime",
         "prep": "build",
+        "glass": "copper mug",
         "variants": ["Kentucky Mule: bourbon or rye", "Rum Buck: amber rum", "Brandy Buck: brandy"]
     },
 
