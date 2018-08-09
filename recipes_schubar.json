@@ -65,6 +65,7 @@
                      "Honey Sour: Replace simple syrup with honey syrup",
                      "New York Sour: Float 1/2 oz red wine"],
         "profile": ["tangy", "citrusy"],
+        "glass": "rocks",
         "prep": "shake"
     },
 

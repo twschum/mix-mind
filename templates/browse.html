@@ -15,6 +15,7 @@
           <dl>
             {{ render_field(form.include) }}
             {{ render_field(form.exclude) }}
+            {{ render_field(form.sorting) }}
           </dl>
           <a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
             <div id="misc-filters" class="collapse">
@@ -33,7 +34,7 @@
             </dl>
           </div>
         </div>
-        <input type="submit" name="apply-menu" class="btn btn-success" value="Apply Filter"></input>
+        <input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
         <input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
       </form>
       </div>
