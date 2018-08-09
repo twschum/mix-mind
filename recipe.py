@@ -22,7 +22,7 @@ class DrinkRecipe(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
     RecipeExample = recordtype('RecipeExample', [('bottles', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
-    RecipeStats = recordtype('RecipeStats', 'min_cost,max_cost,min_abv,max_abv,min_std_drinks,max_std_drinks,volume', default=RecipeExample)
+    RecipeStats = recordtype('RecipeStats', 'min_cost,max_cost,min_abv,max_abv,min_std_drinks,max_std_drinks,avg_abv,avg_cost,avg_std_drinks,volume', default=RecipeExample)
 
     @util.default_initializer
     def __init__(self, name, recipe_dict, stock_df=None):
@@ -40,6 +40,7 @@ class DrinkRecipe(object):
         self.max_cost     =  0
         self.examples     =  []
         self.ingredients  =  []
+        self.stats = None
         for type_str, quantity in recipe_dict.get('ingredients', {}).iteritems():
             self.ingredients.append(QuantizedIngredient(type_str, quantity, self.unit))
         for type_str, quantity in recipe_dict.get('optional', {}).iteritems():
@@ -93,7 +94,7 @@ class DrinkRecipe(object):
                 pass
         self.unit = to_unit
 
-    def generate_examples(self, barstock):
+    def generate_examples(self, barstock, stats=False):
         """ Given a Barstock, calculate examples drinks from the data
         e.g. For every dry gin and vermouth in Barstock, generate every Martini
         that can be made, along with the cost,abv,std_drinks from the ingredients
@@ -119,6 +120,8 @@ class DrinkRecipe(object):
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
             self.examples.append(example)
+        if stats:
+            self.calculate_stats()
         return self # so it can be used when chained
 
     def calculate_stats(self):
@@ -126,8 +129,12 @@ class DrinkRecipe(object):
         """
         if not self.examples:
             return False
+        if self.stats:
+            return True
         def _find_example(examples, attr, max_=False):
             return sorted(examples, key=lambda e: getattr(e, attr), reverse=max_)[0]
+        def _mean(examples, attr):
+            return sum((getattr(e, attr) for e in examples)) / float(len(examples))
         self.stats = self.RecipeStats()
         self.stats.min_cost = _find_example(self.examples, 'cost')
         self.stats.max_cost = _find_example(self.examples, 'cost', max_=True)
@@ -136,6 +143,9 @@ class DrinkRecipe(object):
         self.stats.min_std_drinks = _find_example(self.examples, 'std_drinks')
         self.stats.max_std_drinks = _find_example(self.examples, 'std_drinks', max_=True)
         self.stats.volume = _find_example(self.examples, 'volume', max_=True).volume
+        self.stats.avg_cost = _mean(self.examples, 'cost')
+        self.stats.avg_abv = _mean(self.examples, 'abv')
+        self.stats.avg_std_drinks = _mean(self.examples, 'std_drinks')
         return True
 
     def get_ingredient_list(self, all=True, optional=False):
