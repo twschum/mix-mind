@@ -40,11 +40,7 @@ class MixMindServer():
         base_recipes = util.load_recipe_json(recipes)
         self.barstock = Barstock.load(barstock_files)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in base_recipes.iteritems()]
-        self.notifier = Notifier('secrets.json', 'twschum@gmail.com',
-            'New @Schubar Order - {}',
-            'A customer has ordered:\n{}',
-            'Mix-Mind \@Schubar'
-        )
+        self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
         self.default_margin = 1.10
 
     def get_ingredients_table(self):
@@ -314,8 +310,13 @@ def order(recipe_name):
 
             if form.validate():
                 # get request arg
-                #mms.notifier.send(recipe.name, 'A customer has ordered!', recipe_html)
-                print "order email sent! with note: {}".format(form.notes.data)
+                subject = "New @Schubar Order - {}".format(recipe.name)
+                mms.notifier.send(subject, {
+                    '_GREETING_': 'Good Evening,',
+                    '_SUMMARY_': "{} has ordered a {}".format(form.name.data, recipe.name),
+                    '_RECIPE_': "{}".format(recipe_html),
+                    '_EXTRA_': "{}".format(form.notes.data)
+                    })
                 flash("Successfully placed order!")
             else:
                 show_form=True
