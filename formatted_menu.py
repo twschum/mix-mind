@@ -133,11 +133,27 @@ def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredien
     def wrap_link(link, s):
         return '<a href={}>{}</a>'.format(link, s)
 
+    glassware = {
+            "cocktail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg",
+            "martini": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg",
+            "highball": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
+            "collins": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
+            "rocks": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg",
+            "mug": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg",
+            "wine": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg",
+            "shot": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
+            "flute": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Flute_Glass.svg",
+            }
+
     with tag('div', id=recipe.name):
+        # embed glass image in name line
+        name_line = ['<img src={} style="height:1em"> &nbsp;'.format(glassware.get(recipe.glass))]
         if order_link:
-            name_line = [wrap_link(order_link, recipe.name)]
+            #name_line = [wrap_link(order_link, recipe.name)]
+            name_line.append(wrap_link(order_link, recipe.name))
         else:
-            name_line = [recipe.name]
+            #name_line = [recipe.name]
+            name_line.append(recipe.name)
         # add link to order functionality here
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
