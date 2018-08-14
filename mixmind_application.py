@@ -21,6 +21,9 @@ from notifier import Notifier
 
 """
 NOTES:
+* disable the order button unless we are "open"
+* support for modifying the "bartender on duty" aka Notifier's secret info
+* user permissons (non-logged in vs admin)
 """
 
 # app config
