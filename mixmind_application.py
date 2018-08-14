@@ -301,7 +301,10 @@ def order(recipe_name):
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)
     else:
-        recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,mms.default_margin,True,False,True,True))
+        if recipe_name == "A Dram":
+            recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,True,False,mms.default_margin,True,False,True,True))
+        else:
+            recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,mms.default_margin,True,False,True,True))
 
     if request.method == 'GET':
         show_form = True

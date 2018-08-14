@@ -19,6 +19,17 @@
         "garnish": "Lemon twist or olives"
     },
 
+    "A Dram": {
+        "info": "One fine dram",
+        "tag": "core",
+        "ingredients": {
+            "whisky": 1.5
+        },
+        "prep": "build",
+        "ice": "neat",
+        "glass": "rocks"
+    },
+
     "Manhattan": {
         "info": "An example of the perfect marriage between spirit, vermouth, & bitters",
         "tag": "core",
@@ -316,7 +327,8 @@
         },
         "variants": ["Boulevardier: Substitute rye for gin",
             "Dutch Negroni: Substitute Genever for gin",
-            "Old Pal: Substitute dry vermouth and Canadian rye"],
+            "Old Pal: Substitute dry vermouth and Canadian rye",
+            "Enzoni: 4 muddled white grapes, 3/4oz lemon, 1/2oz simple in place of vermouth"],
         "prep": "build",
         "glass": "rocks",
         "ice": "cubed",

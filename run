@@ -4,7 +4,7 @@ export FLASK_APP=mixmind_application.py
 export UPLOADS_DEFAULT_DEST=stockdb
 if [[ $1 == 'prod' ]]; then
     export FLASK_DEBUG=0
-    flask run --host=0.0.0.0 --port=80
+    flask run --host=0.0.0.0 --port=8888
 else
     export FLASK_DEBUG=1
     flask run --debugger --without-threads --host=0.0.0.0 --port=8888
