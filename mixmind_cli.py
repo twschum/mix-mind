@@ -122,12 +122,25 @@ def main():
     if args.command == 'test':
         print "This is a test"
         recipes = util.load_recipe_json(args.recipes)
-        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in recipes.iteritems()]
-        styles = set()
-        for recipe in recipes:
-            styles.add(recipe.glass)
-        print styles
+        # get all the properties
+        fields = {}
+        for recipe in recipes.itervalues():
+            for label, value in recipe.iteritems():
+                if label not in ['info', 'variants', 'garnish', 'IBA_description', 'optional', 'ingredients', 'misc']:
+                    if not isinstance(value, list):
+                        value = [value]
+                    try:
+                        fields.setdefault(label, Counter()).update(value)
+                    except Exception as e:
+                        import ipdb; ipdb.set_trace();
+                        print e
+        for field, values in fields.iteritems():
+            print "{}: {}".format(field, values.most_common())
         return
+
+        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in recipes.iteritems()]
+
+        # output all the ingredients
         ingredients = Counter()
         for info in recipes.itervalues():
             ingredients.update(info.get('ingredients', {}).iterkeys())
