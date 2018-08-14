@@ -127,6 +127,8 @@
             "lemon juice": 3.0,
             "soda water": "Top with"
         },
+        "glass": "highball",
+        "prep": "shake",
         "garnish": "Lemon slice"
     },
     "John Collins": {
@@ -139,7 +141,8 @@
             "lemon juice": 3.0,
             "soda water": 6.0
         },
-        "prep": "build"
+        "prep": "build",
+        "glass": "collins"
     },
     "Manhattan": {
         "style": "Before Dinner cocktail",
@@ -152,7 +155,6 @@
         },
         "garnish": "Orange peel and/or Maraschino cherry"
     },
-
     "Mary Pickford": {
         "style": "All Day Cocktail",
         "IBA_description": "Shake and strain into a chilled large cocktail glass.",

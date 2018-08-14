@@ -436,9 +436,13 @@
         "style": "Longdrink",
         "ingredients": {
             "white rum": 2,
+            "lime juice": 0.75,
             "soda water": "Top with"
         },
-        "misc": "Squeezed shell of 1/2 a lime"
+        "misc": "Squeezed shell of 1/2 a lime",
+        "profile": ["tangy", "citrusy"],
+        "prep": "build",
+        "glass": "collins"
     },
 
     "Small-Dinger": {
