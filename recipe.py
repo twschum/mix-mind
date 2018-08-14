@@ -122,6 +122,7 @@ class DrinkRecipe(object):
             self.examples.append(example)
         if stats:
             self.calculate_stats()
+            self.max_cost = self.stats.avg_cost
         return self # so it can be used when chained
 
     def calculate_stats(self):
