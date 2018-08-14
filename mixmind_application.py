@@ -24,6 +24,7 @@ NOTES:
 * disable the order button unless we are "open"
 * support for modifying the "bartender on duty" aka Notifier's secret info
 * user permissons (non-logged in vs admin)
+* BUG shouldn't have "cancel-order=Cancel" on the url when going back to main page
 """
 
 # app config

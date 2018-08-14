@@ -120,8 +120,9 @@ class DrinkRecipe(object):
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
             self.examples.append(example)
-        if stats:
+        if stats and self.examples:
             self.calculate_stats()
+            # attempting to use an average here instead of max_cost
             self.max_cost = self.stats.avg_cost
         return self # so it can be used when chained
 
