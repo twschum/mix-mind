@@ -6,6 +6,8 @@ Turn recipes json into a readable menu
 import argparse
 import cPickle as pickle
 from collections import Counter, defaultdict
+import json
+import jsonschema
 
 import pandas as pd
 
@@ -19,7 +21,7 @@ def get_parser():
     p = argparse.ArgumentParser(description="""
 MixMind Drink Menu Generator by twschum
 You'll need:
-A json file of recipes  TODO add a jsonschema
+A json file of recipes conforming to the schema
 {{
     "Martini": {{
         "info": "The King of Cocktails",
@@ -59,7 +61,7 @@ Example usage:
     # core parameters
     p.add_argument('-v', '--verbose', action='store_true')
     p.add_argument('-b', '--barstock', help="Barstock csv filename")
-    p.add_argument('-r', '--recipes', nargs='+', default=['recipes.json'], help="Recipes json filename(s)")
+    p.add_argument('-r', '--recipes', nargs='+', default=['recipes_schubar.json'], help="Recipes json filename(s)")
     p.add_argument('--save_cache', action='store_true', help="Pickle the generated recipes to cache them for later use (e.g. a quicker build of the pdf)")
     p.add_argument('--load_cache', action='store_true', help="Load the generated recipes from cache for use")
 
@@ -108,6 +110,9 @@ Example usage:
     # Do alternate things
     test_parser = subparsers.add_parser('test', help='whatever I need it to be')
 
+    # Do some validation
+    test_parser = subparsers.add_parser('validate', help='Run schema validation against recipe files')
+
     return p
 
 def bundle_options(tuple_class, args):
@@ -146,6 +151,16 @@ def main():
             ingredients.update(info.get('ingredients', {}).iterkeys())
         for i, n in ingredients.most_common():
             print '{:2d} {}'.format(n, unicode(i).encode('ascii', errors='replace'))
+        return
+
+    if args.command == 'validate':
+        with open('recipe_schema.json') as fp:
+            schema = json.load(fp)
+        for recipe_file in args.recipes:
+            with open(recipe_file) as fp:
+                recipes = json.load(fp)
+            jsonschema.validate(recipes, schema)
+            print "{} passes schema"
         return
 
     RECIPES_CACHE_FILE = 'cache_recipes.pkl'
