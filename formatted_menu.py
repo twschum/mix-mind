@@ -120,33 +120,45 @@ def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredien
     """ use yattag lib to build an html blob contained in a div for the recipe"""
     doc, tag, text, line = yattag.Doc().ttl()
 
-    def close(s, tag):
-        return '<{0}>{1}</{0}>'.format(tag, s)
-    def em(s):
-        return close(s, 'em')
-    def small(s):
-        return close(s, 'small')
-    def sup(s):
-        return close(s, 'sup')
-    def small_br(s):
-        return small(s+'<br>')
-    def wrap_link(link, s):
-        return '<a href={}>{}</a>'.format(link, s)
+    def close(s, tag, **kwargs):
+        kwargs = ' '.join(['{}={}'.format(k, v) for k, v in kwargs.iteritems()])
+        return '<{0} {2}>{1}</{0}>'.format(tag, s, kwargs)
+    def em(s, **kwargs):
+        return close(s, 'em', **kwargs)
+    def small(s, **kwargs):
+        return close(s, 'small', **kwargs)
+    def sup(s, **kwargs):
+        return close(s, 'sup', **kwargs)
+    def small_br(s, **kwargs):
+        return small(s+'<br>', **kwargs)
+    def wrap_link(link, s, **kwargs):
+        return '<a href={}>{}</a>'.format(link, s, **kwargs)
+
+    """
+            "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg"
+            "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg"
+            "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg"
+            "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg"
+            "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg"
+            "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg"
+            "https://upload.wikimedia.org/wikipedia/commons/1/1e/Flute_Glass.svg"
+    """
 
     glassware = {
-            "cocktail": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg",
-            "martini": "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg",
-            "highball": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
-            "collins": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
-            "hurricane": "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg",
-            "rocks": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg",
-            "copper mug": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg",
-            "tiki": "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg",
-            "mug": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg",
-            "wine": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg",
-            "shot": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
-            "shooter": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
-            "flute": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Flute_Glass.svg",
+            "cocktail":    "/static/glassware/coupe.svg",
+            "martini":     "/static/glassware/martini.svg",
+            "highball":    "/static/glassware/highball.svg",
+            "collins":     "/static/glassware/collins.svg",
+            "hurricane":   "/static/glassware/highball.svg",
+            "rocks":       "/static/glassware/rocks.svg",
+            "copper mug":  "/static/glassware/rocks.svg",
+            "tiki":        "/static/glassware/rocks.svg",
+            "flute":       "/static/glassware/flute.svg",
+            "glencairn":   "/static/glassware/glencairn.svg",
+            "mug":         "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg",
+            "wine":        "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg",
+            "shot":        "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
+            "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             }
 
     with tag('div', id=recipe.name):
