@@ -743,7 +743,7 @@
             "lager": 90
         },
         "glass": "pint",
-        "prep": "thrown"
+        "prep": "throw"
     },
 
     "Russian Spring Punch": {
@@ -761,7 +761,7 @@
         },
         "glass": "collins",
         "ice": "cubed",
-        "prep": "built",
+        "prep": "build",
         "garnish": "Flag of lemon peel and raspberries"
     }
 
