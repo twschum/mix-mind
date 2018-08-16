@@ -27,7 +27,7 @@
         },
         "prep": "build",
         "ice": "neat",
-        "glass": "rocks"
+        "glass": "glencairn"
     },
 
     "Manhattan": {
@@ -254,6 +254,7 @@
             "simple syrup": 0.25,
             "soda water": "Top with"
         },
+        "glass": "collins",
         "origin": "Schubar original"
     },
 
