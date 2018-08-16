@@ -2,81 +2,78 @@
 {% from "_helpers.html" import header, footer %}
 {{ header("Schubar Recipe Selector") }}
 
-    <!-- Main form -->
-    <div class="container">
-      {% from "_formhelpers.html" import render_field %}
-      <h2><a href="/">Browse</a> @Schubar</h2>
-      <p><em><small>Tips always appreciated, never required</small></em></p>
-      <a href="#filters" data-toggle="collapse"><h4>Filters</h4></a>
-      <div id="filters" class="collapse">
-      <form  id="menu-settings" action="" method="post" role="form">
-        {{ form.csrf }}
-        <div class="form-group">
-          <!--<a href="#ingredient-filters"><h4>Ingredient Filters</h4></a>-->
-          <dl>
-            {{ render_field(form.include) }}
-            {{ render_field(form.exclude) }}
-            {{ render_field(form.sorting) }}
-          </dl>
-          <a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
-            <div id="misc-filters" class="collapse">
-            <dl>
-              {{ render_field(form.use_or) }}
-              {{ render_field(form.name) }}
-              {{ render_field(form.style) }}
-              {{ render_field(form.glass) }}
-              {{ render_field(form.prep) }}
-              {{ render_field(form.ice) }}
-            </dl>
-          </div>
-          <!--<a href="#sorting" data-toggle="collapse"><h4>Sorting</h4></a>-->
-            <div id="sorting" class="collapse">
-            <dl>
-            </dl>
-          </div>
-        </div>
-        <input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
-        <input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
-      </form>
-      </div>
+	<!-- Main form -->
+	<div class="container" style="padding-bottom:15px">
+		{% from "_formhelpers.html" import render_field %}
+		<h2><a href="/">Browse</a> @Schubar</h2>
+		<p><em><small>Tips always appreciated, never required</small></em></p>
+		<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a>
+		<div id="filters" class="collapse">
+			<form	id="menu-settings" action="" method="post" role="form">
+				{{ form.csrf }}
+				<div class="form-group">
+					<dl>
+					{{ render_field(form.include) }}
+					{{ render_field(form.exclude) }}
+					{{ render_field(form.sorting) }}
+					</dl>
+					<a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
+					<div id="misc-filters" class="collapse">
+						<dl>
+						{{ render_field(form.use_or) }}
+						{{ render_field(form.name) }}
+						{{ render_field(form.style) }}
+						{{ render_field(form.glass) }}
+						{{ render_field(form.prep) }}
+						{{ render_field(form.ice) }}
+						</dl>
+					</div><!-- misc-filters -->
+				</div><!-- form-group -->
+			</div><!-- filters -->
+			<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+			<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+		</form>
+	</div><!-- container -->
 
-      <!-- Show flashed messaged -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
+			<!-- Show flashed messaged -->
+			{% with messages = get_flashed_messages(with_categories=true) %}
+			{% if messages %}
 
-      {% for message in messages %}
-      {% if "Error" not in message[1]: %}
-      <div class="alert alert-info">
-        {{ message[1] }}
-      </div>
-      {% endif %}
+			{% for message in messages %}
+			{% if "Error" not in message[1]: %}
+			<div class="alert alert-info">
+				{{ message[1] }}
+			</div>
+			{% endif %}
 
-      {% if "Error" in message[1]: %}
-      <div class="alert alert-warning">
-        {{ message[1] }}
-      </div>
-      {% endif %}
-      {% endfor %}
-      {% endif %}
-      {% endwith %}
+			{% if "Error" in message[1]: %}
+			<div class="alert alert-warning">
+				{{ message[1] }}
+			</div>
+			{% endif %}
+			{% endfor %}
+			{% endif %}
+			{% endwith %}
 
 
-      <!-- Result recipes -->
-      {% if recipes %}
-      <h3>Recipes</h3>
-      <div class="row">
-        {% for recipe in recipes %}
-        {% if form.examples.data %}
-        <div class="col-xs-12 col-sm-12 col-md-6 col-xl-6">
-          {% else %}
-          <div class="col-xs-12 col-sm-6 col-md-4 col-xl-3">
-            {% endif %}
-            {{ recipe | safe }}
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
+			<!-- Result recipes -->
+			{% if recipes %}
+			<div class="container">
+				<h3>Recipes</h3>
+				<div class="row">
+				{% for recipe in recipes %}
+					{% if form.examples.data %}
+					<div class="col-xs-12 col-sm-12 col-md-6 col-xl-6">
+					{% else %}
+					<div class="col-xs-12 col-sm-12 col-md-6 col-xl-4">
+					{% endif %}
+					{{ recipe | safe }}
+					</div><!-- col -->
+				{% endfor %}
+					</div><!-- row -->
+				{% endif %}
+			</div><!-- container -->
 
 
-      </div> <!-- top level container -->
+			</div> <!-- top level container -->
 {{ footer() }}
