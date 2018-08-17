@@ -1,7 +1,7 @@
 """
 Definitions of the various forms used
 """
-from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField
+from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField
 
 import util
 
@@ -133,3 +133,15 @@ class OrderForm(Form):
     email = EmailField("Confirmation Email", validators=[validators.Email("Invalid email address"), validators.required()])
     notes = TextField("Notes")
 
+class LoginForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+    #name = TextField("Your Name", validators=[validators.required()])
+    email = EmailField("Email", validators=[validators.required()])
+    password = PasswordField("Password", validators=[validators.required()])
+
+class RegisterUserForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
