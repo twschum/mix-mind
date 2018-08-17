@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Flask, render_template, flash, request, send_file
+from flask import Flask, render_template, flash, request, send_file, jsonify
 from flask_uploads import UploadSet, DATA, configure_uploads
 from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField
 from werkzeug.utils import secure_filename
@@ -29,6 +29,10 @@ NOTES:
     - backend DB?
     - domain name
         - LetsEncrypt certs
+* hardening
+    - moar logging
+    - test error handling
+    - support concurrent users, single admin
 """
 
 # app config
@@ -45,9 +49,9 @@ class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
         self.recipe_files = recipes
         self.barstock_files = barstock_files
-        base_recipes = util.load_recipe_json(recipes)
+        self.base_recipes = util.load_recipe_json(recipes)
         self.barstock = Barstock.load(barstock_files)
-        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in base_recipes.iteritems()]
+        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
         self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
         self.default_margin = 1.10
 
@@ -404,17 +408,15 @@ def ingredients():
     table = mms.get_ingredients_table()
     return render_template('ingredients.html', form=form, table=table)
 
-@app.route('/drinks.html')
-def drinks_page():
-    return app.send_static_file('drinks.html')
-
 @app.route('/json/<recipe_name>')
 def recipe_json(recipe_name):
+    recipe_name = urllib.unquote_plus(recipe_name)
     try:
-        return str(mms.recipes[recipe_name])
+        return jsonify(mms.base_recipes[recipe_name])
     except KeyError:
         return "{} not found".format(recipe_name)
 
 @app.errorhandler(500)
 def handle_internal_server_error(e):
+    print e
     return render_template('error.html'), 500
