@@ -259,9 +259,6 @@ def browse():
     filter_options = None
     print form.errors
 
-    # TODO main browse with no filters shows core recipes,
-    # but when filtering pull in the extended lists as well
-
     if request.method == 'GET':
         # filter for current recipes that can be made on the core list
         filter_options = util.FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
@@ -296,24 +293,20 @@ def order(recipe_name):
     recipe_name = urllib.unquote_plus(recipe_name)
     show_form = False
 
-    # TODO failure mode because of missing ingredients
-
     recipe = util.find_recipe(mms.recipes, recipe_name)
     recipe.convert('oz')
     if not recipe:
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)
     else:
-        if recipe_name == "A Dram":
-            recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,True,False,mms.default_margin,True,False,True,True))
-        else:
-            recipe_html = formatted_menu.format_recipe_html(recipe, util.DisplayOptions(True,False,False,False,mms.default_margin,True,False,True,True))
+        recipe_html = formatted_menu.format_recipe_html(recipe,
+                util.DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
+                    markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
 
     if request.method == 'GET':
         show_form = True
         if not recipe.can_make:
             flash('Ingredients to make this are out of stock!', 'error')
-
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
