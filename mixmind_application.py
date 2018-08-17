@@ -2,7 +2,7 @@
 """
 Application main for the mixmind app
 """
-from flask import Flask, render_template, flash, request, send_file, jsonify
+from flask import Flask, render_template, flash, request, send_file, jsonify, redirect
 from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
@@ -18,7 +18,7 @@ import util
 import formatted_menu
 from barstock import Barstock
 from notifier import Notifier
-from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm
+from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
 from models import db, User
 
 
@@ -54,18 +54,84 @@ datafiles = UploadSet('datafiles', DATA)
 configure_uploads(app, (datafiles,))
 # general use db
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # suppress deprecation warning
 db.init_app(app)
 # login
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "/login"
 
-logger = logging.getLogger(__name__)
-
+log = logging.getLogger(__name__)
 
 @login_manager.user_loader
 def load_user(user_id):
     # return None on failure
+    log.info("user_loader called")
     return User.query.get(user_id)
+
+@login_manager.request_loader
+def load_user_from_request(request):
+    # first, try to login using the api_key url arg
+    api_key = request.args.get('api_key')
+    if api_key:
+        user = User.query.filter_by(uuid_=api_key).first()
+        if user:
+            return user
+
+    # next, try to login using Basic Auth
+    api_key = request.headers.get('Authorization')
+    if api_key:
+        api_key = api_key.replace('Basic ', '', 1)
+        try:
+            api_key = base64.b64decode(api_key)
+        except TypeError:
+            pass
+        user = User.query.filter_by(uuid_=api_key).first()
+        if user:
+            return user
+    # finally, return None if both methods did not login the user
+    return None
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    """For GET requests, display the login form.
+    For POSTS, login the current user by processing the form.
+    """
+    form = LoginForm(request.form)
+    if form.errors:
+        log.error(form.errors)
+    log.debug(db)
+
+    if request.method == 'POST':
+        if form.validate():
+            # TODO sanitize
+            user_id = form.email.data
+            user = User.query.get(user_id)
+            if user:
+                #if bcrypt.check_password_hash(user.password, form.password.data)
+                if user.password == form.password.data:
+                    user.authenticated = True
+                    db.session.add(user)
+                    db.session.commit()
+                    flask_login.login_user(user, remember=False)
+                    next_ = request.args.get('next', "/")
+                    return redirect(next_)
+            else:
+                flash('Unknown user "{}"'.format(user_id), 'error')
+        else:
+            flash("Failure in form validation", 'error')
+    return render_template("login.html", form=form)
+
+@app.route("/logout", methods=['GET'])
+def logout():
+    """Logout the current user"""
+    user = flask_login.current_user
+    user.authenticated = False
+    db.session.add(user)
+    db.session.commit()
+    flask_login.logout_user()
+    return render_template("logout.html")
+
 
 class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
@@ -132,6 +198,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     return recipes, excluded, stats
 
 @app.route("/main/", methods=['GET', 'POST'])
+@flask_login.login_required
 def mainpage():
     form = DrinksForm(request.form)
     print form.errors
