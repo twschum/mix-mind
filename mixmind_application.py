@@ -6,11 +6,12 @@ from flask import Flask, render_template, flash, request, send_file, jsonify
 from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
-from flask_sqlalchemy import SQLAlchemy
+import flask_login
 
 
 import os
 import random
+import logging
 
 import recipe as drink_recipe
 import util
@@ -18,6 +19,7 @@ import formatted_menu
 from barstock import Barstock
 from notifier import Notifier
 from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm
+from models import db, User
 
 
 """
@@ -42,7 +44,7 @@ NOTES:
     - disable the order button unless we are "open"
 """
 
-# app config
+# app config TODO move to __init__
 app = Flask(__name__)
 app.config.from_object(__name__)
 with open('local_secret') as fp: # TODO config management
@@ -52,17 +54,18 @@ datafiles = UploadSet('datafiles', DATA)
 configure_uploads(app, (datafiles,))
 # general use db
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test.db'
-db = SQLAlchemy(app)
+db.init_app(app)
+# login
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+logger = logging.getLogger(__name__)
 
 
-# TODO move to own module
-class User(db.Model):
-    id_ = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-
-    def __repr__(self):
-        return '<User {}>'.format(self.username)
+@login_manager.user_loader
+def load_user(user_id):
+    # return None on failure
+    return User.query.get(user_id)
 
 class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
