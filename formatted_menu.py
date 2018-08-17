@@ -176,7 +176,8 @@ def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredien
                 name_line.append(sup('*'))
             if display_opts.prices and recipe.max_cost:
                 price = util.calculate_price(recipe.max_cost, display_opts.markup)
-                name_line.append('  -  {}{}'.format(sup('$'), price))
+                price = '&nbsp;{}{}'.format(sup('$'), price)
+                name_line.append(close(price, 'p', style="float:right"))
             name_line.append("</div><!-- recipe name text -->")
             name_line = close(''.join(name_line), 'h4',
                 **{"class": "card-title",
