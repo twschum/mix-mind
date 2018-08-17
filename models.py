@@ -1,12 +1,24 @@
 from flask_sqlalchemy import SQLAlchemy
 
+import util
+
 db = SQLAlchemy()
 
 class User(db.Model):
-    uuid_ = db.Column(db.String(36), primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    """ User where email address is account key
+    """
+    email = db.Column(db.String(120), primary_key=True, unique=True, nullable=False)
+    password = db.Column(db.String)
+    uuid_ = db.Column(db.String(36), unique=True)
+    username = db.Column(db.String(80), nullable=True)
     authenticated = db.Column(db.Boolean, default=False)
+    role = db.Column(db.String(), default="")
+
+    def __init__(self, *args, **kwargs):
+        super(User, self).__init__(*args, **kwargs)
+        self.uuid_ = util.get_uuid()
+        if not self.role:
+            self.role = "customer"
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -18,7 +30,7 @@ class User(db.Model):
         i.e. they have provided valid credentials.
         (Only authenticated users will fulfill the criteria of login_required.)
         """
-        self.authenticated
+        return self.authenticated
 
     @property
     def is_active(self):
@@ -42,4 +54,4 @@ class User(db.Model):
         Note that this must be a unicode - if the ID is natively an int
         or some other type, you will need to convert it to unicode.
         """
-        return self.uuid_
+        return self.email
