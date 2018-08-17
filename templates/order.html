@@ -1,24 +1,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-{% from "_helpers.html" import header, footer %}
+{% from "_helpers.html" import header, footer, show_flashed %}
 {{ header("Schubar - Place Order ") }}
 
     <!-- Main form -->
     <div class="container">
       <h2>Order for:</h2>
       <!-- Show flashed messaged -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            {% if category == 'error' %}
-            <div class="alert alert-warning">
-            {% else %}
-            <div class="alert alert-info">
-            {% endif %}
-              <strong>{{ message }}</strong>
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
+			{{ show_flashed() }}
 
       {% if show_form %}
       {% from "_formhelpers.html" import render_field %}

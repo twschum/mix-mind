@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-{% from "_helpers.html" import header, footer %}
+{% from "_helpers.html" import header, footer, show_flashed %}
 {{ header("Schubar Recipe Selector") }}
 
 	<!-- Main form -->
@@ -40,28 +40,10 @@
 		</form>
 	</div><!-- header container -->
 
-	{% with messages = get_flashed_messages(with_categories=true) %}
-	{% if messages %}
-
-	{% for message in messages %}
-	{% if "Error" not in message[1]: %}
-	<div class="alert alert-info">
-		{{ message[1] }}
-	</div>
-	{% endif %}
-
-	{% if "Error" in message[1]: %}
-	<div class="alert alert-warning">
-		{{ message[1] }}
-	</div>
-	{% endif %}
-	{% endfor %}
-	{% endif %}
-	{% endwith %}
-
+	<div class="container"><!-- recipes and message container -->
+	{{ show_flashed() }}
 	<!-- Result recipes -->
 	{% if recipes %}
-	<div class="container">
 		{% for recipe in recipes %}
 		{% if loop.index0 % 6 == 0 %}
 		<div class="row no-gutters">
@@ -69,7 +51,7 @@
 			{% if form.examples.data %}
 			<div class="card col-xs-12 col-sm-12 col-md-6 col-xl-6">
 			{% else %}
-			<div class="card col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom:0.75rem;">
+			<div class="card col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" style="background-color:#eee; margin-bottom:0.75rem;">
 			{% endif %}
 			{{ recipe | safe }}
 			</div><!-- col -->
