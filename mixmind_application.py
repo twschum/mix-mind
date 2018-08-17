@@ -19,14 +19,13 @@ from barstock import Barstock
 from notifier import Notifier
 from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm
 
-# TODO refactor messages to look nicer
-# TODO menu schemas
-#  would be able to include definitive item lists for serving, ice, tag, etc.
 
 """
 NOTES:
-* disable the order button unless we are "open"
-* support for modifying the "bartender on duty" aka Notifier's secret info
+* refactor messages to look nicer
+* menu schemas
+    - would be able to include definitive item lists for serving, ice, tag, etc.
+* update bootstrap
 * user permissons (non-logged in vs admin)
     - flask-praetorian
     - google app engine
@@ -39,6 +38,8 @@ NOTES:
     - support concurrent users, single admin
 * configuration management
     - defaults plus management
+    - support for modifying the "bartender on duty" aka Notifier's secret info
+    - disable the order button unless we are "open"
 """
 
 # app config
