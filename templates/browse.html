@@ -3,7 +3,7 @@
 {{ header("Schubar Recipe Selector") }}
 
 	<!-- Main form -->
-	<div class="container" style="padding-bottom:15px">
+	<div class="container" style="padding-bottom:15px; max-width:500px">
 		{% from "_formhelpers.html" import render_field %}
 		<h2><a href="/">Browse</a> @Schubar</h2>
 		<p><em><small>Tips always appreciated, never required</small></em></p>
@@ -38,47 +38,47 @@
 			<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
 			</div><!-- filters -->
 		</form>
+	</div><!-- header container -->
+
+<div class="container" style="padding-right:0px; padding-left:0px;">
+	<!-- Show flashed messaged -->
+	{% with messages = get_flashed_messages(with_categories=true) %}
+	{% if messages %}
+
+	{% for message in messages %}
+	{% if "Error" not in message[1]: %}
+	<div class="alert alert-info">
+		{{ message[1] }}
+	</div>
+	{% endif %}
+
+	{% if "Error" in message[1]: %}
+	<div class="alert alert-warning">
+		{{ message[1] }}
+	</div>
+	{% endif %}
+	{% endfor %}
+	{% endif %}
+	{% endwith %}
+
+	<!-- Result recipes -->
+	{% if recipes %}
+	<div class="container">
+		<div class="row">
+		{% for recipe in recipes %}
+			{% if form.examples.data %}
+			<div class="col-xs-12 col-sm-12 col-md-6 col-xl-6">
+			{% else %}
+			<div class="col-xs-12 col-sm-12 col-md-6 col-xl-4">
+			{% endif %}
+			{{ recipe | safe }}
+			</div><!-- col -->
+		{% endfor %}
+			</div><!-- row -->
+		{% endif %}
 	</div><!-- container -->
 
-			<!-- Show flashed messaged -->
-			{% with messages = get_flashed_messages(with_categories=true) %}
-			{% if messages %}
+	<p><center><em><small>$$ amount shown is recommended tip, calculated from cost of ingredients</small></em></center></p>
+</div> <!-- message + recipes container -->
 
-			{% for message in messages %}
-			{% if "Error" not in message[1]: %}
-			<div class="alert alert-info">
-				{{ message[1] }}
-			</div>
-			{% endif %}
-
-			{% if "Error" in message[1]: %}
-			<div class="alert alert-warning">
-				{{ message[1] }}
-			</div>
-			{% endif %}
-			{% endfor %}
-			{% endif %}
-			{% endwith %}
-
-
-			<!-- Result recipes -->
-			{% if recipes %}
-			<div class="container">
-				<h3>Recipes</h3>
-				<div class="row">
-				{% for recipe in recipes %}
-					{% if form.examples.data %}
-					<div class="col-xs-12 col-sm-12 col-md-6 col-xl-6">
-					{% else %}
-					<div class="col-xs-12 col-sm-12 col-md-6 col-xl-4">
-					{% endif %}
-					{{ recipe | safe }}
-					</div><!-- col -->
-				{% endfor %}
-					</div><!-- row -->
-				{% endif %}
-			</div><!-- container -->
-
-
-			</div> <!-- top level container -->
 {{ footer() }}
