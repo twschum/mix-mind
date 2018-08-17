@@ -21,7 +21,6 @@
 
     "A Dram": {
         "info": "One fine dram",
-        "tag": "core",
         "ingredients": {
             "whisky": 1.5
         },

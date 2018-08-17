@@ -51,6 +51,7 @@ class Barstock(object):
     def slice_on_type(self, specifier):
         type_ = specifier.what.lower()
         if type_ in ['rum', 'whiskey', 'whisky', 'tequila', 'vermouth']:
+            type_ = 'whisk' if type_ == 'whisky' else type_
             matching = self.df[self.df['type'].str.contains(type_)]
         elif type_ == 'any spirit':
             matching = self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
