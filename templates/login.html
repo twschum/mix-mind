@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% from "_helpers.html" import header, footer %}
+{{ header("MixMind - Login") }}
+
+    <!-- Main form -->
+    <div class="container">
+      <h2>Login:</h2>
+      <!-- Show flashed messaged -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            {% if category == 'error' %}
+            <div class="alert alert-warning">
+            {% else %}
+            <div class="alert alert-info">
+            {% endif %}
+              <strong>{{ message }}</strong>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% from "_formhelpers.html" import render_field %}
+      <form  id="login-form" action="" method="post" role="form">
+        {{ form.csrf }}
+        <div class="form-group">
+            {{ render_field(form.email) }}
+            {{ render_field(form.password) }}
+        </div>
+      <!-- align the buttons -->
+      <div class="container row">
+        <div class="col align-self-start">
+        <input type="submit" form="login-form" class="btn btn-success" value="Login"></input>
+        </div>
+      </form>
+        <form action="/">
+          <div class="col"> <input type="submit" class="btn btn-primary" value="Back to Browse"></input> </div>
+        </form>
+      </div>
+
+
+      </div> <!-- top level container -->
+{{ footer() }}
