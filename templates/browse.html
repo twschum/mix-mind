@@ -7,9 +7,15 @@
 		{% from "_formhelpers.html" import render_field %}
 		<h2><a href="/">Browse</a> @Schubar</h2>
 		<p><em><small>Tips always appreciated, never required</small></em></p>
-		<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a>
-		<div id="filters" class="collapse">
-			<form	id="menu-settings" action="" method="post" role="form">
+		<form	id="menu-settings" action="" method="post" role="form">
+		<div class="row">
+			<div class="col">
+				<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a></div>
+			<div class="col">
+			<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+			</div>
+		</div><!-- row -->
+		<div id="filters" class="collapse" style="margin-bottom:0.75rem">
 				{{ form.csrf }}
 				<div class="form-group">
 					<dl>
@@ -29,9 +35,8 @@
 						</dl>
 					</div><!-- misc-filters -->
 				</div><!-- form-group -->
-			</div><!-- filters -->
 			<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
-			<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+			</div><!-- filters -->
 		</form>
 	</div><!-- container -->
 
