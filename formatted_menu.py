@@ -161,70 +161,69 @@ def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredien
             "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             }
 
-    with tag('div', id=recipe.name, klass="card", style="margin-bottom:0.75rem"):
-        with tag('div', id=recipe.name, klass="card-body"):
-            # embed glass image in name line
-            name_line = []
-            # attempt hack for keeping text aligned right of image when wrapping
-            name_line.append('<div class="clearfix" style="vertical-align:middle;">')
-            name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
-            # link to order includes name and image
-            name_line.append(recipe.name)
-            if order_link:
-                name_line = [wrap_link(order_link, ''.join(name_line))]
-            if display_opts.origin and 'schubar original' in recipe.origin.lower():
-                name_line.append(sup('*'))
-            if display_opts.prices and recipe.max_cost:
-                price = util.calculate_price(recipe.max_cost, display_opts.markup)
-                price = '&nbsp;{}{}'.format(sup('$'), price)
-                name_line.append(close(price, 'p', style="float:right"))
-            name_line.append("</div><!-- recipe name text -->")
-            name_line = close(''.join(name_line), 'h4',
-                **{"class": "card-title",
-                "style": "margin-left:-0.35em; vertical-align:middle;"}) # tweak to the left
-            doc.asis(name_line)
+    with tag('div', id=recipe.name, klass="card-body"):
+        # embed glass image in name line
+        name_line = []
+        # attempt hack for keeping text aligned right of image when wrapping
+        name_line.append('<div class="clearfix" style="vertical-align:middle;">')
+        name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
+        # link to order includes name and image
+        name_line.append(recipe.name)
+        if order_link:
+            name_line = [wrap_link(order_link, ''.join(name_line))]
+        if display_opts.origin and 'schubar original' in recipe.origin.lower():
+            name_line.append(sup('*'))
+        if display_opts.prices and recipe.max_cost:
+            price = util.calculate_price(recipe.max_cost, display_opts.markup)
+            price = '&nbsp;{}{}'.format(sup('$'), price)
+            name_line.append(close(price, 'p', style="float:right"))
+        name_line.append("</div><!-- recipe name text -->")
+        name_line = close(''.join(name_line), 'h4',
+            **{"class": "card-title",
+            "style": "margin-left:-0.35em; vertical-align:middle;"}) # tweak to the left
+        doc.asis(name_line)
 
-            if display_opts.prep_line:
-                doc.asis(small_br(recipe.prep_line(extended=True, caps=False)))
+        if display_opts.prep_line:
+            doc.asis(small_br(recipe.prep_line(extended=True, caps=False)))
 
-            if display_opts.info and recipe.info:
-                doc.asis(small_br(em(recipe.info)))
+        if display_opts.info and recipe.info:
+            doc.asis(small_br(em(recipe.info)))
 
+        if condense_ingredients:
+            ingredients = ', '.join([str(ingredient.specifier) for ingredient in recipe.ingredients
+                    if isinstance(ingredient, QuantizedIngredient)])
+            doc.asis(ingredients+'<br>')
+        else:
+            with tag('ul', id='ingredients'):
+                for item in recipe.ingredients:
+                    line('li', item.str(), type="none")
+
+        if display_opts.variants:
             if condense_ingredients:
-                ingredients = ', '.join([str(ingredient.specifier) for ingredient in recipe.ingredients
-                        if isinstance(ingredient, QuantizedIngredient)])
-                doc.asis(ingredients+'<br>')
+                # also need these to not be indented
+                for variant in recipe.variants:
+                    doc.asis(small(em(variant)))
             else:
-                with tag('ul', id='ingredients'):
-                    for item in recipe.ingredients:
-                        line('li', item.str(), type="none")
-
-            if display_opts.variants:
-                if condense_ingredients:
-                    # also need these to not be indented
+                with tag('ul', id='variants'):
                     for variant in recipe.variants:
-                        doc.asis(small_br(em(variant)))
-                else:
-                    with tag('ul', id='variants'):
-                        for variant in recipe.variants:
-                            with tag('small'):
-                                with tag('li', type="none"):
-                                    line('em', variant)
+                        with tag('small'):
+                            with tag('li', type="none"):
+                                line('em', variant)
 
-            if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
-                # special display for recipe with examples
-                if display_opts.prices:
-                    for e in sorted(recipe.examples, key=lambda x: x.cost):
-                        markup = 0.25+display_opts.markup if recipe.name == "A Dram" else display_opts.markup
-                        fields = {
-                                'cost': util.calculate_price(e.cost, markup),
-                                'abv': e.abv,
-                                'bottles': e.bottles
-                                }
-                        doc.asis(small_br("${cost:>3.0f} | {abv:.1f}% | {bottles}".format(**fields)))
-                else:
-                    for e in recipe.examples:
-                        doc.asis(small_br("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
+        if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
+            # special display for recipe with examples
+            if display_opts.prices:
+                for e in sorted(recipe.examples, key=lambda x: x.cost):
+                    markup = 0.25+display_opts.markup if recipe.name == "A Dram" else display_opts.markup
+                    fields = {
+                            'cost': util.calculate_price(e.cost, markup),
+                            'abv': e.abv,
+                            'bottles': e.bottles
+                            }
+                    doc.asis(small_br("${cost:>3.0f} | {abv:.1f}% | {bottles}".format(**fields)))
+            else:
+                for e in recipe.examples:
+                    doc.asis(small_br("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
             #doc.asis('<br>')
 
     return unicode(doc.getvalue())
