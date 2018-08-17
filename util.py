@@ -9,7 +9,6 @@ import json
 import inspect
 
 # make passing a bunch of options around a bit cleaner
-# TODO make new tag field to replace what the "list" field was
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
 FilterOptions = namedtuple('FilterOptions', 'all_,include,exclude,use_or,style,glass,prep,ice,name,tag')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
