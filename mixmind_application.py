@@ -6,6 +6,8 @@ from flask import Flask, render_template, flash, request, send_file, jsonify
 from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
+from flask_sqlalchemy import SQLAlchemy
+
 
 import os
 import random
@@ -42,12 +44,24 @@ NOTES:
 # app config
 app = Flask(__name__)
 app.config.from_object(__name__)
-with open('local_secret') as fp:
+with open('local_secret') as fp: # TODO config management
     app.config['SECRET_KEY'] = fp.read().strip()
 app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
 datafiles = UploadSet('datafiles', DATA)
 configure_uploads(app, (datafiles,))
+# general use db
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db/test.db'
+db = SQLAlchemy(app)
 
+
+# TODO move to own module
+class User(db.Model):
+    id_ = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __repr__(self):
+        return '<User {}>'.format(self.username)
 
 class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
