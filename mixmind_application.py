@@ -17,13 +17,18 @@ from notifier import Notifier
 
 # TODO refactor messages to look nicer
 # TODO menu schemas
-#   would be able to include definitive item lists for serving, ice, tag, etc.
+#  would be able to include definitive item lists for serving, ice, tag, etc.
 
 """
 NOTES:
 * disable the order button unless we are "open"
 * support for modifying the "bartender on duty" aka Notifier's secret info
 * user permissons (non-logged in vs admin)
+    - flask-praetorian
+    - google app engine
+    - backend DB?
+    - domain name
+        - LetsEncrypt certs
 """
 
 # app config
@@ -410,3 +415,6 @@ def recipe_json(recipe_name):
     except KeyError:
         return "{} not found".format(recipe_name)
 
+@app.errorhandler(500)
+def handle_internal_server_error(e):
+    return render_template('error.html'), 500
