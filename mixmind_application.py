@@ -15,7 +15,7 @@ import util
 import formatted_menu
 from barstock import Barstock
 from notifier import Notifier
-from forms import DrinksFrom, OrderForm, RecipeFrom, RecipeListSelector, BarstockForm
+from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm
 
 # TODO refactor messages to look nicer
 # TODO menu schemas
@@ -35,6 +35,8 @@ NOTES:
     - moar logging
     - test error handling
     - support concurrent users, single admin
+* configuration management
+    - defaults plus management
 """
 
 # app config

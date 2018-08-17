@@ -42,7 +42,7 @@ class DrinksForm(Form):
     examples = BooleanField("Examples", description="Show specific examples of a recipe based on the ingredient stock")
     all_ingredients = BooleanField("All Ingredients", description="Show every ingredient instead of just the main liquors with each example")
     convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(util.VALID_UNITS), validators.Optional()])
-    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=mms.default_margin)
+    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.1) # TODO config management
     info = BooleanField("Info", description="Show the info line for recipes")
     origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals")
     variants = BooleanField("Variants", description="Show variants for drinks")
