@@ -40,8 +40,6 @@
 		</form>
 	</div><!-- header container -->
 
-<div class="container" style="padding-right:0px; padding-left:0px;">
-	<!-- Show flashed messaged -->
 	{% with messages = get_flashed_messages(with_categories=true) %}
 	{% if messages %}
 
@@ -64,21 +62,27 @@
 	<!-- Result recipes -->
 	{% if recipes %}
 	<div class="container">
-		<div class="row">
 		{% for recipe in recipes %}
+		{% if loop.index0 % 6 == 0 %}
+		<div class="row no-gutters">
+		{% endif %}
 			{% if form.examples.data %}
-			<div class="col-xs-12 col-sm-12 col-md-6 col-xl-6">
+			<div class="card col-xs-12 col-sm-12 col-md-6 col-xl-6">
 			{% else %}
-			<div class="col-xs-12 col-sm-12 col-md-6 col-xl-4">
+			<div class="card col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" style="margin-bottom:0.75rem;">
 			{% endif %}
 			{{ recipe | safe }}
 			</div><!-- col -->
-		{% endfor %}
+			{% if loop.index0 % 6 == 5 or loop.last %}
 			</div><!-- row -->
-		{% endif %}
+			{% endif %}
+		{% endfor %}
+	{% endif %}
 	</div><!-- container -->
 
-	<p><center><em><small>$$ amount shown is recommended tip, calculated from cost of ingredients</small></em></center></p>
+	<div style="padding-right:15px; padding-left:15px;">
+		<center><em><small>$$ amount shown is recommended tip, calculated from cost of ingredients</small></em></center>
+	</div>
 </div> <!-- message + recipes container -->
 
 {{ footer() }}
