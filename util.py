@@ -7,6 +7,7 @@ from collections import OrderedDict, namedtuple
 import operator
 import json
 import inspect
+import uuid
 
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
@@ -46,6 +47,9 @@ def filter_on_attribute(recipes, filter_options, attribute):
         attr_value = getattr(filter_options, attribute).lower()
         recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
     return recipes
+
+def get_uuid():
+    return unicode(uuid.uuid4())
 
 class StatTracker(dict):
     # mutable class variables
