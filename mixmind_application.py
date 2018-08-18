@@ -54,7 +54,6 @@ with open('local_secret') as fp: # TODO config management
 app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
 datafiles = UploadSet('datafiles', DATA)
 configure_uploads(app, (datafiles,))
-
 app.config['SECURITY_PASSWORD_SALT'] = 'salty'
 
 # Setup Flask-Security
@@ -64,18 +63,24 @@ security = Security(app, user_datastore)
 # Create a user to test with
 @app.before_first_request
 def create_user():
-    init_db()
-    user_datastore.create_user(email='tim@asdf.net', password='password')
-    user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
-    user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
-    db_session.commit()
-    admin = user_datastore.find_role('customer')
-    user = user_datastore.find_user(email='tim@asdf.net')
-    user_datastore.add_role_to_user(user, admin)
-    db_session.commit()
+    '''
+    try:
+        init_db()
+        user_datastore.create_user(email='tim@asdf.net', password='password')
+        user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
+        user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
+        db_session.commit()
+        admin = user_datastore.find_role('admin')
+        user = user_datastore.find_user(email='tim@asdf.net')
+        user_datastore.add_role_to_user(user, admin)
+        db_session.commit()
+    except:
+        pass
+    '''
 
 # Views
 @app.route('/test')
+@login_required
 @roles_required('admin')
 def home_test():
     return jsonify({'test': 'Here you go!'})
