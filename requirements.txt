@@ -12,6 +12,7 @@ Flask-Mail==0.9.1
 Flask-Principal==0.4.0
 Flask-Security==3.0.0
 Flask-SQLAlchemy==2.3.2
+Flask-Uploads==0.2.1
 Flask-WTF==0.14.2
 functools32==3.2.3.post2
 future==0.16.0

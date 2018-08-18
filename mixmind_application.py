@@ -19,7 +19,7 @@ import formatted_menu
 from barstock import Barstock
 from notifier import Notifier
 from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
-from database import db_session, init_db
+from database import db_session, init_db, db_file
 from models import User, Role
 
 
@@ -62,9 +62,10 @@ security = Security(app, user_datastore)
 
 # Create a user to test with
 @app.before_first_request
-def create_user():
-    '''
-    try:
+def initialize_user_datastore():
+    if not os.path.isdir('db/'):
+        os.mkdir('db/')
+    if not os.path.isfile(db_file):
         init_db()
         user_datastore.create_user(email='tim@asdf.net', password='password')
         user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
@@ -74,9 +75,6 @@ def create_user():
         user = user_datastore.find_user(email='tim@asdf.net')
         user_datastore.add_role_to_user(user, admin)
         db_session.commit()
-    except:
-        pass
-    '''
 
 # Views
 @app.route('/test')

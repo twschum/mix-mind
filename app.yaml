@@ -6,10 +6,13 @@ handlers:
 - url: /static
   static_dir: static
 - url: /.*
-  script: main.app
+  script: mixmind_application.app
 
 skip_files:
-- ^(.*/)?.*\.bak$
+- google-cloud-sdk/
+- venv/
 - ^(.*/)?.*\.sw[po]$
-- ^(.*/)?.*\.pdf$
-- ^(.*/)?.*\.csv$
+
+libraries:
+- name: ssl
+  version: latest
