@@ -41,6 +41,7 @@ mailcap-fix==1.0.1
 MarkupSafe==1.0
 matplotlib==2.1.1
 numpy==1.13.3
+nose>=1.0
 ordered-set==2.0.2
 pandas==0.21.0
 passlib==1.7.1
