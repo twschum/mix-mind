@@ -25,6 +25,7 @@ from models import User, Role
 
 """
 NOTES:
+^ Need to reaplace pandas version of barstock - time for sql!
 * refactor messages to look nicer
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.

@@ -9,10 +9,14 @@ handlers:
   script: mixmind_application.app
 
 skip_files:
-- google-cloud-sdk/
-- venv/
+#- venv/
 - ^(.*/)?.*\.sw[po]$
+- ^(.*/)?.*\.py[co]$
 
 libraries:
 - name: ssl
+  version: latest
+- name: tempfile
+  version: latest
+- name: numpy
   version: latest
