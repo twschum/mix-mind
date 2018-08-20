@@ -1,15 +1,71 @@
 
 import string
 import itertools
-import pandas as pd
+
+try:
+    import pandas as pd
+except ImportError:
+    pass
 
 import util
+
+from database import Base, db_session
+from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
+import csv
+
+Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
+
+db_uri = "mysql+mysqldb://root@/<dbname>?unix_socket=/cloudsql/<projectid>:<instancename>"
+
+class Ingredient(Base):
+    __table__  = 'ingredient'
+    Category   = Column(Enum(*Categories))
+    Type       = Column(String(), primary_key=True)
+    Bottle     = Column(String(), primary_key=True)
+    In_Stock   = Column(Boolean(), default=True)
+    Proof      = Column(Float())
+    Size_mL    = Column(Float())
+    Price_Paid = Column(Float())
+
+class Barstock_SQL(Barstock):
+    @classmethod
+    def load(cls, barstock_csv, include_all=False):
+        """Load the given CSVs"""
+        if isinstance(barstock_csv, basestring):
+            barstock_csv = [barstock_csv]
+        for csv_file in barstock_csv:
+            with open(csv_file) as fp:
+                reader = csv.DictReader(fp)
+                import ipdb; ipdb.set_trace();
+                for row in fp:
+                    ingredient = Ingredient()
+                db_session.commit()
+
+
+        # TODO validate columns, merge duplicates
+        df = pd.concat([pd.read_csv(filename) for filename in barstock_csv])
+        df = df.drop_duplicates(['Type', 'Bottle'])
+        df = df.dropna(subset=['Type'])
+        # convert money columns to floats
+        for col in [col for col in df.columns if '$' in col or 'Price' in col]:
+            df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
+        df = df.fillna(0)
+        cls._calculated_columns(df)
+        df['type'] = map(string.lower, df['Type'])
+        df['Category'] = pd.Categorical(df['Category'], cls.Categories)
+
+        # drop out of stock items
+        if not include_all:
+            #log debug how many dropped
+            df = df[df["In Stock"] > 0]
+        return cls(df)
+
+
 
 class Barstock(object):
     """ Wrap up a csv of bottle info with some helpful methods
     for data access and querying
     """
-    Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
     def __init__(self, df):
         self.df = df
