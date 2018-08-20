@@ -28,7 +28,12 @@ class Ingredient(Base):
     Proof      = Column(Float())
     Size_mL    = Column(Float())
     Price_Paid = Column(Float())
-    Price_mL   = Column('$/mL', Float())
+    # computed
+    type_        = Column(String())
+    Size_oz      = Column(Float())
+    Cost_per_mL  = Column(Float())
+    Cost_per_cL  = Column(Float())
+    Cost_per_oz  = Column(Float())
 
     def __str__(self):
         return "|".join([self.Category, self.Type, self.Bottle])
@@ -40,12 +45,16 @@ class Ingredient(Base):
         return setattr(self, field, value)
 
     display_name_mappings = {
-        "Category": {'k': "Category", 'v': lambda x: x},
-        "Type": {'k': "Type", 'v': lambda x: x},
-        "Bottle": {'k': "Bottle", 'v': lambda x: x},
-        "In Stock": {'k': "In_Stock", 'v': util.get_bool_from_int},
-        "Size (mL)": {'k': "Size_mL", 'v': util.get_float},
-        "Price Paid": {'k': "Price_Paid", 'v': util.get_price_float},
+        "Category": {'k': "Category", 'v': unicode},
+        "Type": {'k': "Type", 'v': unicode},
+        "Bottle": {'k': "Bottle", 'v': unicode},
+        "In Stock": {'k': "In_Stock", 'v': util.from_bool_from_int},
+        "Size (mL)": {'k': "Size_mL", 'v': util.from_float},
+        "Size (oz)": {'k': "Size_oz", 'v': util.from_float},
+        "Price Paid": {'k': "Price_Paid", 'v': util.from_price_float},
+        "$/mL": {'k': "Cost_per_mL", 'v': util.from_price_float},
+        "$/cL": {'k': "Cost_per_cL", 'v': util.from_price_float},
+        "$/oz": {'k': "Cost_per_oz", 'v': util.from_price_float},
     }
 
 def get_barstock_instance(csv_list, include_all=False):
@@ -66,6 +75,18 @@ def _calculated_columns(thing):
     thing['$/mL'] = thing['Price Paid'] / thing['Size (mL)']
     thing['$/cL'] = thing['Price Paid']*10 / thing['Size (mL)']
     thing['$/oz'] = thing['Price Paid'] / thing['Size (oz)']
+
+def _update_computed_fields(row):
+    """ Uses clean names
+    """
+    row.type_ = row.Type.lower()
+    try:
+        row.Size_oz = util.convert_units(row.Size_mL, 'mL', 'oz')
+        row.Cost_per_mL = row.Price_Paid  / row.Size_mL
+        row.Cost_per_cL = row.Price_Paid*10  / row.Size_mL
+        row.Cost_per_oz = row.Price_Paid  / row.Size_oz
+    except ZeroDivisionError:
+        log.warning("Ingredient missing size field: {}".format(row))
 
 class DataError(Exception):
     pass
@@ -97,22 +118,93 @@ class Barstock_SQL(Barstock):
         if not row.get('Type') and not row.get('Bottle'):
             #raise DataError("Primary key (Type, Bottle) missing from row")
             return
-        #_calculated_columns(row)
-        clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
-                for k,v in row.iteritems()
-                if k in Ingredient.display_name_mappings}
+        try:
+            clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
+                    for k,v in row.iteritems()
+                    if k in Ingredient.display_name_mappings}
+        except UnicodeDecodeError:
+            log.warning("UnicodeDecodeError for ingredient: {}".format(row))
+            return
         try:
             ingredient = Ingredient(**clean_row)
-            row = db_session.query(Ingredient).filter(Ingredient.Bottle == ingredient.Bottle, Ingredient.Type == ingredient.Type).one_or_none()
+            row = Ingredient.query.filter_by(Bottle=ingredient.Bottle, Type=ingredient.Type).one_or_none()
             if row: # update
                 for k, v in clean_row.iteritems():
                     row[k] = v
+                _update_computed_fields(row)
             else: # insert
+                _update_computed_fields(ingredient)
                 db_session.add(ingredient)
             db_session.commit()
         except SQLAlchemyError as err:
             msg = "{}: on row: {}".format(err, clean_row)
             raise DataError(msg)
+
+    def get_all_bottle_combinations(self, specifiers):
+        """ For a given list of ingredient specifiers, return a list of lists
+        where each list is a specific way to make the drink
+        e.g. Martini passes in ['gin', 'vermouth'], gets [['Beefeater', 'Noilly Prat'], ['Knickerbocker', 'Noilly Prat']]
+        """
+        bottle_lists = [self.slice_on_type(i)['Bottle'].tolist() for i in specifiers]
+        opts = itertools.product(*bottle_lists)
+        return opts
+
+    def get_bottle_proof(self, ingredient):
+        return self.get_bottle_field(ingredient, 'Proof')
+
+    def get_bottle_category(self, ingredient):
+        return self.get_bottle_field(ingredient, 'Category')
+
+    def cost_by_bottle_and_volume(self, ingredient, amount, unit='oz'):
+        per_unit = self.get_bottle_field(ingredient, '$/{}'.format(unit))
+        return per_unit * amount
+
+    def get_bottle_field(self, ingredient, field):
+        if field not in self.df.columns:
+            raise AttributeError("get-bottle-field '{}' not a valid field in the data".format(field))
+        return self.get_ingredient_row(ingredient).at[0, field]
+
+    def get_ingredient_row(self, ingredient):
+        if ingredient.bottle is None:
+            raise ValueError("ingredient {} has no bottle specified".format(ingredient.__repr__()))
+        row = self.slice_on_type(ingredient)
+        if len(row) > 1:
+            raise ValueError('{} has multiple entries in the input data!'.format(ingredient.__repr__()))
+        elif len(row) < 1:
+            raise ValueError('{} has no entry in the input data!'.format(ingredient.__repr__()))
+        return row
+
+    def slice_on_type(self, specifier):
+        type_ = specifier.what.lower()
+        if type_ in ['rum', 'whiskey', 'whisky', 'tequila', 'vermouth']:
+            type_ = 'whisk' if type_ == 'whisky' else type_
+            matching = self.df[self.df['type'].str.contains(type_)]
+        elif type_ == 'any spirit':
+            matching = self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
+            #matching = self.df[self.df['Category'] == 'Spirit']
+        elif type_ == 'bitters':
+            matching = self.df[self.df['Category'] == 'Bitters']
+        else:
+            matching = self.df[self.df['type'] == type_]
+        if specifier.bottle:
+            return matching[matching['Bottle'] == specifier.bottle].reset_index(drop=True)
+        else:
+            return matching
+
+    def to_csv(self):
+        cols = Ingredient.__table__.columns.keys()
+        result = [','.join(cols)]
+        for row in Ingredient.query.all():
+            result.append(','.join([unicode(row[col]) for col in cols]))
+        return '\n'.join(result)
+
+    def _test(self, t='dry gin'):
+        import ipdb; ipdb.set_trace();
+        print type_
+        return
+
+    def sorted_df(self):
+        return self.df.sort_values(['Category','Type','Price Paid'])
 
 
 
