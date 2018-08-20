@@ -6,7 +6,7 @@ import os
 import random
 import logging
 
-from flask import Flask, render_template, flash, request, send_file, jsonify, redirect
+from flask import Flask, render_template, flash, request, send_file, jsonify, redirect, after_request
 from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
@@ -77,6 +77,12 @@ def initialize_user_datastore():
         user_datastore.add_role_to_user(user, admin)
         db_session.commit()
 
+# required for SQLAlchemy scoped_session registry
+@app.after_request
+def clean_up_db_sessions():
+    log.debug("Remove SQLAlchemy session for request: {}".format(id(request)))
+    db_session.remove()
+
 # Views
 @app.route('/test')
 @login_required
@@ -87,7 +93,7 @@ def home_test():
 class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
         self.recipe_files = recipes
-        self.barstock_files = barstock_files
+        self.barstock_files = barstock_files # TODO get from datastore and cloud storage
         self.base_recipes = util.load_recipe_json(recipes)
         self.barstock = Barstock.load(barstock_files)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
@@ -102,6 +108,7 @@ class MixMindServer():
             print err
 
     def get_ingredients_table(self):
+        raise NotImplementedError("unavailable for now")
         df = self.barstock.sorted_df()
         df.Proof = df.Proof.astype('int')
         df['Size (mL)'] = df['Size (mL)'].astype('int')
@@ -308,6 +315,7 @@ def ingredients():
             mms.regenerate_recipes()
 
         elif 'remove-ingredient' in request.form:
+            # TODO remove all this replace with new system that's like ordering
             bottle = form.bottle.data
             if bottle in mms.barstock.df.Bottle.values:
                 mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]

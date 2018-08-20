@@ -31,14 +31,3 @@ class User(Base, UserMixin):
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
-
-Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
-class Ingredient(Base):
-    __tablename__  = 'ingredient'
-    Category   = Column(Enum(*Categories))
-    Type       = Column(String(), primary_key=True)
-    Bottle     = Column(String(), primary_key=True)
-    In_Stock   = Column(Boolean(), default=True)
-    Proof      = Column(Float())
-    Size_mL    = Column(Float())
-    Price_Paid = Column(Float())

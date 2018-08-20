@@ -49,6 +49,7 @@ def superscript(item):
 
 
 def append_liquor_list(doc, df, own_page):
+    # TODO no interaction with dataframe?
     bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
     if own_page:
         print "Appending list as new page"

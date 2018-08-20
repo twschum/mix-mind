@@ -130,6 +130,18 @@ def default_initializer(func):
         func(self, *args, **kwargs)
     return wrapper
 
+# utils to convert string values
+def from_float(s):
+    if not s:
+        return 0.0
+    return float(s)
+def from_price_float(s):
+    return from_float(s.replace('$', ''))
+def from_bool_from_int(s):
+    if not s:
+        return False
+    return bool(int(s))
+
 def to_fraction(amount):
     fraction = Fraction.from_float(float(amount)).limit_denominator(99)
     if fraction.denominator == 1:
