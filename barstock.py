@@ -148,7 +148,7 @@ class Barstock_SQL(Barstock):
         where each list is a specific way to make the drink
         e.g. Martini passes in ['gin', 'vermouth'], gets [['Beefeater', 'Noilly Prat'], ['Knickerbocker', 'Noilly Prat']]
         """
-        bottle_lists = [self.slice_on_type(i)['Bottle'].tolist() for i in specifiers]
+        bottle_lists = [[b.Bottle for b in self.slice_on_type(i)] for i in specifiers]
         opts = itertools.product(*bottle_lists)
         return opts
 
@@ -159,13 +159,13 @@ class Barstock_SQL(Barstock):
         return self.get_bottle_field(ingredient, 'Category')
 
     def cost_by_bottle_and_volume(self, ingredient, amount, unit='oz'):
-        per_unit = self.get_bottle_field(ingredient, '$/{}'.format(unit))
+        per_unit = self.get_bottle_field(ingredient, 'Cost_per_{}'.format(unit))
         return per_unit * amount
 
     def get_bottle_field(self, ingredient, field):
-        if field not in self.df.columns:
+        if field not in Ingredient.__table__.columns.keys():
             raise AttributeError("get-bottle-field '{}' not a valid field in the data".format(field))
-        return self.get_ingredient_row(ingredient).at[0, field]
+        return self.get_ingredient_row(ingredient)[field]
 
     def get_ingredient_row(self, ingredient):
         if ingredient.bottle is None:
@@ -175,7 +175,7 @@ class Barstock_SQL(Barstock):
             raise ValueError('{} has multiple entries in the input data!'.format(ingredient.__repr__()))
         elif len(row) < 1:
             raise ValueError('{} has no entry in the input data!'.format(ingredient.__repr__()))
-        return row
+        return row[0]
 
     # TODO sqlqlchemy exception decorator?
     def slice_on_type(self, specifier):
