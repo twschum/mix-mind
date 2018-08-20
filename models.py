@@ -3,7 +3,7 @@ from flask_security import UserMixin, RoleMixin
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, DateTime, Column, Integer, \
-                       String, ForeignKey
+                       String, ForeignKey, Enum, Float
 
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
@@ -31,3 +31,14 @@ class User(Base, UserMixin):
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
+
+Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
+class Ingredient(Base):
+    __tablename__  = 'ingredient'
+    Category   = Column(Enum(*Categories))
+    Type       = Column(String(), primary_key=True)
+    Bottle     = Column(String(), primary_key=True)
+    In_Stock   = Column(Boolean(), default=True)
+    Proof      = Column(Float())
+    Size_mL    = Column(Float())
+    Price_Paid = Column(Float())
