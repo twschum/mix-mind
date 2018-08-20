@@ -25,15 +25,15 @@ class Ingredient(Base):
     Type       = Column(String(), primary_key=True)
     Bottle     = Column(String(), primary_key=True)
     In_Stock   = Column(Boolean(), default=True)
-    Proof      = Column(Float())
-    Size_mL    = Column(Float())
-    Price_Paid = Column(Float())
+    Proof      = Column(Float(), default=0.0)
+    Size_mL    = Column(Float(), default=0.0)
+    Price_Paid = Column(Float(), default=0.0)
     # computed
     type_        = Column(String())
-    Size_oz      = Column(Float())
-    Cost_per_mL  = Column(Float())
-    Cost_per_cL  = Column(Float())
-    Cost_per_oz  = Column(Float())
+    Size_oz      = Column(Float(), default=0.0)
+    Cost_per_mL  = Column(Float(), default=0.0)
+    Cost_per_cL  = Column(Float(), default=0.0)
+    Cost_per_oz  = Column(Float(), default=0.0)
 
     def __str__(self):
         return "|".join([self.Category, self.Type, self.Bottle])
@@ -60,15 +60,17 @@ class Ingredient(Base):
         "$/oz": {'k': "Cost_per_oz", 'v': util.from_price_float},
     }
 
-def get_barstock_instance(csv_list, include_all=False):
+def get_barstock_instance(csv_list, use_sql=False, include_all=False):
     """ Factory for getting the right, initialized barstock
     """
     if isinstance(csv_list, basestring):
         csv_list = [csv_list]
-    if has_pandas:
+    if use_sql or not has_pandas:
+        return Barstock_SQL(csv_list)
+    elif has_pandas:
         return Barstock_DF.load(csv_list, include_all=include_all)
     else:
-        return Barstock_SQL(csv_list)
+        raise NotImplementedError("No pandas and not using sql version of Barstock")
 
 def _calculated_columns(thing):
     """ Given an object with the required fields,
@@ -294,7 +296,7 @@ class Barstock_DF(Barstock):
         df = df.fillna(0)
         _calculated_columns(df)
         df['type'] = map(string.lower, df['Type'])
-        df['Category'] = pd.Categorical(df['Category'], cls.Categories)
+        df['Category'] = pd.Categorical(df['Category'], Categories)
 
         # drop out of stock items
         if not include_all:
