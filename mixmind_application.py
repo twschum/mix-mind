@@ -6,7 +6,7 @@ import os
 import random
 import logging
 
-from flask import Flask, render_template, flash, request, send_file, jsonify, redirect
+from flask import Flask, render_template, flash, request, send_file, jsonify, redirect, after_request
 from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
@@ -76,6 +76,12 @@ def initialize_user_datastore():
         user = user_datastore.find_user(email='tim@asdf.net')
         user_datastore.add_role_to_user(user, admin)
         db_session.commit()
+
+# required for SQLAlchemy scoped_session registry
+@app.after_request
+def clean_up_db_sessions():
+    log.debug("Remove SQLAlchemy session for request: {}".format(id(request)))
+    db_session.remove()
 
 # Views
 @app.route('/test')
