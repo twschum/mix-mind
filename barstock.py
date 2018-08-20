@@ -18,7 +18,7 @@ Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ic
 db_uri = "mysql+mysqldb://root@/<dbname>?unix_socket=/cloudsql/<projectid>:<instancename>"
 
 class Ingredient(Base):
-    __table__  = 'ingredient'
+    __tablename__  = 'ingredient'
     Category   = Column(Enum(*Categories))
     Type       = Column(String(), primary_key=True)
     Bottle     = Column(String(), primary_key=True)

@@ -1,5 +1,7 @@
 """ Configuration management module
 """
+import os
+import sys
 
 def get_config():
     if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
@@ -25,6 +27,7 @@ class Config_dev(Config):
     def __init__(self):
         self.db_file = "db/auth.db"
 
+    @property
     def sql_db_url(self):
         return "sqlite:///{}".format(self.db_file)
 
