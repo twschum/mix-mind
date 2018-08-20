@@ -16,7 +16,7 @@ from flask_security import Security, SQLAlchemySessionUserDatastore, login_requi
 import recipe as drink_recipe
 import util
 import formatted_menu
-from barstock import Barstock
+from barstock import Barstock_SQL as Barstock
 from notifier import Notifier
 from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
 from database import db_session, init_db, db_file
