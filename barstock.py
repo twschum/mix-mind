@@ -1,16 +1,18 @@
-
 import string
 import itertools
+import logging as log
 
 try:
     import pandas as pd
+    has_pandas = True
 except ImportError:
-    pass
+    has_pandas = False
 
 import util
 
 from database import Base, db_session
 from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
+from sqlalchemy.exc import SQLAlchemyError
 import csv
 
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
@@ -26,6 +28,45 @@ class Ingredient(Base):
     Proof      = Column(Float())
     Size_mL    = Column(Float())
     Price_Paid = Column(Float())
+    Price_mL   = Column('$/mL', Float())
+
+    def __str__(self):
+        return "|".join([self.Category, self.Type, self.Bottle])
+
+    def __getitem__(self, field):
+        return getattr(self, field)
+
+    def __setitem__(self, field, value):
+        return setattr(self, field, value)
+
+    display_name_mappings = {
+        "Category": {'k': "Category", 'v': lambda x: x},
+        "Type": {'k': "Type", 'v': lambda x: x},
+        "Bottle": {'k': "Bottle", 'v': lambda x: x},
+        "In Stock": {'k': "In_Stock", 'v': util.get_bool_from_int},
+        "Size (mL)": {'k': "Size_mL", 'v': util.get_float},
+        "Price Paid": {'k': "Price_Paid", 'v': util.get_price_float},
+    }
+
+def get_barstock_instance(csv_list, include_all=False):
+    """ Factory for getting the right, initialized barstock
+    """
+    if has_pandas:
+        return Barstock_DF.load(csv_list, include_all=include_all)
+    else:
+        return Barstock_SQL.loas(csv_list)
+
+def _calculated_columns(thing):
+    """ Given an object with the required fields,
+    calculate and add the other fields
+    """
+    thing['Size (oz)'] = util.convert_units(thing['Size (mL)'], 'mL', 'oz')
+    thing['$/mL'] = thing['Price Paid'] / thing['Size (mL)']
+    thing['$/cL'] = thing['Price Paid']*10 / thing['Size (mL)']
+    thing['$/oz'] = thing['Price Paid'] / thing['Size (oz)']
+
+class Barstock(object):
+    pass
 
 class Barstock_SQL(Barstock):
     @classmethod
@@ -33,36 +74,33 @@ class Barstock_SQL(Barstock):
         """Load the given CSVs"""
         if isinstance(barstock_csv, basestring):
             barstock_csv = [barstock_csv]
+        ingredients = []
         for csv_file in barstock_csv:
             with open(csv_file) as fp:
                 reader = csv.DictReader(fp)
-                import ipdb; ipdb.set_trace();
-                for row in fp:
-                    ingredient = Ingredient()
-                db_session.commit()
+                for row in reader:
+                    if not row.get('Type') and not row.get('Bottle'):
+                        continue # ignore rows without the required primary keys
+                    clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
+                            for k,v in row.iteritems()
+                            if k in Ingredient.display_name_mappings}
+                    #ingredients.append(Ingredient(**clean_row))
+                    try:
+                        ingredient = Ingredient(**clean_row)
+                        row = db_session.query(Ingredient).filter(Ingredient.Bottle == ingredient.Bottle, Ingredient.Type == ingredient.Type).one_or_none()
+                        if row: # update
+                            for k, v in clean_row.iteritems():
+                                row[k] = v
+                        else: # insert
+                            db_session.add(ingredient)
+                        db_session.commit()
+                    except SQLAlchemyError as err:
+                        log.error("{}: on row: {}".format(err, clean_row))
+                        break
+        #db_session.bulk_save_objects(ingredients)
+        return cls()
 
-
-        # TODO validate columns, merge duplicates
-        df = pd.concat([pd.read_csv(filename) for filename in barstock_csv])
-        df = df.drop_duplicates(['Type', 'Bottle'])
-        df = df.dropna(subset=['Type'])
-        # convert money columns to floats
-        for col in [col for col in df.columns if '$' in col or 'Price' in col]:
-            df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
-        df = df.fillna(0)
-        cls._calculated_columns(df)
-        df['type'] = map(string.lower, df['Type'])
-        df['Category'] = pd.Categorical(df['Category'], cls.Categories)
-
-        # drop out of stock items
-        if not include_all:
-            #log debug how many dropped
-            df = df[df["In Stock"] > 0]
-        return cls(df)
-
-
-
-class Barstock(object):
+class Barstock_DF(Barstock):
     """ Wrap up a csv of bottle info with some helpful methods
     for data access and querying
     """
@@ -124,16 +162,10 @@ class Barstock(object):
     def sorted_df(self):
         return self.df.sort_values(['Category','Type','Price Paid'])
 
-    @classmethod
-    def _calculated_columns(cls, thing):
-        thing['Size (oz)'] = util.convert_units(thing['Size (mL)'], 'mL', 'oz')
-        thing['$/mL'] = thing['Price Paid'] / thing['Size (mL)']
-        thing['$/cL'] = thing['Price Paid']*10 / thing['Size (mL)']
-        thing['$/oz'] = thing['Price Paid'] / thing['Size (oz)']
 
     def add_row(self, row):
         """ where row is a dict """
-        self._calculated_columns(row)
+        _calculated_columns(row)
         row = {k:[v] for k,v in row.iteritems()}
         row = pd.DataFrame.from_dict(row)
         self.df = pd.concat([self.df, row])
@@ -150,7 +182,7 @@ class Barstock(object):
         for col in [col for col in df.columns if '$' in col or 'Price' in col]:
             df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
         df = df.fillna(0)
-        cls._calculated_columns(df)
+        _calculated_columns(df)
         df['type'] = map(string.lower, df['Type'])
         df['Category'] = pd.Categorical(df['Category'], cls.Categories)
 
