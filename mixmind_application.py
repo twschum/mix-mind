@@ -6,7 +6,7 @@ import os
 import random
 import logging
 
-from flask import Flask, render_template, flash, request, send_file, jsonify, redirect, after_request
+from flask import Flask, render_template, flash, request, send_file, jsonify, redirect
 from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
@@ -16,10 +16,10 @@ from flask_security import Security, SQLAlchemySessionUserDatastore, login_requi
 import recipe as drink_recipe
 import util
 import formatted_menu
-from barstock import Barstock_SQL as Barstock
+from barstock import get_barstock_instance
 from notifier import Notifier
 from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
-from database import db_session, init_db, db_file
+from database import db_session, init_db
 from models import User, Role
 
 
@@ -56,6 +56,7 @@ app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
 datafiles = UploadSet('datafiles', DATA)
 configure_uploads(app, (datafiles,))
 app.config['SECURITY_PASSWORD_SALT'] = 'salty'
+init_db()
 
 # Setup Flask-Security
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
@@ -64,10 +65,9 @@ security = Security(app, user_datastore)
 # Create a user to test with
 @app.before_first_request
 def initialize_user_datastore():
+    init_db()
     if not os.path.isdir('db/'):
         os.mkdir('db/')
-    if not os.path.isfile(db_file):
-        init_db()
         user_datastore.create_user(email='tim@asdf.net', password='password')
         user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
         user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
@@ -95,7 +95,7 @@ class MixMindServer():
         self.recipe_files = recipes
         self.barstock_files = barstock_files # TODO get from datastore and cloud storage
         self.base_recipes = util.load_recipe_json(recipes)
-        self.barstock = Barstock.load(barstock_files)
+        self.barstock = get_barstock_instance(barstock_files, use_sql=True)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
         self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
         self.default_margin = 1.10
