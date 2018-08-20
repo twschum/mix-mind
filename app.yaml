@@ -16,7 +16,5 @@ skip_files:
 libraries:
 - name: ssl
   version: latest
-- name: tempfile
-  version: latest
 - name: numpy
   version: latest
