@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import config
 
 engine = create_engine(config.sql_db_url, convert_unicode=True)
+# TODO investigate: http://docs.sqlalchemy.org/en/latest/orm/contextual.html
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()
