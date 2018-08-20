@@ -93,7 +93,7 @@ def home_test():
 class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
         self.recipe_files = recipes
-        self.barstock_files = barstock_files
+        self.barstock_files = barstock_files # TODO get from datastore and cloud storage
         self.base_recipes = util.load_recipe_json(recipes)
         self.barstock = Barstock.load(barstock_files)
         self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
@@ -108,6 +108,7 @@ class MixMindServer():
             print err
 
     def get_ingredients_table(self):
+        raise NotImplementedError("unavailable for now")
         df = self.barstock.sorted_df()
         df.Proof = df.Proof.astype('int')
         df['Size (mL)'] = df['Size (mL)'].astype('int')
@@ -314,6 +315,7 @@ def ingredients():
             mms.regenerate_recipes()
 
         elif 'remove-ingredient' in request.form:
+            # TODO remove all this replace with new system that's like ordering
             bottle = form.bottle.data
             if bottle in mms.barstock.df.Bottle.values:
                 mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
