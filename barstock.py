@@ -11,7 +11,7 @@ except ImportError:
 import util
 
 from database import Base, db_session
-from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
+from sqlalchemy import and_, Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
 from sqlalchemy.exc import SQLAlchemyError
 import csv
 
@@ -36,6 +36,9 @@ class Ingredient(Base):
     Cost_per_oz  = Column(Float())
 
     def __str__(self):
+        return "|".join([self.Category, self.Type, self.Bottle])
+
+    def __repr__(self):
         return "|".join([self.Category, self.Type, self.Bottle])
 
     def __getitem__(self, field):
@@ -174,22 +177,27 @@ class Barstock_SQL(Barstock):
             raise ValueError('{} has no entry in the input data!'.format(ingredient.__repr__()))
         return row
 
+    # TODO sqlqlchemy exception decorator?
     def slice_on_type(self, specifier):
+        """ Return query results for rows matching an ingredient specifier
+        Handles several special cases
+        """
         type_ = specifier.what.lower()
         if type_ in ['rum', 'whiskey', 'whisky', 'tequila', 'vermouth']:
             type_ = 'whisk' if type_ == 'whisky' else type_
-            matching = self.df[self.df['type'].str.contains(type_)]
+            filter_ = Ingredient.type_.like('%{}%'.format(type_))
         elif type_ == 'any spirit':
-            matching = self.df[self.df.type.isin(['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'brandy', 'aquavit'])]
-            #matching = self.df[self.df['Category'] == 'Spirit']
+            spirits = ['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'cognac', 'brandy', 'aquavit']
+            filter_ = Ingredient.type_.in_(spirits)
         elif type_ == 'bitters':
-            matching = self.df[self.df['Category'] == 'Bitters']
+            filter_ = Ingredient.Category == 'Bitters'
         else:
-            matching = self.df[self.df['type'] == type_]
+            filter_ = Ingredient.type_ == type_
+
         if specifier.bottle:
-            return matching[matching['Bottle'] == specifier.bottle].reset_index(drop=True)
-        else:
-            return matching
+            filter_ = and_(filter_, Ingredient.Bottle == specifier.bottle)
+
+        return Ingredient.query.filter(filter_).all()
 
     def to_csv(self):
         cols = Ingredient.__table__.columns.keys()
@@ -198,14 +206,8 @@ class Barstock_SQL(Barstock):
             result.append(','.join([unicode(row[col]) for col in cols]))
         return '\n'.join(result)
 
-    def _test(self, t='dry gin'):
-        import ipdb; ipdb.set_trace();
-        print type_
-        return
-
     def sorted_df(self):
         return self.df.sort_values(['Category','Type','Price Paid'])
-
 
 
 class Barstock_DF(Barstock):
