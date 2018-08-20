@@ -51,10 +51,12 @@ class Ingredient(Base):
 def get_barstock_instance(csv_list, include_all=False):
     """ Factory for getting the right, initialized barstock
     """
+    if isinstance(csv_list, basestring):
+        csv_list = [csv_list]
     if has_pandas:
         return Barstock_DF.load(csv_list, include_all=include_all)
     else:
-        return Barstock_SQL.loas(csv_list)
+        return Barstock_SQL(csv_list)
 
 def _calculated_columns(thing):
     """ Given an object with the required fields,
@@ -65,40 +67,54 @@ def _calculated_columns(thing):
     thing['$/cL'] = thing['Price Paid']*10 / thing['Size (mL)']
     thing['$/oz'] = thing['Price Paid'] / thing['Size (oz)']
 
+class DataError(Exception):
+    pass
+
 class Barstock(object):
     pass
 
 class Barstock_SQL(Barstock):
-    @classmethod
-    def load(cls, barstock_csv, include_all=False):
-        """Load the given CSVs"""
-        if isinstance(barstock_csv, basestring):
-            barstock_csv = [barstock_csv]
+    def __init__(self, csv_list, replace_existing=False):
+        """Load the given CSVs
+        if replace_existing is True, will replace the whole db
+        """
+        self.df = Ingredient # XXX hax for now
         ingredients = []
-        for csv_file in barstock_csv:
+        if replace_existing:
+            rows_deleted = Ingredient.query.delete()
+            log.info("Dropped {} rows for {} table", rows_deleted, Ingredient.__tablename__)
+        for csv_file in csv_list:
             with open(csv_file) as fp:
                 reader = csv.DictReader(fp)
                 for row in reader:
-                    if not row.get('Type') and not row.get('Bottle'):
-                        continue # ignore rows without the required primary keys
-                    clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
-                            for k,v in row.iteritems()
-                            if k in Ingredient.display_name_mappings}
-                    #ingredients.append(Ingredient(**clean_row))
                     try:
-                        ingredient = Ingredient(**clean_row)
-                        row = db_session.query(Ingredient).filter(Ingredient.Bottle == ingredient.Bottle, Ingredient.Type == ingredient.Type).one_or_none()
-                        if row: # update
-                            for k, v in clean_row.iteritems():
-                                row[k] = v
-                        else: # insert
-                            db_session.add(ingredient)
-                        db_session.commit()
-                    except SQLAlchemyError as err:
-                        log.error("{}: on row: {}".format(err, clean_row))
-                        break
-        #db_session.bulk_save_objects(ingredients)
-        return cls()
+                        self.add_row(row)
+                    except DataError as e:
+                        log.warning(e)
+
+    def add_row(self, row):
+        """ where row is a dict of fields from the csv"""
+        if not row.get('Type') and not row.get('Bottle'):
+            #raise DataError("Primary key (Type, Bottle) missing from row")
+            return
+        #_calculated_columns(row)
+        clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
+                for k,v in row.iteritems()
+                if k in Ingredient.display_name_mappings}
+        try:
+            ingredient = Ingredient(**clean_row)
+            row = db_session.query(Ingredient).filter(Ingredient.Bottle == ingredient.Bottle, Ingredient.Type == ingredient.Type).one_or_none()
+            if row: # update
+                for k, v in clean_row.iteritems():
+                    row[k] = v
+            else: # insert
+                db_session.add(ingredient)
+            db_session.commit()
+        except SQLAlchemyError as err:
+            msg = "{}: on row: {}".format(err, clean_row)
+            raise DataError(msg)
+
+
 
 class Barstock_DF(Barstock):
     """ Wrap up a csv of bottle info with some helpful methods
