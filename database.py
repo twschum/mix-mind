@@ -2,8 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-db_file = 'db/auth.db'
-engine = create_engine('sqlite:///{}'.format(db_file), convert_unicode=True)
+import config
+
+engine = create_engine(config.sql_db_url, convert_unicode=True)
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 Base = declarative_base()
 Base.query = db_session.query_property()
