@@ -8,12 +8,12 @@ try:
 except ImportError:
     has_pandas = False
 
-import util
-
-from . import db
 from sqlalchemy import and_, Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
 from sqlalchemy.exc import SQLAlchemyError
 import csv
+
+import util
+from .database import db
 
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
@@ -139,8 +139,8 @@ class Barstock_SQL(Barstock):
                 _update_computed_fields(row)
             else: # insert
                 _update_computed_fields(ingredient)
-                db_session.add(ingredient)
-            db_session.commit()
+                db.session.add(ingredient)
+            db.session.commit()
         except SQLAlchemyError as err:
             msg = "{}: on row: {}".format(err, clean_row)
             raise DataError(msg)

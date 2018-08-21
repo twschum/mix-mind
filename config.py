@@ -42,6 +42,6 @@ class Config_GAE(Config):
         self.cloudsql_unix_socket = os.path.join('/cloudsql', CLOUDSQL_CONNECTION_NAME)
 
 # This keeps the old module reference from being garbage collected.
-reference = sys.modules[__name__]
+#reference = sys.modules[__name__]
 # Replace module level functionality with a Config class.
-sys.modules[__name__] = get_config()
+#sys.modules[__name__] = get_config()
