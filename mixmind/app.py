@@ -6,21 +6,21 @@ import os
 import random
 import logging
 
-from flask import Flask, render_template, flash, request, send_file, jsonify, redirect
+from flask import render_template, flash, request, send_file, jsonify, redirect
 from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
 import flask_login
-from flask_security import Security, SQLAlchemySessionUserDatastore, login_required, roles_required
+from flask_security import login_required, roles_required
 
-import recipe as drink_recipe
-import util
-import formatted_menu
-from barstock import get_barstock_instance
-from notifier import Notifier
-from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
-from database import db_session, init_db
-from models import User, Role
+import mixmind.recipe as drink_recipe
+import mixmind.util as util
+from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
+from .barstock import get_barstock_instance
+from .notifier import Notifier
+from .forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
+from .database import db_session, init_db
+from .models import User, Role
 
 
 """
@@ -45,22 +45,6 @@ NOTES:
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
 """
-log = logging.getLogger(__name__)
-
-# app config TODO move to __init__
-app = Flask(__name__)
-app.config.from_object(__name__)
-with open('local_secret') as fp: # TODO config management
-    app.config['SECRET_KEY'] = fp.read().strip()
-app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
-datafiles = UploadSet('datafiles', DATA)
-configure_uploads(app, (datafiles,))
-app.config['SECURITY_PASSWORD_SALT'] = 'salty'
-init_db()
-
-# Setup Flask-Security
-user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
-security = Security(app, user_datastore)
 
 # Create a user to test with
 @app.before_first_request
@@ -148,11 +132,11 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
         stats = None
     if to_html:
         if order_link:
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options,
+            recipes = [format_recipe_html(recipe, display_options,
                 order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
                 **kwargs_for_html) for recipe in recipes]
         else:
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
+            recipes = [format_recipe_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
     return recipes, excluded, stats
 
 @app.route("/main/", methods=['GET', 'POST'])
@@ -183,11 +167,11 @@ def menu_download():
         recipes, _, _ = recipes_from_options(form)
 
         display_options = bundle_options(util.DisplayOptions, form)
-        form.pdf_filename.data = 'menus/{}'.format(formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options))
+        form.pdf_filename.data = 'menus/{}'.format(filename_from_options(bundle_options(util.PdfOptions, form), display_options))
         pdf_options = bundle_options(util.PdfOptions, form)
         pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
 
-        formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
+        generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
         return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
 
     else:
@@ -232,7 +216,7 @@ def order(recipe_name):
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)
     else:
-        recipe_html = formatted_menu.format_recipe_html(recipe,
+        recipe_html = format_recipe_html(recipe,
                 util.DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
                     markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
 
