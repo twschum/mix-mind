@@ -2,8 +2,7 @@ from database import Base
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy import create_engine
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Boolean, DateTime, Column, Integer, \
-                       String, ForeignKey, Enum, Float
+from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
 
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
