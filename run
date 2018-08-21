@@ -1,5 +1,5 @@
 #!/bin/bash
-export FLASK_APP=mixmind_application.py
+export FLASK_APP=mixmind
 export UPLOADS_DEFAULT_DEST=stockdb
 export FLASK_RUN_PORT=8888
 if [[ $1 == 'prod' ]]; then
