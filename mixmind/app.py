@@ -4,7 +4,6 @@ Application main for the mixmind app
 """
 import os
 import random
-import logging
 
 from flask import render_template, flash, request, send_file, jsonify, redirect
 from werkzeug.utils import secure_filename # ??
@@ -12,14 +11,16 @@ import urllib
 import flask_login
 from flask_security import login_required, roles_required
 
+
 import mixmind.recipe as drink_recipe
 import mixmind.util as util
+
 from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
 from .barstock import get_barstock_instance
 from .notifier import Notifier
 from .forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
-from .database import db_session, init_db
-
+from .authorization import user_datastore
+from . import log, db
 
 """
 NOTES:
@@ -47,23 +48,15 @@ NOTES:
 # Create a user to test with
 @app.before_first_request
 def initialize_user_datastore():
-    init_db()
-    if not os.path.isdir('db/'):
-        os.mkdir('db/')
-        user_datastore.create_user(email='tim@asdf.net', password='password')
-        user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
-        user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
-        db_session.commit()
-        admin = user_datastore.find_role('admin')
-        user = user_datastore.find_user(email='tim@asdf.net')
-        user_datastore.add_role_to_user(user, admin)
-        db_session.commit()
-
-# required for SQLAlchemy scoped_session registry
-@app.after_request
-def clean_up_db_sessions():
-    log.debug("Remove SQLAlchemy session for request: {}".format(id(request)))
-    db_session.remove()
+    import ipdb; ipdb.set_trace();
+    user_datastore.create_user(email='tim@asdf.net', password='password')
+    user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
+    user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
+    db.session.commit()
+    admin = user_datastore.find_role('admin')
+    user = user_datastore.find_user(email='tim@asdf.net')
+    user_datastore.add_role_to_user(user, admin)
+    db.session.commit()
 
 # Views
 @app.route('/test')

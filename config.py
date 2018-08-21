@@ -5,6 +5,9 @@ import sys
 
 from sqlalchemy.engine.url import URL
 
+# flask-sqlalchemy
+SQLALCHEMY_TRACK_MODIFICATIONS = False # explicitly remove deprecated feature
+
 def get_config():
     if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
         return Config_GAE()

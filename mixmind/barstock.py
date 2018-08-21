@@ -10,7 +10,7 @@ except ImportError:
 
 import util
 
-from database import Base, db_session
+from . import db
 from sqlalchemy import and_, Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
 from sqlalchemy.exc import SQLAlchemyError
 import csv
@@ -19,7 +19,7 @@ Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ic
 
 db_uri = "mysql+mysqldb://root@/<dbname>?unix_socket=/cloudsql/<projectid>:<instancename>"
 
-class Ingredient(Base):
+class Ingredient(db.Model):
     __tablename__  = 'ingredient'
     Category   = Column(Enum(*Categories))
     Type       = Column(String(), primary_key=True)
