@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 Application main for the mixmind app
 """
@@ -11,16 +10,15 @@ import urllib
 import flask_login
 from flask_security import login_required, roles_required
 
-
-import mixmind.recipe as drink_recipe
-import mixmind.util as util
-
-from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
-from .barstock import get_barstock_instance
 from .notifier import Notifier
 from .forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
 from .authorization import user_datastore
-from . import log, db
+from .recipe import DrinkRecipe
+from .barstock import get_barstock_instance
+from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
+from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
+from .database import db, init_db
+from . import log, app
 
 """
 NOTES:
@@ -44,11 +42,13 @@ NOTES:
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
 """
-
+# views-wide domain-specific state
+mms = None
 # Create a user to test with
 @app.before_first_request
 def initialize_user_datastore():
-    import ipdb; ipdb.set_trace();
+    global mms
+    mms = MixMindServer()
     user_datastore.create_user(email='tim@asdf.net', password='password')
     user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
     user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
@@ -69,9 +69,9 @@ class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
         self.recipe_files = recipes
         self.barstock_files = barstock_files # TODO get from datastore and cloud storage
-        self.base_recipes = util.load_recipe_json(recipes)
+        self.base_recipes = load_recipe_json(recipes)
         self.barstock = get_barstock_instance(barstock_files, use_sql=True)
-        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
+        self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
         self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
         self.default_margin = 1.10
 
@@ -96,7 +96,6 @@ class MixMindServer():
     def regenerate_recipes(self):
         self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
 
-mms = MixMindServer()
 
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
@@ -108,9 +107,9 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     May convert to html, including extra options for that
     Apply sorting
     """
-    display_options = bundle_options(util.DisplayOptions, form) if not display_opts else display_opts
-    filter_options = bundle_options(util.FilterOptions, form) if not filter_opts else filter_opts
-    recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+    display_options = bundle_options(DisplayOptions, form) if not display_opts else display_opts
+    filter_options = bundle_options(FilterOptions, form) if not filter_opts else filter_opts
+    recipes, excluded = filter_recipes(mms.recipes, filter_options)
     if form.sorting.data and form.sorting.data != 'None': # TODO this is weird
         reverse = 'X' in form.sorting.data
         attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
@@ -118,7 +117,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     if form.convert.data:
         map(lambda r: r.convert(form.convert.data), recipes)
     if display_options.stats and recipes:
-        stats = util.report_stats(recipes, as_html=True)
+        stats = report_stats(recipes, as_html=True)
     else:
         stats = None
     if to_html:
@@ -157,9 +156,9 @@ def menu_download():
         print request
         recipes, _, _ = recipes_from_options(form)
 
-        display_options = bundle_options(util.DisplayOptions, form)
-        form.pdf_filename.data = 'menus/{}'.format(filename_from_options(bundle_options(util.PdfOptions, form), display_options))
-        pdf_options = bundle_options(util.PdfOptions, form)
+        display_options = bundle_options(DisplayOptions, form)
+        form.pdf_filename.data = 'menus/{}'.format(filename_from_options(bundle_options(PdfOptions, form), display_options))
+        pdf_options = bundle_options(PdfOptions, form)
         pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
 
         generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
@@ -177,9 +176,9 @@ def browse():
 
     if request.method == 'GET':
         # filter for current recipes that can be made on the core list
-        filter_options = util.FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
+        filter_options = FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
-    recipes, _, _ = recipes_from_options(form, display_opts=util.DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
+    recipes, _, _ = recipes_from_options(form, display_opts=DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
             filter_opts=filter_options, to_html=True, order_link=True, condense_ingredients=True)
 
     if request.method == 'POST':
@@ -201,14 +200,14 @@ def order(recipe_name):
     recipe_name = urllib.unquote_plus(recipe_name)
     show_form = False
 
-    recipe = util.find_recipe(mms.recipes, recipe_name)
+    recipe = find_recipe(mms.recipes, recipe_name)
     recipe.convert('oz')
     if not recipe:
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)
     else:
         recipe_html = format_recipe_html(recipe,
-                util.DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
+                DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
                     markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
 
     if request.method == 'GET':
