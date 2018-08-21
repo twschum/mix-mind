@@ -7,7 +7,6 @@ import random
 import logging
 
 from flask import render_template, flash, request, send_file, jsonify, redirect
-from flask_uploads import UploadSet, DATA, configure_uploads
 from werkzeug.utils import secure_filename # ??
 import urllib
 import flask_login
@@ -20,7 +19,6 @@ from .barstock import get_barstock_instance
 from .notifier import Notifier
 from .forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
 from .database import db_session, init_db
-from .models import User, Role
 
 
 """
