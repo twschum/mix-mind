@@ -1,30 +1,28 @@
-#!/usr/bin/env python
 """
 Application main for the mixmind app
 """
 import os
 import random
-import logging
 
-from flask import Flask, render_template, flash, request, send_file, jsonify, redirect
-from flask_uploads import UploadSet, DATA, configure_uploads
+from flask import render_template, flash, request, send_file, jsonify, redirect
 from werkzeug.utils import secure_filename # ??
 import urllib
 import flask_login
-from flask_security import Security, SQLAlchemySessionUserDatastore, login_required, roles_required
+from flask_security import login_required, roles_required
 
-import recipe as drink_recipe
-import util
-import formatted_menu
-from barstock import Barstock
-from notifier import Notifier
-from forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
-from database import db_session, init_db
-from models import User, Role
-
+from .notifier import Notifier
+from .forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
+from .authorization import user_datastore
+from .recipe import DrinkRecipe
+from .barstock import get_barstock_instance
+from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
+from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
+from .database import db, init_db
+from . import log, app
 
 """
 NOTES:
+^ Need to reaplace pandas version of barstock - time for sql!
 * refactor messages to look nicer
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
@@ -44,39 +42,22 @@ NOTES:
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
 """
-log = logging.getLogger(__name__)
-
-# app config TODO move to __init__
-app = Flask(__name__)
-app.config.from_object(__name__)
-with open('local_secret') as fp: # TODO config management
-    app.config['SECRET_KEY'] = fp.read().strip()
-app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
-datafiles = UploadSet('datafiles', DATA)
-configure_uploads(app, (datafiles,))
-app.config['SECURITY_PASSWORD_SALT'] = 'salty'
-
-# Setup Flask-Security
-user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
-security = Security(app, user_datastore)
-
+# views-wide domain-specific state
+mms = None
 # Create a user to test with
 @app.before_first_request
-def create_user():
-    '''
-    try:
-        init_db()
-        user_datastore.create_user(email='tim@asdf.net', password='password')
-        user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
-        user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
-        db_session.commit()
-        admin = user_datastore.find_role('admin')
-        user = user_datastore.find_user(email='tim@asdf.net')
-        user_datastore.add_role_to_user(user, admin)
-        db_session.commit()
-    except:
-        pass
-    '''
+def initialize_user_datastore():
+    global mms
+    mms = MixMindServer()
+    return
+    user_datastore.create_user(email='tim@asdf.net', password='password')
+    user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
+    user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
+    db.session.commit()
+    admin = user_datastore.find_role('admin')
+    user = user_datastore.find_user(email='tim@asdf.net')
+    user_datastore.add_role_to_user(user, admin)
+    db.session.commit()
 
 # Views
 @app.route('/test')
@@ -88,10 +69,10 @@ def home_test():
 class MixMindServer():
     def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
         self.recipe_files = recipes
-        self.barstock_files = barstock_files
-        self.base_recipes = util.load_recipe_json(recipes)
-        self.barstock = Barstock.load(barstock_files)
-        self.recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
+        self.barstock_files = barstock_files # TODO get from datastore and cloud storage
+        self.base_recipes = load_recipe_json(recipes)
+        self.barstock = get_barstock_instance(barstock_files, use_sql=True)
+        self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
         self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
         self.default_margin = 1.10
 
@@ -103,6 +84,7 @@ class MixMindServer():
             print err
 
     def get_ingredients_table(self):
+        raise NotImplementedError("unavailable for now")
         df = self.barstock.sorted_df()
         df.Proof = df.Proof.astype('int')
         df['Size (mL)'] = df['Size (mL)'].astype('int')
@@ -115,7 +97,6 @@ class MixMindServer():
     def regenerate_recipes(self):
         self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
 
-mms = MixMindServer()
 
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
@@ -127,9 +108,9 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     May convert to html, including extra options for that
     Apply sorting
     """
-    display_options = bundle_options(util.DisplayOptions, form) if not display_opts else display_opts
-    filter_options = bundle_options(util.FilterOptions, form) if not filter_opts else filter_opts
-    recipes, excluded = util.filter_recipes(mms.recipes, filter_options)
+    display_options = bundle_options(DisplayOptions, form) if not display_opts else display_opts
+    filter_options = bundle_options(FilterOptions, form) if not filter_opts else filter_opts
+    recipes, excluded = filter_recipes(mms.recipes, filter_options)
     if form.sorting.data and form.sorting.data != 'None': # TODO this is weird
         reverse = 'X' in form.sorting.data
         attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
@@ -137,16 +118,16 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     if form.convert.data:
         map(lambda r: r.convert(form.convert.data), recipes)
     if display_options.stats and recipes:
-        stats = util.report_stats(recipes, as_html=True)
+        stats = report_stats(recipes, as_html=True)
     else:
         stats = None
     if to_html:
         if order_link:
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options,
+            recipes = [format_recipe_html(recipe, display_options,
                 order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
                 **kwargs_for_html) for recipe in recipes]
         else:
-            recipes = [formatted_menu.format_recipe_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
+            recipes = [format_recipe_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
     return recipes, excluded, stats
 
 @app.route("/main/", methods=['GET', 'POST'])
@@ -176,12 +157,12 @@ def menu_download():
         print request
         recipes, _, _ = recipes_from_options(form)
 
-        display_options = bundle_options(util.DisplayOptions, form)
-        form.pdf_filename.data = 'menus/{}'.format(formatted_menu.filename_from_options(bundle_options(util.PdfOptions, form), display_options))
-        pdf_options = bundle_options(util.PdfOptions, form)
+        display_options = bundle_options(DisplayOptions, form)
+        form.pdf_filename.data = 'menus/{}'.format(filename_from_options(bundle_options(PdfOptions, form), display_options))
+        pdf_options = bundle_options(PdfOptions, form)
         pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
 
-        formatted_menu.generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
+        generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
         return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
 
     else:
@@ -196,9 +177,9 @@ def browse():
 
     if request.method == 'GET':
         # filter for current recipes that can be made on the core list
-        filter_options = util.FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
+        filter_options = FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
-    recipes, _, _ = recipes_from_options(form, display_opts=util.DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
+    recipes, _, _ = recipes_from_options(form, display_opts=DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
             filter_opts=filter_options, to_html=True, order_link=True, condense_ingredients=True)
 
     if request.method == 'POST':
@@ -220,14 +201,14 @@ def order(recipe_name):
     recipe_name = urllib.unquote_plus(recipe_name)
     show_form = False
 
-    recipe = util.find_recipe(mms.recipes, recipe_name)
+    recipe = find_recipe(mms.recipes, recipe_name)
     recipe.convert('oz')
     if not recipe:
         flash('Error: unknown recipe "{}"'.format(recipe_name))
         return render_template('order.html', form=form, recipe=None, show_form=False)
     else:
-        recipe_html = formatted_menu.format_recipe_html(recipe,
-                util.DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
+        recipe_html = format_recipe_html(recipe,
+                DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
                     markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
 
     if request.method == 'GET':
@@ -309,6 +290,7 @@ def ingredients():
             mms.regenerate_recipes()
 
         elif 'remove-ingredient' in request.form:
+            # TODO remove all this replace with new system that's like ordering
             bottle = form.bottle.data
             if bottle in mms.barstock.df.Bottle.values:
                 mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]

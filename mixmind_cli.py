@@ -11,10 +11,10 @@ import jsonschema
 
 import pandas as pd
 
-import recipe as drink_recipe
-from barstock import Barstock
-import formatted_menu
-import util
+import mixmind.recipe as drink_recipe
+from mixmind.barstock import Barstock
+import mixmind.formatted_menu as formatted_menu
+import mixmind.util as util
 
 
 def get_parser():

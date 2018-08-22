@@ -8,6 +8,7 @@ import operator
 import json
 import inspect
 import uuid
+from . import log
 
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
@@ -33,7 +34,7 @@ def filter_recipes(all_recipes, filter_options):
     def get_names(items):
         return set(map(lambda i: i.name, items))
     excluded = sorted(list(get_names(all_recipes) - get_names(recipes)))
-    print "    Can't make: {}\n".format(', '.join(excluded))
+    log.debug("    Can't make: {}\n".format(', '.join(excluded)))
     return recipes, excluded
 
 def find_recipe(recipes, name):
@@ -111,11 +112,11 @@ def load_recipe_json(recipe_files):
     for recipe_json in recipe_files:
         with open(recipe_json) as fp:
             other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
-            print "Recipes loaded from {}".format(recipe_json)
+            log.info("Recipes loaded from {}".format(recipe_json))
             for item in other_recipes.itervalues():
                 item.update({'source_file': recipe_json})
             for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
-                print "Keeping {} from {} over {}".format(name, base_recipes[name]['source_file'], other_recipes[name]['source_file'])
+                log.debug("Keeping {} from {} over {}".format(name, base_recipes[name]['source_file'], other_recipes[name]['source_file']))
                 del other_recipes[name]
             base_recipes.update(other_recipes)
     return base_recipes
@@ -129,6 +130,18 @@ def default_initializer(func):
             setattr(self, name, arg)
         func(self, *args, **kwargs)
     return wrapper
+
+# utils to convert string values
+def from_float(s):
+    if not s:
+        return 0.0
+    return float(s)
+def from_price_float(s):
+    return from_float(s.replace('$', ''))
+def from_bool_from_int(s):
+    if not s:
+        return False
+    return bool(int(s))
 
 def to_fraction(amount):
     fraction = Fraction.from_float(float(amount)).limit_denominator(99)
