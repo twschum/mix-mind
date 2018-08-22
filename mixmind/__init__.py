@@ -11,12 +11,6 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('config')
 app.config.from_pyfile('config.py')
 
-with open('local_secret') as fp: # TODO config management
-    app.config['SECRET_KEY'] = fp.read().strip()
-
-# flask-security
-app.config['SECURITY_PASSWORD_SALT'] = 'salty'
-
 # flask-uploads
 app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
 datafiles = UploadSet('datafiles', DATA)
