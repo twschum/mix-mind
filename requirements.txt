@@ -29,6 +29,7 @@ pycparser==2.18
 PyLaTeX==1.2.1
 pytest-runner==4.2
 python-dateutil==2.7.3
+python-dotenv==0.9.1
 pytz==2018.5
 recordtype==1.1
 scandir==1.6

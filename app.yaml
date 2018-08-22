@@ -13,7 +13,7 @@ env_variables:
 
 
 skip_files:
-  #- venv/
+- venv/
 - ^(.*/)?.*\.sw[po]$
 - ^(.*/)?.*\.py[co]$
 
