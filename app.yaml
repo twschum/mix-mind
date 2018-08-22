@@ -6,15 +6,20 @@ handlers:
 - url: /static
   static_dir: static
 - url: /.*
-  script: mixmind_application.app
+  script: mixmind.app
+
+env_variables:
+  FLASK_ENV: production
+
 
 skip_files:
-#- venv/
+  #- venv/
 - ^(.*/)?.*\.sw[po]$
 - ^(.*/)?.*\.py[co]$
 
 libraries:
 - name: ssl
-  version: latest
-- name: numpy
-  version: latest
+  version: "latest"
+- name: MySQLdb
+  version: "latest"
+

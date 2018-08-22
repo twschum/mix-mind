@@ -49,6 +49,7 @@ mms = None
 def initialize_user_datastore():
     global mms
     mms = MixMindServer()
+    return
     user_datastore.create_user(email='tim@asdf.net', password='password')
     user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
     user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')

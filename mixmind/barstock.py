@@ -17,19 +17,17 @@ from .database import db
 
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
-db_uri = "mysql+mysqldb://root@/<dbname>?unix_socket=/cloudsql/<projectid>:<instancename>"
-
 class Ingredient(db.Model):
     __tablename__  = 'ingredient'
     Category   = Column(Enum(*Categories))
-    Type       = Column(String(), primary_key=True)
-    Bottle     = Column(String(), primary_key=True)
+    Type       = Column(String(100), primary_key=True)
+    Bottle     = Column(String(255), primary_key=True)
     In_Stock   = Column(Boolean(), default=True)
     Proof      = Column(Float(), default=0.0)
     Size_mL    = Column(Float(), default=0.0)
     Price_Paid = Column(Float(), default=0.0)
     # computed
-    type_        = Column(String())
+    type_        = Column(String(100))
     Size_oz      = Column(Float(), default=0.0)
     Cost_per_mL  = Column(Float(), default=0.0)
     Cost_per_cL  = Column(Float(), default=0.0)
