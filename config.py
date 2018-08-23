@@ -1,42 +1,36 @@
-""" Configuration management module
+""" Configuration of app.config dict
 """
-import os
-import sys
-
-from sqlalchemy.engine.url import URL
+import os.path
+import logging
+log = logging.getLogger()
 
 # flask-sqlalchemy
 SQLALCHEMY_TRACK_MODIFICATIONS = False # explicitly remove deprecated feature
 
-def get_config():
-    if os.getenv('SERVER_SOFTWARE', '').startswith('Google App Engine/'):
-        return Config_GAE()
-    else:
-        return Config_dev()
+# logging
+#path = app.config['LOGGING_PATH']
+#os.makedirs(path, exist_ok=True)
+#info_fh = RotatingFileHandler(os.path.join(path, 'mixmind.log'), maxBytes=10000000, backupCount=3)
+#info_fh.setFormatter(logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+#info_fh.setLevel(logging.INFO)
+#log = logging.getLogger()
 
-class Config(object):
-    """ Configuration object
-    """
-    def __init__(self):
-        self.sqlalchemy_engine_params = {}
+# mix-mind
+MIXMIND_RECIPES_DIR = "recipes/"
+MIXMIND_INGREDIENTS_DIR = "ingredients/"
 
-    @property
-    def sql_db_url(self):
-        """ SQLAlchemy engine url
-        {drivername}://{username}:{password}@{host}:{port}/{database}
-        where {drivername} is {dialect}+{driver}
-        """
-        return URL(**self.sqlalchemy_engine_params)
+MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
+MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
 
-class Config_dev(Config):
-    def __init__(self):
-        super(Config_dev, self).__init__()
-        self.db_file = "db/auth.db"
-        self.sqlalchemy_engine_params['drivername'] = 'sqlite'
+def get_recipe_files():
+    return get_checked_files(MIXMIND_RECIPES_DIR, MIXMIND_DEFAULT_RECIPES)
 
-class Config_GAE(Config):
-    def __init__(self):
-        # mysql connection: mysql+mysqldb://<user>:<password>@<host>[:<port>]/<dbname>
-        # on GAE: mysql+mysqldb://root@/<dbname>?unix_socket=/cloudsql/<projectid>:<instancename>
-        self.cloudsql_unix_socket = os.path.join('/cloudsql', CLOUDSQL_CONNECTION_NAME)
+def get_ingredient_files():
+    return get_checked_files(MIXMIND_INGREDIENTS_DIR, MIXMIND_DEFAULT_INGREDIENTS)
 
+def get_checked_files(path, files):
+    files = [os.path.join(path, f) for f in files]
+    for f in files:
+        if not os.path.isfile(f):
+            log.warning("{} not found, skipping".format(f))
+    return files
