@@ -7,6 +7,23 @@ log = logging.getLogger()
 # flask-sqlalchemy
 SQLALCHEMY_TRACK_MODIFICATIONS = False # explicitly remove deprecated feature
 
+# flask-mail (used by flask-security)
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_PORT = 587
+MAIL_USE_TLS = True
+
+# flask-security
+SECURITY_CONFIRMABLE   =  True
+SECURITY_REGISTERABLE  =  True
+SECURITY_RECOVERABLE   =  True
+SECURITY_TRACKABLE     =  True
+SECURITY_CHANGEABLE    =  True
+SECURITY_POST_LOGIN_VIEW = "/post_login/"
+SECURITY_EMAIL_SUBJECT_REGISTER = "Welcome to Mix-Mind Live"
+SECURITY_EMAIL_SUBJECT_PASSWORD_NOTICE = "[Mix-Mind] Your password has been reset"
+SECURITY_EMAIL_SUBJECT_PASSWORD_RESET = "[Mix-Mind] Password reset instructions"
+SECURITY_EMAIL_SUBJECT_CONFIRM = "[Mix-Mind] Please confirm your email"
+
 # logging
 #path = app.config['LOGGING_PATH']
 #os.makedirs(path, exist_ok=True)
