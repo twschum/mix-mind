@@ -33,6 +33,8 @@ NOTES:
         - include a standard place and look for all messages (top of page?)
     - make security forms look nicer
     - make email template
+        - need to use flask_mail for ordering messages too
+        - somehow suppress flask_mail from spamming the logs
 * admin pages
     - add/remove ingredients dynamically?
     - add/remove recipes as raw json?
