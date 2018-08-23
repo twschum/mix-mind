@@ -15,22 +15,24 @@
 		<link rel="manifest" href="/static/icons/site.webmanifest">
 		<link rel="mask-icon" href="/static/icons/safari-pinned-tab.svg" color="#5bbad5">
 		<link rel="shortcut icon" href="/static/icons/favicon.ico">
-		<meta name="msapplication-TileColor" content="#da532c">
-		<meta name="msapplication-config" content="/static/icons/browserconfig.xml">
-		<meta name="theme-color" content="#ffffff">
+		<meta name="msapplication-TileColor" content="#da532c"></meta>
+		<meta name="msapplication-config" content="/static/icons/browserconfig.xml"></meta>
+		<meta name="theme-color" content="#ffffff"></meta>
 	</head>
 
 	<body>
 		<!-- navbar is shown at the top of every page -->
 		{% block navbar %}
-		<nav class="navbar top-nav hidden-xs userbar">
-			<div class="container">
-				<ul class="nav navbar-nav nav-right">
-					<li>Hi {{ current_user.user }}</li>
-					<li href="/login">Log in</li>
-					<li href="/logout">Log out</li>
-				</ul>
-			</div>
+		<nav class="navbar navbar-light bg-light navbar-expand-lg">
+			<a class="navbar-brand btn" href="/">
+				<img src="static/glassware/coupe.svg" width="30" height="30" alt="">
+			</a>
+			{% if current_user.is_authenticated %}
+			<span class="navbar-text">Welcome {{ current_user.email }}</span>
+			<a class="nav-item nav-link" href="/logout">Log out</a>
+			{% else %}
+			<a class="nav-item nav-link" href="/login">Log in</a>
+			{% endif %}
 		</nav>
 		{% endblock navbar %}
 
