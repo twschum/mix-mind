@@ -17,8 +17,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False # explicitly remove deprecated feature
 
 # mix-mind
 MIXMIND_DIR = os.path.abspath(os.path.curdir)
-MIXMIND_RECIPES_DIR = os.path.join(MIXMIND_DIR, "recipes/")
-MIXMIND_INGREDIENTS_DIR = os.path.join(MIXMIND_DIR, "ingredients/")
+MIXMIND_RECIPES_DIR = "recipes/"
+MIXMIND_INGREDIENTS_DIR = "ingredients/"
 
 MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
 MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
