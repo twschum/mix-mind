@@ -1,0 +1,50 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+		<title>{% block title %}Mix-Mind Live{% endblock %}</title>
+		<!-- bootstrap cdn-delivered stylesheet -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous"></link>
+		<!-- custom stylesheets -->
+		<link rel="stylesheet" href="/static/css/layout.css"></link>
+		<link rel="stylesheet" href="/static/css/table.css"></link>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+		<!-- favicons support -->
+		<link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/static/icons/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/static/icons/favicon-16x16.png">
+		<link rel="manifest" href="/static/icons/site.webmanifest">
+		<link rel="mask-icon" href="/static/icons/safari-pinned-tab.svg" color="#5bbad5">
+		<link rel="shortcut icon" href="/static/icons/favicon.ico">
+		<meta name="msapplication-TileColor" content="#da532c">
+		<meta name="msapplication-config" content="/static/icons/browserconfig.xml">
+		<meta name="theme-color" content="#ffffff">
+	</head>
+
+	<body>
+		<!-- navbar is shown at the top of every page -->
+		{% block navbar %}
+		<nav class="navbar top-nav hidden-xs userbar">
+			<div class="container">
+				<ul class="nav navbar-nav nav-right">
+					<li>Hi {{ current_user.user }}</li>
+					<li href="/login">Log in</li>
+					<li href="/logout">Log out</li>
+				</ul>
+			</div>
+		</nav>
+		{% endblock navbar %}
+
+		{% block body %}
+		{% endblock body %}
+
+		<div class="footer">
+			{% block footer %}
+			{% endblock footer %}
+		</div>
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+	</body>
+</html>
