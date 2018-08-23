@@ -28,12 +28,6 @@ NOTES:
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
 * update bootstrap
-* user permissons (non-logged in vs admin)
-    - flask-praetorian
-    - google app engine
-    - backend DB?
-    - domain name
-        - LetsEncrypt certs
 * hardening
     - moar logging
     - test error handling
@@ -157,6 +151,12 @@ def menu_download():
     else:
         flash("Error in form validation")
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
+
+@app.route("/post_login/", methods=['GET'])
+def post_login_redirect():
+    # show main if admin user
+    # maybe use post-register for assigning a role
+    pass
 
 @app.route("/", methods=['GET', 'POST'])
 def browse():
