@@ -1,6 +1,6 @@
 <!-- Format block for rendering blocks in a form -->
-{% macro formheader(title, subtitle=None %}
-<h2>{{ title }}</h2>
+{% macro formheader(title, subtitle=None) %}
+<h2>{{ title|safe }}</h2>
 {% if subtitle %}
 <p class=subtitle>{{ subtitle |e }}</p>
 {% endif %}
