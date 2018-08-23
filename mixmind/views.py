@@ -4,11 +4,11 @@ Application main for the mixmind app
 import os
 import random
 
-from flask import render_template, flash, request, send_file, jsonify, redirect
+from flask import render_template, flash, request, send_file, jsonify, redirect, url_for
 from werkzeug.utils import secure_filename
 import urllib
-import flask_login
 from flask_security import login_required, roles_required
+from flask_login import current_user
 
 from .notifier import Notifier
 from .forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
@@ -22,16 +22,31 @@ from . import log, app, datafiles
 import config
 
 """
+BUGS:
+* abv shows as 0.0% for everything on recipe examples
 NOTES:
-^ Need to reaplace pandas version of barstock - time for sql!
-* refactor messages to look nicer
+* template standardization
+    - actually use jinja inheritance for pages
+    - header (and maybe footer?)
+        - provide user login and register links?
+    - refactor messages to look nicer
+        - include a standard place and look for all messages (top of page?)
+    - make security forms look nicer
+    - make email template
+* admin pages
+    - add/remove ingredients dynamically?
+    - add/remove recipes as raw json?
+    - menu_generator (what's now "mainpage")
+    - user stats dashboard
+* user improvements
+    - order history
+    - venmo links lol
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
 * update bootstrap
 * hardening
     - moar logging
     - test error handling
-    - support concurrent users, single admin
 * configuration management
     - defaults plus management
     - support for modifying the "bartender on duty" aka Notifier's secret info
@@ -47,13 +62,6 @@ mms = None
 def initialize_shared_data():
     global mms
     mms = MixMindServer()
-
-# Views
-@app.route('/test')
-@login_required
-@roles_required('admin')
-def home_test():
-    return jsonify({'test': 'Here you go!'})
 
 class MixMindServer():
     # TODO synchronization
@@ -114,6 +122,8 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     return recipes, excluded, stats
 
 @app.route("/main/", methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
 def mainpage():
     form = DrinksForm(request.form)
     print form.errors
@@ -132,6 +142,8 @@ def mainpage():
     return render_template('application_main.html', form=form, recipes=recipes, excluded=excluded, stats=stats)
 
 @app.route("/download/", methods=['POST'])
+@login_required
+@roles_required('admin')
 def menu_download():
     form = DrinksForm(request.form)
     print form.errors
@@ -156,13 +168,16 @@ def menu_download():
 def post_login_redirect():
     # show main if admin user
     # maybe use post-register for assigning a role
-    pass
+    if 'admin' in current_user.roles:
+        return redirect(url_for('mainpage'))
+    else:
+        return redirect(url_for('browse'))
 
 @app.route("/", methods=['GET', 'POST'])
 def browse():
     form = DrinksForm(request.form)
     filter_options = None
-    print form.errors
+    log.error(form.errors)
 
     if request.method == 'GET':
         # filter for current recipes that can be made on the core list
@@ -243,6 +258,8 @@ def confirmation():
     return render_template('order.html', form=None, recipe=None, show_form=False)
 
 @app.route("/recipes/", methods=['GET','POST'])
+@login_required
+@roles_required('admin')
 def recipes():
     global mms
     select_form = RecipeListSelector(request.form)
@@ -260,6 +277,8 @@ def recipes():
     return render_template('recipes.html', select_form=select_form, add_form=add_form)
 
 @app.route("/ingredients/", methods=['GET','POST'])
+@login_required
+@roles_required('admin')
 def ingredients():
     global mms
     form = BarstockForm(request.form)
