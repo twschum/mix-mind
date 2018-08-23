@@ -29,7 +29,7 @@ def get_ingredient_files():
     return get_checked_files(MIXMIND_INGREDIENTS_DIR, MIXMIND_DEFAULT_INGREDIENTS)
 
 def get_checked_files(path, files):
-    files = [os.path.join(path, f) for f in files]
+    files = [os.path.abspath(os.path.join(path, f)) for f in files]
     for f in files:
         if not os.path.isfile(f):
             log.warning("{} not found, skipping".format(f))
