@@ -6,6 +6,10 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 
+from flask_mail import Mail
+mail = Mail()
+
+
 # note this requires a secrets file to work
 required = ['sender_email', 'sender_pass', 'sender_name', 'target_email']
 
