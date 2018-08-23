@@ -5,7 +5,7 @@ import os
 import random
 
 from flask import render_template, flash, request, send_file, jsonify, redirect
-from werkzeug.utils import secure_filename # ??
+from werkzeug.utils import secure_filename
 import urllib
 import flask_login
 from flask_security import login_required, roles_required
@@ -18,7 +18,8 @@ from .barstock import get_barstock_instance
 from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
 from .database import db, init_db
-from . import log, app
+from . import log, app, datafiles
+import config
 
 """
 NOTES:
@@ -41,23 +42,18 @@ NOTES:
     - defaults plus management
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
+* order workflow
+    - if not logged in, take them to a login/registration form,
+    prepopulated with name and address
+    - track unconfirmed orders
 """
 # views-wide domain-specific state
 mms = None
 # Create a user to test with
 @app.before_first_request
-def initialize_user_datastore():
+def initialize_shared_data():
     global mms
     mms = MixMindServer()
-    return
-    user_datastore.create_user(email='tim@asdf.net', password='password')
-    user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
-    user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
-    db.session.commit()
-    admin = user_datastore.find_role('admin')
-    user = user_datastore.find_user(email='tim@asdf.net')
-    user_datastore.add_role_to_user(user, admin)
-    db.session.commit()
 
 # Views
 @app.route('/test')
@@ -67,21 +63,15 @@ def home_test():
     return jsonify({'test': 'Here you go!'})
 
 class MixMindServer():
-    def __init__(self, recipes=['recipes_schubar.json','IBA_all.json'], barstock_files=['Barstock - Sheet1.csv']):
-        self.recipe_files = recipes
-        self.barstock_files = barstock_files # TODO get from datastore and cloud storage
-        self.base_recipes = load_recipe_json(recipes)
-        self.barstock = get_barstock_instance(barstock_files, use_sql=True)
+    # TODO synchronization
+    def __init__(self, recipe_files=None, ingredient_files=None):
+        self.recipe_files = config.get_recipe_files() if not recipe_files else recipe_files
+        self.barstock_files = config.get_ingredient_files() if not ingredient_files else ingredient_files
+        self.base_recipes = load_recipe_json(self.recipe_files)
+        self.barstock = get_barstock_instance(self.barstock_files, use_sql=True)
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
         self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
         self.default_margin = 1.10
-
-        url = "https://ipv4.icanhazip.com/"
-        try:
-            self.ip = urllib.urlopen(url).read().rstrip('\n')
-            print "Server running on: {}".format(self.ip)
-        except Exception as err:
-            print err
 
     def get_ingredients_table(self):
         raise NotImplementedError("unavailable for now")
@@ -300,7 +290,7 @@ def ingredients():
                 flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle))
 
         elif 'upload-csv' in request.form:
-            filename = datafiles.save(request.files['upload_csv'])
+            filename = datafiles.save(secure_filename(request.files['upload_csv']))
             print "CSV uploaded to {}".format(filename)
             mms = MixMindServer(recipes=mms.recipe_files, barstock_files=[filename])
             flash("Ingredients database reloaded from {}".format(filename))
@@ -318,5 +308,5 @@ def recipe_json(recipe_name):
 
 @app.errorhandler(500)
 def handle_internal_server_error(e):
-    print e
+    flash(e, 'error')
     return render_template('error.html'), 500
