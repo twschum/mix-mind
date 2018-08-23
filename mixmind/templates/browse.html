@@ -1,70 +1,65 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-{% from "_helpers.html" import header, footer, show_flashed %}
-{{ header("Schubar Recipe Selector") }}
+{% extends "base.html" %}
+{% from "_formhelpers.html" import formheader, render_field %}
+{% block title %}@Schubar{% endblock title %}
 
-	<!-- Main form -->
-	<div class="container" style="padding-bottom:15px; max-width:500px">
-		{% from "_formhelpers.html" import render_field %}
-		<h2><a href="/">Browse</a> @Schubar {% if False %} <em>&nbsp;as {{ current_user.name }}</em> {% endif %}</h2>
-		<p><em><small>Tips always appreciated, never required</small></em></p>
-		<form	id="menu-settings" action="" method="post" role="form">
-		<div class="row">
-			<div class="col">
-				<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a></div>
-			<div class="col">
-			<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
-			</div>
-		</div><!-- row -->
-		<div id="filters" class="collapse" style="margin-bottom:0.75rem">
-				{{ form.csrf }}
-				<div class="form-group">
+<!-- Main form -->
+{% block body %}
+<div class="container formbox">
+	{{ formheader("<a href=\"/\">Browse</a> @Schubar", subtitle="Tips always appreciated, never required") }}
+	<form	id="menu-settings" action="" method="post" role="form">
+	<div class="row">
+		<div class="col">
+			<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a></div>
+		<div class="col">
+		<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+		</div>
+	</div><!-- row -->
+	<div id="filters" class="collapse" style="margin-bottom:0.75rem">
+			{{ form.csrf }}
+			<div class="form-group">
+				<dl>
+				{{ render_field(form.include) }}
+				{{ render_field(form.exclude) }}
+				{{ render_field(form.sorting) }}
+				</dl>
+				<a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
+				<div id="misc-filters" class="collapse">
 					<dl>
-					{{ render_field(form.include) }}
-					{{ render_field(form.exclude) }}
-					{{ render_field(form.sorting) }}
+					{{ render_field(form.use_or) }}
+					{{ render_field(form.name) }}
+					{{ render_field(form.style) }}
+					{{ render_field(form.glass) }}
+					{{ render_field(form.prep) }}
+					{{ render_field(form.ice) }}
 					</dl>
-					<a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
-					<div id="misc-filters" class="collapse">
-						<dl>
-						{{ render_field(form.use_or) }}
-						{{ render_field(form.name) }}
-						{{ render_field(form.style) }}
-						{{ render_field(form.glass) }}
-						{{ render_field(form.prep) }}
-						{{ render_field(form.ice) }}
-						</dl>
-					</div><!-- misc-filters -->
-				</div><!-- form-group -->
-			<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
-			</div><!-- filters -->
-		</form>
-	</div><!-- header container -->
+				</div><!-- misc-filters -->
+			</div><!-- form-group -->
+		<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+		</div><!-- filters -->
+	</form>
+</div><!-- header form(col) container -->
 
-	<div class="container"><!-- recipes and message container -->
-	{{ show_flashed() }}
-	<!-- Result recipes -->
-	{% if recipes %}
-		{% for recipe in recipes %}
-		{% if loop.index0 % 6 == 0 %}
-		<div class="row no-gutters">
-		{% endif %}
-			{% if form.examples.data %}
-			<div class="card col-xs-12 col-sm-12 col-md-6 col-xl-6">
-			{% else %}
-			<div class="card col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" style="background-color:#fff; margin-bottom:0.75rem;">
-			{% endif %}
-			{{ recipe | safe }}
-			</div><!-- col -->
-			{% if loop.index0 % 6 == 5 or loop.last %}
-			</div><!-- row -->
-			{% endif %}
-		{% endfor %}
+<div class="container">
+<!--<div class="col-xs-12 col-sm-12 col-md-12 col-lg-8 col-xl-8"-->
+<!-- Result recipes -->
+{% if recipes %}
+	{% for recipe in recipes %}
+	{% if loop.index0 % 6 == 0 %}
+	<div class="row no-gutters">
 	{% endif %}
-	</div><!-- container -->
+		<div class="card col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" style="background-color:#fff; margin-bottom:0.75rem;">
+		{{ recipe | safe }}
+		</div><!-- col -->
+		{% if loop.index0 % 6 == 5 or loop.last %}
+		</div><!-- row -->
+		{% endif %}
+	{% endfor %}
+{% endif %}
+</div><!-- container -->
+{% endblock body %}
 
-	<div style="padding-right:15px; padding-left:15px;">
-		<center><em><small>$$ amount shown is recommended tip, calculated from cost of ingredients</small></em></center>
-	</div>
-</div> <!-- message + recipes container -->
+<!--</div> row for sidebar+recipes -->
 
-{{ footer() }}
+{% block footer %}
+$$ amount shown is recommended tip, calculated from cost of ingredients
+{% endblock footer %}
