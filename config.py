@@ -34,6 +34,6 @@ def get_checked_files(path, files):
     missing = {0}-{0}
     for f in files:
         if not os.path.isfile(f):
-            missing.append(f)
+            missing.add(f)
             log.warning("{} not found, will be omitted".format(f))
     return list(set(files) - missing)
