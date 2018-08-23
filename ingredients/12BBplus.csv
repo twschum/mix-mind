@@ -1,0 +1,32 @@
+Category,Type,Bottle,In Stock,Proof,Size (mL),Price Paid,Size (oz),$/mL,$/cL,$/oz,$/1.5oz
+Spirit,Brandy,E&J X.O.,1,80,750,$13.99,25.4,$0.019,$0.19,$0.55,$0.83
+Spirit,Cognac,St. Remy V.S.O.P.,1,80,750,$12.99,25.4,$0.017,$0.17,$0.51,$0.77
+Spirit,Dry Gin,New Amsterdam,1,80,1750,$22.99,59.2,$0.013,$0.13,$0.39,$0.58
+Spirit,Genever,Bols,1,84,750,$28.99,25.4,$0.039,$0.39,$1.14,$1.71
+Spirit,Amber Rum,Havana Club Anejo Clssico PR,1,80,750,$21.96,25.4,$0.029,$0.29,$0.87,$1.30
+Spirit,White Rum,Bacardi Carta Blanca,1,80,1000,$18.99,33.8,$0.019,$0.19,$0.56,$0.84
+Spirit,Rye Whiskey,Bulleit Rye,1,90,750,$28.96,25.4,$0.039,$0.39,$1.14,$1.71
+Spirit,Vodka,Skyy,1,80,750,$14.99,25.4,$0.020,$0.20,$0.59,$0.89
+Liqueur,Orange Liqueur,Mr. Boston Triple Sec,1,80,1000,$5.99,33.8,$0.006,$0.06,$0.18,$0.27
+Vermouth,Dry Vermouth,Noilly Prat Extra Dry,1,32,375,$6.99,12.7,$0.019,$0.19,$0.55,$0.83
+Vermouth,Sweet Vermouth,Dolin Rouge,1,32,375,$6.49,12.7,$0.017,$0.17,$0.51,$0.77
+Bitters,Aromatic Bitters,Angostura,1,89.4,200,$9.99,6.8,$0.050,$0.50,$1.48,$2.22
+Bitters,Orange Bitters,Regan's,1,92,148,$8.99,5.0,$0.061,$0.61,$1.80,$2.69
+,,,,,,,,,,,
+Syrup,Grenadine,Rose's,1,,355,$3.29,12.0,$0.009,$0.09,$0.27,$0.41
+Syrup,Simple Syrup,Homemade,1,,4000,$2.79,135.3,$0.001,$0.01,$0.02,$0.03
+Syrup,Rich Simple Syrup,Homemade,1,,2000,$2.79,67.6,$0.001,$0.01,$0.04,$0.06
+Syrup,Honey Syrup,Homemade,1,,3405,$11.99,115.1,$0.004,$0.04,$0.10,$0.16
+,,,,,,,,,,,
+Dry,Sugar,Raw Cane Sugar,1,,4000,$2.79,135.3,$0.001,$0.01,$0.02,$0.03
+Dry,Sugar cube,Demerara Sugar,1,,1000,$6.01,33.8,$0.006,$0.06,$0.18,$0.27
+Dry,Honey,Kirkland Honey,1,,2270,$11.99,76.8,$0.005,$0.05,$0.16,$0.23
+,,,,,,,,,,,
+Juice,Lemon Juice,Fresh,1,,45,$0.80,1.5,$0.018,$0.18,$0.53,$0.79
+Juice,Lime Juice,Fresh,1,,30,$0.34,1.0,$0.011,$0.11,$0.34,$0.50
+,,,,,,,,,,,
+Mixer,Ginger Beer,Bundaberg,1,,355,$1.50,12.0,$0.004,$0.04,$0.12,$0.19
+Mixer,Soda Water,Club Soda,1,,178,$1.00,6.0,$0.006,$0.06,$0.17,$0.25
+Mixer,Tonic Water,Tonic Water,1,,178,$1.00,6.0,$0.006,$0.06,$0.17,$0.25
+Mixer,Cola,Coke,1,,355,$1.20,12.0,$0.003,$0.03,$0.10,$0.15
+Mixer,Water,Water,1,,750,$0.00,25.4,$0.000,$0.00,$0.00,$0.00
