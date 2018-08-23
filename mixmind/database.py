@@ -9,6 +9,6 @@ def init_db():
     import barstock
     from authorization import user_datastore
     db.create_all()
-    user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
-    user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
+    user_datastore.find_or_create_role(name='admin', description='An admin user may modify the parameters of the app backend')
+    user_datastore.find_or_create_role(name='customer', description='Customer may register to make it easier to order drinks')
     db.session.commit()
