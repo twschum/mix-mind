@@ -1,46 +1,42 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-{% from "_helpers.html" import header, footer, show_flashed %}
-{{ header("Schubar - Place Order ") }}
+{% extends "form_base.html" %}
+{% from "_formhelpers.html" import formheader, render_field %}
+{% block formblock %}
 
-    <!-- Main form -->
-    <div class="container" style="max-width:700px">
-      <h2>Order for:</h2>
-      <!-- Show flashed messaged -->
-			{{ show_flashed() }}
+{{ formheader(header_text) }}
+{% if show_form %}
+<form id="order-form" action="" method="post" role="form">
+	{{ form.csrf }}
+	<div class="form-group">
+		{{ recipe | safe }}
+		{% if current_user.is_authenticated %}
+		{% else %}
+		{{ render_field(form.name) }}
+		{{ render_field(form.email) }}
+		{% endif %}
+		{{ render_field(form.notes) }}
+	</div>
+<!-- align the buttons -->
+<div class="container row">
+	<div class="col align-self-start">
+	<input type="submit" name="submit-order" form="order-form" class="btn btn-success" value="Submit Order"></input>
+	</div>
+</form>
+<form id="cancel-nav" action="/">
+	<div class="col align-self-center">
+	<input type="submit" form="cancel-nav" class="btn btn-danger" value="Cancel"></input>
+	</div>
+</form>
+</div>
+<br>
+{% endif %}
 
-      {% if show_form %}
-      {% from "_formhelpers.html" import render_field %}
-      <form  id="order-form" action="" method="post" role="form">
-        {{ form.csrf }}
-        <div class="form-group">
-            {{ recipe | safe }}
-            {{ render_field(form.name) }}
-            {{ render_field(form.email) }}
-            {{ render_field(form.notes) }}
-        </div>
-      <!-- align the buttons -->
-      <div class="container row">
-        <div class="col align-self-start">
-        <input type="submit" name="submit-order" form="order-form" class="btn btn-success" value="Submit Order"></input>
-        </div>
-      </form>
-      <form id="cancel-nav" action="/">
-        <div class="col align-self-center">
-        <input type="submit" form="cancel-nav" class="btn btn-danger" value="Cancel"></input>
-        </div>
-      </form>
-      </div>
-      <br>
-      {% endif %}
+<!-- return to main page -->
+{% if not show_form %}
+<div class="row" id="navigation">
+	<form action="/">
+		<div class="col"> <input type="submit" class="btn btn-primary" value="Back to Browse"></input> </div>
+	</form>
+</div>
+{% endif %}
 
-      <!-- return to main page -->
-      {% if not show_form %}
-      <div class="row" id="navigation">
-        <form action="/">
-          <div class="col"> <input type="submit" class="btn btn-primary" value="Back to Browse"></input> </div>
-        </form>
-      </div>
-      {% endif %}
-
-      </div> <!-- top level container -->
-{{ footer() }}
+{% endblock formblock %}
