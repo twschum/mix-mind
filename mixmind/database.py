@@ -1,15 +1,3 @@
-#from sqlalchemy import create_engine
-#from sqlalchemy.orm import scoped_session, sessionmaker
-#from sqlalchemy.ext.declarative import declarative_base
-
-#import config
-
-#engine = create_engine(config.sql_db_url, convert_unicode=True)
-# TODO investigate: http://docs.sqlalchemy.org/en/latest/orm/contextual.html
-#db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
-#Base = declarative_base()
-#Base.query = db_session.query_property()
-
 from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
@@ -19,4 +7,8 @@ def init_db():
     # you will have to import them first before calling init_db()
     import models
     import barstock
+    from authorization import user_datastore
     db.create_all()
+    user_datastore.create_role(name='admin', description='An admin user may modify the parameters of the app backend')
+    user_datastore.create_role(name='customer', description='Customer may register to make it easier to order drinks')
+    db.session.commit()
