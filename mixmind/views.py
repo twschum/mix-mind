@@ -49,7 +49,6 @@ NOTES:
 """
 # views-wide domain-specific state
 mms = None
-# Create a user to test with
 @app.before_first_request
 def initialize_shared_data():
     global mms
@@ -65,8 +64,8 @@ def home_test():
 class MixMindServer():
     # TODO synchronization
     def __init__(self, recipe_files=None, ingredient_files=None):
-        self.recipe_files = config.get_recipe_files() if not recipe_files else recipe_files
-        self.barstock_files = config.get_ingredient_files() if not ingredient_files else ingredient_files
+        self.recipe_files = config.get_recipe_files(app) if not recipe_files else recipe_files
+        self.barstock_files = config.get_ingredient_files(app) if not ingredient_files else ingredient_files
         self.base_recipes = load_recipe_json(self.recipe_files)
         self.barstock = get_barstock_instance(self.barstock_files, use_sql=True)
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]

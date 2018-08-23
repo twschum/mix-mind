@@ -23,14 +23,15 @@ MIXMIND_INGREDIENTS_DIR = os.path.join(MIXMIND_DIR, "ingredients/")
 MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
 MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
 
-def get_recipe_files():
-    return get_checked_files(MIXMIND_RECIPES_DIR, MIXMIND_DEFAULT_RECIPES)
+def get_recipe_files(app):
+    return get_checked_files(app, MIXMIND_RECIPES_DIR, MIXMIND_DEFAULT_RECIPES)
 
-def get_ingredient_files():
-    return get_checked_files(MIXMIND_INGREDIENTS_DIR, MIXMIND_DEFAULT_INGREDIENTS)
+def get_ingredient_files(app):
+    return get_checked_files(app, MIXMIND_INGREDIENTS_DIR, MIXMIND_DEFAULT_INGREDIENTS)
 
-def get_checked_files(path, files):
-    files = [os.path.join(path, f) for f in files]
+def get_checked_files(app, partial_path, files):
+    abspath = app.config.get('MIXMIND_DIR', MIXMIND_DIR)
+    files = [os.path.join(abspath, partial_path, f) for f in files]
     missing = {0}-{0}
     for f in files:
         if not os.path.isfile(f):
