@@ -1,3 +1,14 @@
+<!-- Format block for rendering blocks in a form -->
+{% macro formheader(title, subtitle=None %}
+<h2>{{ title }}</h2>
+{% if subtitle %}
+<p class=subtitle>{{ subtitle |e }}</p>
+{% endif %}
+{% import "_helpers.html" as helpers %}
+{{ helpers.show_flashed() }}
+{% endmacro %}
+
+<!-- Renders indivdual filds in a from, given WTForm objects -->
 {% macro render_field(field) %}
   {% if field.type != 'BooleanField' %}
   <dt>{{ field.label }} {% if field.flags.required %}*{% endif %}
