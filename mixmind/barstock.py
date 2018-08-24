@@ -18,7 +18,6 @@ from .database import db
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
 class Ingredient(db.Model):
-    __tablename__  = 'ingredient'
     Category   = Column(Enum(*Categories))
     Type       = Column(String(100), primary_key=True)
     Bottle     = Column(String(255), primary_key=True)
@@ -46,16 +45,17 @@ class Ingredient(db.Model):
         return setattr(self, field, value)
 
     display_name_mappings = {
-        "Category": {'k': "Category", 'v': unicode},
-        "Type": {'k': "Type", 'v': unicode},
-        "Bottle": {'k': "Bottle", 'v': unicode},
-        "In Stock": {'k': "In_Stock", 'v': util.from_bool_from_int},
-        "Size (mL)": {'k': "Size_mL", 'v': util.from_float},
-        "Size (oz)": {'k': "Size_oz", 'v': util.from_float},
-        "Price Paid": {'k': "Price_Paid", 'v': util.from_price_float},
-        "$/mL": {'k': "Cost_per_mL", 'v': util.from_price_float},
-        "$/cL": {'k': "Cost_per_cL", 'v': util.from_price_float},
-        "$/oz": {'k': "Cost_per_oz", 'v': util.from_price_float},
+        "Category":    {'k':  "Category",     'v':  unicode},
+        "Type":        {'k':  "Type",         'v':  unicode},
+        "Bottle":      {'k':  "Bottle",       'v':  unicode},
+        "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_int},
+        "Proof":       {'k':  "Proof",        'v':  util.from_float},
+        "Size (mL)":   {'k':  "Size_mL",      'v':  util.from_float},
+        "Size (oz)":   {'k':  "Size_oz",      'v':  util.from_float},
+        "Price Paid":  {'k':  "Price_Paid",   'v':  util.from_price_float},
+        "$/mL":        {'k':  "Cost_per_mL",  'v':  util.from_price_float},
+        "$/cL":        {'k':  "Cost_per_cL",  'v':  util.from_price_float},
+        "$/oz":        {'k':  "Cost_per_oz",  'v':  util.from_price_float},
     }
 
 def get_barstock_instance(csv_list, use_sql=False, include_all=False):

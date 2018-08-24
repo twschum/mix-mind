@@ -26,8 +26,7 @@ import config
 
 """
 BUGS:
-* abv shows as 0.0% for everything on recipe examples
-* markup seems to have changed
+* markup seems to have changed?
 * email sent to customer not bartender
 NOTES:
 * template improvements
@@ -37,6 +36,7 @@ NOTES:
         - use custom html template params (price fails in email)
         - change email confirmation to result page
         - order submission had wrong name
+    - use more bootstrap form goodness
 * admin pages
     - add/remove ingredients dynamically?
     - add/remove recipes as raw json?
