@@ -260,12 +260,14 @@ def order(recipe_name):
                         notes=form.notes.data,
                         recipe_html=recipe_html)
 
-                db.session.commit()
-
                 flash("Successfully placed order!", 'success')
                 if not current_user.is_authenticated:
-                    flash("Hey, if you register I'll remember your name and email in future orders!", 'success')
-                    return redirect(url_for('security.register'))
+                    if User.query.filter_by(email=user_email).one_or_none():
+                        flash("Hey, if you log in you won't have to keep typing your email address for orders ;)", 'success')
+                        return redirect(url_for('security.login'))
+                    else:
+                        flash("Hey, if you register I'll remember your name and email in future orders!", 'success')
+                        return redirect(url_for('security.register'))
                 return render_template('result.html', heading="Order Placed")
             else:
                 flash("Error in form validation", 'error')
