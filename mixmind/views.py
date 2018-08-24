@@ -3,6 +3,7 @@ Application main for the mixmind app
 """
 import os
 import random
+import datetime
 
 from flask import render_template, flash, request, send_file, jsonify, redirect, url_for
 from werkzeug.utils import secure_filename
@@ -10,14 +11,15 @@ import urllib
 from flask_security import login_required, roles_required
 from flask_login import current_user
 
-from .notifier import Notifier
-from .forms import DrinksForm, OrderForm, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
+from .notifier import send_mail
+from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
 from .authorization import user_datastore
 from .recipe import DrinkRecipe
 from .barstock import get_barstock_instance
 from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
 from .database import db, init_db
+from .models import User, Order
 from . import log, app, datafiles
 import config
 
@@ -73,8 +75,7 @@ class MixMindServer():
         self.base_recipes = load_recipe_json(self.recipe_files)
         self.barstock = get_barstock_instance(self.barstock_files, use_sql=True)
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
-        self.notifier = Notifier('secrets.json', 'simpler_email_template.html')
-        self.default_margin = 1.10
+        self.default_margin = 2.10
 
     def get_ingredients_table(self):
         raise NotImplementedError("unavailable for now")
@@ -203,9 +204,14 @@ def browse():
 
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
-    form = OrderForm(request.form)
+    if current_user.is_authenticated:
+        form = OrderForm(request.form)
+    else:
+        form = OrderFormAnon(request.form)
+
     recipe_name = urllib.unquote_plus(recipe_name)
     show_form = False
+    header_text = "Order:"
 
     recipe = find_recipe(mms.recipes, recipe_name)
     recipe.convert('oz')
@@ -220,44 +226,87 @@ def order(recipe_name):
     if request.method == 'GET':
         show_form = True
         if not recipe.can_make:
-            flash('Ingredients to make this are out of stock!', 'error')
+            show_form = False
+            flash('Ingredients to make this are out of stock :(', 'error')
+        if current_user.is_authenticated:
+            header_text = "Order for {}:".format(current_user.username)
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
             if not recipe.can_make:
-                flash('Ingredients to make this are out of stock!', 'error')
+                flash('Ingredients to make this are out of stock :(', 'error')
                 return render_template('order.html', form=form, recipe=recipe_html, show_form=True)
 
             if form.validate():
-                # get request arg
-                subject = "New @Schubar Order - {}".format(recipe.name)
-                mms.notifier.send(subject, {
-                    '_GREETING_': "{} has ordered a {}".format(form.name.data, recipe.name),
-                    '_SUMMARY_': "<a href=http://{}/confirm?email={}&recipe={}>Send Confirmation</a>".format(mms.ip,
-                        urllib.quote(form.email.data), urllib.quote(recipe.name) ),
-                    '_RECIPE_': "{}".format(recipe_html),
-                    '_EXTRA_': "{}".format(form.notes.data)
-                    })
-                flash("Successfully placed order!")
+                if current_user.is_authenticated:
+                    user_name = current_user.username
+                    user_email = current_user.email
+                else:
+                    user_name = form.name.data
+                    user_email = form.email.data
+
+                # add to the order database
+                order = Order(timestamp=datetime.datetime.now(), recipe_name=recipe.name, recipe_html=recipe_html)
+                db.session.add(order)
+                db.session.commit()
+
+                # TODO add a verifiable token to this
+                subject = "[Mix-Mind] New @Schubar Order - {}".format(recipe.name)
+                confirmation_link = "https://{}{}".format(request.host,
+                        url_for('confirm_order',
+                            email=urllib.quote(user_email),
+                            order_id=order.id))
+
+                send_mail(subject, user_email, "order_submitted",
+                        confirmation_link=confirmation_link,
+                        name=user_name,
+                        notes=form.notes.data,
+                        recipe_html=recipe_html)
+
+                db.session.commit()
+
+                flash("Successfully placed order!", 'success')
+                if not current_user.is_authenticated:
+                    flash("Hey, if you register I'll remember your name and email in future orders!", 'success')
+                    return redirect(url_for('security.register'))
+                return redirect(url_for('browse'))
             else:
                 show_form=True
                 flash("Error in form validation", 'error')
 
     # either provide the recipe and the form,
     # or after the post show the result
-    return render_template('order.html', form=form, recipe=recipe_html, show_form=show_form)
+    return render_template('order.html', form=form, recipe=recipe_html, show_form=show_form, header_text=header_text)
 
-@app.route('/confirm')
-def confirmation():
+@app.route('/confirm_order')
+def confirm_order():
     email = urllib.unquote(request.args.get('email'))
-    recipe = urllib.unquote(request.args.get('recipe'))
-    mms.notifier.send("Your @Schubar Confirmation",
-            { '_GREETING_': "You ordered {}".format(recipe),
-              '_SUMMARY_': 'Your drink order as been acknowledged by the Bartender and should be ready shortly.',
-              '_RECIPE_': 'Thanks for using Mix-Mind @Schubar!',
-              '_EXTRA_': ''}, alt_target=email)
+    order_id = request.args.get('order_id')
+    user_id = request.args.get('user_id')
+    venmo_link = app.config.get('VENMO_LINK')
+    order = Order.query.filter_by(id=order_id).one_or_none()
+    if not order:
+        flash("Invalid order_id", 'error')
+        return render_template("result.html", header_text="Invalid confirmation link")
+    if order.confirmed:
+        flash("Order has already been confirmed", 'error')
+        return render_template("result.html", header_text="Invalid confirmation link")
+    try:
+        send_mail("[Mix-Mind] Your @Schubar Confirmation", email, "order_confirmation",
+                recipe_name=order.recipe_name,
+                recipe_html=order.recipe_html,
+                venmo_link=venmo_link)
+    except Exception:
+        log.error("Error sending confirmation email for {} to {}".format(recipe, email))
+
+    # update users db
+    user = User.query.filter_by(email=email).one_or_none()
+    if user:
+        user.orders.append(order)
+        user_datastore.put(user)
+
     flash('Confirmation sent')
-    return render_template('order.html', form=None, recipe=None, show_form=False)
+    return render_template('result.html', header_text="Order Confirmation")
 
 @app.route("/recipes/", methods=['GET','POST'])
 @login_required
