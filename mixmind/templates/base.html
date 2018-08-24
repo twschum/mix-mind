@@ -23,17 +23,19 @@
 		<!-- navbar is shown at the top of every page -->
 		{% block navbar %}
 		<nav class="navbar bg-light navbar-light navbar-expand-lg">
-			<a class="navbar-brand btn" href="/">
-				<img src="/static/icons_outline/favicon.ico" width="30" height="30" alt="">
-			</a>
-			{% if current_user.is_authenticated %}
-			<span class="navbar-text">Welcome {{ current_user.get_name(short=True) }}</span>
-			<a class="nav-item nav-link" href="/logout">Log out</a>
-			{% elif request.path != "/login" %}
-			<a class="nav-item nav-link" href="/login">Log in</a>
-			{% endif %}
-			{% block extra_navitems %}
-			{% endblock extra_navitems %}
+			<div class="container">
+				<a class="navbar-brand btn" href="/">
+					<img src="/static/icons_outline/favicon.ico" width="30" height="30" alt="">
+				</a>
+				{% if current_user.is_authenticated %}
+				<span class="navbar-text">Welcome {{ current_user.get_name(short=True) }}</span>
+				<a class="nav-item nav-link" href="/logout">Log out</a>
+				{% elif request.path != "/login" %}
+				<a class="nav-item nav-link" href="/login">Log in</a>
+				{% endif %}
+				{% block extra_navitems %}
+				{% endblock extra_navitems %}
+			</div>
 		</nav>
 		{% endblock navbar %}
 

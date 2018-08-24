@@ -1,7 +1,7 @@
 {% extends "form_base.html" %}
 {% from "_macros.html" import formheader, render_field %}
+{% block title %}{{ super() }} - Order{% endblock title %}
 {% block formblock %}
-
 {{ formheader(header_text) }}
 {% if show_form %}
 <form id="order-form" action="" method="post" role="form">
