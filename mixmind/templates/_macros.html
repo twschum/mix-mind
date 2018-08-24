@@ -16,6 +16,7 @@
 	{% endwith %}
 {% endmacro %}
 
+<!-- Alternate implementation of flashed messages that looks interesting -->
 {% macro other_show_flashed() %}
 	{% with messages = get_flashed_messages(with_categories=true) %}
 		<!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
@@ -41,7 +42,7 @@
 
 <!-- Renders indivdual filds in a from, given WTForm objects -->
 {% macro render_field(field) %}
-	{% if field.type != 'BooleanField' %}
+	{% if field.type not in ['BooleanField', 'HiddenField', 'SubmitField'] %}
 	<dt>{{ field.label }} {% if field.flags.required %}*{% endif %}
 	{% endif %}
 	<dd>
@@ -60,6 +61,12 @@
 	</label>
 	{{ field(**kwargs)|safe }}
 	{{ field.description }}
+
+	{% elif field.type in ['SubmitField'] %}
+	{{ field(class_="btn btn-primary", **kwargs)|safe }}
+
+	{% elif field.type in ['HiddenField'] %}
+	{{ field(**kwargs)|safe }}
 
 	{% else %}
 	{{ field(**kwargs)|safe }}
