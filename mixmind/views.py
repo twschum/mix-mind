@@ -33,8 +33,6 @@ NOTES:
 * template improvements
     - header
         - move greeting over to right with log in/out
-    - left justify the formbox heading on browse
-        - also have heading in nav with the icon?
     - make email template
         - use custom html template params (price fails in email)
         - change email confirmation to result page
@@ -54,10 +52,10 @@ NOTES:
     - moar logging
     - test error handling
 * configuration management
+    - support for multiple bars!
     - defaults plus management
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
-
 
 """
 # views-wide domain-specific state
@@ -128,57 +126,10 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
             recipes = [format_recipe_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
     return recipes, excluded, stats
 
-@app.route("/main/", methods=['GET', 'POST'])
-@login_required
-@roles_required('admin')
-def mainpage():
-    form = DrinksForm(request.form)
-    print form.errors
-    recipes = []
-    excluded = None
-    stats = None
 
-    if request.method == 'POST':
-        if form.validate():
-            print request
-            recipes, excluded, stats = recipes_from_options(form, to_html=True)
-            flash("Settings applied. Showing {} available recipes".format(len(recipes)))
-        else:
-            flash("Error in form validation", 'danger')
-
-    return render_template('application_main.html', form=form, recipes=recipes, excluded=excluded, stats=stats)
-
-@app.route("/download/", methods=['POST'])
-@login_required
-@roles_required('admin')
-def menu_download():
-    form = DrinksForm(request.form)
-    print form.errors
-
-    if form.validate():
-        print request
-        recipes, _, _ = recipes_from_options(form)
-
-        display_options = bundle_options(DisplayOptions, form)
-        form.pdf_filename.data = 'menus/{}'.format(filename_from_options(bundle_options(PdfOptions, form), display_options))
-        pdf_options = bundle_options(PdfOptions, form)
-        pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
-
-        generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
-        return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
-
-    else:
-        flash("Error in form validation", 'danger')
-        return render_template('application_main.html', form=form, recipes=[], excluded=None)
-
-@app.route("/user_post_login", methods=['GET'])
-def post_login_redirect():
-    # show main if admin user
-    # maybe use post-register for assigning a role
-    if 'admin' in current_user.roles:
-        return redirect(url_for('browse'))
-    else:
-        return redirect(url_for('browse'))
+################################################################################
+# Customer routes
+################################################################################
 
 @app.route("/", methods=['GET', 'POST'])
 def browse():
@@ -314,7 +265,98 @@ def confirm_order():
     return render_template('result.html', heading="Order Confirmation")
 
 
-@app.route("/recipes/", methods=['GET','POST'])
+@app.route('/user')
+@login_required
+def user_profile():
+    try:
+        user_id = int(request.args.get('user_id'))
+    except ValueError:
+        flash("Invalid user_id parameter", 'danger')
+        return render_template('result.html', "User profile unavailable")
+
+    if current_user.id != user_id and not current_user.has_role('admin'):
+        return _get_unauthorized_view()
+
+    if current_user.email in app.config.get('MAKE_ADMIN', []):
+        if not current_user.has_role('admin'):
+            admin = user_datastore.find_role('admin')
+            user_datastore.add_role_to_user(current_user, admin)
+            user_datastore.commit()
+            flash("You have been upgraded to admin", 'success')
+
+    return render_template('user_profile.html')
+
+
+@app.route("/user_post_login", methods=['GET'])
+def post_login_redirect():
+    # show main if admin user
+    # maybe use post-register for assigning a role
+    if 'admin' in current_user.roles:
+        return redirect(url_for('browse'))
+    else:
+        return redirect(url_for('browse'))
+
+
+@app.route('/user_post_confirm_email')
+@login_required
+def user_confirmation_hook():
+    if not current_user.has_role('customer'):
+        customer = user_datastore.find_role('customer')
+        user_datastore.add_role_to_user(current_user, customer)
+        user_datastore.commit()
+    return render_template('result.html', heading="Email confirmed")
+
+
+################################################################################
+# Admin routes
+################################################################################
+
+@app.route("/admin/menu_generator", methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def menu_generator():
+    form = DrinksForm(request.form)
+    print form.errors
+    recipes = []
+    excluded = None
+    stats = None
+
+    if request.method == 'POST':
+        if form.validate():
+            print request
+            recipes, excluded, stats = recipes_from_options(form, to_html=True)
+            flash("Settings applied. Showing {} available recipes".format(len(recipes)))
+        else:
+            flash("Error in form validation", 'danger')
+
+    return render_template('menu_generator.html', form=form, recipes=recipes, excluded=excluded, stats=stats)
+
+
+@app.route("/admin/menu_generator/download/", methods=['POST'])
+@login_required
+@roles_required('admin')
+def menu_download():
+    form = DrinksForm(request.form)
+    print form.errors
+
+    if form.validate():
+        print request
+        recipes, _, _ = recipes_from_options(form)
+
+        display_options = bundle_options(DisplayOptions, form)
+        form.pdf_filename.data = 'menus/{}'.format(filename_from_options(bundle_options(PdfOptions, form), display_options))
+        pdf_options = bundle_options(PdfOptions, form)
+        pdf_file = '{}.pdf'.format(pdf_options.pdf_filename)
+
+        generate_recipes_pdf(recipes, pdf_options, display_options, mms.barstock.df)
+        return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
+
+    else:
+        flash("Error in form validation", 'danger')
+        return render_template('application_main.html', form=form, recipes=[], excluded=None)
+
+
+@app.route("/admin/recipes", methods=['GET','POST'])
 @login_required
 @roles_required('admin')
 def recipes():
@@ -333,7 +375,8 @@ def recipes():
 
     return render_template('recipes.html', select_form=select_form, add_form=add_form)
 
-@app.route("/ingredients/", methods=['GET','POST'])
+
+@app.route("/admin/ingredients", methods=['GET','POST'])
 @login_required
 @roles_required('admin')
 def ingredients():
@@ -373,36 +416,10 @@ def ingredients():
     table = mms.get_ingredients_table()
     return render_template('ingredients.html', form=form, table=table)
 
-@app.route('/user')
-@login_required
-def user_profile():
-    try:
-        user_id = int(request.args.get('user_id'))
-    except ValueError:
-        flash("Invalid user_id parameter", 'danger')
-        return render_template('result.html', "User profile unavailable")
 
-    if current_user.id != user_id and not current_user.has_role('admin'):
-        return _get_unauthorized_view()
-
-    if current_user.email in app.config.get('MAKE_ADMIN', []):
-        if not current_user.has_role('admin'):
-            admin = user_datastore.find_role('admin')
-            user_datastore.add_role_to_user(current_user, admin)
-            user_datastore.commit()
-            flash("You have been upgraded to admin", 'success')
-
-    return render_template('user_profile.html')
-
-@app.route('/user_post_confirm_email')
-@login_required
-def user_confirmation_hook():
-    if not current_user.has_role('customer'):
-        customer = user_datastore.find_role('customer')
-        user_datastore.add_role_to_user(current_user, customer)
-        user_datastore.commit()
-    return render_template('result.html', heading="Email confirmed")
-
+################################################################################
+# Helper routes
+################################################################################
 
 @app.route('/json/<recipe_name>')
 def recipe_json(recipe_name):
@@ -411,6 +428,7 @@ def recipe_json(recipe_name):
         return jsonify(mms.base_recipes[recipe_name])
     except KeyError:
         return "{} not found".format(recipe_name)
+
 
 @app.errorhandler(500)
 def handle_internal_server_error(e):
