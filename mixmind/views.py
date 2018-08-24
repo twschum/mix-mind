@@ -211,7 +211,7 @@ def order(recipe_name):
 
     recipe_name = urllib.unquote_plus(recipe_name)
     show_form = False
-    header_text = "Order:"
+    heading = "Order:"
 
     recipe = find_recipe(mms.recipes, recipe_name)
     recipe.convert('oz')
@@ -229,7 +229,7 @@ def order(recipe_name):
             show_form = False
             flash('Ingredients to make this are out of stock :(', 'error')
         if current_user.is_authenticated:
-            header_text = "Order for {}:".format(current_user.username)
+            heading = "Order for {}:".format(current_user.username)
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
@@ -276,7 +276,7 @@ def order(recipe_name):
 
     # either provide the recipe and the form,
     # or after the post show the result
-    return render_template('order.html', form=form, recipe=recipe_html, show_form=show_form, header_text=header_text)
+    return render_template('order.html', form=form, recipe=recipe_html, show_form=show_form, heading=heading)
 
 @app.route('/confirm_order')
 def confirm_order():
@@ -287,10 +287,10 @@ def confirm_order():
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
         flash("Invalid order_id", 'error')
-        return render_template("result.html", header_text="Invalid confirmation link")
+        return render_template("result.html", heading="Invalid confirmation link")
     if order.confirmed:
         flash("Order has already been confirmed", 'error')
-        return render_template("result.html", header_text="Invalid confirmation link")
+        return render_template("result.html", heading="Invalid confirmation link")
     try:
         send_mail("[Mix-Mind] Your @Schubar Confirmation", email, "order_confirmation",
                 recipe_name=order.recipe_name,
@@ -306,7 +306,7 @@ def confirm_order():
         user_datastore.put(user)
 
     flash('Confirmation sent')
-    return render_template('result.html', header_text="Order Confirmation")
+    return render_template('result.html', heading="Order Confirmation")
 
 @app.route("/recipes/", methods=['GET','POST'])
 @login_required
@@ -378,4 +378,4 @@ def recipe_json(recipe_name):
 @app.errorhandler(500)
 def handle_internal_server_error(e):
     flash(e, 'error')
-    return render_template('error.html'), 500
+    return render_template('error.html', heading="OOPS - Something went wrong..."), 500

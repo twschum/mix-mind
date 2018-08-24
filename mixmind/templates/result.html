@@ -1,8 +1,8 @@
 {% extends "form_base.html" %}
-{% from "_formhelpers.html" import formheader %}
+{% from "_macros.html" import formheader %}
 {% block formblock %}
 
-{{ formheader(header_text) }}
+{{ formheader(heading) }}
 <!-- return to main page -->
 <form action="/">
 	<div class="col"> <input type="submit" class="btn btn-primary" value="Back to Browse"></input> </div>
