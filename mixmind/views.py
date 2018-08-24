@@ -56,7 +56,7 @@ NOTES:
     - defaults plus management
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
-
+* "remember" form open/close position
 """
 # views-wide domain-specific state
 mms = None
@@ -151,7 +151,11 @@ def browse():
                 recipes = [random.choice(recipes)]
                 flash("Bartender's choice! Just try again if you want something else!")
             else:
-                flash("Filters applied. Showing {} available recipes".format(len(recipes)), 'success')
+                n_results = len(recipes)
+                if n_results > 0:
+                    flash("Filters applied. Showing {} available recipes".format(n_results), 'success')
+                else:
+                    flash("No results after filtering, try being less specific", 'warning')
         else:
             flash("Error in form validation", 'danger')
 
