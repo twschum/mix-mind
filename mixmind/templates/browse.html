@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% from "_macros.html" import formheader, render_field %}
-{% block title %}@Schubar{% endblock title %}
+{% block title %}{{ super() }} @Schubar{% endblock title %}
 
 <!-- Main form -->
 {% block body %}
 <div class="container formbox">
-	{{ formheader("<a href=\"/\">Browse</a> @Schubar", subtitle="Tips always appreciated, never required") }}
+	{{ formheader("Browse @Schubar", subtitle="Tips always appreciated, never required") }}
 	<form	id="menu-settings" action="" method="post" role="form">
 	<div class="row">
 		<div class="col">
