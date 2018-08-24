@@ -3,10 +3,10 @@
 {% block body %}
 	<div class="container">
 		<h3>{{ current_user.get_name() }} {% if current_user.nickname %}({{ current_user.nickname }}){% endif %}</h3>
-		<h4>{{ current_user.email }}</h4>
-		<h4><em>{{ ', '.join(current_user.roles) }}</em></h4>
-		<h5>Last Login: {{ current_user.current_login_at }}</h5>
-		<h5>Login IP: {{ current_user.current_login_ip }}</h5>
+		<h5>{{ current_user.email }}</h5>
+		<h5><em>{{ current_user.get_role_names() }}</em></h5>
+		<h6>Last Login: {{ current_user.current_login_at }}</h6>
+		<h6>Login IP: {{ current_user.current_login_ip }}</h6>
 		<h4>Order history:</h4>
 		<table>
 			<tr>

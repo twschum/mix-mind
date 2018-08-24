@@ -9,6 +9,7 @@ from flask import render_template, flash, request, send_file, jsonify, redirect,
 from werkzeug.utils import secure_filename
 import urllib
 from flask_security import login_required, roles_required
+from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
 
 from .notifier import send_mail
@@ -43,6 +44,7 @@ NOTES:
     - add/remove recipes as raw json?
     - menu_generator (what's now "mainpage")
     - user stats dashboard
+* better commits to db with after_this_request
 * user improvements
     - order history
 * menu schemas
@@ -64,6 +66,10 @@ mms = None
 def initialize_shared_data():
     global mms
     mms = MixMindServer()
+    # invalidate users
+    #for user in User.query.all():
+        #user.confirmed_at = None
+    #db.session.commit()
 
 class MixMindServer():
     # TODO synchronization
@@ -165,12 +171,12 @@ def menu_download():
         flash("Error in form validation")
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
-@app.route("/post_login/", methods=['GET'])
+@app.route("/user_post_login", methods=['GET'])
 def post_login_redirect():
     # show main if admin user
     # maybe use post-register for assigning a role
     if 'admin' in current_user.roles:
-        return redirect(url_for('mainpage'))
+        return redirect(url_for('browse'))
     else:
         return redirect(url_for('browse'))
 
@@ -287,6 +293,7 @@ def confirm_order():
     if order.confirmed:
         flash("Order has already been confirmed", 'error')
         return render_template("result.html", heading="Invalid confirmation link")
+    order.confirmed = True
     try:
         send_mail("[Mix-Mind] Your @Schubar Confirmation", email, "order_confirmation",
                 recipe_name=order.recipe_name,
@@ -300,9 +307,11 @@ def confirm_order():
     if user:
         user.orders.append(order)
         user_datastore.put(user)
+    user_datastore.session.commit()
 
     flash('Confirmation sent')
     return render_template('result.html', heading="Order Confirmation")
+
 
 @app.route("/recipes/", methods=['GET','POST'])
 @login_required
@@ -362,6 +371,37 @@ def ingredients():
 
     table = mms.get_ingredients_table()
     return render_template('ingredients.html', form=form, table=table)
+
+@app.route('/user')
+@login_required
+def user_profile():
+    try:
+        user_id = int(request.args.get('user_id'))
+    except ValueError:
+        flash("Invalid user_id parameter", 'error')
+        return render_template('result.html', "User profile unavailable")
+
+    if current_user.id != user_id and not current_user.has_role('admin'):
+        return _get_unauthorized_view()
+
+    if current_user.email in app.config.get('MAKE_ADMIN', []):
+        if not current_user.has_role('admin'):
+            admin = user_datastore.find_role('admin')
+            user_datastore.add_role_to_user(current_user, admin)
+            user_datastore.commit()
+            flash("You have been upgraded to admin", 'success')
+
+    return render_template('user_profile.html')
+
+@app.route('/user_post_confirm_email')
+@login_required
+def user_confirmation_hook():
+    if not current_user.has_role('customer'):
+        customer = user_datastore.find_role('customer')
+        user_datastore.add_role_to_user(current_user, customer)
+        user_datastore.commit()
+    return render_template('result.html', heading="Email confirmed")
+
 
 @app.route('/json/<recipe_name>')
 def recipe_json(recipe_name):

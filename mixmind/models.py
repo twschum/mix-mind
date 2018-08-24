@@ -41,6 +41,10 @@ class User(db.Model, UserMixin):
                 return self.first_name
             return '{} {}'.format(self.first_name, self.last_name)
 
+    def get_role_names(self):
+        return ', '.join([role.name for role in self.roles])
+
+
 class OrdersUsers(db.Model):
     id = Column(Integer(), primary_key=True)
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
