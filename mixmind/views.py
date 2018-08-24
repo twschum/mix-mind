@@ -217,26 +217,23 @@ def order(recipe_name):
     recipe.convert('oz')
     if not recipe:
         flash('Error: unknown recipe "{}"'.format(recipe_name))
-        return render_template('order.html', form=form, recipe=None, show_form=False)
+        return render_template('result.html', heading=heading)
     else:
         recipe_html = format_recipe_html(recipe,
                 DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
                     markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
 
+    if not recipe.can_make:
+        flash('Ingredients to make this are out of stock :(', 'error')
+        return render_template('order.html', form=form, recipe=recipe_html, show_form=False)
+
     if request.method == 'GET':
         show_form = True
-        if not recipe.can_make:
-            show_form = False
-            flash('Ingredients to make this are out of stock :(', 'error')
         if current_user.is_authenticated:
             heading = "Order for {}:".format(current_user.username)
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
-            if not recipe.can_make:
-                flash('Ingredients to make this are out of stock :(', 'error')
-                return render_template('order.html', form=form, recipe=recipe_html, show_form=True)
-
             if form.validate():
                 if current_user.is_authenticated:
                     user_name = current_user.username
@@ -269,14 +266,13 @@ def order(recipe_name):
                 if not current_user.is_authenticated:
                     flash("Hey, if you register I'll remember your name and email in future orders!", 'success')
                     return redirect(url_for('security.register'))
-                return redirect(url_for('browse'))
+                return render_template('result.html', heading="Order Placed")
             else:
-                show_form=True
                 flash("Error in form validation", 'error')
 
     # either provide the recipe and the form,
     # or after the post show the result
-    return render_template('order.html', form=form, recipe=recipe_html, show_form=show_form, heading=heading)
+    return render_template('order.html', form=form, recipe=recipe_html, heading=heading, show_form=show_form)
 
 @app.route('/confirm_order')
 def confirm_order():
