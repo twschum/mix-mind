@@ -252,7 +252,7 @@ def order(recipe_name):
                 db.session.commit()
 
                 # TODO add a verifiable token to this
-                subject = "[Mix-Mind] New @Schubar Order - {}".format(recipe.name)
+                subject = "[Mix-Mind] New {} Order - {}".format(app.config.get('BAR_NAME'), recipe.name)
                 confirmation_link = "https://{}{}".format(request.host,
                         url_for('confirm_order',
                             email=urllib.quote(user_email),
@@ -295,7 +295,8 @@ def confirm_order():
         return render_template("result.html", heading="Invalid confirmation link")
     order.confirmed = True
     try:
-        send_mail("[Mix-Mind] Your @Schubar Confirmation", email, "order_confirmation",
+        subject = "[Mix-Mind] Your {} Confirmation".format(app.config.get('BAR_NAME'))
+        send_mail(subject, email, "order_confirmation",
                 recipe_name=order.recipe_name,
                 recipe_html=order.recipe_html,
                 venmo_link=venmo_link)

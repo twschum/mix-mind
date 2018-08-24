@@ -41,6 +41,8 @@ MIXMIND_INGREDIENTS_DIR = "ingredients/"
 MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
 MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
 
+BAR_NAME = "@Schubar"
+
 def get_recipe_files(app):
     return get_checked_files(app, MIXMIND_RECIPES_DIR, MIXMIND_DEFAULT_RECIPES)
 
