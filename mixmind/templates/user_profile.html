@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block body %}
+	<div class="container">
+		<h3>{{ current_user.get_name() }} {% if current_user.nickname %}({{ current_user.nickname }}){% endif %}</h3>
+		<h4>{{ current_user.email }}</h4>
+		<h4><em>{{ ', '.join(current_user.roles) }}</em></h4>
+		<h5>Last Login: {{ current_user.current_login_at }}</h5>
+		<h5>Login IP: {{ current_user.current_login_ip }}</h5>
+		<h4>Order history:</h4>
+		<table>
+			<tr>
+				<th>Drink name</th>
+				<th>Order date</th>
+			</tr>
+			{% for order in current_user.orders %}
+			<tr>
+				<td>{{ order.recipe_name }}</td>
+				<td>{{ order.timestamp }}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div><!-- container -->
+{% endblock body %}
