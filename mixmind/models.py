@@ -18,7 +18,9 @@ class Role(db.Model, RoleMixin):
 class User(db.Model, UserMixin):
     id = Column(Integer, primary_key=True)
     email = Column(String(255), unique=True)
-    username = Column(String(255))
+    first_name = Column(String(255))
+    last_name = Column(String(255))
+    nickname = Column(String(255))
     password = Column(String(255))
     # TODO timezone rip
     last_login_at = Column(DateTime())
@@ -30,6 +32,14 @@ class User(db.Model, UserMixin):
     confirmed_at = Column(DateTime())
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
     orders = relationship('Order', secondary='orders_users', backref=backref('users', lazy='dynamic'))
+
+    def get_name(self, short=False):
+        if self.nickname:
+            return self.nickname
+        else:
+            if short:
+                return self.first_name
+            return '{} {}'.format(self.first_name, self.last_name)
 
 class OrdersUsers(db.Model):
     id = Column(Integer(), primary_key=True)

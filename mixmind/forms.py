@@ -1,9 +1,12 @@
 """
 Definitions of the various forms used
 """
-from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField
+from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField, StringField
+from flask_security.forms import ConfirmRegisterForm
 
 import util
+
+# TODO refactor with flask_wtf which presets form csrfs (or roll my own I guess)
 
 class CSVField(Field):
     widget = widgets.TextInput()
@@ -143,7 +146,9 @@ class LoginForm(Form):
     email = EmailField("Email", validators=[validators.required()])
     password = PasswordField("Password", validators=[validators.required()])
 
-class RegisterUserForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
+    # flask-security user registration
+    first_name = StringField('First Name', validators=[validators.required()])
+    last_name = TextField('Last Name', validators=[validators.required()])
+    nickname = StringField('Nickname')
+

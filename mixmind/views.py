@@ -12,7 +12,7 @@ from flask_security import login_required, roles_required
 from flask_login import current_user
 
 from .notifier import send_mail
-from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, LoginForm, RegisterUserForm
+from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, LoginForm
 from .authorization import user_datastore
 from .recipe import DrinkRecipe
 from .barstock import get_barstock_instance
@@ -230,13 +230,13 @@ def order(recipe_name):
     if request.method == 'GET':
         show_form = True
         if current_user.is_authenticated:
-            heading = "Order for {}:".format(current_user.username)
+            heading = "Order for {}:".format(current_user.get_name())
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
             if form.validate():
                 if current_user.is_authenticated:
-                    user_name = current_user.username
+                    user_name = current_user.get_name()
                     user_email = current_user.email
                 else:
                     user_name = form.name.data

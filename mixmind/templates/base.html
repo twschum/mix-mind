@@ -27,7 +27,7 @@
 				<img src="/static/glassware/coupe.svg" width="30" height="30" alt="">
 			</a>
 			{% if current_user.is_authenticated %}
-			<span class="navbar-text">Welcome {{ current_user.email }}</span>
+			<span class="navbar-text">Welcome {{ current_user.get_name(short=True) }}</span>
 			<a class="nav-item nav-link" href="/logout">Log out</a>
 			{% else %}
 			<a class="nav-item nav-link" href="/login">Log in</a>

@@ -9,6 +9,9 @@
   {% if register_user_form.password_confirm %}
     {{ render_field(register_user_form.password_confirm) }}
   {% endif %}
+  {{ render_field(register_user_form.first_name) }}
+  {{ render_field(register_user_form.last_name) }}
+  {{ render_field(register_user_form.nickname) }}
   {{ render_field(register_user_form.submit) }}
 </form>
 {% endblock formblock %}
