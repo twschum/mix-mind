@@ -162,16 +162,18 @@ def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredien
             "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             }
 
-    with tag('div', id=recipe.name, klass="card card-body"):
+    main_tag = 'div'
+    extra_kwargs = {}
+    if order_link:
+        main_tag = 'a'
+        extra_kwargs = {"href": order_link}
+    with tag(main_tag, id=recipe.name, klass="card card-body", **extra_kwargs):
         # embed glass image in name line
         name_line = []
         # attempt hack for keeping text aligned right of image when wrapping
         name_line.append('<div class="clearfix" style="vertical-align:middle;">')
         name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
-        # link to order includes name and image
         name_line.append(recipe.name)
-        if order_link:
-            name_line = [wrap_link(order_link, ''.join(name_line))]
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:

@@ -149,9 +149,9 @@ def browse():
             print request
             if 'suprise-menu' in request.form:
                 recipes = [random.choice(recipes)]
-                flash("Bartender's choice applied. Just try again if you want something else!")
+                flash("Bartender's choice! Just try again if you want something else!")
             else:
-                flash("Settings applied. Showing {} available recipes".format(len(recipes)))
+                flash("Filters applied. Showing {} available recipes".format(len(recipes)), 'success')
         else:
             flash("Error in form validation", 'danger')
 

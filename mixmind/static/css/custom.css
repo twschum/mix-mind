@@ -18,6 +18,13 @@
     font-style: italic;
 }
 
+/* use to wrap entire card as a link */
+a.card,
+a.card:hover {
+    color: inherit;
+    text-decoration: none;
+}
+
 /* small text footer at the bottom of the page */
 .footer {
     padding-right: 15px;
