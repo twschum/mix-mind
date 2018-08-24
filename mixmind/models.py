@@ -42,5 +42,4 @@ class Order(db.Model):
     timestamp = Column(DateTime())
     recipe_name = Column(String(100))
     recipe_html = Column(Text())
-
     # maybe "bar" name

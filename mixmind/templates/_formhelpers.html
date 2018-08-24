@@ -10,38 +10,70 @@
 
 <!-- Renders indivdual filds in a from, given WTForm objects -->
 {% macro render_field(field) %}
-  {% if field.type != 'BooleanField' %}
-  <dt>{{ field.label }} {% if field.flags.required %}*{% endif %}
-  {% endif %}
-  <dd>
+	{% if field.type != 'BooleanField' %}
+	<dt>{{ field.label }} {% if field.flags.required %}*{% endif %}
+	{% endif %}
+	<dd>
 
-  {% if field.type in ['BooleanField'] %}
-  <label>
-  {{ field(**kwargs)|safe }}
-  <b>{{ field.label.text }}</b>
-  </label>
-  <em> {{ field.description }} </em>
+	{% if field.type in ['BooleanField'] %}
+	<label>
+	{{ field(**kwargs)|safe }}
+	<b>{{ field.label.text }}</b>
+	</label>
+	<em> {{ field.description }} </em>
 
-  {% elif field.type in ['ToggleField'] %}
-  <label class="btn btn-outline-primary">
-    {{ field(**kwargs)|safe }}
-    {{ field.label.text }}
-  </label>
-  {{ field(**kwargs)|safe }}
-  {{ field.description }}
+	{% elif field.type in ['ToggleField'] %}
+	<label class="btn btn-outline-primary">
+		{{ field(**kwargs)|safe }}
+		{{ field.label.text }}
+	</label>
+	{{ field(**kwargs)|safe }}
+	{{ field.description }}
 
-  {% else %}
-  {{ field(**kwargs)|safe }}
-  <em> {{ field.description }} </em>
+	{% else %}
+	{{ field(**kwargs)|safe }}
+	<em> {{ field.description }} </em>
 
-  {% endif %}
+	{% endif %}
 
-  {% if field.errors %}
-    <ul class=errors style="color:red">
-    {% for error in field.errors %}
-      <li>{{ error }}</li>
-    {% endfor %}
-    </ul>
-  {% endif %}
-  </dd>
+	{% if field.errors %}
+		<ul class=errors style="color:red">
+		{% for error in field.errors %}
+			<li>{{ error }}</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+	</dd>
+{% endmacro %}
+
+<!-- Show flask flashed messages -->
+{% macro show_flashed() %}
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		{% if messages %}
+			{% for category, message in messages %}
+				{% if category == 'error' %}
+				<div class="alert alert-warning alert-dismissible">
+				{% else %}
+				<div class="alert alert-info alert-dismissible">
+				{% endif %}
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<strong>{{ message }}</strong>
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
+{% endmacro %}
+
+{% macro other_show_flashed() %}
+	{% with messages = get_flashed_messages(with_categories=true) %}
+		<!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+		{% if messages %}
+			{% for category, message in messages %}
+				<div class="alert alert-{{ category }} alert-dismissible" role="alert">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<!-- <strong>Title</strong> --> {{ message }}
+				</div>
+			{% endfor %}
+		{% endif %}
+	{% endwith %}
 {% endmacro %}
