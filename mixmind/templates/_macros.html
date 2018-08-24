@@ -1,3 +1,4 @@
+{# macros for app templates #}
 <!-- Show flask flashed messages -->
 {% macro show_flashed() %}
 	{% with messages = get_flashed_messages(with_categories=true) %}
@@ -23,38 +24,31 @@
 
 <!-- Renders indivdual filds in a from, given WTForm objects -->
 {% macro render_field(field) %}
-	{% if field.type not in ['BooleanField', 'HiddenField', 'SubmitField'] %}
-	<dt>{{ field.label }} {% if field.flags.required %}*{% endif %}
-	{% endif %}
-	<dd>
-
-	{% if field.type in ['BooleanField'] %}
-	<label>
-	{{ field(**kwargs)|safe }}
-	<b>{{ field.label.text }}</b>
-	</label>
-	<em> {{ field.description }} </em>
-
-	{% elif field.type in ['ToggleField'] %}
-	<label class="btn btn-outline-primary">
-		{{ field(**kwargs)|safe }}
-		{{ field.label.text }}
-	</label>
-	{{ field(**kwargs)|safe }}
-	{{ field.description }}
-
-	{% elif field.type in ['SubmitField'] %}
-	{{ field(class_="btn btn-primary", **kwargs)|safe }}
-
-	{% elif field.type in ['HiddenField'] %}
-	{{ field(**kwargs)|safe }}
-
+	{% if field.type in ['BooleanField', 'SelectField'] %}
+	<div class="form-check">
 	{% else %}
-	{{ field(**kwargs)|safe }}
-	<em> {{ field.description }} </em>
-
+	<div class="form-group">
 	{% endif %}
 
+	{% if field.type not in ['SubmitField'] %}
+		{% if field.type in ['BooleanField', 'SelectField'] %}
+		<label class="form-check-label" for="{{ field.id }}">
+		{% else %}
+		<label class="form-label" for="{{ field.id }}">
+		{% endif %}
+			{{ field.label.text }}{% if field.flags.required %}*{% endif %}
+		</label>
+	{% endif %}
+	{# bootstrap form classes: can expand to custom forms in the future (alternative, check widget) #}
+	{% set bs_classes = { 'BooleanField': "form-check-input",
+								'SelectField': "form-check-input",
+								'SubmitField': "btn btn-primary" } %}
+	{{ field(class_=bs_classes.get(field.type, "form-control"), **kwargs)|safe }}
+	{% if field.description and field.type not in ['HiddenField'] %}
+	<small id="{{ field.id }}_help" class="form-text text-muted">{{ field.description }}</small>
+	{% endif %}
+
+	{# TODO this with bootstrap form validation #}
 	{% if field.errors %}
 		<ul class=errors style="color:red">
 		{% for error in field.errors %}
@@ -62,5 +56,5 @@
 		{% endfor %}
 		</ul>
 	{% endif %}
-	</dd>
+</div>
 {% endmacro %}
