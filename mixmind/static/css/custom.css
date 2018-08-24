@@ -1,3 +1,32 @@
+/* custom css defining layout container classes */
+
+/* spans the top of the page */
+.bg-light {
+    background-color: #e8ebef!important;
+}
+
+/* can be the entire page on basic form pages */
+.formbox {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    max-width: 700px;
+    background-color: #fff;
+}
+
+.subtitle {
+    font-size: 0.7em;
+    font-style: italic;
+}
+
+/* small text footer at the bottom of the page */
+.footer {
+    padding-right: 15px;
+    padding-left: 15px;
+    text-align: center;
+    font-size: 0.7em;
+    font-style: italic;
+}
+
 table, th, td {
     border: none;
     border-bottom: 1px solid #C8C8C8;

@@ -1,0 +1,10 @@
+{% extends "form_base.html" %}
+{% from "_macros.html" import formheader %}
+{% block formblock %}
+
+{{ formheader(heading) }}
+<!-- return to main page -->
+<form action="/">
+	<div class="col"> <input type="submit" class="btn btn-primary" value="Back to Browse"></input> </div>
+</form>
+{% endblock formblock %}
