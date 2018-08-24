@@ -24,14 +24,21 @@
 
 <!-- Renders indivdual filds in a from, given WTForm objects -->
 {% macro render_field(field) %}
-	{% if field.type in ['BooleanField', 'SelectField'] %}
+	{% set check_field = ['BooleanField'] %}
+	{% set no_label_field = ['HiddenField', 'SubmitField'] %}
+	{% set bootstrap_classes = { 'BooleanField': "form-check-input", 'SubmitField': "btn btn-primary" } %}
+<div class="form-group">
+	{% if field.type in check_field %}
 	<div class="form-check">
-	{% else %}
-	<div class="form-group">
 	{% endif %}
 
-	{% if field.type not in ['SubmitField'] %}
-		{% if field.type in ['BooleanField', 'SelectField'] %}
+	{# render the input field first for checks #}
+	{% if field.type in check_field %}
+	{{ field(class_=bootstrap_classes.get(field.type, "form-control"), **kwargs)|safe }}
+	{% endif %}
+	{# render the label #}
+	{% if field.type not in no_label_field %}
+		{% if field.type in check_field %}
 		<label class="form-check-label" for="{{ field.id }}">
 		{% else %}
 		<label class="form-label" for="{{ field.id }}">
@@ -39,12 +46,12 @@
 			{{ field.label.text }}{% if field.flags.required %}*{% endif %}
 		</label>
 	{% endif %}
-	{# bootstrap form classes: can expand to custom forms in the future (alternative, check widget) #}
-	{% set bs_classes = { 'BooleanField': "form-check-input",
-								'SelectField': "form-check-input",
-								'SubmitField': "btn btn-primary" } %}
-	{{ field(class_=bs_classes.get(field.type, "form-control"), **kwargs)|safe }}
-	{% if field.description and field.type not in ['HiddenField'] %}
+	{# render the input field after label for everything else #}
+	{% if field.type not in check_field %}
+	{{ field(class_=bootstrap_classes.get(field.type, "form-control"), **kwargs)|safe }}
+	{% endif %}
+	{# render the description, if any #}
+	{% if field.description and field.type not in no_label_field %}
 	<small id="{{ field.id }}_help" class="form-text text-muted">{{ field.description }}</small>
 	{% endif %}
 
@@ -55,6 +62,10 @@
 			<li>{{ error }}</li>
 		{% endfor %}
 		</ul>
+	{% endif %}
+
+	{% if field.type in check_field %}
+	</div>
 	{% endif %}
 </div>
 {% endmacro %}
