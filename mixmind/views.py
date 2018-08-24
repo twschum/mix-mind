@@ -27,17 +27,17 @@ import config
 BUGS:
 * abv shows as 0.0% for everything on recipe examples
 * markup seems to have changed
+* email sent to customer not bartender
 NOTES:
-* template standardization
-    - actually use jinja inheritance for pages
-    - header (and maybe footer?)
-        - provide user login and register links?
-    - refactor messages to look nicer
-        - include a standard place and look for all messages (top of page?)
-    - make security forms look nicer
+* template improvements
+    - header
+        - move greeting over to right with log in/out
+    - left justify the formbox heading on browse
+        - also have heading in nav with the icon?
     - make email template
-        - need to use flask_mail for ordering messages too
-        - somehow suppress flask_mail from spamming the logs
+        - use custom html template params (price fails in email)
+        - change email confirmation to result page
+        - order submission had wrong name
 * admin pages
     - add/remove ingredients dynamically?
     - add/remove recipes as raw json?
@@ -45,7 +45,6 @@ NOTES:
     - user stats dashboard
 * user improvements
     - order history
-    - venmo links lol
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
 * update bootstrap
@@ -56,10 +55,8 @@ NOTES:
     - defaults plus management
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
-* order workflow
-    - if not logged in, take them to a login/registration form,
-    prepopulated with name and address
-    - track unconfirmed orders
+
+
 """
 # views-wide domain-specific state
 mms = None
