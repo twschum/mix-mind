@@ -26,6 +26,7 @@ import config
 """
 BUGS:
 * abv shows as 0.0% for everything on recipe examples
+* markup seems to have changed
 NOTES:
 * template standardization
     - actually use jinja inheritance for pages
