@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+	<head></head>
+	<body>
+		<h3>{{ name }} has ordered the following:</h3>
+		<p><a href="{{ confirmation_link }}">Send confirmation to customer</a></p>
+		{% if notes %}
+		<p><b>Note: </b>{{ notes }}</p>
+		{% endif %}
+		<div>{{ recipe_html | safe }}</div>
+	</body>
+</html>

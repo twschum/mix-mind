@@ -377,4 +377,4 @@ def recipe_json(recipe_name):
 @app.errorhandler(500)
 def handle_internal_server_error(e):
     flash(e, 'error')
-    return render_template('error.html', heading="OOPS - Something went wrong..."), 500
+    return render_template('result.html', heading="OOPS - Something went wrong..."), 500

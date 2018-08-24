@@ -1,0 +1,13 @@
+<!doctype html>
+<html>
+	<head></head>
+	<body>
+		<h3>{{ name }}, you ordered one {{ recipe_name }}</h3>
+		<div>{{ recipe_html |safe }}</div>
+		<p>Your drink order as been acknowledged by the bartender on duty and should be ready shortly.</p>
+		{% if venmo_link %}
+		<p>If you're <a href="{{ venmo_link }}">feeling generous</a> and want to tip, it's always appreciated!
+		{% endif %}
+		<p>Thanks for using Mix-Mind @Schubar!<p>
+	</body>
+</html>
