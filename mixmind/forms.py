@@ -129,9 +129,11 @@ class OrderForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
+    notes = TextField("Notes")
+
+class OrderFormAnon(OrderForm):
     name = TextField("Your Name", validators=[validators.required()])
     email = EmailField("Confirmation Email", validators=[validators.Email("Invalid email address"), validators.required()])
-    notes = TextField("Notes")
 
 class LoginForm(Form):
     def reset(self):

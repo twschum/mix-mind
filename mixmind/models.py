@@ -1,5 +1,5 @@
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
+from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float, Text
 
 from flask_security import UserMixin, RoleMixin
 
@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     email = Column(String(255), unique=True)
     username = Column(String(255))
     password = Column(String(255))
+    # TODO timezone rip
     last_login_at = Column(DateTime())
     current_login_at = Column(DateTime())
     last_login_ip = Column(String(100))
@@ -37,6 +38,9 @@ class OrdersUsers(db.Model):
 
 class Order(db.Model):
     id = Column(Integer, primary_key=True)
+    confirmed = Column(Boolean(), default=False)
     timestamp = Column(DateTime())
-    recipe = Column(String(100))
+    recipe_name = Column(String(100))
+    recipe_html = Column(Text())
+
     # maybe "bar" name
