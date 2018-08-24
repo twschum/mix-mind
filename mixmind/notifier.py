@@ -6,8 +6,11 @@ import json
 import smtplib
 from email.mime.text import MIMEText
 
-from flask_mail import Mail
+from flask import render_template
+from flask_mail import Mail, Message
 mail = Mail()
+
+from . import app
 
 def send_mail(subject, recipient, template, **context):
     """Send an email via the Flask-Mail extension.
@@ -17,17 +20,10 @@ def send_mail(subject, recipient, template, **context):
     :param template: The name of the email template
     :param context: The context to render the template with
     """
-    import ipdb; ipdb.set_trace();
-    msg = Message(subject,
-                  sender=_security.email_sender,
-                  recipients=[recipient])
+    msg = Message(subject, sender=app.config.get('MAIL_USERNAME'), recipients=[recipient])
 
-    ctx = ('orders/email', template)
-    if config_value('EMAIL_PLAINTEXT'):
-        msg.body = render_template('%s/%s.txt' % ctx, **context)
-    if config_value('EMAIL_HTML'):
-        msg.html = render_template('%s/%s.html' % ctx, **context)
-
+    ctx = ('email', template)
+    msg.html = render_template('%s/%s.html' % ctx, **context)
     mail.send(msg)
 
 
