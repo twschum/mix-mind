@@ -2,59 +2,68 @@
 {% from "_macros.html" import formheader, render_field %}
 {% block title %}{{ super() }} {{ config.BAR_NAME }}{% endblock title %}
 
+{% block navbar_layout %}
+{% endblock navbar_layout %}
+
 <!-- Main form -->
 {% block body %}
-<div class="container formbox">
-	{{ formheader("Browse %s"|format(config.BAR_NAME), subtitle="Tips always appreciated, never required") }}
-	<form	id="menu-settings" action="" method="post" role="form">
+<div class="container-fluid">
 	<div class="row">
-		<div class="col">
-			<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a></div>
-		<div class="col">
-		<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
-		</div>
-	</div><!-- row -->
-	<div id="filters" class="collapse" style="margin-bottom:0.75rem">
-			{{ form.csrf }}
-			<div class="form-group">
-				<dl>
-				{{ render_field(form.include) }}
-				{{ render_field(form.exclude) }}
-				{{ render_field(form.sorting) }}
-				</dl>
-				<a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
-				<div id="misc-filters" class="collapse">
-					<dl>
-					{{ render_field(form.use_or) }}
-					{{ render_field(form.name) }}
-					{{ render_field(form.style) }}
-					{{ render_field(form.glass) }}
-					{{ render_field(form.prep) }}
-					{{ render_field(form.ice) }}
-					</dl>
-				</div><!-- misc-filters -->
-			</div><!-- form-group -->
-		<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
-		</div><!-- filters -->
-	</form>
-</div><!-- header form(col) container -->
+		<!-- Heading & filters column - 1/3 at md-lg, 1/4 at xl -->
+		<div class="col-md-4 col-xl-3">
+			{# formheader("Browse %s"|format(config.BAR_NAME), subtitle="Tips always appreciated, never required") #}
+			{{ formheader("Browse Menu", subtitle="Tips&mdash;always appreciated, never required") }}
+			<form	id="menu-settings" action="" method="post" role="form">
+			<div class="row">
+				<div class="col-auto mr-auto">
+					<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a></div>
+				<div class="col-auto">
+				<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+				</div>
+			</div><!-- row -->
+			<div id="filters" class="collapse" style="margin-bottom:0.75rem">
+					{{ form.csrf }}
+					<div class="form-group">
+						<dl>
+						{{ render_field(form.include) }}
+						{{ render_field(form.exclude) }}
+						{{ render_field(form.sorting) }}
+						</dl>
+						<a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
+						<div id="misc-filters" class="collapse">
+							<dl>
+							{{ render_field(form.use_or) }}
+							{{ render_field(form.name) }}
+							{{ render_field(form.style) }}
+							{{ render_field(form.glass) }}
+							{{ render_field(form.prep) }}
+							{{ render_field(form.ice) }}
+							</dl>
+						</div><!-- misc-filters -->
+					</div><!-- form-group -->
+				<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+			</div><!-- filters -->
+			</form>
+		</div><!-- Heading and filters col -->
 
-<div class="container">
-<!--<div class="col-xs-12 col-sm-12 col-md-12 col-lg-8 col-xl-8"-->
-<!-- Result recipes -->
-{% if recipes %}
-	{% for recipe in recipes %}
-	{% if loop.index0 % 6 == 0 %}
-	<div class="row no-gutters">
-	{% endif %}
-		<div class="card col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" style="background-color:#fff; margin-bottom:0.75rem;">
-		{{ recipe | safe }}
-		</div><!-- col -->
-		{% if loop.index0 % 6 == 5 or loop.last %}
-		</div><!-- row -->
+		<!-- Recipe column - 2/3 at md-lg, 3/4 at xl -->
+		<div class="col-md-8 col-xl-9" style="margin-top:15px;">
+		{% if recipes %}
+			{% for recipe in recipes %}
+			{% if loop.index0 % 6 == 0 %}
+			<div class="row">
+			{% endif %}
+				<!--div class="card col-xs-12 col-sm-12 col-md-6 col-lg-4 col-xl-4" style="background-color:#fff; margin-bottom:0.75rem;"-->
+				<div class="col-sm-6 col-lg-6 col-xl-4" style="background-color:#fff; margin-bottom:0.75rem;">
+				{{ recipe | safe }}
+				</div><!-- col -->
+			{% if loop.index0 % 6 == 5 or loop.last %}
+			</div><!-- row -->
+			{% endif %}
+			{% endfor %}
 		{% endif %}
-	{% endfor %}
-{% endif %}
+		</div><!-- recipes column -->
+	</div><!-- row -->
 </div><!-- container -->
 {% endblock body %}
 

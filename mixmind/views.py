@@ -144,7 +144,7 @@ def mainpage():
             recipes, excluded, stats = recipes_from_options(form, to_html=True)
             flash("Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
-            flash("Error in form validation")
+            flash("Error in form validation", 'danger')
 
     return render_template('application_main.html', form=form, recipes=recipes, excluded=excluded, stats=stats)
 
@@ -168,7 +168,7 @@ def menu_download():
         return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
 
     else:
-        flash("Error in form validation")
+        flash("Error in form validation", 'danger')
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
 @app.route("/user_post_login", methods=['GET'])
@@ -202,7 +202,7 @@ def browse():
             else:
                 flash("Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
-            flash("Error in form validation")
+            flash("Error in form validation", 'danger')
 
     return render_template('browse.html', form=form, recipes=recipes)
 
@@ -220,7 +220,7 @@ def order(recipe_name):
     recipe = find_recipe(mms.recipes, recipe_name)
     recipe.convert('oz')
     if not recipe:
-        flash('Error: unknown recipe "{}"'.format(recipe_name))
+        flash('Error: unknown recipe "{}"'.format(recipe_name), 'danger')
         return render_template('result.html', heading=heading)
     else:
         recipe_html = format_recipe_html(recipe,
@@ -228,7 +228,7 @@ def order(recipe_name):
                     markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
 
     if not recipe.can_make:
-        flash('Ingredients to make this are out of stock :(', 'error')
+        flash('Ingredients to make this are out of stock :(', 'warning')
         return render_template('order.html', form=form, recipe=recipe_html, show_form=False)
 
     if request.method == 'GET':
@@ -267,14 +267,14 @@ def order(recipe_name):
                 flash("Successfully placed order!", 'success')
                 if not current_user.is_authenticated:
                     if User.query.filter_by(email=user_email).one_or_none():
-                        flash("Hey, if you log in you won't have to keep typing your email address for orders ;)", 'success')
+                        flash("Hey, if you log in you won't have to keep typing your email address for orders ;)", 'secondary')
                         return redirect(url_for('security.login'))
                     else:
-                        flash("Hey, if you register I'll remember your name and email in future orders!", 'success')
+                        flash("Hey, if you register I'll remember your name and email in future orders!", 'secondary')
                         return redirect(url_for('security.register'))
                 return render_template('result.html', heading="Order Placed")
             else:
-                flash("Error in form validation", 'error')
+                flash("Error in form validation", 'danger')
 
     # either provide the recipe and the form,
     # or after the post show the result
@@ -288,10 +288,10 @@ def confirm_order():
     venmo_link = app.config.get('VENMO_LINK')
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
-        flash("Invalid order_id", 'error')
+        flash("Error: Invalid order_id", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
     if order.confirmed:
-        flash("Order has already been confirmed", 'error')
+        flash("Error: Order has already been confirmed", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
     order.confirmed = True
     try:
@@ -362,7 +362,7 @@ def ingredients():
                 mms.regenerate_recipes()
                 flash("Removed {}".format(bottle))
             else:
-                flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle))
+                flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle), 'danger')
 
         elif 'upload-csv' in request.form:
             filename = datafiles.save(secure_filename(request.files['upload_csv']))
@@ -379,7 +379,7 @@ def user_profile():
     try:
         user_id = int(request.args.get('user_id'))
     except ValueError:
-        flash("Invalid user_id parameter", 'error')
+        flash("Invalid user_id parameter", 'danger')
         return render_template('result.html', "User profile unavailable")
 
     if current_user.id != user_id and not current_user.has_role('admin'):
@@ -414,5 +414,5 @@ def recipe_json(recipe_name):
 
 @app.errorhandler(500)
 def handle_internal_server_error(e):
-    flash(e, 'error')
+    flash(e, 'danger')
     return render_template('result.html', heading="OOPS - Something went wrong..."), 500

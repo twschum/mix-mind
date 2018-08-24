@@ -52,8 +52,8 @@ class DrinksForm(Form):
 
     # filtering options
     all_ = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
-    include = CSVField("Include Ingredients", description="Filter by ingredient(s) that must be contained in the recipe")
-    exclude = CSVField("Exclude Ingredients", description="Filter by ingredient(s) that must NOT be contained in the recipe")
+    include = CSVField("Include Ingredients", description="Ingredient(s) to include")
+    exclude = CSVField("Exclude Ingredients", description="Ingredient(s) to exclude")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
     name = TextField("Name", description="Filter by a cocktail's name")
     tag = TextField("Tag", description="Filter by tag")

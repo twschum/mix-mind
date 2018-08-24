@@ -162,7 +162,7 @@ def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredien
             "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             }
 
-    with tag('div', id=recipe.name, klass="card-body"):
+    with tag('div', id=recipe.name, klass="card card-body"):
         # embed glass image in name line
         name_line = []
         # attempt hack for keeping text aligned right of image when wrapping

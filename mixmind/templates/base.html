@@ -23,7 +23,9 @@
 		<!-- navbar is shown at the top of every page -->
 		{% block navbar %}
 		<nav class="navbar bg-light navbar-light navbar-expand-lg">
+			{% block navbar_layout %}
 			<div class="container">
+			{% endblock navbar_layout %}
 				<a class="navbar-brand btn" href="/">
 					<img src="/static/icons_outline/favicon.ico" width="30" height="30" alt="">
 					<span class="text">{{ config.BAR_NAME }}</span>
