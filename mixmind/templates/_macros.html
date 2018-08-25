@@ -32,9 +32,15 @@
 	<div class="form-check">
 	{% endif %}
 
+	{# get extra classes to apply #}
+	{% set classes = bootstrap_classes.get(field.type, "form-control") %}
+	{% if field.errors %}
+	{% set classes = "%s is-invalid"|format(classes) %}
+	{% endif %}
+
 	{# render the input field first for checks #}
 	{% if field.type in check_field %}
-	{{ field(class_=bootstrap_classes.get(field.type, "form-control"), **kwargs)|safe }}
+	{{ field(class_=classes, **kwargs)|safe }}
 	{% endif %}
 	{# render the label #}
 	{% if field.type not in no_label_field %}
@@ -48,21 +54,22 @@
 	{% endif %}
 	{# render the input field after label for everything else #}
 	{% if field.type not in check_field %}
-	{{ field(class_=bootstrap_classes.get(field.type, "form-control"), **kwargs)|safe }}
+	{{ field(class_=classes, **kwargs)|safe }}
 	{% endif %}
 	{# render the description, if any #}
 	{% if field.description and field.type not in no_label_field %}
 	<small id="{{ field.id }}_help" class="form-text text-muted">{{ field.description }}</small>
 	{% endif %}
 
-	{# TODO this with bootstrap form validation #}
+	{# bootstrap form validation #}
 	{% if field.errors %}
-		<ul class=errors style="color:red">
 		{% for error in field.errors %}
-			<li>{{ error }}</li>
+		<div class="invalid-feedback">
+			{{ error }}
+		</div>
 		{% endfor %}
-		</ul>
 	{% endif %}
+
 
 	{% if field.type in check_field %}
 	</div>
