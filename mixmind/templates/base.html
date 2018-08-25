@@ -38,8 +38,9 @@
 				</button>
 				<div class="collapse navbar-collapse navbar-nav " id="navbarToggler">
 
+					<span class="navbar-text ml-sm-auto"></span>{# dummy element for alignment #}
 					{% if current_user.is_authenticated %}
-					<span class="navbar-text ml-sm-auto mr-sm-2">Welcome {{ current_user.get_name(short=True) }}</span>
+					<span class="navbar-text mr-sm-2">Welcome {{ current_user.get_name(short=True) }}</span>
 					<a class="nav-item nav-link" href={{ url_for('user_profile', user_id=current_user.id) }}>Profile</a>
 
 					{% if current_user.has_role('admin') %}
@@ -57,7 +58,7 @@
 
 					<a class="nav-item nav-link" href="/logout">Log out</a>
 					{% elif request.path != "/login" %}
-					<a class="nav-item nav-link ml-sm-auto" href="/login">Log in</a>
+					<a class="nav-item nav-link" href="/login">Log in</a>
 					{% endif %}
 
 					{% block extra_navitems %}
