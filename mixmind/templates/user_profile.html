@@ -12,11 +12,13 @@
 			<tr>
 				<th>What</th>
 				<th>When</th>
+				<th>Confirmed</th>
 			</tr>
 			{% for order in current_user.orders %}
 			<tr>
 				<td>{{ order.recipe_name }}</td>
 				<td>{{ order.timestamp }}</td>
+				<td>{{ order.confirmed }}</td>
 			</tr>
 			{% endfor %}
 		</table>

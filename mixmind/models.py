@@ -34,12 +34,12 @@ class User(db.Model, UserMixin):
     orders = relationship('Order', secondary='orders_users', backref=backref('users', lazy='dynamic'))
 
     def get_name(self, short=False):
-        if self.nickname:
-            return self.nickname
-        else:
-            if short:
+        if short:
+            if self.nickname:
+                return self.nickname
+            else:
                 return self.first_name
-            return '{} {}'.format(self.first_name, self.last_name)
+        return '{} {}'.format(self.first_name, self.last_name)
 
     def get_role_names(self):
         return ', '.join([role.name for role in self.roles])
