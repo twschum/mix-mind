@@ -20,7 +20,7 @@ from .barstock import get_barstock_instance
 from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
 from .database import db, init_db
-from .models import User, Order
+from .models import User, Order, Bar
 from . import log, app, datafiles
 import config
 
@@ -72,10 +72,19 @@ def initialize_shared_data():
 class MixMindServer():
     # TODO synchronization
     def __init__(self, recipe_files=None, ingredient_files=None):
+        # setup current "bar"
+        default_bar = Bar(cname=app.config['BAR_CNAME'], name=app.config.get('BAR_NAME', app.config['BAR_CNAME']))
+        exists = Bar.query.filter_by(cname=default_bar.cname).one_or_none()
+        if exists:
+            self.current_bar = exists.id
+        else:
+            db.session.add(default_bar)
+            db.session.commit()
+            self.current_bar = default_bar.id
         self.recipe_files = config.get_recipe_files(app) if not recipe_files else recipe_files
         self.barstock_files = config.get_ingredient_files(app) if not ingredient_files else ingredient_files
         self.base_recipes = load_recipe_json(self.recipe_files)
-        self.barstock = get_barstock_instance(self.barstock_files, use_sql=True)
+        self.barstock = get_barstock_instance(self.barstock_files, use_sql=True, bar=self.current_bar)
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
         self.default_margin = 1.10
 
@@ -169,6 +178,7 @@ def browse():
 
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
+    global mms
     if current_user.is_authenticated:
         form = get_form(OrderForm)
     else:
@@ -207,8 +217,11 @@ def order(recipe_name):
                     user_name = form.name.data
                     user_email = form.email.data
 
+                # TODO use simpler html for recording an order
                 # add to the order database
-                order = Order(timestamp=datetime.datetime.now(), recipe_name=recipe.name, recipe_html=recipe_html)
+                order = Order(bar_id=mms.current_bar, timestamp=datetime.datetime.utcnow(), recipe_name=recipe.name, recipe_html=recipe_html)
+                if current_user.is_authenticated:
+                    order.user_id = current_user.id
                 db.session.add(order)
                 db.session.commit()
 
@@ -243,9 +256,9 @@ def order(recipe_name):
 
 @app.route('/confirm_order')
 def confirm_order():
+    # TODO this needs a security token
     email = urllib.unquote(request.args.get('email'))
     order_id = request.args.get('order_id')
-    user_id = request.args.get('user_id')
     venmo_link = app.config.get('VENMO_LINK')
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
@@ -267,9 +280,11 @@ def confirm_order():
     # update users db
     user = User.query.filter_by(email=email).one_or_none()
     if user:
+        if order.user_id and order.user_id != user.id:
+            raise ValueError("Order was created with different id than confirming user!")
         user.orders.append(order)
         user_datastore.put(user)
-    user_datastore.commit()
+        user_datastore.commit()
 
     flash('Confirmation sent')
     return render_template('result.html', heading="Order Confirmation")
@@ -325,8 +340,11 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def admin_dashboard():
+    global mms
+    bar = Bar.query.filter_by(id=mms.current_bar)
     users = User.query.all()
-    return render_template('dashboard.html', users=users)
+    orders = Order.query.all()
+    return render_template('dashboard.html', users=users, orders=orders)
 
 
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])
@@ -432,6 +450,17 @@ def ingredient_stock():
 
     table = mms.get_ingredients_table()
     return render_template('ingredients.html', form=form, table=table)
+
+@app.route("/admin/debug", methods=['GET'])
+@login_required
+@roles_required('admin')
+def admin_database_debug():
+    if app.config.get('DEBUG', False):
+        import ipdb; ipdb.set_trace();
+        return render_template('result.html', heading="Finished debug session...")
+    else:
+        return render_template('result.html', heading="Debug unavailable")
+
 
 
 ################################################################################
