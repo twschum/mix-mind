@@ -52,15 +52,15 @@ class DrinksForm(Form):
 
     # filtering options
     all_ = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
-    include = CSVField("Include Ingredients", description="Ingredient(s) to include")
-    exclude = CSVField("Exclude Ingredients", description="Ingredient(s) to exclude")
+    include = CSVField("Include Ingredients", description="Ingredient(s), separated by commas")
+    exclude = CSVField("Exclude Ingredients", description="Ingredient(s), separated by commas")
     use_or = BooleanField("Logical OR", description="Use logical OR for included and excluded ingredient lists instead of default AND")
     name = TextField("Name", description="Filter by a cocktail's name")
     tag = TextField("Tag", description="Filter by tag")
-    style = SelectField("Style", description="Include drinks matching the style such as After Dinner or Longdrink", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
-    glass = SelectField("Glass", description="Include drinks matching the glass type such as cocktail or rocks", choices=pairs(['','cocktail','rocks','highball','flute','shot']))
-    prep = SelectField("Prep", description="Include drinks matching the prep method such as shake or build", choices=pairs(['','shake', 'stir', 'build']))
-    ice = SelectField("Ice", description="Include drinks matching the ice used such as crushed", choices=pairs(['','cubed','chushed','neat']))
+    style = SelectField("Style", description="", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
+    glass = SelectField("Glass", description="", choices=pairs(['','cocktail','martini','collins','rocks','highball','flute','shot','shooter','mug']))
+    prep = SelectField("Prep", description="", choices=pairs(['','shake', 'stir', 'build', 'throw']))
+    ice = SelectField("Ice", description="", choices=pairs(['','cubed','crushed','neat']))
 
     # sorting options
     # abv, cost, alcohol content

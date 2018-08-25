@@ -77,7 +77,7 @@ class MixMindServer():
         self.base_recipes = load_recipe_json(self.recipe_files)
         self.barstock = get_barstock_instance(self.barstock_files, use_sql=True)
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
-        self.default_margin = 2.10
+        self.default_margin = 1.10
 
     def get_ingredients_table(self):
         raise NotImplementedError("unavailable for now")
