@@ -93,6 +93,12 @@ class MixMindServer():
     def regenerate_recipes(self):
         self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
 
+def get_form(form_class):
+    """WTForms update 2.2 breaks when an empty request.form
+    is given to it """
+    if not request.form:
+        return form_class()
+    return form_class(request.form)
 
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
@@ -131,11 +137,11 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
 # Customer routes
 ################################################################################
 
+
 @app.route("/", methods=['GET', 'POST'])
 def browse():
-    form = DrinksForm(request.form)
+    form = get_form(DrinksForm)
     filter_options = None
-    log.error(form.errors)
 
     if request.method == 'GET':
         # filter for current recipes that can be made on the core list
@@ -164,9 +170,9 @@ def browse():
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
     if current_user.is_authenticated:
-        form = OrderForm(request.form)
+        form = get_form(OrderForm)
     else:
-        form = OrderFormAnon(request.form)
+        form = get_form(OrderFormAnon)
 
     recipe_name = urllib.unquote_plus(recipe_name)
     show_form = False
@@ -319,7 +325,7 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def menu_generator():
-    form = DrinksForm(request.form)
+    form = get_form(DrinksForm)
     print form.errors
     recipes = []
     excluded = None
@@ -340,8 +346,7 @@ def menu_generator():
 @login_required
 @roles_required('admin')
 def menu_download():
-    form = DrinksForm(request.form)
-    print form.errors
+    form = get_form(DrinksForm)
 
     if form.validate():
         print request
@@ -365,9 +370,9 @@ def menu_download():
 @roles_required('admin')
 def recipes():
     global mms
-    select_form = RecipeListSelector(request.form)
+    select_form = get_form(RecipeListSelector)
     print select_form.errors
-    add_form = RecipeForm(request.form)
+    add_form = get_form(RecipeForm)
     print add_form.errors
 
     if request.method == 'POST':
@@ -385,7 +390,7 @@ def recipes():
 @roles_required('admin')
 def ingredients():
     global mms
-    form = BarstockForm(request.form)
+    form = get_form(BarstockForm)
     print form.errors
 
     if request.method == 'POST':
