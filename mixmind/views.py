@@ -325,8 +325,8 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def admin_dashboard():
-    flash("Yo, wassup?", 'secondary')
-    return render_template('result.html', heading="Admin Stuff")
+    users = User.query.all()
+    return render_template('dashboard.html', users=users)
 
 
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])

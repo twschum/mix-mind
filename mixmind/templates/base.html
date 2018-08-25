@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 	<head>
-		<title>{% block title %}Mix-Mind Live{% endblock %}</title>
+		<title>{% block title %}{% if config.DEBUG %}[DEV] Mix-Mind{% else %}Mix-Mind Live{% endif %}{% endblock %}</title>
 		<!-- bootstrap cdn-delivered stylesheet -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"></link>
 		<!-- custom stylesheets -->
