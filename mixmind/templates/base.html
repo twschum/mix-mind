@@ -23,9 +23,9 @@
 	<body>
 		<!-- navbar is shown at the top of every page -->
 		{% block navbar %}
-		<nav class="navbar bg-light navbar-light navbar-expand-lg">
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
 			{% block navbar_layout %}
-			<div class="container">
+			<div class="container-fluid">
 			{% endblock navbar_layout %}
 				<a class="navbar-brand btn mr-auto" href="/">
 					<img src="/static/icons_outline/favicon.ico" width="30" height="30" alt="">
@@ -34,6 +34,18 @@
 				{% if current_user.is_authenticated %}
 				<span class="navbar-text">Welcome {{ current_user.get_name(short=True) }}</span>
 				<a class="nav-item nav-link" href={{ url_for('user_profile', user_id=current_user.id) }}>Profile</a>
+				{% if current_user.has_role('admin') %}
+				<div class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
+					<div class="dropdown-menu" aria-labelledby="adminDropdown">
+						<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+						<div class="dropdown-divider"></div>
+						<a class="dropdown-item" href="{{ url_for('menu_generator') }}">Menu Generator</a>
+						<a class="dropdown-item" href="{{ url_for('recipe_library') }}">Recipe Library</a>
+						<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+					</div>
+				</div>
+				{% endif %}
 				<a class="nav-item nav-link" href="/logout">Log out</a>
 				{% elif request.path != "/login" %}
 				<a class="nav-item nav-link" href="/login">Log in</a>
