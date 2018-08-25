@@ -40,8 +40,8 @@
 
 					<span class="navbar-text ml-sm-auto"></span>{# dummy element for alignment #}
 					{% if current_user.is_authenticated %}
-					<span class="navbar-text mr-sm-2">Welcome {{ current_user.get_name(short=True) }}</span>
-					<a class="nav-item nav-link" href={{ url_for('user_profile', user_id=current_user.id) }}>Profile</a>
+					<a class="nav-item nav-link" href={{ url_for('user_profile', user_id=current_user.id) }}>
+						{{ current_user.get_name(short=True) }}</a>
 
 					{% if current_user.has_role('admin') %}
 					<div class="nav-item dropdown">
@@ -58,7 +58,7 @@
 
 					<a class="nav-item nav-link" href="/logout">Log out</a>
 					{% elif request.path != "/login" %}
-					<a class="nav-item nav-link" href="/login">Log in</a>
+					<a class="nav-item nav-link btn btn-outline-secondary" href="/login">Log in</a>
 					{% endif %}
 
 					{% block extra_navitems %}

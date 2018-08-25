@@ -1,8 +1,7 @@
 {# template for user (or admin) to view their profile #}
-{% extends "base.html" %}
+{% extends "form_base.html" %}
 
-{% block body %}
-	<div class="container">
+{% block formblock %}
 		<h3>{{ current_user.get_name() }} {% if current_user.nickname %}({{ current_user.nickname }}){% endif %}</h3>
 		<h5>{{ current_user.email }}</h5>
 		<h5><em>{{ current_user.get_role_names() }}</em></h5>
@@ -22,4 +21,4 @@
 			{% endfor %}
 		</table>
 	</div><!-- container -->
-{% endblock body %}
+{% endblock formblock %}
