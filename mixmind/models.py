@@ -35,7 +35,6 @@ class User(db.Model, UserMixin):
     works_at = relationship('Bar', secondary='bartenders', backref=backref('bartenders', lazy='dynamic')) # many to many
     venmo_id = Column(String(63)) # venmo id as a string
 
-
     def get_name(self, short=False):
         if short:
             if self.nickname:
@@ -46,7 +45,6 @@ class User(db.Model, UserMixin):
 
     def get_role_names(self):
         return ', '.join([role.name for role in self.roles])
-
 
 class OrdersUsers(db.Model):
     id = Column(Integer(), primary_key=True)
@@ -66,8 +64,7 @@ class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
     cname = Column(String(63), unique=True) # unique name for finding the bar
     name = Column(String(63))
-    # ingredients have a bar that they are from
-    ingredients = relationship('Ingredient')
+    ingredients = relationship('Ingredient') # one to many
     orders = relationship('Order') # one to many
 
 class Bartenders(db.Model):
