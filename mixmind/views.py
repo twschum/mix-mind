@@ -269,7 +269,7 @@ def confirm_order():
     if user:
         user.orders.append(order)
         user_datastore.put(user)
-    user_datastore.session.commit()
+    user_datastore.commit()
 
     flash('Confirmation sent')
     return render_template('result.html', heading="Order Confirmation")
