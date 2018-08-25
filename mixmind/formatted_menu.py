@@ -6,10 +6,8 @@ from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniP
         FlushRight, FlushLeft, NewPage, \
         FootnoteText, SmallText, MediumText, LargeText, HugeText
 from pylatex.utils import italic, bold, NoEscape
-import yattag
 import time
 
-from recipe import QuantizedIngredient
 import util
 
 class TitleText(HugeText):
@@ -116,121 +114,6 @@ def format_recipe(recipe, display_opts):
 
     recipe_page.append(Command('par'))
     return recipe_page
-
-def format_recipe_html(recipe, display_opts, order_link=None, condense_ingredients=False):
-    """ use yattag lib to build an html blob contained in a div for the recipe"""
-    doc, tag, text, line = yattag.Doc().ttl()
-
-    def close(s, tag, **kwargs):
-        kwargs = ' '.join(['{}={}'.format(k, v) for k, v in kwargs.iteritems()])
-        return '<{0} {2}>{1}</{0}>'.format(tag, s, kwargs)
-    def em(s, **kwargs):
-        return close(s, 'em', **kwargs)
-    def small(s, **kwargs):
-        return close(s, 'small', **kwargs)
-    def sup(s, **kwargs):
-        return close(s, 'sup', **kwargs)
-    def small_br(s, **kwargs):
-        return small(s+'<br>', **kwargs)
-    def wrap_link(link, s, **kwargs):
-        return '<a href={}>{}</a>'.format(link, s, **kwargs)
-
-    """
-            "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/1/1e/Flute_Glass.svg"
-    """
-
-    glassware = {
-            "cocktail":    "/static/glassware/coupe.svg",
-            "martini":     "/static/glassware/martini.svg",
-            "highball":    "/static/glassware/highball.svg",
-            "collins":     "/static/glassware/collins.svg",
-            "hurricane":   "/static/glassware/highball.svg",
-            "rocks":       "/static/glassware/rocks.svg",
-            "copper mug":  "/static/glassware/rocks.svg",
-            "tiki":        "/static/glassware/rocks.svg",
-            "flute":       "/static/glassware/flute.svg",
-            "glencairn":   "/static/glassware/glencairn.svg",
-            "mug":         "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg",
-            "wine":        "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg",
-            "shot":        "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
-            "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
-            }
-
-    main_tag = 'div'
-    extra_kwargs = {}
-    if order_link:
-        main_tag = 'a'
-        extra_kwargs = {"href": order_link}
-    with tag(main_tag, id=recipe.name, klass="card card-body", **extra_kwargs):
-        # embed glass image in name line
-        name_line = []
-        # attempt hack for keeping text aligned right of image when wrapping
-        name_line.append('<div class="clearfix" style="vertical-align:middle;">')
-        name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
-        name_line.append(recipe.name)
-        if display_opts.origin and 'schubar original' in recipe.origin.lower():
-            name_line.append(sup('*'))
-        if display_opts.prices and recipe.max_cost:
-            price = util.calculate_price(recipe.max_cost, display_opts.markup)
-            price = '&nbsp;{}{}'.format(sup('$'), price)
-            name_line.append(close(price, 'p', style="float:right"))
-        name_line.append("</div><!-- recipe name text -->")
-        name_line = close(''.join(name_line), 'h4',
-            **{"class": "card-title",
-            "style": "margin-left:-0.35em; vertical-align:middle;"}) # tweak to the left
-        doc.asis(name_line)
-
-        if display_opts.prep_line:
-            doc.asis(small_br(recipe.prep_line(extended=True, caps=False)))
-
-        if display_opts.info and recipe.info:
-            doc.asis(small_br(em(recipe.info)))
-
-        if condense_ingredients:
-            ingredients = ', '.join([str(ingredient.specifier) for ingredient in recipe.ingredients
-                    if isinstance(ingredient, QuantizedIngredient)])
-            doc.asis(ingredients+'<br>')
-        else:
-            with tag('ul', id='ingredients'):
-                for item in recipe.ingredients:
-                    line('li', item.str(), type="none")
-
-        if display_opts.variants:
-            if condense_ingredients:
-                # also need these to not be indented
-                for variant in recipe.variants:
-                    doc.asis(small(em(variant)))
-            else:
-                with tag('ul', id='variants'):
-                    for variant in recipe.variants:
-                        with tag('small'):
-                            with tag('li', type="none"):
-                                line('em', variant)
-
-        if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
-            # special display for recipe with examples
-            # TODO pull out bitters into supplimental list
-            if display_opts.prices:
-                for e in sorted(recipe.examples, key=lambda x: x.cost):
-                    markup = 0.25+display_opts.markup if recipe.name == "A Dram" else display_opts.markup
-                    fields = {
-                            'cost': util.calculate_price(e.cost, markup),
-                            'abv': e.abv,
-                            'bottles': e.bottles
-                            }
-                    doc.asis(small_br("${cost:>3.0f} | {abv:.1f}% | {bottles}".format(**fields)))
-            else:
-                for e in recipe.examples:
-                    doc.asis(small_br("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
-            #doc.asis('<br>')
-
-    return unicode(doc.getvalue())
 
 def setup_header_footer(doc, pdf_opts, display_opts):
     # Header with title, tagline, page number right, date left
