@@ -321,6 +321,14 @@ def user_confirmation_hook():
 # Admin routes
 ################################################################################
 
+@app.route("/admin/dashboard", methods=['GET', 'POST'])
+@login_required
+@roles_required('admin')
+def admin_dashboard():
+    flash("Yo, wassup?", 'secondary')
+    return render_template('result.html', heading="Admin Stuff")
+
+
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
@@ -368,7 +376,7 @@ def menu_download():
 @app.route("/admin/recipes", methods=['GET','POST'])
 @login_required
 @roles_required('admin')
-def recipes():
+def recipe_library():
     global mms
     select_form = get_form(RecipeListSelector)
     print select_form.errors
@@ -388,7 +396,7 @@ def recipes():
 @app.route("/admin/ingredients", methods=['GET','POST'])
 @login_required
 @roles_required('admin')
-def ingredients():
+def ingredient_stock():
     global mms
     form = get_form(BarstockForm)
     print form.errors
