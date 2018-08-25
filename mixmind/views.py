@@ -17,7 +17,8 @@ from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListS
 from .authorization import user_datastore
 from .recipe import DrinkRecipe
 from .barstock import get_barstock_instance
-from .formatted_menu import format_recipe_html, filename_from_options, generate_recipes_pdf
+from .formatted_menu import filename_from_options, generate_recipes_pdf
+from .compose_html import recipe_as_html, users_as_table, orders_as_table
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
 from .database import db, init_db
 from .models import User, Order, Bar
@@ -29,6 +30,7 @@ BUGS:
 * markup seems to have changed?
 * email sent to customer not bartender
 NOTES:
+* cards should be same sizes
 * template improvements
     - header
         - move greeting over to right with log in/out
@@ -134,11 +136,11 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
         stats = None
     if to_html:
         if order_link:
-            recipes = [format_recipe_html(recipe, display_options,
+            recipes = [recipe_as_html(recipe, display_options,
                 order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
                 **kwargs_for_html) for recipe in recipes]
         else:
-            recipes = [format_recipe_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
+            recipes = [recipe_as_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
     return recipes, excluded, stats
 
 
@@ -194,7 +196,7 @@ def order(recipe_name):
         flash('Error: unknown recipe "{}"'.format(recipe_name), 'danger')
         return render_template('result.html', heading=heading)
     else:
-        recipe_html = format_recipe_html(recipe,
+        recipe_html = recipe_as_html(recipe,
                 DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
                     markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
 
@@ -232,7 +234,8 @@ def order(recipe_name):
                             email=urllib.quote(user_email),
                             order_id=order.id))
 
-                send_mail(subject, user_email, "order_submitted",
+                # TODO use bar config for bartender on duty
+                send_mail(subject, app.config['BARTENDER_EMAIL'], "order_submitted",
                         confirmation_link=confirmation_link,
                         name=user_name,
                         notes=form.notes.data,
@@ -267,24 +270,30 @@ def confirm_order():
     if order.confirmed:
         flash("Error: Order has already been confirmed", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
+
     order.confirmed = True
-    try:
-        subject = "[Mix-Mind] Your {} Confirmation".format(app.config.get('BAR_NAME'))
-        send_mail(subject, email, "order_confirmation",
-                recipe_name=order.recipe_name,
-                recipe_html=order.recipe_html,
-                venmo_link=venmo_link)
-    except Exception:
-        log.error("Error sending confirmation email for {} to {}".format(recipe, email))
 
     # update users db
     user = User.query.filter_by(email=email).one_or_none()
     if user:
+        greeting = "{}, you".format(user.name(short=True))
         if order.user_id and order.user_id != user.id:
             raise ValueError("Order was created with different id than confirming user!")
         user.orders.append(order)
         user_datastore.put(user)
         user_datastore.commit()
+    else:
+        greeting = "You"
+
+    try:
+        subject = "[Mix-Mind] Your {} Confirmation".format(app.config.get('BAR_NAME'))
+        send_mail(subject, email, "order_confirmation",
+                greeting=greeting,
+                recipe_name=order.recipe_name,
+                recipe_html=order.recipe_html,
+                venmo_link=venmo_link)
+    except Exception:
+        log.error("Error sending confirmation email for {} to {}".format(recipe, email))
 
     flash('Confirmation sent')
     return render_template('result.html', heading="Order Confirmation")
@@ -341,10 +350,13 @@ def user_confirmation_hook():
 @roles_required('admin')
 def admin_dashboard():
     global mms
-    bar = Bar.query.filter_by(id=mms.current_bar)
+    bar = Bar.query.filter_by(id=mms.current_bar).one()
     users = User.query.all()
     orders = Order.query.all()
-    return render_template('dashboard.html', users=users, orders=orders)
+    user_table = users_as_table(users)
+    order_table = orders_as_table(orders)
+    return render_template('dashboard.html', users=users, orders=orders, bar=bar,
+            user_table=user_table, order_table=order_table)
 
 
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])
