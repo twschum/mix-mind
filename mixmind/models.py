@@ -17,21 +17,24 @@ class Role(db.Model, RoleMixin):
 
 class User(db.Model, UserMixin):
     id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True)
-    first_name = Column(String(255))
-    last_name = Column(String(255))
-    nickname = Column(String(255))
-    password = Column(String(255))
+    email = Column(String(127), unique=True)
+    first_name = Column(String(127))
+    last_name = Column(String(127))
+    nickname = Column(String(127))
+    password = Column(String(127))
     # TODO timezone rip
     last_login_at = Column(DateTime())
     current_login_at = Column(DateTime())
-    last_login_ip = Column(String(100))
-    current_login_ip = Column(String(100))
+    last_login_ip = Column(String(63))
+    current_login_ip = Column(String(63))
     login_count = Column(Integer)
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
-    roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
-    orders = relationship('Order', secondary='orders_users', backref=backref('users', lazy='dynamic'))
+    roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic')) # many to many
+    orders = relationship('Order') # one to many
+    works_at = relationship('Bar', secondary='bartenders', backref=backref('bartenders', lazy='dynamic')) # many to many
+    venmo_id = Column(String(63)) # venmo id as a string
+
 
     def get_name(self, short=False):
         if short:
@@ -52,8 +55,23 @@ class OrdersUsers(db.Model):
 
 class Order(db.Model):
     id = Column(Integer, primary_key=True)
-    confirmed = Column(Boolean(), default=False)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    bar_id = Column(Integer, ForeignKey('bar.id'))
     timestamp = Column(DateTime())
-    recipe_name = Column(String(100))
+    confirmed = Column(Boolean(), default=False)
+    recipe_name = Column(String(127))
     recipe_html = Column(Text())
-    # maybe "bar" name
+
+class Bar(db.Model):
+    id = Column(Integer(), primary_key=True)
+    cname = Column(String(63), unique=True) # unique name for finding the bar
+    name = Column(String(63))
+    # ingredients have a bar that they are from
+    ingredients = relationship('Ingredient')
+    orders = relationship('Order') # one to many
+
+class Bartenders(db.Model):
+    id = Column(Integer(), primary_key=True)
+    user_id = Column(Integer(), ForeignKey('user.id'))
+    bar_id = Column(Integer(), ForeignKey('bar.id'))
+

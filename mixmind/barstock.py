@@ -18,6 +18,7 @@ from .database import db
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
 class Ingredient(db.Model):
+    bar_id     = Column(Integer(), ForeignKey('bar.id'), primary_key=True)
     Category   = Column(Enum(*Categories))
     Type       = Column(String(100), primary_key=True)
     Bottle     = Column(String(255), primary_key=True)
@@ -58,13 +59,15 @@ class Ingredient(db.Model):
         "$/oz":        {'k':  "Cost_per_oz",  'v':  util.from_price_float},
     }
 
-def get_barstock_instance(csv_list, use_sql=False, include_all=False):
+def get_barstock_instance(csv_list, use_sql=False, bar=None, include_all=False):
     """ Factory for getting the right, initialized barstock
     """
     if isinstance(csv_list, basestring):
         csv_list = [csv_list]
     if use_sql or not has_pandas:
-        return Barstock_SQL(csv_list)
+        if bar is None:
+            raise ValueError("Valid bar object required for sql barstock")
+        return Barstock_SQL(csv_list, bar)
     elif has_pandas:
         return Barstock_DF.load(csv_list, include_all=include_all)
     else:
@@ -98,11 +101,13 @@ class Barstock(object):
     pass
 
 class Barstock_SQL(Barstock):
-    def __init__(self, csv_list, replace_existing=False):
+    def __init__(self, csv_list, bar_id, replace_existing=False):
         """Load the given CSVs
         if replace_existing is True, will replace the whole db
+        Where bar is a db.Model class for a bar
         """
         self.df = Ingredient # XXX hax for now
+        self.bar_id = bar_id
         ingredients = []
         if replace_existing:
             rows_deleted = Ingredient.query.delete()
@@ -119,7 +124,7 @@ class Barstock_SQL(Barstock):
     def add_row(self, row):
         """ where row is a dict of fields from the csv"""
         if not row.get('Type') and not row.get('Bottle'):
-            #raise DataError("Primary key (Type, Bottle) missing from row")
+            log.warning("Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
             return
         try:
             clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
@@ -129,8 +134,9 @@ class Barstock_SQL(Barstock):
             log.warning("UnicodeDecodeError for ingredient: {}".format(row))
             return
         try:
-            ingredient = Ingredient(**clean_row)
-            row = Ingredient.query.filter_by(Bottle=ingredient.Bottle, Type=ingredient.Type).one_or_none()
+            ingredient = Ingredient(bar_id=self.bar_id, **clean_row)
+            row = Ingredient.query.filter_by(bar_id=ingredient.bar_id,
+                    Bottle=ingredient.Bottle, Type=ingredient.Type).one_or_none()
             if row: # update
                 for k, v in clean_row.iteritems():
                     row[k] = v
