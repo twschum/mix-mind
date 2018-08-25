@@ -23,36 +23,48 @@
 	<body>
 		<!-- navbar is shown at the top of every page -->
 		{% block navbar %}
-		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<nav class="navbar navbar-expand-sm navbar-light bg-light px-0">
 			{% block navbar_layout %}
-			<div class="container-fluid">
+			<div class="container-fluid pl-0">
 			{% endblock navbar_layout %}
-				<a class="navbar-brand btn mr-auto" href="/">
+				<a class="navbar-brand btn" href="/">
 					<img src="/static/icons_outline/favicon.ico" width="30" height="30" alt="">
 					<span class="text">{{ config.BAR_NAME }}</span>
 				</a>
-				{% if current_user.is_authenticated %}
-				<span class="navbar-text">Welcome {{ current_user.get_name(short=True) }}</span>
-				<a class="nav-item nav-link" href={{ url_for('user_profile', user_id=current_user.id) }}>Profile</a>
-				{% if current_user.has_role('admin') %}
-				<div class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
-					<div class="dropdown-menu" aria-labelledby="adminDropdown">
-						<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
-						<div class="dropdown-divider"></div>
-						<a class="dropdown-item" href="{{ url_for('menu_generator') }}">Menu Generator</a>
-						<a class="dropdown-item" href="{{ url_for('recipe_library') }}">Recipe Library</a>
-						<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
-					</div>
-				</div>
-				{% endif %}
-				<a class="nav-item nav-link" href="/logout">Log out</a>
-				{% elif request.path != "/login" %}
-				<a class="nav-item nav-link" href="/login">Log in</a>
-				{% endif %}
-				{% block extra_navitems %}
-				{% endblock extra_navitems %}
-			</div>
+
+				{# everything after this is in the toggler on xs #}
+				<button class="navbar-toggler mr-2" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse navbar-nav " id="navbarToggler">
+
+					{% if current_user.is_authenticated %}
+					<span class="navbar-text ml-sm-auto mr-sm-2">Welcome {{ current_user.get_name(short=True) }}</span>
+					<a class="nav-item nav-link" href={{ url_for('user_profile', user_id=current_user.id) }}>Profile</a>
+
+					{% if current_user.has_role('admin') %}
+					<div class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Admin</a>
+						<div class="dropdown-menu" aria-labelledby="adminDropdown">
+							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}">Dashboard</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="{{ url_for('menu_generator') }}">Menu Generator</a>
+							<a class="dropdown-item" href="{{ url_for('recipe_library') }}">Recipe Library</a>
+							<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}">Ingredient Stock</a>
+						</div>
+					</div><!-- admin dropdown -->
+					{% endif %}
+
+					<a class="nav-item nav-link" href="/logout">Log out</a>
+					{% elif request.path != "/login" %}
+					<a class="nav-item nav-link ml-sm-auto" href="/login">Log in</a>
+					{% endif %}
+
+					{% block extra_navitems %}
+					{% endblock extra_navitems %}
+
+				</div>{# navbar-toggle #}
+			</div>{# overridable navbar_layout #}
 		</nav>
 		{% endblock navbar %}
 

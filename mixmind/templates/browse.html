@@ -21,21 +21,17 @@
 			<div id="filters" class="collapse" style="margin-bottom:0.75rem">
 					{{ form.csrf }}
 					<div class="form-group">
-						<dl>
 						{{ render_field(form.include) }}
 						{{ render_field(form.exclude) }}
 						{{ render_field(form.sorting) }}
-						</dl>
 						<a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
 						<div id="misc-filters" class="collapse">
-							<dl>
 							{{ render_field(form.use_or) }}
 							{{ render_field(form.name) }}
 							{{ render_field(form.style) }}
 							{{ render_field(form.glass) }}
 							{{ render_field(form.prep) }}
 							{{ render_field(form.ice) }}
-							</dl>
 						</div><!-- misc-filters -->
 					</div><!-- form-group -->
 				<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
