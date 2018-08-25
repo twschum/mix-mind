@@ -44,7 +44,7 @@ table, th, td {
     margin-bottom: 40px;
     font-size: 0.9em;
 }
-tr:nth-child(even)     { background-color:#eee; }
+tr:nth-child(even)     { background-color:#e8ebef; }
 tr:nth-child(odd)     { background-color:#fff; }
 
 .dataframe td:nth-child(4)     { text-align:right; }
