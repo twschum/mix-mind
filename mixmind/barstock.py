@@ -14,6 +14,7 @@ import csv
 
 import util
 from .database import db
+from .compose_html import close
 
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
@@ -44,6 +45,23 @@ class Ingredient(db.Model):
 
     def __setitem__(self, field, value):
         return setattr(self, field, value)
+
+    def _uid(self):
+        return "{}-{}-{}".format(self.bar_id, self.Type, self.Bottle)
+
+    def instock_toggle(self):
+        # make a button to change the stock
+        attrs = {'type': "submit", 'target': "_blank"}
+        if self.In_Stock:
+            attrs['name'] = "stock-out-{}".format(self._uid())
+            attrs['class'] = "btn btn-danger"
+            attrs['value'] = "&times;"
+        else:
+            attrs['name'] = "stock-in-{}".format(self._uid())
+            attrs['class'] = "btn btn-success"
+            attrs['value'] = "&plus;"
+        return close(close('', 'input', **attrs),
+                'form', id='stock-{}'.format(self._uid()), action="", method="post", role="form")
 
     display_name_mappings = {
         "Category":    {'k':  "Category",     'v':  unicode},

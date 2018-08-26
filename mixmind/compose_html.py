@@ -10,7 +10,7 @@ def close(content, tag, **kwargs):
         kwargs["class"] = kwargs["class_"]
     if "klass" in kwargs:
         kwargs["class"] = kwargs["klass"]
-    attributes = ' '.join(['{}={}'.format(k, v) for k, v in kwargs.iteritems()])
+    attributes = ' '.join(['{}="{}"'.format(k, v) for k, v in kwargs.iteritems()])
     return '<{0} {2}>{1}</{0}>'.format(tag, content, attributes)
 
 def em(content, **kwargs):
@@ -164,4 +164,16 @@ def bars_as_table(bars):
     cells = "id,name,cname,orders".split(',')
     formatters = [str,str,str,len]
     return as_table(bars, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
+
+def ingredients_as_table(ingredients):
+    headings = "Category,Type,Bottle,In Stock,ABV,Size (oz),$,$/oz".split(',')
+    cells = "Category,Type,Bottle,instock_toggle,Proof,Size_oz,Price_Paid,Cost_per_oz".split(',')
+    # make cell yellow if out?
+    def as_money(s):
+        return '${:.2f}'.format(s)
+    formatters = [
+            str, str, str, lambda x: x(),
+            lambda x: '{:.1f}%'.format(x/2.0),
+            lambda x: '{:.1f}'.format(x), as_money, as_money]
+    return as_table(ingredients, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
 

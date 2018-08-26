@@ -41,6 +41,8 @@ MIXMIND_INGREDIENTS_DIR = "ingredients/"
 MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
 MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
 
+# set the current bar
+BAR_ID = 0
 BAR_NAME = "@Schubar"
 BAR_CNAME = "@Schubar-test"
 

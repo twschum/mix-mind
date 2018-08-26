@@ -16,9 +16,9 @@ from .notifier import send_mail
 from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, LoginForm
 from .authorization import user_datastore
 from .recipe import DrinkRecipe
-from .barstock import get_barstock_instance
+from .barstock import get_barstock_instance, Ingredient
 from .formatted_menu import filename_from_options, generate_recipes_pdf
-from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table
+from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table, ingredients_as_table
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
 from .database import db, init_db
 from .models import User, Order, Bar
@@ -434,6 +434,7 @@ def ingredient_stock():
 
     if request.method == 'POST':
         print request
+        import ipdb; ipdb.set_trace()
         if 'add-ingredient' in request.form:
             row = {}
             row['Category'] = form.category.data
@@ -461,8 +462,9 @@ def ingredient_stock():
             mms = MixMindServer(recipes=mms.recipe_files, barstock_files=[filename])
             flash("Ingredients database reloaded from {}".format(filename))
 
-    table = mms.get_ingredients_table()
-    return render_template('ingredients.html', form=form, table=table)
+    ingredients = Ingredient.query.filter_by(bar_id=mms.current_bar).order_by(Ingredient.Category, Ingredient.Type).all()
+    stock_table = ingredients_as_table(ingredients)
+    return render_template('ingredients.html', form=form, stock_table=stock_table)
 
 @app.route("/admin/debug", methods=['GET'])
 @login_required

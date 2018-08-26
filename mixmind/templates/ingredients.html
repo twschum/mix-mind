@@ -1,80 +1,35 @@
 {# template for admin to manage ingredient stock #}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-  <head>
-    <title>Mix Mind Ingredients Editor</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous"></link>
-    <link rel="stylesheet" href="/static/css/table.css"></link>
+{% extends "dashboard.html" %}
+{% from "_macros.html" import render_field %}
+{% block dashbody %}
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-  </head>
-  <body>
+<h3>Ingredient Editor</h3>
+<form  id="menu-settings" action="" method="post" role="form" enctype="multipart/form-data">
+	{{ form.csrf }}
+	<div class="form-group">
+		<a href="#add-barstock" data-toggle="collapse"><h3>Upload Bar Stock File</h3></a>
+		<div id="add-barstock" class="collapse">
+			{{ render_field(form.upload_csv) }}
+			<input type="submit" class="btn btn-success" target="_blank" name="upload-csv" value="Upload"></input>
+		</div>
+		<a href="#add-ingredient" data-toggle="collapse"><h3>Add an Ingredient</h3></a>
+		<div id="add-ingredient" class="collapse">
+			<dl>
+				{{ render_field(form.bottle) }}
+				{{ render_field(form.category) }}
+				{{ render_field(form.type_) }}
+				{{ render_field(form.proof) }}
+				{{ render_field(form.size_ml) }}
+				{{ render_field(form.price) }}
+				<input type="submit" class="btn btn-success" target="_blank" name="add-ingredient" value="Add"></input>
+				<input type="submit" class="btn btn-danger" target="_blank" name="remove-ingredient" value="Remove (bottle)"></input>
+			</dl>
+		</div>
+	</div>
+	<!--<input type="submit" class="btn btn-success" value="Apply"></input>-->
+</form>
 
-    <!-- Main form -->
-    <div class="container">
-      <div class="row btn-group" id="navigation">
-        <form action="/"> <div class="col"> <input type="submit" class="btn btn-default" value="Browse"></input> </div> </form>
-        <form action="/main/"> <div class="col"> <input type="submit" class="btn btn-default" value="Menu Generator"></input> </div> </form>
-        <form action="/recipes/"> <div class="col"> <input type="submit" class="btn btn-default" value="Recipes"></input> </div> </form>
-      </div>
-      {% from "_formhelpers.html" import render_field %}
-      <h2>Ingredient Editor</h2>
-      <form  id="menu-settings" action="" method="post" role="form" enctype="multipart/form-data">
-        {{ form.csrf }}
-        <div class="form-group">
-          <a href="#add-barstock" data-toggle="collapse"><h3>Upload Bar Stock File</h3></a>
-          <div id="add-barstock" class="collapse">
-            {{ render_field(form.upload_csv) }}
-            <input type="submit" class="btn btn-success" target="_blank" name="upload-csv" value="Upload"></input>
-          </div>
-          <a href="#add-ingredient" data-toggle="collapse"><h3>Add an Ingredient</h3></a>
-          <div id="add-ingredient" class="collapse">
-            <dl>
-              {{ render_field(form.bottle) }}
-              {{ render_field(form.category) }}
-              {{ render_field(form.type_) }}
-              {{ render_field(form.proof) }}
-              {{ render_field(form.size_ml) }}
-              {{ render_field(form.price) }}
-              <input type="submit" class="btn btn-success" target="_blank" name="add-ingredient" value="Add"></input>
-              <input type="submit" class="btn btn-danger" target="_blank" name="remove-ingredient" value="Remove (bottle)"></input>
-            </dl>
-          </div>
-        </div>
-        <!--<input type="submit" class="btn btn-success" value="Apply"></input>-->
-      </form>
+<h3>Ingredient Stock for {{ config.BAR_CNAME }}</h3>
+{{ stock_table | safe }}
 
-      <!-- Show flashed messaged -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-      <br></br>
-
-      {% for message in messages %}
-      {% if "Error" not in message[1]: %}
-      <div class="alert alert-info">
-        <strong>Success! </strong> {{ message[1] }}
-      </div>
-      {% endif %}
-
-      {% if "Error" in message[1]: %}
-      <div class="alert alert-warning">
-        {{ message[1] }}
-      </div>
-      {% endif %}
-      {% endfor %}
-      {% endif %}
-      {% endwith %}
-
-      <h2>Currently Loaded Barstock:</h2>
-      {{ table | safe }}
-
-
-      </div> <!-- top level container -->
-
-      <!-- Optional JavaScript -->
-      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-      <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
-  </body>
-</html>
+{% endblock dashbody %}

@@ -137,7 +137,9 @@ def from_float(s):
         return 0.0
     return float(s)
 def from_price_float(s):
-    return from_float(s.replace('$', ''))
+    if isinstance(s, basestring):
+        return from_float(s.replace('$', ''))
+    return from_float(s)
 def from_bool_from_int(s):
     if not s:
         return False
