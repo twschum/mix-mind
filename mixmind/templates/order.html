@@ -7,8 +7,8 @@
 {% if show_form %}
 <form id="order-form" action="" method="post" role="form">
 	{{ form.csrf }}
-	<div class="form-group">
 		{{ recipe | safe }}
+	<div class="form-group pt-3">
 		{% if current_user.is_authenticated %}
 		{% else %}
 		{{ render_field(form.name) }}
@@ -41,3 +41,7 @@
 {% endif %}
 
 {% endblock formblock %}
+
+{% block footer %}
+$$ amount shown is recommended tip, calculated from cost of ingredients
+{% endblock footer %}
