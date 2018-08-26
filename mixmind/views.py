@@ -18,7 +18,7 @@ from .authorization import user_datastore
 from .recipe import DrinkRecipe
 from .barstock import get_barstock_instance
 from .formatted_menu import filename_from_options, generate_recipes_pdf
-from .compose_html import recipe_as_html, users_as_table, orders_as_table
+from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
 from .database import db, init_db
 from .models import User, Order, Bar
@@ -350,13 +350,14 @@ def user_confirmation_hook():
 @roles_required('admin')
 def admin_dashboard():
     global mms
-    bar = Bar.query.filter_by(id=mms.current_bar).one()
+    bars = Bar.query.all()#filter_by(id=mms.current_bar).one()
     users = User.query.all()
     orders = Order.query.all()
+    bar_table = bars_as_table(bars)
     user_table = users_as_table(users)
     order_table = orders_as_table(orders)
-    return render_template('dashboard.html', users=users, orders=orders, bar=bar,
-            user_table=user_table, order_table=order_table)
+    return render_template('dashboard.html', users=users, orders=orders,
+            bar_table=bar_table, user_table=user_table, order_table=order_table)
 
 
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])

@@ -110,7 +110,7 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
             # TODO pull out bitters into supplimental list
             if display_opts.prices:
                 for e in sorted(recipe.examples, key=lambda x: x.cost):
-                    markup = 0.25+display_opts.markup if recipe.name == "A Dram" else display_opts.markup
+                    markup = 1.1+display_opts.markup if recipe.name == "A Dram" else display_opts.markup
                     fields = {
                             'cost': util.calculate_price(e.cost, markup),
                             'abv': e.abv,
@@ -148,11 +148,20 @@ def users_as_table(users):
     headings = "ID,Email,First,Last,Nickname,Logins,Last,Confirmed,Roles,Orders".split(',')
     cells = "id,email,first_name,last_name,nickname,login_count,last_login_at,confirmed_at,get_role_names,orders".split(',')
     formatters = [str, str, str, str, str, str, str, str, lambda x: x(), len]
-    return as_table(users, headings, cells, formatters, outer_div="table-0responsive-sm", table_cls="table table-sm")
+    return as_table(users, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
+
+def yes_no(b):
+    return 'yes' if b else 'no'
 
 def orders_as_table(orders):
     headings = "ID,Timestamp,Confirmed,User ID,Bar ID,Recipe".split(',')
     cells = "id,timestamp,confirmed,user_id,bar_id,recipe_name".split(',')
-    formatters = [str, str, str, str, str, str]
-    return as_table(orders, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table")
+    formatters = [str, str, yes_no, str, str, str]
+    return as_table(orders, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
+
+def bars_as_table(bars):
+    headings = "ID,Name,CName,Total Orders".split(',')
+    cells = "id,name,cname,orders".split(',')
+    formatters = [str,str,str,len]
+    return as_table(bars, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
 
