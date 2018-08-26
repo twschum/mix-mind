@@ -141,7 +141,7 @@ def as_table(objects, headings, cells, formatters, outer_div="", table_cls="tabl
                 for obj in objects:
                     with tag('tr'):
                         for cell, formatter in zip(cells, formatters):
-                            line('td', formatter(getattr(obj, cell)))
+                            doc.asis(close(formatter(getattr(obj, cell)), 'td'))
     return unicode(doc.getvalue())
 
 def users_as_table(users):

@@ -434,7 +434,6 @@ def ingredient_stock():
 
     if request.method == 'POST':
         print request
-        import ipdb; ipdb.set_trace()
         if 'add-ingredient' in request.form:
             row = {}
             row['Category'] = form.category.data
@@ -455,6 +454,12 @@ def ingredient_stock():
                 flash("Removed {}".format(bottle))
             else:
                 flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle), 'danger')
+
+        elif 'toggle-in-stock' in request.form:
+            uid = urllib.unquote(request.form['uid'])
+            ingredient = Ingredient.query_by_uid(uid)
+            ingredient.In_Stock = not ingredient.In_Stock
+            db.session.commit()
 
         elif 'upload-csv' in request.form:
             filename = datafiles.save(secure_filename(request.files['upload_csv']))

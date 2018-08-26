@@ -11,6 +11,7 @@ except ImportError:
 from sqlalchemy import and_, Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
 from sqlalchemy.exc import SQLAlchemyError
 import csv
+import urllib
 
 import util
 from .database import db
@@ -47,20 +48,25 @@ class Ingredient(db.Model):
         return setattr(self, field, value)
 
     def _uid(self):
-        return "{}-{}-{}".format(self.bar_id, self.Type, self.Bottle)
+        return "|".join([str(self.bar_id), self.Type, self.Bottle])
+
+    @classmethod
+    def query_by_uid(cls, uid):
+        bid, t, b = urllib.unquote(uid).split('|')
+        return cls.query.filter_by(bar_id=int(bid), Type=t, Bottle=b).one_or_none()
 
     def instock_toggle(self):
         # make a button to change the stock
-        attrs = {'type': "submit", 'target': "_blank"}
+        attrs = {'type': "submit", 'target': "_blank", 'name': "toggle-in-stock"}
         if self.In_Stock:
-            attrs['name'] = "stock-out-{}".format(self._uid())
-            attrs['class'] = "btn btn-danger"
-            attrs['value'] = "&times;"
+            attrs['class'] = "btn btn-small btn-success"
+            attrs['value'] = "&check;"
         else:
-            attrs['name'] = "stock-in-{}".format(self._uid())
-            attrs['class'] = "btn btn-success"
-            attrs['value'] = "&plus;"
-        return close(close('', 'input', **attrs),
+            attrs['class'] = "btn btn-small btn-danger"
+            attrs['value'] = "&times;"
+        uid = close('', 'input', type="hidden", name='uid', value=urllib.quote(self._uid()))
+        submit = close('', 'input', **attrs)
+        return close('{}{}'.format(uid, submit),
                 'form', id='stock-{}'.format(self._uid()), action="", method="post", role="form")
 
     display_name_mappings = {
