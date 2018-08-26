@@ -64,6 +64,8 @@ class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
     cname = Column(String(63), unique=True) # unique name for finding the bar
     name = Column(String(63))
+    is_active = Column(Boolean(), default=False)
+    bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
     ingredients = relationship('Ingredient') # one to many
     orders = relationship('Order') # one to many
 

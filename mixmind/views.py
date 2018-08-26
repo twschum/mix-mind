@@ -43,7 +43,6 @@ NOTES:
     - add/remove ingredients dynamically?
     - add/remove recipes as raw json?
     - menu_generator (what's now "mainpage")
-    - user stats dashboard
 * better commits to db with after_this_request
 * user improvements
     - order history
@@ -353,11 +352,11 @@ def admin_dashboard():
     bars = Bar.query.all()#filter_by(id=mms.current_bar).one()
     users = User.query.all()
     orders = Order.query.all()
-    bar_table = bars_as_table(bars)
+    #bar_table = bars_as_table(bars)
     user_table = users_as_table(users)
     order_table = orders_as_table(orders)
     return render_template('dashboard.html', users=users, orders=orders,
-            bar_table=bar_table, user_table=user_table, order_table=order_table)
+            bars=bars, user_table=user_table, order_table=order_table)
 
 
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])
