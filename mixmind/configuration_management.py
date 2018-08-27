@@ -16,6 +16,8 @@ from .database import db
 from .models import Bar, User
 from .util import load_recipe_json
 from . import log
+# TODO: No handlers could be found for logger "root"
+# actual log infos instead of prints
 
 def get_recipe_files(app):
     return get_checked_files(app,
@@ -48,6 +50,7 @@ class MixMindServer():
         if existing_default_bar:
             default_bar = existing_default_bar
         else:
+            print ("STARTUP: Adding default bar \"{}\"".format(default_bar.cname))
             db.session.add(default_bar)
             db.session.commit()
         # setup ingredient stock, using default if the database is empty
@@ -55,15 +58,18 @@ class MixMindServer():
         self.barstock = Barstock_SQL(default_bar.id)
         if Ingredient.query.count() == 0:
             barstock_files = get_ingredient_files(app)
+            print ("STARTUP: Loading ingredient stock from files: {}".format(barstock_files))
             self.barstock.load_from_csv(barstock_files, default_bar.id)
         # initialize recipe library
         recipe_files = get_recipe_files(app)
+        print ("STARTUP: Loading recipes from files: {}".format(recipe_files))
         self.base_recipes = load_recipe_json(recipe_files)
+        print ("STARTUP: Generating recipe library".format(recipe_files))
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True)
                 for name, recipe in self.base_recipes.iteritems()]
 
     def regenerate_recipes(self):
-        log.info("Reloading the recipes")
+        print ("Regenerating recipe library")
         self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
 
 BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize")
