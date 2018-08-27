@@ -3,8 +3,10 @@ Definitions of the various forms used
 """
 from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField, StringField, SubmitField, HiddenField
 from flask_security.forms import ConfirmRegisterForm
+from flask import g
 
-import util
+from .models import User
+from .util import VALID_UNITS
 
 # TODO refactor with flask_wtf which presets form csrfs (or roll my own I guess)
 # TODO use InputRequired validator
@@ -48,7 +50,7 @@ class DrinksForm(Form):
     stats = BooleanField("Stats", description="Print out a detailed statistics block for the selected recipes")
     examples = BooleanField("Examples", description="Show specific examples of a recipe based on the ingredient stock")
     all_ingredients = BooleanField("All Ingredients", description="Show every ingredient instead of just the main liquors with each example")
-    convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(util.VALID_UNITS), validators.Optional()])
+    convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(VALID_UNITS), validators.Optional()])
     markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.1) # TODO config management
     info = BooleanField("Info", description="Show the info line for recipes")
     origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals")
@@ -100,7 +102,7 @@ class RecipeForm(Form):
     name = TextField("Name", description="The recipe name", validators=[validators.required()])
     info = TextField("Info", description="Additional information about the recipe")
     ingredients = FieldList(FormField(RecipeIngredientForm), min_entries=1, validators=[validators.required()])
-    unit = SelectField("Unit", choices=pairs([util.VALID_UNITS]), validators=[validators.required()])
+    unit = SelectField("Unit", choices=pairs([VALID_UNITS]), validators=[validators.required()])
     #glass =
     #unit =
     #prep =
@@ -181,11 +183,14 @@ class EditBarForm(Form):
     name = TextField("Bar Name", description="Display name for the bar")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
 
-    # TODO bartender
+    # someday use just "bartenders"
+    bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders",
+            choices=[('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()])
+
     prices = BooleanField("Prices", description="Show prices")
     prep_line = BooleanField("Preparation", description="Show preparation instructions")
     examples = BooleanField("Examples", description="Show specific examples for each recipe")
-    convert = TextField("Convert", description="Convert all recipes to one unit", default=None, validators=[validators.AnyOf(util.VALID_UNITS), validators.Optional()])
+    convert = TextField("Convert", description="Convert all recipes to one unit", default=None, validators=[validators.AnyOf(VALID_UNITS), validators.Optional()])
     markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)")
     info = BooleanField("Info", description="Adds info tidbit to recipes")
     origin = BooleanField("Origin", description="Denote drinks originating at Schubar")
