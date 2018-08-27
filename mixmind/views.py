@@ -189,6 +189,11 @@ def order(recipe_name):
                     user_name = form.name.data
                     user_email = form.email.data
 
+                # get target bartender
+                if current_bar.is_closed:
+                    flash("Unfortunately the bar is closed right now :(", 'warning')
+                    return redirect(request.urlopen)
+
                 # TODO use simpler html for recording an order
                 # add to the order database
                 order = Order(bar_id=current_bar.id, timestamp=datetime.datetime.utcnow(), recipe_name=recipe.name, recipe_html=recipe_html)
@@ -204,8 +209,7 @@ def order(recipe_name):
                             email=urllib.quote(user_email),
                             order_id=order.id))
 
-                # TODO use bar config for bartender on duty
-                send_mail(subject, app.config['BARTENDER_EMAIL'], "order_submitted",
+                send_mail(subject, bartender.email, "order_submitted",
                         confirmation_link=confirmation_link,
                         name=user_name,
                         notes=form.notes.data,
@@ -343,7 +347,6 @@ def admin_dashboard():
                 flash("Error in form validation", 'warning')
 
         elif 'edit_bar' in request.form:
-            import ipdb; ipdb.set_trace()
             if edit_bar_form.validate():
                 # TODO allow manager to edit this one? use different post url
                 bar_id = edit_bar_form.bar_id.data
@@ -352,9 +355,18 @@ def admin_dashboard():
                     flash("Invalid bar_id: {}".format(edit_bar_form.bar_id.data), 'danger')
                     return redirect(request.url)
 
+                # add bartender on duty
+                user = user_datastore.find_user(email=edit_bar_form.bartender.data)
+                if user and user.id != bar.bartender_on_duty:
+                    import ipdb; ipdb.set_trace()
+                    bartender = user_datastore.find_role('bartender')
+                    user_datastore.add_role_to_user(user, bartender)
+                    bar.bartenders.append(user)
+                    bar.bartender_on_duty = user.id
+                    # TODO send email to bartender on duty
+
                 for attr in BAR_BULK_ATTRS:
                     setattr(bar, attr, getattr(edit_bar_form, attr).data)
-                # TODO add bartender on duty
                 db.session.commit()
                 flash("Successfully update config for {}".format(bar.cname))
 
