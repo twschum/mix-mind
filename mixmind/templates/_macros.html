@@ -25,7 +25,7 @@
 <!-- Renders indivdual filds in a from, given WTForm objects -->
 {% macro render_field(field) %}
 	{% set check_field = ['BooleanField'] %}
-	{% set no_label_field = ['HiddenField', 'SubmitField'] %}
+	{% set show_label = (field.type not in ['HiddenField', 'SubmitField'] and not field.flags.hidden)  %}
 	{% set bootstrap_classes = { 'BooleanField': "form-check-input", 'SubmitField': "btn btn-primary" } %}
 <div class="form-group">
 	{% if field.type in check_field %}
@@ -43,7 +43,7 @@
 	{{ field(class_=classes, **kwargs)|safe }}
 	{% endif %}
 	{# render the label #}
-	{% if field.type not in no_label_field %}
+	{% if show_label %}
 		{% if field.type in check_field %}
 		<label class="form-check-label" for="{{ field.id }}">
 		{% else %}
@@ -56,8 +56,8 @@
 	{% if field.type not in check_field %}
 	{{ field(class_=classes, **kwargs)|safe }}
 	{% endif %}
-	{# render the description, if any #}
-	{% if field.description and field.type not in no_label_field %}
+	{# render the description #}
+	{% if field.description and show_label  %}
 	<small id="{{ field.id }}_help" class="form-text text-muted">{{ field.description }}</small>
 	{% endif %}
 
