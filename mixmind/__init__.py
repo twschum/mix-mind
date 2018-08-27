@@ -23,8 +23,11 @@ with app.app_context():
 from mixmind.notifier import mail
 mail.init_app(app)
 
-from mixmind.configuration_management import MixMindServer
+from mixmind.configuration_management import MixMindServer, get_bar_config
 with app.app_context():
     mms = MixMindServer(app)
+
+from werkzeug.local import LocalProxy
+current_bar = LocalProxy(get_bar_config)
 
 import mixmind.views # to assosciate views with app
