@@ -5,10 +5,9 @@ import os
 import random
 import datetime
 import tempfile
+import urllib
 
 from flask import render_template, flash, request, send_file, jsonify, redirect, url_for
-from werkzeug.utils import secure_filename
-import urllib
 from flask_security import login_required, roles_required
 from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
@@ -16,40 +15,35 @@ from flask_login import current_user
 from .notifier import send_mail
 from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm
 from .authorization import user_datastore
-from .recipe import DrinkRecipe
-from .barstock import get_barstock_instance, Ingredient
+from .barstock import Ingredient
 from .formatted_menu import filename_from_options, generate_recipes_pdf
 from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table, ingredients_as_table
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
-from .database import db, init_db
+from .database import db
 from .models import User, Order, Bar
-from . import log, app, datafiles
-import config
+from .configuration_management import MixMindServer
+from . import log, app, mms
 
 """
 BUGS:
-* markup seems to have changed?
 * email sent to customer not bartender
 NOTES:
 * cards should be same sizes
 * template improvements
-    - header
-        - move greeting over to right with log in/out
     - make email template
         - use custom html template params (price fails in email)
         - change email confirmation to result page
         - order submission had wrong name
     - use more bootstrap form goodness
+        - need file upload
+        - TOGGLES!
 * admin pages
     - add/remove ingredients dynamically?
     - add/remove recipes as raw json?
     - menu_generator (what's now "mainpage")
 * better commits to db with after_this_request
-* user improvements
-    - order history
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
-* update bootstrap
 * hardening
     - moar logging
     - test error handling
@@ -58,7 +52,7 @@ NOTES:
     - defaults plus management
     - support for modifying the "bartender on duty" aka Notifier's secret info
     - disable the order button unless we are "open"
-* "remember" form open/close position
+* "remember" form open/close position of collapses
 """
 # views-wide domain-specific state
 mms = None
@@ -66,32 +60,7 @@ mms = None
 def initialize_shared_data():
     global mms
     mms = MixMindServer()
-    # invalidate users
-    #for user in User.query.all():
-        #user.confirmed_at = None
-    #db.session.commit()
 
-class MixMindServer():
-    # TODO synchronization
-    def __init__(self, recipe_files=None, ingredient_files=None):
-        # setup current "bar"
-        default_bar = Bar(cname=app.config['BAR_CNAME'], name=app.config.get('BAR_NAME', app.config['BAR_CNAME']))
-        exists = Bar.query.filter_by(cname=default_bar.cname).one_or_none()
-        if exists:
-            self.current_bar = exists.id
-        else:
-            db.session.add(default_bar)
-            db.session.commit()
-            self.current_bar = default_bar.id
-        self.recipe_files = config.get_recipe_files(app) if not recipe_files else recipe_files
-        self.barstock_files = config.get_ingredient_files(app) if not ingredient_files else ingredient_files
-        self.base_recipes = load_recipe_json(self.recipe_files)
-        self.barstock = get_barstock_instance(self.barstock_files, use_sql=True, bar=self.current_bar)
-        self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
-        self.default_margin = 1.10
-
-    def regenerate_recipes(self):
-        self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
 
 def get_form(form_class):
     """WTForms update 2.2 breaks when an empty request.form
@@ -413,7 +382,7 @@ def recipe_library():
         print request
         if 'recipe-list-select' in request.form:
             recipes = select_form.recipes.data
-            mms = MixMindServer(recipes=recipes, barstock_files=mms.barstock_files)
+            mms.regenerate_recipes()
             flash("Now using recipes from {}".format(recipes))
 
     return render_template('recipes.html', select_form=select_form, add_form=add_form)

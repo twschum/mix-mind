@@ -83,15 +83,17 @@ class Ingredient(db.Model):
         "$/oz":        {'k':  "Cost_per_oz",  'v':  util.from_price_float},
     }
 
-def get_barstock_instance(csv_list, use_sql=False, bar=None, include_all=False):
+def get_barstock_instance(csv_list, use_sql=False, bar_id=None, include_all=False):
     """ Factory for getting the right, initialized barstock
     """
     if isinstance(csv_list, basestring):
         csv_list = [csv_list]
     if use_sql or not has_pandas:
-        if bar is None:
+        if bar_id is None:
             raise ValueError("Valid bar object required for sql barstock")
-        return Barstock_SQL(csv_list, bar)
+        barstock = Barstock_SQL()
+        barstock.load_from_csv(csv_list, bar_id)
+        return barstock
     elif has_pandas:
         return Barstock_DF.load(csv_list, include_all=include_all)
     else:
@@ -125,9 +127,6 @@ class Barstock(object):
     pass
 
 class Barstock_SQL(Barstock):
-    def __init__(self, csv_list, bar_id, replace_existing=False):
-        self.bar_id = bar_id
-
     def load_from_csv(self, csv_list, bar_id, replace_existing=True):
         """Load the given CSVs
         if replace_existing is True, will replace the whole db for this bar
@@ -227,7 +226,7 @@ class Barstock_SQL(Barstock):
         if specifier.bottle:
             filter_ = and_(filter_, Ingredient.Bottle == specifier.bottle)
 
-        filter_ = and_(filter_, Ingredient.bar_id == self.bar_id)
+        filter_ = and_(filter_, Ingredient.bar_id == 0) # XXX
         return Ingredient.query.filter(filter_).all()
 
     def to_csv(self):

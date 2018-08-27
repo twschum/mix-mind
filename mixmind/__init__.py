@@ -23,4 +23,8 @@ with app.app_context():
 from mixmind.notifier import mail
 mail.init_app(app)
 
+from mixmind.configuration_management import MixMindServer
+with app.app_context():
+    mms = MixMindServer(app)
+
 import mixmind.views # to assosciate views with app

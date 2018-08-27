@@ -33,7 +33,7 @@ SECURITY_EMAIL_SUBJECT_CONFIRM = "[Mix-Mind] Please confirm your email"
 #info_fh.setLevel(logging.INFO)
 #log = logging.getLogger()
 
-# mix-mind
+# default recipes and ingredients to load
 MIXMIND_DIR = os.path.abspath(os.path.curdir)
 MIXMIND_RECIPES_DIR = "recipes/"
 MIXMIND_INGREDIENTS_DIR = "ingredients/"
@@ -41,26 +41,7 @@ MIXMIND_INGREDIENTS_DIR = "ingredients/"
 MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
 MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
 
-# set the current bar
-BAR_ID = 0
-BAR_NAME = "@Schubar"
-BAR_CNAME = "@Schubar-test"
+MIXMIND_DEFAULT_BAR_NAME = "Home Bar"
 
 # arrow timezone
 TIMEZONE = 'US/Eastern'
-
-def get_recipe_files(app):
-    return get_checked_files(app, MIXMIND_RECIPES_DIR, MIXMIND_DEFAULT_RECIPES)
-
-def get_ingredient_files(app):
-    return get_checked_files(app, MIXMIND_INGREDIENTS_DIR, MIXMIND_DEFAULT_INGREDIENTS)
-
-def get_checked_files(app, partial_path, files):
-    abspath = app.config.get('MIXMIND_DIR', MIXMIND_DIR)
-    files = [os.path.join(abspath, partial_path, f) for f in files]
-    missing = {0}-{0}
-    for f in files:
-        if not os.path.isfile(f):
-            missing.add(f)
-            log.warning("{} not found, will be omitted".format(f))
-    return list(set(files) - missing)
