@@ -21,8 +21,7 @@ from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
 from .database import db
 from .models import User, Order, Bar
-from .configuration_management import MixMindServer
-from . import log, app, mms
+from . import log, app, mms, current_bar
 
 """
 BUGS:
@@ -54,13 +53,9 @@ NOTES:
     - disable the order button unless we are "open"
 * "remember" form open/close position of collapses
 """
-# views-wide domain-specific state
-mms = None
 @app.before_first_request
 def initialize_shared_data():
-    global mms
-    mms = MixMindServer()
-
+    pass
 
 def get_form(form_class):
     """WTForms update 2.2 breaks when an empty request.form
@@ -116,7 +111,7 @@ def browse():
         # filter for current recipes that can be made on the core list
         filter_options = FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
-    recipes, _, _ = recipes_from_options(form, display_opts=DisplayOptions(True,False,False,False,mms.default_margin,False,False,True,False),
+    recipes, _, _ = recipes_from_options(form, display_opts=DisplayOptions(True,False,False,False,current_bar.margin,False,False,True,False),
             filter_opts=filter_options, to_html=True, order_link=True, condense_ingredients=True)
 
     if request.method == 'POST':
@@ -138,7 +133,6 @@ def browse():
 
 @app.route("/order/<recipe_name>", methods=['GET', 'POST'])
 def order(recipe_name):
-    global mms
     if current_user.is_authenticated:
         form = get_form(OrderForm)
     else:
@@ -307,7 +301,6 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def admin_dashboard():
-    global mms
     bars = Bar.query.all()#filter_by(id=mms.current_bar).one()
     users = User.query.all()
     orders = Order.query.all()
@@ -372,7 +365,6 @@ def menu_download():
 @login_required
 @roles_required('admin')
 def recipe_library():
-    global mms
     select_form = get_form(RecipeListSelector)
     print select_form.errors
     add_form = get_form(RecipeForm)
@@ -392,7 +384,6 @@ def recipe_library():
 @login_required
 @roles_required('admin')
 def ingredient_stock():
-    global mms
     form = get_form(BarstockForm)
     upload_form = get_form(UploadBarstockForm)
     print form.errors

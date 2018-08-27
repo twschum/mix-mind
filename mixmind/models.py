@@ -68,6 +68,9 @@ class Bar(db.Model):
     bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
     ingredients = relationship('Ingredient') # one to many
     orders = relationship('Order') # one to many
+    # browse display settings
+    margin = Column(Float(), default=1.10)
+
 
 class Bartenders(db.Model):
     id = Column(Integer(), primary_key=True)
