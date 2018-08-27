@@ -123,7 +123,7 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
 
     return unicode(doc.getvalue())
 
-def as_table(objects, headings, cells, formatters, outer_div="", table_cls="table", thead_cls="", tbody_cls=""):
+def as_table(objects, headings, cells, formatters, outer_div="", table_id="", table_cls="table", thead_cls="", tbody_cls=""):
     """ Generate HTML table where objects are instances of db.Models
     headings, cells, formatters are three lists of equal length,
     where headings are the table headings, cells are the attributes to put in those cells,
@@ -132,7 +132,7 @@ def as_table(objects, headings, cells, formatters, outer_div="", table_cls="tabl
     """
     doc, tag, text, line = yattag.Doc().ttl()
     with tag('div', klass=outer_div):
-        with tag('table', klass=table_cls):
+        with tag('table', klass=table_cls, id=table_id):
             with tag('thead', klass=thead_cls):
                 with tag('tr'):
                     for heading in headings:
@@ -175,5 +175,5 @@ def ingredients_as_table(ingredients):
             str, str, str, lambda x: x(),
             lambda x: '{:.1f}%'.format(x/2.0),
             lambda x: '{:.1f}'.format(x), as_money, as_money]
-    return as_table(ingredients, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
+    return as_table(ingredients, headings, cells, formatters, table_id="ingredient_table", table_cls="table table-sm")
 
