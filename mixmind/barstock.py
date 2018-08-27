@@ -126,26 +126,26 @@ class Barstock(object):
 
 class Barstock_SQL(Barstock):
     def __init__(self, csv_list, bar_id, replace_existing=False):
-        """Load the given CSVs
-        if replace_existing is True, will replace the whole db
-        Where bar is a db.Model class for a bar
-        """
-        self.df = Ingredient # XXX hax for now
         self.bar_id = bar_id
-        ingredients = []
+
+    def load_from_csv(self, csv_list, bar_id, replace_existing=True):
+        """Load the given CSVs
+        if replace_existing is True, will replace the whole db for this bar
+        bar_id is the active bar
+        """
         if replace_existing:
-            rows_deleted = Ingredient.query.delete()
+            rows_deleted = Ingredient.query.filter_by(bar_id=bar_id).delete()
             log.info("Dropped {} rows for {} table", rows_deleted, Ingredient.__tablename__)
         for csv_file in csv_list:
             with open(csv_file) as fp:
                 reader = csv.DictReader(fp)
                 for row in reader:
                     try:
-                        self.add_row(row)
+                        self.add_row(row, bar_id)
                     except DataError as e:
                         log.warning(e)
 
-    def add_row(self, row):
+    def add_row(self, row, bar_id):
         """ where row is a dict of fields from the csv"""
         if not row.get('Type') and not row.get('Bottle'):
             log.warning("Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
@@ -158,7 +158,7 @@ class Barstock_SQL(Barstock):
             log.warning("UnicodeDecodeError for ingredient: {}".format(row))
             return
         try:
-            ingredient = Ingredient(bar_id=self.bar_id, **clean_row)
+            ingredient = Ingredient(bar_id=bar_id, **clean_row)
             row = Ingredient.query.filter_by(bar_id=ingredient.bar_id,
                     Bottle=ingredient.Bottle, Type=ingredient.Type).one_or_none()
             if row: # update
@@ -227,6 +227,7 @@ class Barstock_SQL(Barstock):
         if specifier.bottle:
             filter_ = and_(filter_, Ingredient.Bottle == specifier.bottle)
 
+        filter_ = and_(filter_, Ingredient.bar_id == self.bar_id)
         return Ingredient.query.filter(filter_).all()
 
     def to_csv(self):
@@ -235,9 +236,6 @@ class Barstock_SQL(Barstock):
         for row in Ingredient.query.all():
             result.append(','.join([unicode(row[col]) for col in cols]))
         return '\n'.join(result)
-
-    def sorted_df(self):
-        return self.df.sort_values(['Category','Type','Price Paid'])
 
 
 class Barstock_DF(Barstock):
