@@ -2,8 +2,15 @@
 {% extends "form_base.html" %}
 {% from "_macros.html" import show_flashed %}
 
+{# TODO add an "edit self" for name, nickname and VENMO ID #}
+
 {% block formblock %}
-		<h3>{{ current_user.get_name() }} {% if current_user.nickname %}({{ current_user.nickname }}){% endif %}</h3>
+<div class="row">
+	<h3 class="col-auto mr-auto">{{ current_user.get_name() }} {% if current_user.nickname %}({{ current_user.nickname }}){% endif %}</h3>
+	<div class="col-auto">
+		<a href="#edit-user-container" data-toggle="collapse" class="btn btn-lg btn-outline-primary">Edit Profile</a>
+	</div>
+</div>
 		{{ show_flashed }}
 		<h5>{{ current_user.email }}</h5>
 		<h5><em>{{ current_user.get_role_names() }}</em></h5>
