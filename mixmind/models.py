@@ -32,8 +32,8 @@ class User(db.Model, UserMixin):
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic')) # many to many
-    orders = relationship('Order', primaryjoin="User.id==Order.user_id") # one to many
-    orders_served = relationship('Order', primaryjoin="User.id==Order.bartender_id") # one to many (for bartenders)
+    orders = relationship('Order', back_populates="user", foreign_keys='Order.user_id')# primaryjoin="User.id==Order.user_id") # one to many
+    orders_served = relationship('Order', back_populates="bartender", foreign_keys='Order.bartender_id')#primaryjoin="User.id==Order.bartender_id") # one to many (for bartenders)
     works_at = relationship('Bar', secondary='bartenders', backref=backref('bartenders', lazy='dynamic')) # many to many
     venmo_id = Column(String(63)) # venmo id as a string
 
@@ -56,9 +56,11 @@ class User(db.Model, UserMixin):
 
 class Order(db.Model):
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('user.id'))
     bar_id = Column(Integer, ForeignKey('bar.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
     bartender_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship('User', back_populates="orders", foreign_keys=[user_id])
+    bartender = relationship('User', back_populates="orders_served", foreign_keys=[bartender_id])
     timestamp = Column(DateTime())
     confirmed = Column(DateTime())
     recipe_name = Column(String(127))
