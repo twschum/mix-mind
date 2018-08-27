@@ -66,7 +66,7 @@ class MixMindServer():
         log.info("Reloading the recipes")
         self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
 
-BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,prep_line,origin,info,variants,summarize")
+BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize")
 
 def get_bar_config():
     """ For now, only one bar bay me "active" at a time
@@ -82,7 +82,7 @@ def get_bar_config():
         bartender = User.query.filter_by(id=bar.bartender_on_duty).one_or_none()
         g.current_bar = BarConfig(id=bar.id, cname=bar.cname, name=bar.name,
                 tagline=bar.tagline, bartender=bartender, markup=bar.markup,
-                prices=bar.prices, stats=bar.stats, examples=bar.examples,
+                prices=bar.prices, stats=bar.stats, examples=bar.examples, convert=bar.convert,
                 prep_line=bar.prep_line, origin=bar.origin, info=bar.info,
                 variants=bar.variants, summarize=bar.summarize)
     return g.current_bar

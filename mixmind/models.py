@@ -4,6 +4,7 @@ from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, E
 from flask_security import UserMixin, RoleMixin
 
 from . import db
+from .util import VALID_UNITS
 
 class RolesUsers(db.Model):
     id = Column(Integer(), primary_key=True)
@@ -74,6 +75,7 @@ class Bar(db.Model):
     prices     =  Column(Boolean(),  default=True)
     stats      =  Column(Boolean(),  default=False)
     examples   =  Column(Boolean(),  default=False)
+    convert    =  Column(Enum(*VALID_UNITS), default='oz')
     prep_line  =  Column(Boolean(),  default=False)
     origin     =  Column(Boolean(),  default=False)
     info       =  Column(Boolean(),  default=True)

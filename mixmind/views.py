@@ -13,7 +13,7 @@ from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
 
 from .notifier import send_mail
-from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm
+from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm, CreateBarForm, EditBarForm
 from .authorization import user_datastore
 from .barstock import Barstock_SQL, Ingredient
 from .formatted_menu import filename_from_options, generate_recipes_pdf
@@ -325,7 +325,52 @@ def admin_dashboard():
     #bar_table = bars_as_table(bars)
     user_table = users_as_table(users)
     order_table = orders_as_table(orders)
-    return render_template('dashboard.html', users=users, orders=orders,
+
+    new_bar_form = get_form(CreateBarForm)
+    edit_bar_form = get_form(EditBarForm)
+    if request.method == 'POST':
+        if 'create_bar' in request.form:
+            if new_bar_form.validate():
+                # create a bar
+                cname = new_bar_form.name.data if new_bar_form.cname.data else new_bar_form.name.data
+                if Bar.query.filter_by(cname=cname).one_or_none():
+                    flash("Bar name already in use", 'warning')
+                    return redirect(request.url)
+                try:
+                    new_bar = Bar(cname=cname, name=new_bar_form.name, tagline=new_bar_form.tagline)
+                except Exception as err:
+                    import ipdb; ipdb.set_trace()
+                    print err
+                db.session.add(new_bar)
+                db.session.commit()
+            else:
+                flash("Error in form validation", 'warning')
+
+        elif 'edit_bar' in request.form:
+            pass
+
+        elif 'activate-bar' in request.form:
+            import ipdb; ipdb.set_trace()
+            print request
+            pass
+
+    # for GET requests, fill in the edit bar form
+    edit_bar_form.bar_id.data = current_bar.id
+    edit_bar_form.name.data = current_bar.name
+    edit_bar_form.tagline.data = current_bar.tagline
+    edit_bar_form.prices.data = current_bar.prices
+    edit_bar_form.prep_line.data = current_bar.prep_line
+    edit_bar_form.examples.data = current_bar.examples
+    edit_bar_form.convert.data = current_bar.convert
+    edit_bar_form.markup.data = current_bar.markup
+    edit_bar_form.info.data = current_bar.info
+    edit_bar_form.origin.data = current_bar.origin
+    edit_bar_form.variants.data = current_bar.variants
+    edit_bar_form.summarize.data = current_bar.summarize
+
+
+    return render_template('dashboard.html', new_bar_form=new_bar_form, edit_bar_form=edit_bar_form,
+            users=users, orders=orders,
             bars=bars, user_table=user_table, order_table=order_table)
 
 

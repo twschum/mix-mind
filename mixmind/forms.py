@@ -1,7 +1,7 @@
 """
 Definitions of the various forms used
 """
-from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField, StringField
+from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField, StringField, SubmitField, HiddenField
 from flask_security.forms import ConfirmRegisterForm
 
 import util
@@ -159,3 +159,33 @@ class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
     last_name = TextField('Last Name', validators=[validators.required()])
     nickname = StringField('Nickname')
 
+
+class CreateBarForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+    name = TextField("Bar Name", description="Display name for the bar", validators=[validators.required()])
+    cname = TextField("Bar Unique Name", description="Use to distinguish between bars using the same display name but are different backend instances, each with their own config and ingredient stock. If blank, will use Bar Name if that's available")
+    tagline = TextField("Tagline", description="Tag line or slogan for the bar")
+    create_bar = SubmitField("Create Bar", render_kw={"class": "btn btn-success"})
+
+class EditBarForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+    bar_id = HiddenField("bar_id", render_kw={"value":""})
+    name = TextField("Bar Name", description="Display name for the bar", validators=[validators.required()])
+    tagline = TextField("Tagline", description="Tag line or slogan for the bar")
+
+    # TODO bartender
+
+    prices = BooleanField("Prices", description="Show prices")
+    prep_line = BooleanField("Preparation", description="Show preparation instructions")
+    examples = BooleanField("Examples", description="Show specific examples for each recipe")
+    convert = TextField("Convert", description="Convert all recipes to one unit", default=None, validators=[validators.AnyOf(util.VALID_UNITS), validators.Optional()])
+    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)")
+    info = BooleanField("Info", description="Adds info tidbit to recipes")
+    origin = BooleanField("Origin", description="Denote drinks originating at Schubar")
+    variants = BooleanField("Variants", description="List variants for drinks")
+    summarize = BooleanField("Summarize", description="List ingredient names instead of full recipe")
+    edit_bar = SubmitField("Commit Changes", render_kw={"class": "btn btn-success"})

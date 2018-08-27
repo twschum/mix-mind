@@ -1,8 +1,10 @@
 {# template for user (or admin) to view their profile #}
 {% extends "form_base.html" %}
+{% from "_macros.html" import show_flashed %}
 
 {% block formblock %}
 		<h3>{{ current_user.get_name() }} {% if current_user.nickname %}({{ current_user.nickname }}){% endif %}</h3>
+		{{ show_flashed }}
 		<h5>{{ current_user.email }}</h5>
 		<h5><em>{{ current_user.get_role_names() }}</em></h5>
 		<h6>Last Login: {{ current_user.current_login_at }}</h6>
