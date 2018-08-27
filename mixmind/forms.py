@@ -7,6 +7,7 @@ from flask_security.forms import ConfirmRegisterForm
 import util
 
 # TODO refactor with flask_wtf which presets form csrfs (or roll my own I guess)
+# TODO use InputRequired validator
 
 class CSVField(Field):
     widget = widgets.TextInput()
@@ -22,6 +23,9 @@ class CSVField(Field):
             self.data = [x.strip().lower() for x in valuelist[0].split(',') if x.strip()]
         else:
             self.data = []
+
+class HiddenIntField(IntegerField):
+    widget = widgets.HiddenInput()
 
 class EmailField(TextField):
     def process_formdata(self, valuelist):
@@ -173,12 +177,11 @@ class EditBarForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
-    bar_id = HiddenField("bar_id", render_kw={"value":""})
+    bar_id = HiddenIntField("bar_id", render_kw={})
     name = TextField("Bar Name", description="Display name for the bar")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
 
     # TODO bartender
-
     prices = BooleanField("Prices", description="Show prices")
     prep_line = BooleanField("Preparation", description="Show preparation instructions")
     examples = BooleanField("Examples", description="Show specific examples for each recipe")
