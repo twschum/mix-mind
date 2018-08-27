@@ -68,9 +68,9 @@ class MixMindServer():
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True)
                 for name, recipe in self.base_recipes.iteritems()]
 
-    def regenerate_recipes(self):
-        print ("Regenerating recipe library")
-        self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
+    def regenerate_recipes(self, bar):
+        print ("Regenerating recipe library for {}".format(bar.cname))
+        self.recipes = [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in  self.recipes]
 
 BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed")
 

@@ -24,8 +24,6 @@ from .models import User, Order, Bar
 from . import log, app, mms, current_bar
 
 """
-BUGS:
-* email sent to customer not bartender
 NOTES:
 * cards should be same sizes
 * template improvements
@@ -417,7 +415,8 @@ def admin_dashboard():
             if bar_id == current_bar.id:
                 flash("Bar ID: {} is already active".format(bar_id), 'warning')
                 return redirect(request.url)
-            if not Bar.query.filter_by(id=bar_id).one_or_none():
+            to_activate_bar = Bar.query.filter_by(id=bar_id).one_or_none()
+            if not to_activate_bar:
                 flash("Error: Bar ID: {} is invalid".format(bar_id), 'danger')
                 return redirect(request.url)
             # TODO make this shit atomicer
@@ -425,7 +424,7 @@ def admin_dashboard():
             for bar in bars:
                 bar.is_active = bar.id == bar_id
             db.session.commit()
-            mms.regenerate_recipes()
+            mms.regenerate_recipes(to_activate_bar)
             flash("Bar ID: {} is now active".format(bar_id), 'success')
             return redirect(request.url)
 
@@ -509,7 +508,7 @@ def recipe_library():
         print request
         if 'recipe-list-select' in request.form:
             recipes = select_form.recipes.data
-            mms.regenerate_recipes()
+            mms.regenerate_recipes(current_bar)
             flash("Now using recipes from {}".format(recipes))
 
     return render_template('recipes.html', select_form=select_form, add_form=add_form)
@@ -534,14 +533,14 @@ def ingredient_stock():
             row['Size (mL)'] = float(form.size_ml.data)
             row['Price Paid'] = float(form.price.data)
             Barstock_SQL(current_bar.id).add_row(row)
-            mms.regenerate_recipes()
+            mms.regenerate_recipes(current_bar)
 
         elif 'remove-ingredient' in request.form:
             pass # TODO this with datatable
             bottle = form.bottle.data
             if bottle in mms.barstock.df.Bottle.values:
                 mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
-                mms.regenerate_recipes()
+                mms.regenerate_recipes(current_bar)
                 flash("Removed {}".format(bottle))
             else:
                 flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle), 'danger')
@@ -562,7 +561,7 @@ def ingredient_stock():
             csv_file.save(tmp_filename)
             Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id)
             os.remove(tmp_filename)
-            mms.regenerate_recipes()
+            mms.regenerate_recipes(current_bar)
             msg = "Ingredients database {} {} for bar {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
                     csv_file.filename, current_bar.id)
@@ -570,7 +569,7 @@ def ingredient_stock():
             flash(msg, 'success')
 
         elif 'reload-recipes' in request.form:
-            mms.regenerate_recipes()
+            mms.regenerate_recipes(current_bar)
             flash("Reloaded the recipe library from current ingredients for {}".format(current_bar.cname))
 
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()

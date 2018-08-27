@@ -1,9 +1,10 @@
 {# template for admin to manage ingredient stock #}
 {% extends "dashboard.html" %}
-{% from "_macros.html" import render_field %}
+{% from "_macros.html" import show_flashed, render_field %}
 {% block dashbody %}
 
 <h3>Ingredient Editor</h3>
+{{ show_flashed() }}
 <form  id="upload_csv" action="" method="post" role="form" enctype="multipart/form-data">
 	{{ upload_form.csrf }}
 	<a href="#add-barstock" data-toggle="collapse"><h3>Upload Bar Stock File</h3></a>

@@ -228,7 +228,7 @@ class Barstock_SQL(Barstock):
         if specifier.bottle:
             filter_ = and_(filter_, Ingredient.Bottle == specifier.bottle)
 
-        filter_ = and_(filter_, Ingredient.bar_id == self.bar_id)
+        filter_ = and_(filter_, Ingredient.bar_id == self.bar_id, Ingredient.In_Stock == True)
         return Ingredient.query.filter(filter_).all()
 
     def to_csv(self):
