@@ -19,7 +19,7 @@
 <!-- align the buttons -->
 <div class="container row">
 	<div class="col-auto mr-auto">
-	<input type="submit" name="submit-order" form="order-form" class="btn btn-success" value="Submit Order"></input>
+		<input type="submit" name="submit-order" form="order-form" class="btn btn-success" value="Submit Order" {% if g.current_bar.is_closed %}disabled{% endif %}></input>
 	</div>
 </form>
 <form id="cancel-nav" action="/">

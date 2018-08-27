@@ -177,7 +177,10 @@ def order(recipe_name):
     if request.method == 'GET':
         show_form = True
         if current_user.is_authenticated:
-            heading = "Order for {}:".format(current_user.get_name())
+            heading = "Order for {}:".format(current_user.get_name(short=True))
+        if current_bar.is_closed:
+            #flash('The bar is currently closed for orders.', 'warning')
+            flash("It's closed. So sad.", 'warning')
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
@@ -192,7 +195,7 @@ def order(recipe_name):
                 # get target bartender
                 if current_bar.is_closed:
                     flash("Unfortunately the bar is closed right now :(", 'warning')
-                    return redirect(request.urlopen)
+                    return redirect(request.url)
 
                 # TODO use simpler html for recording an order
                 # add to the order database
