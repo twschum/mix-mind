@@ -4,6 +4,7 @@ Application main for the mixmind app
 import os
 import random
 import datetime
+import tempfile
 
 from flask import render_template, flash, request, send_file, jsonify, redirect, url_for
 from werkzeug.utils import secure_filename
@@ -13,7 +14,7 @@ from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
 
 from .notifier import send_mail
-from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, LoginForm
+from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm
 from .authorization import user_datastore
 from .recipe import DrinkRecipe
 from .barstock import get_barstock_instance, Ingredient
@@ -88,17 +89,6 @@ class MixMindServer():
         self.barstock = get_barstock_instance(self.barstock_files, use_sql=True, bar=self.current_bar)
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True) for name, recipe in self.base_recipes.iteritems()]
         self.default_margin = 1.10
-
-    def get_ingredients_table(self):
-        raise NotImplementedError("unavailable for now")
-        df = self.barstock.sorted_df()
-        df.Proof = df.Proof.astype('int')
-        df['Size (mL)'] = df['Size (mL)'].astype('int')
-        df = df[df.Category != 'Ice']
-        df = df[df['In Stock'] > 0]
-        table = df.to_html(index=False,
-                columns='Category,Type,Bottle,Proof,Size (mL),Price Paid'.split(','))
-        return table
 
     def regenerate_recipes(self):
         self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
@@ -359,6 +349,12 @@ def admin_dashboard():
             bars=bars, user_table=user_table, order_table=order_table)
 
 
+@app.route("/api/test")
+def api_test():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a + b)
+
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
@@ -429,6 +425,7 @@ def recipe_library():
 def ingredient_stock():
     global mms
     form = get_form(BarstockForm)
+    upload_form = get_form(UploadBarstockForm)
     print form.errors
 
     if request.method == 'POST':
@@ -445,7 +442,7 @@ def ingredient_stock():
             mms.regenerate_recipes()
 
         elif 'remove-ingredient' in request.form:
-            # TODO remove all this replace with new system that's like ordering
+            pass # TODO this with datatable
             bottle = form.bottle.data
             if bottle in mms.barstock.df.Bottle.values:
                 mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
@@ -461,14 +458,25 @@ def ingredient_stock():
             db.session.commit()
 
         elif 'upload-csv' in request.form:
-            filename = datafiles.save(secure_filename(request.files['upload_csv']))
-            print "CSV uploaded to {}".format(filename)
-            mms = MixMindServer(recipes=mms.recipe_files, barstock_files=[filename])
-            flash("Ingredients database reloaded from {}".format(filename))
+            # TODO handle files < 500 kb by keeping in mem
+            csv_file = request.files['upload_csv']
+            if not csv_file or csv_file.filename == '':
+                flash('No selected file', 'danger')
+                return redirect(request.url)
+            _, tmp_filename = tempfile.mkstemp()
+            csv_file.save(tmp_filename)
+            mms.barstock.load_from_csv([tmp_filename], mms.current_bar)
+            os.remove(tmp_filename)
+            mms.regenerate_recipes()
+            msg = "Ingredients database {} {} for bar {}".format(
+                    "replaced by" if upload_form.replace_existing.data else "added to from",
+                    csv_file.filename, mms.current_bar)
+            log.info(msg)
+            flash(msg, 'success')
 
     ingredients = Ingredient.query.filter_by(bar_id=mms.current_bar).order_by(Ingredient.Category, Ingredient.Type).all()
     stock_table = ingredients_as_table(ingredients)
-    return render_template('ingredients.html', form=form, stock_table=stock_table)
+    return render_template('ingredients.html', form=form, upload_form=upload_form, stock_table=stock_table)
 
 @app.route("/admin/debug", methods=['GET'])
 @login_required
