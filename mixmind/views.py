@@ -13,7 +13,7 @@ from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
 
 from .notifier import send_mail
-from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm, CreateBarForm, EditBarForm
+from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm, CreateBarForm, EditBarForm, EditUserForm
 from .authorization import user_datastore
 from .barstock import Barstock_SQL, Ingredient
 from .formatted_menu import filename_from_options, generate_recipes_pdf
@@ -239,7 +239,10 @@ def confirm_order():
     # TODO this needs a security token
     email = urllib.unquote(request.args.get('email'))
     order_id = request.args.get('order_id')
-    venmo_link = app.config.get('VENMO_LINK')
+    bartender_id = request.args.get('bartender_id')
+    bartender = user_datastore.find_user(id=bartender_id)
+    if bartender:
+        venmo_link = app.config.get('VENMO_LINK','').format(bartender.venmo_id)
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
         flash("Error: Invalid order_id", 'danger')
@@ -249,6 +252,7 @@ def confirm_order():
         return render_template("result.html", heading="Invalid confirmation link")
 
     order.confirmed = True
+    # add bartender order history
 
     # update users db
     user = User.query.filter_by(email=email).one_or_none()
@@ -276,7 +280,7 @@ def confirm_order():
     return render_template('result.html', heading="Order Confirmation")
 
 
-@app.route('/user')
+@app.route('/user', methods=['GET', 'POST'])
 @login_required
 def user_profile():
     try:
@@ -288,6 +292,7 @@ def user_profile():
     if current_user.id != user_id and not current_user.has_role('admin'):
         return _get_unauthorized_view()
 
+    # leaving this trigger here because it's convenient
     if current_user.email in app.config.get('MAKE_ADMIN', []):
         if not current_user.has_role('admin'):
             admin = user_datastore.find_role('admin')
@@ -295,7 +300,25 @@ def user_profile():
             user_datastore.commit()
             flash("You have been upgraded to admin", 'success')
 
-    return render_template('user_profile.html')
+    this_user = user_datastore.find_user(id=user_id)
+    if not this_user:
+        flash("Unknown user_id", 'danger')
+        return render_template('result.html', "User profile unavailable")
+
+    form = get_form(EditUserForm)
+    if request.method == 'POST':
+        if form.validate():
+            this_user.first_name = form.first_name.data
+            this_user.last_name = form.last_name.data
+            this_user.nickname = form.nickname.data
+            this_user.venmo_id = form.venmo_id.data
+            user_datastore.commit()
+            flash("Profile updated", 'success')
+            return redirect(request.url)
+        else:
+            flash("Error in form validation", 'danger')
+
+    return render_template('user_profile.html', this_user=this_user, edit_user=form)
 
 
 @app.route("/user_post_login", methods=['GET'])

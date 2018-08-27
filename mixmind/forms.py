@@ -162,9 +162,18 @@ class LoginForm(Form):
 class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
     # flask-security user registration
     first_name = StringField('First Name', validators=[validators.required()])
-    last_name = TextField('Last Name', validators=[validators.required()])
+    last_name = StringField('Last Name', validators=[validators.required()])
     nickname = StringField('Nickname')
 
+class EditUserForm(Form):
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+    first_name = StringField('First Name')
+    last_name = StringField('Last Name')
+    nickname = StringField('Nickname')
+    venmo_id = StringField('Venmo ID') # TODO integrate venmo logo!
+    submit = SubmitField('Save Profile')
 
 class CreateBarForm(Form):
     def reset(self):

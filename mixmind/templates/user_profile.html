@@ -1,6 +1,6 @@
 {# template for user (or admin) to view their profile #}
 {% extends "form_base.html" %}
-{% from "_macros.html" import show_flashed %}
+{% from "_macros.html" import show_flashed, render_field %}
 
 {% block formblock %}
 <div class="row my-3">
@@ -11,7 +11,14 @@
 </div>
 {{ show_flashed() }}
 <div id="edit-user-container" class="collapse mb-3">
-	This is the form
+	<form id="edit-user" method="post" role="form">
+		{{ edit_user.csrf }}
+		{{ render_field(edit_user.first_name) }}
+		{{ render_field(edit_user.last_name) }}
+		{{ render_field(edit_user.nickname) }}
+		{{ render_field(edit_user.venmo_id) }}
+		{{ render_field(edit_user.submit) }}
+	</form>
 </div>
 
 {# TODO collapse this table when editing profile #}
