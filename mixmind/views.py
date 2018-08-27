@@ -7,7 +7,7 @@ import datetime
 import tempfile
 import urllib
 
-from flask import render_template, flash, request, send_file, jsonify, redirect, url_for
+from flask import g, render_template, flash, request, send_file, jsonify, redirect, url_for
 from flask_security import login_required, roles_required
 from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
@@ -53,9 +53,10 @@ NOTES:
     - disable the order button unless we are "open"
 * "remember" form open/close position of collapses
 """
-@app.before_first_request
+@app.before_request
 def initialize_shared_data():
-    pass
+    g.bar_id = current_bar.id
+
 
 def get_form(form_class):
     """WTForms update 2.2 breaks when an empty request.form
@@ -111,8 +112,18 @@ def browse():
         # filter for current recipes that can be made on the core list
         filter_options = FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
-    recipes, _, _ = recipes_from_options(form, display_opts=DisplayOptions(True,False,False,False,current_bar.margin,False,False,True,False),
-            filter_opts=filter_options, to_html=True, order_link=True, condense_ingredients=True)
+        display_opts = DisplayOptions(
+                            prices=current_bar.prices,
+                            stats=False,
+                            examples=current_bar.examples,
+                            all_ingredients=False,
+                            markup=current_bar.markup,
+                            prep_line=current_bar.prep_line,
+                            origin=current_bar.origin,
+                            info=current_bar.info,
+                            variants=current_bar.variants)
+    recipes, _, _ = recipes_from_options(form, display_opts=display_opts, filter_opts=filter_options,
+                            to_html=True, order_link=True, condense_ingredients=current_bar.summarize)
 
     if request.method == 'POST':
         if form.validate():
@@ -148,9 +159,16 @@ def order(recipe_name):
         flash('Error: unknown recipe "{}"'.format(recipe_name), 'danger')
         return render_template('result.html', heading=heading)
     else:
-        recipe_html = recipe_as_html(recipe,
-                DisplayOptions(prices=True, stats=False, examples=True, all_ingredients=False,
-                    markup=mms.default_margin, prep_line=True, origin=True, info=True, variants=True))
+        recipe_html = recipe_as_html(recipe, DisplayOptions(
+                            prices=current_bar.prices,
+                            stats=False,
+                            examples=False,
+                            all_ingredients=False,
+                            markup=current_bar.markup,
+                            prep_line=True,
+                            origin=current_bar.origin,
+                            info=True,
+                            variants=True))
 
     if not recipe.can_make:
         flash('Ingredients to make this are out of stock :(', 'warning')

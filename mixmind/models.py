@@ -64,12 +64,22 @@ class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
     cname = Column(String(63), unique=True) # unique name for finding the bar
     name = Column(String(63))
+    tagline = Column(String(255), default="Tips &mdash; always appreciated, never required")
     is_active = Column(Boolean(), default=False)
     bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
     ingredients = relationship('Ingredient') # one to many
     orders = relationship('Order') # one to many
     # browse display settings
-    margin = Column(Float(), default=1.10)
+    markup     =  Column(Float(),    default=1.10)
+    prices     =  Column(Boolean(),  default=True)
+    stats      =  Column(Boolean(),  default=False)
+    examples   =  Column(Boolean(),  default=True)
+    prep_line  =  Column(Boolean(),  default=False)
+    origin     =  Column(Boolean(),  default=False)
+    info       =  Column(Boolean(),  default=True)
+    variants   =  Column(Boolean(),  default=False)
+    summarize  =  Column(Boolean(),  default=True)
+    # if I include all_ingredients, we would have to reload the barstock
 
 
 class Bartenders(db.Model):
