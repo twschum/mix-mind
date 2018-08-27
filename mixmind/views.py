@@ -115,7 +115,7 @@ def browse():
         display_opts = DisplayOptions(
                             prices=current_bar.prices,
                             stats=False,
-                            examples=True,
+                            examples=current_bar.examples,
                             all_ingredients=False,
                             markup=current_bar.markup,
                             prep_line=current_bar.prep_line,
@@ -162,7 +162,7 @@ def order(recipe_name):
         recipe_html = recipe_as_html(recipe, DisplayOptions(
                             prices=current_bar.prices,
                             stats=False,
-                            examples=False,
+                            examples=True,
                             all_ingredients=False,
                             markup=current_bar.markup,
                             prep_line=True,
@@ -319,7 +319,7 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def admin_dashboard():
-
+    BAR_BULK_ATTRS = 'name,tagline,prices,prep_line,examples,convert,markup,info,origin,variants,summarize'.split(',')
     new_bar_form = get_form(CreateBarForm)
     edit_bar_form = get_form(EditBarForm)
     if request.method == 'POST':
@@ -343,7 +343,23 @@ def admin_dashboard():
                 flash("Error in form validation", 'warning')
 
         elif 'edit_bar' in request.form:
-            pass
+            import ipdb; ipdb.set_trace()
+            if edit_bar_form.validate():
+                # TODO allow manager to edit this one? use different post url
+                bar_id = edit_bar_form.bar_id.data
+                bar = Bar.query.filter_by(id=bar_id).one_or_none()
+                if bar is None:
+                    flash("Invalid bar_id: {}".format(edit_bar_form.bar_id.data), 'danger')
+                    return redirect(request.url)
+
+                for attr in BAR_BULK_ATTRS:
+                    setattr(bar, attr, getattr(edit_bar_form, attr).data)
+                # TODO add bartender on duty
+                db.session.commit()
+                flash("Successfully update config for {}".format(bar.cname))
+
+            else:
+                flash("Error in form validation", 'warning')
 
         elif 'activate-bar' in request.form:
             bar_id = request.form.get('bar_id', None, int)
@@ -363,18 +379,9 @@ def admin_dashboard():
             return redirect(request.url)
 
     # for GET requests, fill in the edit bar form
-    edit_bar_form.bar_id.data = current_bar.id
-    edit_bar_form.name.data = current_bar.name
-    edit_bar_form.tagline.data = current_bar.tagline
-    edit_bar_form.prices.data = current_bar.prices
-    edit_bar_form.prep_line.data = current_bar.prep_line
-    edit_bar_form.examples.data = current_bar.examples
-    edit_bar_form.convert.data = current_bar.convert
-    edit_bar_form.markup.data = current_bar.markup
-    edit_bar_form.info.data = current_bar.info
-    edit_bar_form.origin.data = current_bar.origin
-    edit_bar_form.variants.data = current_bar.variants
-    edit_bar_form.summarize.data = current_bar.summarize
+    edit_bar_form.bar_id.render_kw['value'] = current_bar.id
+    for attr in BAR_BULK_ATTRS:
+        setattr(getattr(edit_bar_form, attr), 'data', getattr(current_bar, attr))
 
     bars = Bar.query.all()
     users = User.query.all()
@@ -441,6 +448,7 @@ def menu_download():
 @login_required
 @roles_required('admin')
 def recipe_library():
+    return render_template('result.html', heading="Still under construction...")
     select_form = get_form(RecipeListSelector)
     print select_form.errors
     add_form = get_form(RecipeForm)
