@@ -226,7 +226,7 @@ def order(recipe_name):
                         confirmation_link=confirmation_link,
                         name=user_name,
                         notes=form.notes.data,
-                        recipe_html=recipe_html)
+                        recipe_html=email_recipe_html)
 
                 flash("Successfully placed order!", 'success')
                 if not current_user.is_authenticated:
@@ -279,7 +279,7 @@ def confirm_order():
         greeting = "You"
 
     try:
-        subject = "[Mix-Mind] Your {} Confirmation".format(app.config.get('BAR_NAME'))
+        subject = "[Mix-Mind] Your {} Confirmation".format(current_bar.name)
         send_mail(subject, email, "order_confirmation",
                 greeting=greeting,
                 recipe_name=order.recipe_name,

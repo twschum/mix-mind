@@ -76,9 +76,9 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
             if fancy:
                 name_line.append(close(price, 'p', style="float:right"))
             else:
-                name_line.append(close(price, 'p'))
-        name_line.append("</div><!-- recipe name text -->")
+                name_line.append(price)
         if fancy:
+            name_line.append("</div><!-- recipe name text -->")
             name_line = close(''.join(name_line), 'h4', class_="card-title",
                 style="margin-left:-0.35em; vertical-align:middle;") # tweak to the left
         else:
