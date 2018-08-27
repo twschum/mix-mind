@@ -192,6 +192,16 @@ def order(recipe_name):
                     user_name = form.name.data
                     user_email = form.email.data
 
+                email_recipe_html = recipe_as_html(recipe, DisplayOptions(
+                                    prices=current_bar.prices,
+                                    stats=False,
+                                    examples=True,
+                                    all_ingredients=False,
+                                    markup=current_bar.markup,
+                                    prep_line=True,
+                                    origin=current_bar.origin,
+                                    info=True,
+                                    variants=True), fancy=False)
                 # get target bartender
                 if current_bar.is_closed:
                     flash("Unfortunately the bar is closed right now :(", 'warning')
@@ -199,7 +209,7 @@ def order(recipe_name):
 
                 # TODO use simpler html for recording an order
                 # add to the order database
-                order = Order(bar_id=current_bar.id, timestamp=datetime.datetime.utcnow(), recipe_name=recipe.name, recipe_html=recipe_html)
+                order = Order(bar_id=current_bar.id, timestamp=datetime.datetime.utcnow(), recipe_name=recipe.name, recipe_html=email_recipe_html)
                 if current_user.is_authenticated:
                     order.user_id = current_user.id
                 db.session.add(order)

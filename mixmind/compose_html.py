@@ -24,7 +24,7 @@ def small_br(content, **kwargs):
 def wrap_link(link, content, **kwargs):
     return '<a href={}>{}</a>'.format(link, content, **kwargs)
 
-def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=False):
+def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=False, fancy=True):
     """ use yattag lib to build an html blob contained in a div for the recipe"""
     doc, tag, text, line = yattag.Doc().ttl()
 
@@ -64,18 +64,25 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         # embed glass image in name line
         name_line = []
         # attempt hack for keeping text aligned right of image when wrapping
-        name_line.append('<div class="clearfix" style="vertical-align:middle;">')
-        name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
+        if fancy:
+            name_line.append('<div class="clearfix" style="vertical-align:middle;">')
+            name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
         name_line.append(recipe.name)
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
             price = util.calculate_price(recipe.max_cost, display_opts.markup)
             price = '&nbsp;{}{}'.format(sup('$'), price)
-            name_line.append(close(price, 'p', style="float:right"))
+            if fancy:
+                name_line.append(close(price, 'p', style="float:right"))
+            else:
+                name_line.append(close(price, 'p'))
         name_line.append("</div><!-- recipe name text -->")
-        name_line = close(''.join(name_line), 'h4', class_="card-title",
-            style="margin-left:-0.35em; vertical-align:middle;") # tweak to the left
+        if fancy:
+            name_line = close(''.join(name_line), 'h4', class_="card-title",
+                style="margin-left:-0.35em; vertical-align:middle;") # tweak to the left
+        else:
+            name_line = close(''.join(name_line), 'h4')
         doc.asis(name_line)
 
         if display_opts.prep_line:
