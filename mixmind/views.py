@@ -319,30 +319,26 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def admin_dashboard():
-    bars = Bar.query.all()
-    users = User.query.all()
-    orders = Order.query.all()
-    #bar_table = bars_as_table(bars)
-    user_table = users_as_table(users)
-    order_table = orders_as_table(orders)
 
     new_bar_form = get_form(CreateBarForm)
     edit_bar_form = get_form(EditBarForm)
     if request.method == 'POST':
         if 'create_bar' in request.form:
             if new_bar_form.validate():
-                # create a bar
-                cname = new_bar_form.name.data if new_bar_form.cname.data else new_bar_form.name.data
-                if Bar.query.filter_by(cname=cname).one_or_none():
+                if Bar.query.filter_by(cname=new_bar_form.cname.data).one_or_none():
                     flash("Bar name already in use", 'warning')
                     return redirect(request.url)
-                try:
-                    new_bar = Bar(cname=cname, name=new_bar_form.name, tagline=new_bar_form.tagline)
-                except Exception as err:
-                    import ipdb; ipdb.set_trace()
-                    print err
+                bar_args = {'cname': new_bar_form.cname.data}
+                if new_bar_form.name.data == "":
+                    bar_args['name'] = bar_args['cname']
+                else:
+                    bar_args['name'] = new_bar_form.name.data
+                if new_bar_form.tagline.data:
+                    bar_args['tagline'] = new_bar_form.name.tagline
+                new_bar = Bar(**bar_args)
                 db.session.add(new_bar)
                 db.session.commit()
+                flash("Created a new bar", 'success')
             else:
                 flash("Error in form validation", 'warning')
 
@@ -350,9 +346,21 @@ def admin_dashboard():
             pass
 
         elif 'activate-bar' in request.form:
-            import ipdb; ipdb.set_trace()
-            print request
-            pass
+            bar_id = request.form.get('bar_id', None, int)
+            if bar_id == current_bar.id:
+                flash("Bar ID: {} is already active".format(bar_id), 'warning')
+                return redirect(request.url)
+            if not Bar.query.filter_by(id=bar_id).one_or_none():
+                flash("Error: Bar ID: {} is invalid".format(bar_id), 'danger')
+                return redirect(request.url)
+            # TODO make this shit atomicer
+            bars = Bar.query.all()
+            for bar in bars:
+                bar.is_active = bar.id == bar_id
+            db.session.commit()
+            mms.regenerate_recipes()
+            flash("Bar ID: {} is now active".format(bar_id), 'success')
+            return redirect(request.url)
 
     # for GET requests, fill in the edit bar form
     edit_bar_form.bar_id.data = current_bar.id
@@ -368,7 +376,12 @@ def admin_dashboard():
     edit_bar_form.variants.data = current_bar.variants
     edit_bar_form.summarize.data = current_bar.summarize
 
-
+    bars = Bar.query.all()
+    users = User.query.all()
+    orders = Order.query.all()
+    #bar_table = bars_as_table(bars)
+    user_table = users_as_table(users)
+    order_table = orders_as_table(orders)
     return render_template('dashboard.html', new_bar_form=new_bar_form, edit_bar_form=edit_bar_form,
             users=users, orders=orders,
             bars=bars, user_table=user_table, order_table=order_table)

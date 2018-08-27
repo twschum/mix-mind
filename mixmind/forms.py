@@ -164,8 +164,8 @@ class CreateBarForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
-    name = TextField("Bar Name", description="Display name for the bar", validators=[validators.required()])
-    cname = TextField("Bar Unique Name", description="Use to distinguish between bars using the same display name but are different backend instances, each with their own config and ingredient stock. If blank, will use Bar Name if that's available")
+    cname = TextField("Bar Unique Name", description="Unique name for the bar", validators=[validators.required()])
+    name = TextField("Bar Display Name", description="Display name for the bar, leave blank to use unique name")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
     create_bar = SubmitField("Create Bar", render_kw={"class": "btn btn-success"})
 
@@ -174,7 +174,7 @@ class EditBarForm(Form):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
     bar_id = HiddenField("bar_id", render_kw={"value":""})
-    name = TextField("Bar Name", description="Display name for the bar", validators=[validators.required()])
+    name = TextField("Bar Name", description="Display name for the bar")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
 
     # TODO bartender
