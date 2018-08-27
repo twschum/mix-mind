@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_macros.html" import formheader, render_field %}
-{% block title %}{{ super() }} {{ config.BAR_NAME }}{% endblock title %}
+{% block title %}{{ super() }} {{ g.current_bar.name }}{% endblock title %}
 
 <!-- Main form -->
 {% block body %}
@@ -9,10 +9,11 @@
 		<!-- Heading & filters column - 1/3 at md-lg, 1/4 at xl -->
 		<div class="col-md-4 col-xl-3">
 			{% block formdiv %}
-			{{ formheader("Browse Menu", subtitle="Tips &mdash; always appreciated, never required") }}
+			{{ formheader("Browse Menu", subtitle="{{ g.current_bar.tagline }}") }}
 			<form	id="menu-settings" action="" method="post" role="form">
 			<div class="row">
 				<div class="col-auto mr-auto">
+					{# TODO default to open on large displays #}
 					<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a></div>
 				<div class="col-auto">
 				<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
@@ -63,5 +64,13 @@
 <!--</div> row for sidebar+recipes -->
 
 {% block footer %}
+{% if g.current_bar.prices %}
 $$ amount shown is recommended tip, calculated from cost of ingredients
+{% endif %}
+{% if g.current_bar.prices and g.current_bar.origin %}
+<br>
+{% endif %}
+{% if g.current_bar.origin %}
+* denotes an {{ current_bar.name }} original recipe
+{% endif %}
 {% endblock footer %}
