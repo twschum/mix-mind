@@ -50,6 +50,9 @@ class User(db.Model, UserMixin):
     def get_role_names(self):
         return ', '.join([role.name for role in self.roles])
 
+    def get_bar_names(self):
+        return ', '.join([bar.cname for bar in self.works_at])
+
 class OrdersUsers(db.Model):
     id = Column(Integer(), primary_key=True)
     user_id = Column('user_id', Integer(), ForeignKey('user.id'))
@@ -63,6 +66,12 @@ class Order(db.Model):
     confirmed = Column(Boolean(), default=False)
     recipe_name = Column(String(127))
     recipe_html = Column(Text())
+    def where(self):
+        bar = Bar.query.filter_by(id=self.bar_id).one_or_none()
+        if bar:
+            return bar.name
+
+
 
 class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
