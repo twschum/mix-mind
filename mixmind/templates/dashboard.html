@@ -1,0 +1,111 @@
+{# template for admind to do all the things #}
+{% extends "base.html" %}
+{% from "_macros.html" import show_flashed, render_field %}
+
+{# do the nav and page at default container width #}
+{% block navbar_layout %}
+<div class="container">
+{% endblock navbar_layout %}
+
+{% block body %}
+<div class="container mt-3">{# TODO consistent top margin #}
+{% block dashbody %}
+<div class="row">
+	<h2 class="col-auto mr-auto">Admin Dashboard</h2>
+	<div class="col-auto">
+		<a href="#create-bar-container" data-toggle="collapse" class="btn btn-lg btn-outline-primary">New Bar</a>
+	</div>
+</div>
+{{ show_flashed() }}
+
+{#
+	<h3>TEST:</h3>
+<script type=text/javascript>
+	$(function() {
+		$('a#calculate').bind('click', function() {
+			$.getJSON("{{ url_for('api_test') }}", {
+				a: $('input[name="a"]').val(),
+				b: $('input[name="b"]').val()
+			}, function(data) {
+				$("#result").text(data.result);
+			});
+			return true;
+		});
+	});
+</script>
+<p><input type=text size=5 name=a> +
+   <input type=text size=5 name=b> =
+   <span id=result>?</span>
+<p><a href=# id=calculate>calculate server side</a>
+#}
+
+<div id="create-bar-container" class="collapse">
+	<form id="create-bar" method="post" role="form">
+		{{ new_bar_form.csrf }}
+		{{ render_field(new_bar_form.cname) }}
+		{{ render_field(new_bar_form.name) }}
+		{{ render_field(new_bar_form.tagline) }}
+		{{ render_field(new_bar_form.create_bar) }}
+	</form>
+</div>
+
+<h3>Current Active Bar:</h3>
+<form id="edit-bar" method="post" role="form">
+	{{ edit_bar_form.csrf }}
+	{{ render_field(edit_bar_form.bar_id) }}
+	{{ render_field(edit_bar_form.name) }}
+	{{ render_field(edit_bar_form.tagline) }}
+	{{ render_field(edit_bar_form.bartender) }}
+	{{ render_field(edit_bar_form.prices) }}
+	{{ render_field(edit_bar_form.prep_line) }}
+	{{ render_field(edit_bar_form.examples) }}
+	{{ render_field(edit_bar_form.convert) }}
+	{{ render_field(edit_bar_form.markup) }}
+	{{ render_field(edit_bar_form.info) }}
+	{{ render_field(edit_bar_form.origin) }}
+	{{ render_field(edit_bar_form.variants) }}
+	{{ render_field(edit_bar_form.summarize) }}
+	{{ render_field(edit_bar_form.edit_bar) }}
+</form>
+
+	<h3>Bars:</h3>
+	<table id="bar_table" class="table">
+		<thead>
+			<tr>
+				<th scope="col">Active</th>
+				<th scope="col">ID</th>
+				<th scope="col">Name</th>
+				<th scope="col">CName</th>
+				<th scope="col">Tagline</th>
+				<th scope="col">Total Orders</th>
+				<th scope="col">Bartender on Duty</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for bar in bars %}
+			<tr>
+				<td><form action="" method="post" role="form">
+						<input type="hidden" name="bar_id" value="{{ bar.id }}"></input>
+						<input class="btn btn-small {% if bar.is_active %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="activate-bar" value="{% if bar.is_active %}&check;{% else %}&times;{% endif %}"></input>
+					</form></td>
+				<td>{{ bar.id }}</td>
+				<td>{{ bar.name }}</td>
+				<td>{{ bar.cname }}</td>
+				<td>{{ bar.tagline }}</td>
+				<td>{{ bar.orders|length }}</td>
+				<td>uid: {{ bar.bartender_on_duty }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+
+	<h3>Users:</h3>
+	{{ user_table|safe }}
+
+	<h3>Orders:</h3>
+	{{ order_table|safe }}
+
+	{% endblock dashbody %}
+</div><!-- body container -->
+{% endblock body %}
