@@ -15,7 +15,7 @@ from flask_login import current_user
 from .notifier import send_mail
 from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm
 from .authorization import user_datastore
-from .barstock import Ingredient
+from .barstock import Barstock_SQL, Ingredient
 from .formatted_menu import filename_from_options, generate_recipes_pdf
 from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table, ingredients_as_table
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
@@ -115,7 +115,7 @@ def browse():
         display_opts = DisplayOptions(
                             prices=current_bar.prices,
                             stats=False,
-                            examples=current_bar.examples,
+                            examples=True,
                             all_ingredients=False,
                             markup=current_bar.markup,
                             prep_line=current_bar.prep_line,
@@ -191,7 +191,7 @@ def order(recipe_name):
 
                 # TODO use simpler html for recording an order
                 # add to the order database
-                order = Order(bar_id=mms.current_bar, timestamp=datetime.datetime.utcnow(), recipe_name=recipe.name, recipe_html=recipe_html)
+                order = Order(bar_id=current_bar.id, timestamp=datetime.datetime.utcnow(), recipe_name=recipe.name, recipe_html=recipe_html)
                 if current_user.is_authenticated:
                     order.user_id = current_user.id
                 db.session.add(order)
@@ -319,7 +319,7 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def admin_dashboard():
-    bars = Bar.query.all()#filter_by(id=mms.current_bar).one()
+    bars = Bar.query.all()
     users = User.query.all()
     orders = Order.query.all()
     #bar_table = bars_as_table(bars)
@@ -416,7 +416,7 @@ def ingredient_stock():
             row['Proof'] = float(form.proof.data)
             row['Size (mL)'] = float(form.size_ml.data)
             row['Price Paid'] = float(form.price.data)
-            mms.barstock.add_row(row)
+            Barstock_SQL(current_bar.id).add_row(row)
             mms.regenerate_recipes()
 
         elif 'remove-ingredient' in request.form:
@@ -443,16 +443,20 @@ def ingredient_stock():
                 return redirect(request.url)
             _, tmp_filename = tempfile.mkstemp()
             csv_file.save(tmp_filename)
-            mms.barstock.load_from_csv([tmp_filename], mms.current_bar)
+            Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id)
             os.remove(tmp_filename)
             mms.regenerate_recipes()
             msg = "Ingredients database {} {} for bar {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
-                    csv_file.filename, mms.current_bar)
+                    csv_file.filename, current_bar.id)
             log.info(msg)
             flash(msg, 'success')
 
-    ingredients = Ingredient.query.filter_by(bar_id=mms.current_bar).order_by(Ingredient.Category, Ingredient.Type).all()
+        elif 'reload-recipes' in request.form:
+            mms.regenerate_recipes()
+            flash("Reloaded the recipe library from current ingredients for {}".format(current_bar.cname))
+
+    ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     stock_table = ingredients_as_table(ingredients)
     return render_template('ingredients.html', form=form, upload_form=upload_form, stock_table=stock_table)
 

@@ -27,7 +27,12 @@
 	</div>
 </form>
 
-<h3>Ingredient Stock for {{ config.BAR_CNAME }}</h3>
+<div class="row">
+	<h3 class="col-auto">Ingredient Stock for {{ g.current_bar.cname }}</h3>
+	<form id="refresh-recipes" action="" method="post" role="form">
+		<input type="submit" class="btn btn-primary col-auto" target="_blank" name="reload-recipes" value="Refresh Recipes from these Ingredients"></input>
+	</form>
+</div>
 {{ stock_table | safe }}
 <script type=text/javascript>
 $(document).ready( function () {

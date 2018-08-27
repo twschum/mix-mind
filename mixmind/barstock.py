@@ -127,6 +127,8 @@ class Barstock(object):
     pass
 
 class Barstock_SQL(Barstock):
+    def __init__(self, bar_id):
+        self.bar_id = bar_id
     def load_from_csv(self, csv_list, bar_id, replace_existing=True):
         """Load the given CSVs
         if replace_existing is True, will replace the whole db for this bar
@@ -226,7 +228,7 @@ class Barstock_SQL(Barstock):
         if specifier.bottle:
             filter_ = and_(filter_, Ingredient.Bottle == specifier.bottle)
 
-        filter_ = and_(filter_, Ingredient.bar_id == 0) # XXX
+        filter_ = and_(filter_, Ingredient.bar_id == self.bar_id)
         return Ingredient.query.filter(filter_).all()
 
     def to_csv(self):

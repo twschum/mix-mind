@@ -51,7 +51,8 @@ class MixMindServer():
             db.session.add(default_bar)
             db.session.commit()
         # setup ingredient stock, using default if the database is empty
-        self.barstock = Barstock_SQL()
+        # TODO remove from self.
+        self.barstock = Barstock_SQL(default_bar.id)
         if Ingredient.query.count() == 0:
             barstock_files = get_ingredient_files(app)
             self.barstock.load_from_csv(barstock_files, default_bar.id)
@@ -62,9 +63,10 @@ class MixMindServer():
                 for name, recipe in self.base_recipes.iteritems()]
 
     def regenerate_recipes(self):
+        log.info("Reloading the recipes")
         self.recipes = [recipe.generate_examples(self.barstock, stats=True) for recipe in  self.recipes]
 
-BarConfig = namedtuple("BarConfig", "id,cname,name,bartender,markup,prices,stats,examples,prep_line,origin,info,variants,summarize")
+BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,prep_line,origin,info,variants,summarize")
 
 def get_bar_config():
     """ For now, only one bar bay me "active" at a time
@@ -78,8 +80,9 @@ def get_bar_config():
             flash("More than one bar is active, using first one", 'danger')
         bar = active_list[0]
         bartender = User.query.filter_by(id=bar.bartender_on_duty).one_or_none()
-        g.current_bar = BarConfig(id=bar.id, cname=bar.cname, name=bar.name, bartender=bartender,
-                markup=bar.markup, prices=bar.prices, stats=bar.stats, examples=bar.examples,
-                prep_line=bar.prep_line, origin=bar.origin, info=bar.info, variants=bar.variants,
-                summarize=bar.summarize)
+        g.current_bar = BarConfig(id=bar.id, cname=bar.cname, name=bar.name,
+                tagline=bar.tagline, bartender=bartender, markup=bar.markup,
+                prices=bar.prices, stats=bar.stats, examples=bar.examples,
+                prep_line=bar.prep_line, origin=bar.origin, info=bar.info,
+                variants=bar.variants, summarize=bar.summarize)
     return g.current_bar

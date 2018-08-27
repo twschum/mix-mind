@@ -73,13 +73,12 @@ class Bar(db.Model):
     markup     =  Column(Float(),    default=1.10)
     prices     =  Column(Boolean(),  default=True)
     stats      =  Column(Boolean(),  default=False)
-    examples   =  Column(Boolean(),  default=True)
+    examples   =  Column(Boolean(),  default=False)
     prep_line  =  Column(Boolean(),  default=False)
     origin     =  Column(Boolean(),  default=False)
     info       =  Column(Boolean(),  default=True)
     variants   =  Column(Boolean(),  default=False)
     summarize  =  Column(Boolean(),  default=True)
-    # if I include all_ingredients, we would have to reload the barstock
 
 
 class Bartenders(db.Model):
