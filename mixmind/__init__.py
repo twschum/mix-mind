@@ -30,4 +30,5 @@ with app.app_context():
 from werkzeug.local import LocalProxy
 current_bar = LocalProxy(get_bar_config)
 
-import mixmind.views # to assosciate views with app
+with app.app_context():
+    import mixmind.views # to assosciate views with app

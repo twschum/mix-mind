@@ -90,5 +90,5 @@ def get_bar_config():
                 tagline=bar.tagline, bartender=bartender, markup=bar.markup,
                 prices=bar.prices, stats=bar.stats, examples=bar.examples, convert=bar.convert,
                 prep_line=bar.prep_line, origin=bar.origin, info=bar.info,
-                variants=bar.variants, summarize=bar.summarize, is_closed=bool(bartender))
+                variants=bar.variants, summarize=bar.summarize, is_closed=not bartender)
     return g.current_bar

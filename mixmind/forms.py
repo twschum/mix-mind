@@ -2,7 +2,6 @@
 Definitions of the various forms used
 """
 from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField, StringField, SubmitField, HiddenField
-from flask_security.forms import ConfirmRegisterForm
 from flask import g
 
 from .models import User
@@ -158,12 +157,6 @@ class LoginForm(Form):
     #name = TextField("Your Name", validators=[validators.required()])
     email = EmailField("Email", validators=[validators.required()])
     password = PasswordField("Password", validators=[validators.required()])
-
-class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
-    # flask-security user registration
-    first_name = StringField('First Name', validators=[validators.required()])
-    last_name = StringField('Last Name', validators=[validators.required()])
-    nickname = StringField('Nickname')
 
 class EditUserForm(Form):
     def reset(self):

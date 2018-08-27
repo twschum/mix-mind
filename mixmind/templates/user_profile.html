@@ -4,7 +4,7 @@
 
 {% block formblock %}
 <div class="row my-3">
-	<h3 class="col-auto mr-auto">{{ current_user.get_name() }} {% if current_user.nickname %}({{ current_user.nickname }}){% endif %}</h3>
+	<h3 class="col-auto mr-auto">{{ this_user.get_name() }} {% if this_user.nickname %}({{ this_user.nickname }}){% endif %}</h3>
 	<div class="col-auto">
 		<a href="#edit-user-container" data-toggle="collapse" class="btn btn-lg btn-outline-primary">Edit Profile</a>
 	</div>
@@ -25,30 +25,30 @@
 <table class="table">
 	<tr>
 		<th scope="row">Email</th>
-		<td>{{ current_user.email }}</td>
+		<td>{{ this_user.email }}</td>
 	</tr>
 	<tr>
 		<th scope="row">Current Login</th>
-		<td>{{ current_user.current_login_at }}</td>
+		<td>{{ this_user.current_login_at }}</td>
 	</tr>
 	<tr>
 		<th scope="row">Login IP</th>
-		<td>{{ current_user.current_login_ip }}</td>
+		<td>{{ this_user.current_login_ip }}</td>
 	</tr>
 	<tr>
 		<th scope="row">Roles</th>
-		<td>{{ current_user.get_role_names() }}</td>
+		<td>{{ this_user.get_role_names() }}</td>
 	</tr>
-{% if 'bartender' in current_user.get_role_names() %}
+{% if 'bartender' in this_user.get_role_names() %}
 	<tr>
 		<th scope="row">Works at</th>
-		<td>{{ current_user.get_bar_names() }}</td>
+		<td>{{ this_user.get_bar_names() }}</td>
 	</tr>
 {% endif %}
-{% if current_user.venmo_id %}
+{% if this_user.venmo_id %}
 	</tr>
 		<th scope="row">Venmo ID</th>
-		<td>{{ current_user.venmo_id }}</td>
+		<td>{{ this_user.venmo_id }}</td>
 	</tr>
 {% endif %}
 </table>
@@ -61,7 +61,7 @@
 		<th>When</th>
 		<th>Confirmed</th>
 	</tr>
-	{% for order in current_user.orders %}
+	{% for order in this_user.orders %}
 	<tr>
 		<td>{{ order.recipe_name }}</td>
 		<td>{{ order.where() }}</td>
@@ -70,4 +70,24 @@
 	</tr>
 	{% endfor %}
 </table>
+
+{% if 'bartender' in this_user.get_role_names() %}
+<h5>Orders served:</h5>
+<table>
+	<tr>
+		<th>What</th>
+		<th>Where</th>
+		<th>When</th>
+		<th>Confirmed</th>
+	</tr>
+	{% for order in this_user.orders_served %}
+	<tr>
+		<td>{{ order.recipe_name }}</td>
+		<td>{{ order.where() }}</td>
+		<td>{{ order.timestamp }}</td>
+		<td>{{ order.confirmed }}</td>
+	</tr>
+	{% endfor %}
+</table>
+{% endif %}
 {% endblock formblock %}

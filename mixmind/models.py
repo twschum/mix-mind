@@ -32,7 +32,8 @@ class User(db.Model, UserMixin):
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic')) # many to many
-    orders = relationship('Order') # one to many
+    orders = relationship('Order', primaryjoin="User.id==Order.user_id") # one to many
+    orders_served = relationship('Order', primaryjoin="User.id==Order.bartender_id") # one to many (for bartenders)
     works_at = relationship('Bar', secondary='bartenders', backref=backref('bartenders', lazy='dynamic')) # many to many
     venmo_id = Column(String(63)) # venmo id as a string
 
@@ -53,25 +54,19 @@ class User(db.Model, UserMixin):
     def get_bar_names(self):
         return ', '.join([bar.cname for bar in self.works_at])
 
-class OrdersUsers(db.Model):
-    id = Column(Integer(), primary_key=True)
-    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
-    order_id = Column('order_id', Integer(), ForeignKey('order.id'))
-
 class Order(db.Model):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('user.id'))
     bar_id = Column(Integer, ForeignKey('bar.id'))
+    bartender_id = Column(Integer, ForeignKey('user.id'))
     timestamp = Column(DateTime())
-    confirmed = Column(Boolean(), default=False)
+    confirmed = Column(DateTime())
     recipe_name = Column(String(127))
     recipe_html = Column(Text())
     def where(self):
         bar = Bar.query.filter_by(id=self.bar_id).one_or_none()
         if bar:
             return bar.name
-
-
 
 class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
@@ -93,7 +88,6 @@ class Bar(db.Model):
     info       =  Column(Boolean(),  default=True)
     variants   =  Column(Boolean(),  default=False)
     summarize  =  Column(Boolean(),  default=True)
-
 
 class Bartenders(db.Model):
     id = Column(Integer(), primary_key=True)

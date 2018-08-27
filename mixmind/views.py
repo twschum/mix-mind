@@ -112,16 +112,16 @@ def browse():
         # filter for current recipes that can be made on the core list
         filter_options = FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
-        display_opts = DisplayOptions(
-                            prices=current_bar.prices,
-                            stats=False,
-                            examples=current_bar.examples,
-                            all_ingredients=False,
-                            markup=current_bar.markup,
-                            prep_line=current_bar.prep_line,
-                            origin=current_bar.origin,
-                            info=current_bar.info,
-                            variants=current_bar.variants)
+    display_opts = DisplayOptions(
+                        prices=current_bar.prices,
+                        stats=False,
+                        examples=current_bar.examples,
+                        all_ingredients=False,
+                        markup=current_bar.markup,
+                        prep_line=current_bar.prep_line,
+                        origin=current_bar.origin,
+                        info=current_bar.info,
+                        variants=current_bar.variants)
     recipes, _, _ = recipes_from_options(form, display_opts=display_opts, filter_opts=filter_options,
                             to_html=True, order_link=True, condense_ingredients=current_bar.summarize)
 
@@ -192,6 +192,11 @@ def order(recipe_name):
                     user_name = form.name.data
                     user_email = form.email.data
 
+                if current_bar.is_closed:
+                    flash("Unfortunately the bar is closed right now :(", 'warning')
+                    return redirect(request.url)
+
+                # use simpler html for recording an order
                 email_recipe_html = recipe_as_html(recipe, DisplayOptions(
                                     prices=current_bar.prices,
                                     stats=False,
@@ -202,27 +207,24 @@ def order(recipe_name):
                                     origin=current_bar.origin,
                                     info=True,
                                     variants=True), fancy=False)
-                # get target bartender
-                if current_bar.is_closed:
-                    flash("Unfortunately the bar is closed right now :(", 'warning')
-                    return redirect(request.url)
 
-                # TODO use simpler html for recording an order
                 # add to the order database
-                order = Order(bar_id=current_bar.id, timestamp=datetime.datetime.utcnow(), recipe_name=recipe.name, recipe_html=email_recipe_html)
+                order = Order(bar_id=current_bar.id, bartender_id=current_bar.bartender.id,
+                        timestamp=datetime.datetime.utcnow(),
+                        recipe_name=recipe.name, recipe_html=email_recipe_html)
                 if current_user.is_authenticated:
                     order.user_id = current_user.id
                 db.session.add(order)
                 db.session.commit()
 
                 # TODO add a verifiable token to this
-                subject = "[Mix-Mind] New {} Order - {}".format(app.config.get('BAR_NAME'), recipe.name)
+                subject = "[Mix-Mind] {} at {}".format(recipe.name, current_bar.name)
                 confirmation_link = "https://{}{}".format(request.host,
                         url_for('confirm_order',
                             email=urllib.quote(user_email),
                             order_id=order.id))
 
-                send_mail(subject, bartender.email, "order_submitted",
+                send_mail(subject, current_bar.bartender.email, "order_submitted",
                         confirmation_link=confirmation_link,
                         name=user_name,
                         notes=form.notes.data,
@@ -247,12 +249,9 @@ def order(recipe_name):
 @app.route('/confirm_order')
 def confirm_order():
     # TODO this needs a security token
+    # TODO this also needs to handle race conditions when switching bars......
     email = urllib.unquote(request.args.get('email'))
     order_id = request.args.get('order_id')
-    bartender_id = request.args.get('bartender_id')
-    bartender = user_datastore.find_user(id=bartender_id)
-    if bartender:
-        venmo_link = app.config.get('VENMO_LINK','').format(bartender.venmo_id)
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
         flash("Error: Invalid order_id", 'danger')
@@ -261,13 +260,18 @@ def confirm_order():
         flash("Error: Order has already been confirmed", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
 
-    order.confirmed = True
-    # add bartender order history
+    bartender = user_datastore.find_user(id=order.bartender_id)
+    if bartender and bartender.venmo_id:
+        venmo_link = app.config.get('VENMO_LINK','').format(bartender.venmo_id)
+    else:
+        venmo_link = None
+
+    order.confirmed = datetime.datetime.utcnow()
 
     # update users db
     user = User.query.filter_by(email=email).one_or_none()
     if user:
-        greeting = "{}, you".format(user.name(short=True))
+        greeting = "{}, you".format(user.get_name(short=True))
         if order.user_id and order.user_id != user.id:
             raise ValueError("Order was created with different id than confirming user!")
         user.orders.append(order)
@@ -374,7 +378,7 @@ def admin_dashboard():
                 else:
                     bar_args['name'] = new_bar_form.name.data
                 if new_bar_form.tagline.data:
-                    bar_args['tagline'] = new_bar_form.name.tagline
+                    bar_args['tagline'] = new_bar_form.tagline.data
                 new_bar = Bar(**bar_args)
                 db.session.add(new_bar)
                 db.session.commit()
@@ -394,7 +398,6 @@ def admin_dashboard():
                 # add bartender on duty
                 user = user_datastore.find_user(email=edit_bar_form.bartender.data)
                 if user and user.id != bar.bartender_on_duty:
-                    import ipdb; ipdb.set_trace()
                     bartender = user_datastore.find_role('bartender')
                     user_datastore.add_role_to_user(user, bartender)
                     bar.bartenders.append(user)
@@ -404,7 +407,7 @@ def admin_dashboard():
                 for attr in BAR_BULK_ATTRS:
                     setattr(bar, attr, getattr(edit_bar_form, attr).data)
                 db.session.commit()
-                flash("Successfully update config for {}".format(bar.cname))
+                flash("Successfully updated config for {}".format(bar.cname))
 
             else:
                 flash("Error in form validation", 'warning')
