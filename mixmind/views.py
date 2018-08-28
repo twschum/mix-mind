@@ -25,7 +25,6 @@ from . import log, app, mms, current_bar
 
 """
 NOTES:
-* clarify confirmation
 * cards should be same sizes
 * template improvements
     - make email template
@@ -224,7 +223,7 @@ def order(recipe_name):
                         notes=form.notes.data,
                         recipe_html=email_recipe_html)
 
-                flash("Your order has been submitted, and you'll receive a confirmation once the bartender acknowledges it", 'success')
+                flash("Your order has been submitted, and you'll receive a confirmation email once the bartender acknowledges it", 'success')
                 if not current_user.is_authenticated:
                     if User.query.filter_by(email=user_email).one_or_none():
                         flash("Hey, if you log in you won't have to keep typing your email address for orders ;)", 'secondary')
