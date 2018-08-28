@@ -25,14 +25,12 @@ from . import log, app, mms, current_bar
 
 """
 NOTES:
+* clarify confirmation
 * cards should be same sizes
 * template improvements
     - make email template
-        - use custom html template params (price fails in email)
         - change email confirmation to result page
-        - order submission had wrong name
     - use more bootstrap form goodness
-        - need file upload
         - TOGGLES!
 * admin pages
     - add/remove ingredients dynamically?
@@ -42,19 +40,18 @@ NOTES:
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
 * hardening
-    - moar logging
+    - get logging working for reals
     - test error handling
 * configuration management
-    - support for multiple bars!
-    - defaults plus management
-    - support for modifying the "bartender on duty" aka Notifier's secret info
-    - disable the order button unless we are "open"
+    - BUG can't disable the bartender on duty
+    - better support for declaring someone a bartener
+        - or better yet, removing them as a bartender anbd keeping implicit declared
 * "remember" form open/close position of collapses
+    - and default open on large viewports
 """
 @app.before_request
 def initialize_shared_data():
     g.bar_id = current_bar.id
-
 
 def get_form(form_class):
     """WTForms update 2.2 breaks when an empty request.form
@@ -177,7 +174,6 @@ def order(recipe_name):
         if current_user.is_authenticated:
             heading = "Order for {}:".format(current_user.get_name(short=True))
         if current_bar.is_closed:
-            #flash('The bar is currently closed for orders.', 'warning')
             flash("It's closed. So sad.", 'warning')
 
     if request.method == 'POST':
@@ -191,7 +187,7 @@ def order(recipe_name):
                     user_email = form.email.data
 
                 if current_bar.is_closed:
-                    flash("Unfortunately the bar is closed right now :(", 'warning')
+                    flash('The bar is currently closed for orders.', 'warning')
                     return redirect(request.url)
 
                 # use simpler html for recording an order
@@ -228,7 +224,7 @@ def order(recipe_name):
                         notes=form.notes.data,
                         recipe_html=email_recipe_html)
 
-                flash("Successfully placed order!", 'success')
+                flash("Your order has been submitted, and you'll receive a confirmation once the bartender acknowledges it", 'success')
                 if not current_user.is_authenticated:
                     if User.query.filter_by(email=user_email).one_or_none():
                         flash("Hey, if you log in you won't have to keep typing your email address for orders ;)", 'secondary')
