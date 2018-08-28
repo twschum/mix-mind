@@ -6,6 +6,7 @@ log = logging.getLogger()
 
 # flask-sqlalchemy
 SQLALCHEMY_TRACK_MODIFICATIONS = False # explicitly remove deprecated feature
+SQLALCHEMY_POOL_RECYCLE = 280 # https://help.pythonanywhere.com/pages/UsingSQLAlchemywithMySQL/
 
 # flask-mail (used by flask-security)
 MAIL_SERVER = 'smtp.gmail.com'
