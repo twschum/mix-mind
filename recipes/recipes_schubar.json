@@ -713,6 +713,17 @@
         }
     },
 
+    "Campari Soda": {
+        "style": "Before Dinner Cocktail",
+        "ingredients": {
+            "Campari": 2,
+            "soda water": "Top with"
+        },
+        "glass": "rocks",
+        "prep": "build",
+        "garnish": "Orange peel, optionally flamed"
+    },
+
     "Grapefruit Julip": {
         "style": "All Day Cocktail",
         "unit": "mL",
