@@ -23,11 +23,11 @@
 {% endmacro %}
 
 <!-- Renders indivdual filds in a from, given WTForm objects -->
-{% macro render_field(field) %}
+{% macro render_field(field, form_group_classes="") %}
 	{% set check_field = ['BooleanField'] %}
 	{% set show_label = (field.type not in ['HiddenField', 'SubmitField'] and not field.flags.hidden)  %}
 	{% set bootstrap_classes = { 'BooleanField': "form-check-input", 'FileField': "form-control-file", 'SubmitField': "btn btn-primary" } %}
-<div class="form-group">
+	<div class="form-group {{ form_group_classes }}">
 	{% if field.type in check_field %}
 	<div class="form-check">
 	{% endif %}
@@ -69,7 +69,6 @@
 		</div>
 		{% endfor %}
 	{% endif %}
-
 
 	{% if field.type in check_field %}
 	</div>
