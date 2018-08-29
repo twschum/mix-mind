@@ -1,9 +1,11 @@
+{# Email template for a submitted order #}
+{% from "_macros.html" import bulletproof_button %}
 <!doctype html>
 <html>
 	<head></head>
 	<body>
 		<h3>{{ name }} has ordered the following:</h3>
-		<p><a href="{{ confirmation_link }}">Send confirmation to customer</a></p>
+		{{ bulletproof_button(confirmation_link, "Send confirmation to customer", 250) }}
 		{% if notes %}
 		<p><b>Note: </b>{{ notes }}</p>
 		{% endif %}

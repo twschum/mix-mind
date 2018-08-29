@@ -1,6 +1,5 @@
 """ Miscallanious util funcitons for the mix-mind project
 """
-
 from functools import wraps
 from fractions import Fraction
 from collections import OrderedDict, namedtuple
@@ -8,6 +7,7 @@ import operator
 import json
 import inspect
 import uuid
+import pendulum
 from . import log
 
 # make passing a bunch of options around a bit cleaner
@@ -315,4 +315,12 @@ class IngredientSpecifier(object):
 
     def __repr__(self):
         return u"{}:{}".format(self.what, self.bottle if self.bottle else '')
+
+def to_human_diff(dt):
+    """Return datetime as humanized diff from now"""
+    return pendulum.instance(dt).diff_for_humans() if dt else '-'
+
+def get_ts_formatter(fmt, tz):
+    """Returns callable that will format a datetime"""
+    return lambda dt: pendulum.instance(dt).in_timezone(tz).format(fmt) if dt else '-'
 

@@ -44,5 +44,7 @@ MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
 
 MIXMIND_DEFAULT_BAR_NAME = "Home Bar"
 
-# arrow timezone
+# time
 TIMEZONE = 'US/Eastern'
+HUMAN_FORMAT = 'ddd, D MMM YYYY, at LT'
+PRECISE_FORMAT = 'YYYY-MM-DD HH:mm:ss'

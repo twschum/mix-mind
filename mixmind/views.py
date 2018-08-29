@@ -62,7 +62,7 @@ def get_form(form_class):
 def bundle_options(tuple_class, args):
     return tuple_class(*(getattr(args, field).data for field in tuple_class._fields))
 
-def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=False, order_link=False, **kwargs_for_html):
+def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=False, order_link=False, convert_to=None, **kwargs_for_html):
     """ Apply display formmatting, filtering, sorting to
     the currently loaded recipes.
     Also can generate stats
@@ -76,8 +76,8 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
         reverse = 'X' in form.sorting.data
         attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
         recipes = sorted(recipes, key=lambda r: getattr(r.stats, attr), reverse=reverse)
-    if form.convert.data:
-        map(lambda r: r.convert(form.convert.data), recipes)
+    if convert_to:
+        map(lambda r: r.convert(convert_to), recipes)
     if display_options.stats and recipes:
         stats = report_stats(recipes, as_html=True)
     else:
@@ -117,7 +117,7 @@ def browse():
                         info=current_bar.info,
                         variants=current_bar.variants)
     recipes, _, _ = recipes_from_options(form, display_opts=display_opts, filter_opts=filter_options,
-                            to_html=True, order_link=True, condense_ingredients=current_bar.summarize)
+                            to_html=True, order_link=True, convert_to=current_bar.convert, condense_ingredients=current_bar.summarize)
 
     if request.method == 'POST':
         if form.validate():
@@ -162,7 +162,7 @@ def order(recipe_name):
                             prep_line=True,
                             origin=current_bar.origin,
                             info=True,
-                            variants=True))
+                            variants=True), convert_to=current_bar.convert)
 
     if not recipe.can_make:
         flash('Ingredients to make this are out of stock :(', 'warning')
@@ -199,7 +199,7 @@ def order(recipe_name):
                                     prep_line=True,
                                     origin=current_bar.origin,
                                     info=True,
-                                    variants=True), fancy=False)
+                                    variants=True), fancy=False, convert_to=current_bar.convert)
 
                 # add to the order database
                 order = Order(bar_id=current_bar.id, bartender_id=current_bar.bartender.id,
@@ -211,12 +211,11 @@ def order(recipe_name):
                 db.session.commit()
 
                 # TODO add a verifiable token to this
-                subject = "[Mix-Mind] {} at {}".format(recipe.name, current_bar.name)
+                subject = "{} for {} at {}".format(recipe.name, user_name, current_bar.name)
                 confirmation_link = "https://{}{}".format(request.host,
                         url_for('confirm_order',
                             email=urllib.quote(user_email),
                             order_id=order.id))
-
                 send_mail(subject, current_bar.bartender.email, "order_submitted",
                         confirmation_link=confirmation_link,
                         name=user_name,
@@ -324,8 +323,20 @@ def user_profile():
             return redirect(request.url)
         else:
             flash("Error in form validation", 'danger')
+            return render_template('user_profile.html', this_user=this_user, edit_user=form,
+                    human_timestamp=mms.time_human_formatter, human_timediff=mms.time_diff_formatter,
+                    timestamp=mms.timestamp_formatter)
 
-    return render_template('user_profile.html', this_user=this_user, edit_user=form)
+
+
+    # TODO make admins able to edit user page
+    # pre-populate the form with the current values
+    for attr in 'first_name,last_name,nickname,venmo_id'.split(','):
+        setattr(getattr(form, attr), 'data', getattr(this_user, attr))
+
+    return render_template('user_profile.html', this_user=this_user, edit_user=form,
+                human_timestamp=mms.time_human_formatter, human_timediff=mms.time_diff_formatter,
+                timestamp=mms.timestamp_formatter)
 
 
 @app.route("/user_post_login", methods=['GET'])
@@ -401,7 +412,7 @@ def admin_dashboard():
                     setattr(bar, attr, getattr(edit_bar_form, attr).data)
                 db.session.commit()
                 flash("Successfully updated config for {}".format(bar.cname))
-
+                return redirect(request.url)
             else:
                 flash("Error in form validation", 'warning')
 

@@ -26,6 +26,7 @@ numpy==1.15.0
 ordered-set==3.0.1
 pandas==0.21.0
 passlib==1.7.1
+pendulum==2.0.3
 pycparser==2.18
 PyLaTeX==1.2.1
 pytest-runner==4.2

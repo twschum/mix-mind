@@ -22,12 +22,27 @@
 {{ show_flashed() }}
 {% endmacro %}
 
+<!-- A "Bulletproof" Button for email -->
+{% macro bulletproof_button(link, text, width, color="#1b9bd4") %}
+<div><!--[if mso]>
+  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ link }}" style="height:40px;v-text-anchor:middle;width:{{ width }}px;" arcsize="50%" stroke="f" fillcolor="{{ color }}">
+    <w:anchorlock/>
+    <center>
+  <![endif]-->
+      <a href="{{ link }}"
+style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:13px;font-weight:bold;line-height:40px;text-align:center;text-decoration:none;width:{{ width }}px;-webkit-text-size-adjust:none;">{{ text }}</a>
+  <!--[if mso]>
+    </center>
+  </v:roundrect>
+<![endif]--></div>
+{% endmacro %}
+
 <!-- Renders indivdual filds in a from, given WTForm objects -->
-{% macro render_field(field) %}
+{% macro render_field(field, form_group_classes="", prepend=None) %}
 	{% set check_field = ['BooleanField'] %}
 	{% set show_label = (field.type not in ['HiddenField', 'SubmitField'] and not field.flags.hidden)  %}
 	{% set bootstrap_classes = { 'BooleanField': "form-check-input", 'FileField': "form-control-file", 'SubmitField': "btn btn-primary" } %}
-<div class="form-group">
+	<div class="form-group {{ form_group_classes }}">
 	{% if field.type in check_field %}
 	<div class="form-check">
 	{% endif %}
@@ -52,10 +67,20 @@
 			{{ field.label.text }}{% if field.flags.required %}*{% endif %}
 		</label>
 	{% endif %}
+
+	{# provide a dict to specify options as a prepended element #}
+	{% if prepend %}
+	<div class="input-group">{# makes this inline with the input #}
+		<div class="input-group-prepend">
+			<{{ prepend['tag'] }} {% for k, v in prepend.iteritems() if k not in ['tag', 'body'] %}{{ k }}="{{ v }}"{% endfor %}>{{ prepend.get('body', '') }}</{{ prepend['tag'] }}>
+		</div>
+	{% endif %}
+
 	{# render the input field after label for everything else #}
 	{% if field.type not in check_field %}
 	{{ field(class_=classes, **kwargs)|safe }}
 	{% endif %}
+	{% if prepend %} </div> {% endif %} {# closes div for input-group #}
 	{# render the description #}
 	{% if field.description and show_label  %}
 	<small id="{{ field.id }}_help" class="form-text text-muted">{{ field.description }}</small>
@@ -70,9 +95,6 @@
 		{% endfor %}
 	{% endif %}
 
-
-	{% if field.type in check_field %}
-	</div>
-	{% endif %}
+	{% if field.type in check_field %} </div> {% endif %}{# closes div 'form-check-label' #}
 </div>
 {% endmacro %}

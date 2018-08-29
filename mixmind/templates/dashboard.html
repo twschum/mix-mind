@@ -42,9 +42,11 @@
 <div id="create-bar-container" class="collapse">
 	<form id="create-bar" method="post" role="form">
 		{{ new_bar_form.csrf }}
-		{{ render_field(new_bar_form.cname) }}
-		{{ render_field(new_bar_form.name) }}
-		{{ render_field(new_bar_form.tagline) }}
+		<div class="form-row">
+			{{ render_field(new_bar_form.cname, "col-md-3") }}
+			{{ render_field(new_bar_form.name, "col-md-3") }}
+			{{ render_field(new_bar_form.tagline, "col-md-6") }}
+		</div>
 		{{ render_field(new_bar_form.create_bar) }}
 	</form>
 </div>
@@ -53,18 +55,29 @@
 <form id="edit-bar" method="post" role="form">
 	{{ edit_bar_form.csrf }}
 	{{ render_field(edit_bar_form.bar_id) }}
-	{{ render_field(edit_bar_form.name) }}
-	{{ render_field(edit_bar_form.tagline) }}
-	{{ render_field(edit_bar_form.bartender) }}
-	{{ render_field(edit_bar_form.prices) }}
-	{{ render_field(edit_bar_form.prep_line) }}
-	{{ render_field(edit_bar_form.examples) }}
-	{{ render_field(edit_bar_form.convert) }}
-	{{ render_field(edit_bar_form.markup) }}
-	{{ render_field(edit_bar_form.info) }}
-	{{ render_field(edit_bar_form.origin) }}
-	{{ render_field(edit_bar_form.variants) }}
-	{{ render_field(edit_bar_form.summarize) }}
+	<div class="form-row">
+		{{ render_field(edit_bar_form.name, "col-md-4") }}
+		{{ render_field(edit_bar_form.tagline, "col-md-8") }}
+	</div>
+
+	<div class="form-row">
+		{{ render_field(edit_bar_form.bartender, "col-md-6") }}
+		{{ render_field(edit_bar_form.prices, "col-md-2") }}
+		{{ render_field(edit_bar_form.markup, "col-md-4") }}
+	</div>
+
+	<div class="form-row">
+		{{ render_field(edit_bar_form.convert, "col-md") }}
+		{{ render_field(edit_bar_form.summarize, "col-md") }}
+
+		{{ render_field(edit_bar_form.prep_line, "col-md") }}
+		{{ render_field(edit_bar_form.info, "col-md") }}
+		{{ render_field(edit_bar_form.origin, "col-md") }}
+
+		{{ render_field(edit_bar_form.variants, "col-md") }}
+		{{ render_field(edit_bar_form.examples, "col-md") }}
+	</div>
+
 	{{ render_field(edit_bar_form.edit_bar) }}
 </form>
 
@@ -91,7 +104,7 @@
 				<td>{{ bar.id }}</td>
 				<td>{{ bar.name }}</td>
 				<td>{{ bar.cname }}</td>
-				<td>{{ bar.tagline }}</td>
+				<td class="subtitle">{{ bar.tagline|safe }}</td>
 				<td>{{ bar.orders|length }}</td>
 				<td>uid: {{ bar.bartender_on_duty }}</td>
 			</tr>

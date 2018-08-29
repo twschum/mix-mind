@@ -1,6 +1,8 @@
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float, Text
 
+import pendulum
+
 from flask_security import UserMixin, RoleMixin
 
 from . import db
@@ -37,6 +39,7 @@ class User(db.Model, UserMixin):
     works_at = relationship('Bar', secondary='bartenders', backref=backref('bartenders', lazy='dynamic')) # many to many
     venmo_id = Column(String(63)) # venmo id as a string
 
+
     def get_name(self, short=False):
         if short:
             if self.nickname:
@@ -65,10 +68,18 @@ class Order(db.Model):
     confirmed = Column(DateTime())
     recipe_name = Column(String(127))
     recipe_html = Column(Text())
+
     def where(self):
         bar = Bar.query.filter_by(id=self.bar_id).one_or_none()
         if bar:
             return bar.name
+
+    def time_to_confirm(self):
+        if not self.confirmed:
+            return "N/A"
+        diff = pendulum.instance(self.confirmed) - pendulum.instance(self.timestamp)
+        return "{} minutes, {} seconds".format(diff.minutes, diff.remaining_seconds)
+
 
 class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
@@ -84,7 +95,7 @@ class Bar(db.Model):
     prices     =  Column(Boolean(),  default=True)
     stats      =  Column(Boolean(),  default=False)
     examples   =  Column(Boolean(),  default=False)
-    convert    =  Column(Enum(*VALID_UNITS), default='oz')
+    convert    =  Column(Enum(*(['']+VALID_UNITS)), default='oz')
     prep_line  =  Column(Boolean(),  default=False)
     origin     =  Column(Boolean(),  default=False)
     info       =  Column(Boolean(),  default=True)
