@@ -14,7 +14,7 @@ from .recipe import DrinkRecipe
 from .barstock import Barstock_SQL, Ingredient
 from .database import db
 from .models import Bar, User
-from .util import load_recipe_json
+from .util import load_recipe_json, to_human_diff, get_ts_formatter
 from . import log
 # TODO: No handlers could be found for logger "root"
 # actual log infos instead of prints
@@ -42,6 +42,9 @@ def get_checked_files(app, partial_path, files):
 class MixMindServer():
     """ Contains the global recipe library and handle to the barstock"""
     def __init__(self, app):
+        self.time_diff_formatter = to_human_diff
+        self.time_human_formatter = get_ts_formatter(app.config.get('HUMAN_FORMAT'), app.config.get('TIMEZONE'))
+        self.timestamp_formatter = get_ts_formatter(app.config.get('PRECISE_FORMAT'), app.config.get('TIMEZONE'))
         # setup default Bar
         default_bar = Bar(name=app.config['MIXMIND_DEFAULT_BAR_NAME'],
                 cname=app.config.get('MIXMIND_DEFAULT_BAR_CNAME', app.config['MIXMIND_DEFAULT_BAR_NAME']),

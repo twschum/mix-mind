@@ -323,14 +323,20 @@ def user_profile():
             return redirect(request.url)
         else:
             flash("Error in form validation", 'danger')
-            return render_template('user_profile.html', this_user=this_user, edit_user=form)
+            return render_template('user_profile.html', this_user=this_user, edit_user=form,
+                    human_timestamp=mms.time_human_formatter, human_timediff=mms.time_diff_formatter,
+                    timestamp=mms.timestamp_formatter)
+
+
 
     # TODO make admins able to edit user page
     # pre-populate the form with the current values
     for attr in 'first_name,last_name,nickname,venmo_id'.split(','):
         setattr(getattr(form, attr), 'data', getattr(this_user, attr))
 
-    return render_template('user_profile.html', this_user=this_user, edit_user=form)
+    return render_template('user_profile.html', this_user=this_user, edit_user=form,
+                human_timestamp=mms.time_human_formatter, human_timediff=mms.time_diff_formatter,
+                timestamp=mms.timestamp_formatter)
 
 
 @app.route("/user_post_login", methods=['GET'])

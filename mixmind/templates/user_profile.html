@@ -11,9 +11,6 @@
 </div>
 {{ show_flashed() }}
 
-{% from "_macros.html" import bulletproof_button %}
-{{ bulletproof_button("#", "Send confirmation", font_style="color:#ffffff") }}
-
 <div id="edit-user-container" class="collapse mb-3">
 	<form id="edit-user" method="post" role="form">
 		{{ edit_user.csrf }}
@@ -33,7 +30,7 @@
 	</tr>
 	<tr>
 		<th scope="row">Current Login</th>
-		<td>{{ this_user.current_login_at }}</td>
+		<td>{{ human_timestamp(this_user.current_login_at) }}</td>
 	</tr>
 	<tr>
 		<th scope="row">Login IP</th>
@@ -69,8 +66,12 @@
 	<tr>
 		<td>{{ order.recipe_name }}</td>
 		<td>{{ order.where() }}</td>
-		<td>{{ order.timestamp }}</td>
-		<td>{{ order.confirmed }}</td>
+		<td>{{ human_timestamp(order.timestamp) }}</td>
+		{% if order.confirmed %}
+		<td>{{ human_timediff(order.confirmed) }}</td>
+		{% else %}
+		<td>&mdash;</td>
+		{% endif %}
 	</tr>
 	{% endfor %}
 </table>
@@ -83,14 +84,16 @@
 		<th>Where</th>
 		<th>When</th>
 		<th>Confirmed</th>
+		<th>Time Elapsed</th>
 	</tr>
 	{% for order in this_user.orders_served %}
 		{% if order.confirmed %}
 		<tr>
 			<td>{{ order.recipe_name }}</td>
 			<td>{{ order.where() }}</td>
-			<td>{{ order.timestamp }}</td>
-			<td>{{ order.confirmed }}</td>
+			<td>{{ timestamp(order.timestamp) }}</td>
+			<td>{{ timestamp(order.confirmed) }}</td>
+			<td>{{ order.time_to_confirm() }}</td>
 		</tr>
 		{% endif %}
 	{% endfor %}
