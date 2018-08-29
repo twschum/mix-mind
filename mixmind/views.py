@@ -24,6 +24,8 @@ from .models import User, Order, Bar
 from . import log, app, mms, current_bar
 
 """
+BUGS:
+- can't disable the bartender on duty
 NOTES:
 * cards should be same sizes
 * template improvements
@@ -33,7 +35,9 @@ NOTES:
         - TOGGLES!
 * admin pages
     - add/remove ingredients dynamically?
-    - add/remove recipes as raw json?
+        - using jQuery, ajax and datatables. And the editable datatable plugin
+    - add/remove recipes as raw json
+        - ace embeddable text editor
     - menu_generator (what's now "mainpage")
 * better commits to db with after_this_request
 * menu schemas
@@ -42,11 +46,12 @@ NOTES:
     - get logging working for reals
     - test error handling
 * configuration management
-    - BUG can't disable the bartender on duty
     - better support for declaring someone a bartener
         - or better yet, removing them as a bartender anbd keeping implicit declared
 * "remember" form open/close position of collapses
     - and default open on large viewports
+    - use util to unshow the filters button??
+* computer modern typerwriter font for recipes
 """
 @app.before_request
 def initialize_shared_data():
