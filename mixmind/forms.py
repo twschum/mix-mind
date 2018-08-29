@@ -192,7 +192,7 @@ class EditBarForm(Form):
     prices = BooleanField("Prices", description="Show prices")
     prep_line = BooleanField("Preparation", description="Show preparation instructions")
     examples = BooleanField("Examples", description="Show specific examples for each recipe")
-    convert = TextField("Convert", description="Convert all recipes to one unit", default=None, validators=[validators.AnyOf(VALID_UNITS), validators.Optional()])
+    convert = TextField("Convert", description="Convert all recipes to one unit", default='', validators=[validators.AnyOf(['']+VALID_UNITS), validators.Optional()])
     markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)")
     info = BooleanField("Info", description="Adds info tidbit to recipes")
     origin = BooleanField("Origin", description="Denote drinks originating at Schubar")
