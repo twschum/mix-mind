@@ -24,7 +24,7 @@ def small_br(content, **kwargs):
 def wrap_link(link, content, **kwargs):
     return '<a href={}>{}</a>'.format(link, content, **kwargs)
 
-def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=False, fancy=True):
+def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=False, fancy=True, convert_to=None):
     """ use yattag lib to build an html blob contained in a div for the recipe"""
     doc, tag, text, line = yattag.Doc().ttl()
 
@@ -55,6 +55,9 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
             "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             }
 
+    if convert_to:
+        recipe.convert(convert_to)
+
     main_tag = 'div'
     extra_kwargs = {}
     if order_link:
@@ -72,7 +75,7 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
             price = util.calculate_price(recipe.max_cost, display_opts.markup)
-            price = '&nbsp;{}{}'.format(sup('$'), price)
+            price = '&{};{}{}'.format('nbsp' if fancy else 'mdash', sup('$'), price)
             if fancy:
                 name_line.append(close(price, 'p', style="float:right"))
             else:
