@@ -66,6 +66,7 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 		{% endif %}
 			{{ field.label.text }}{% if field.flags.required %}*{% endif %}
 		</label>
+		<br> {# hack for getting toggle buttons to work right #}
 	{% endif %}
 
 	{# provide a dict to specify options as a prepended element #}

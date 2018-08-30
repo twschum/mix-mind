@@ -2,13 +2,15 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 		<title>{% block title %}{% if config.DEBUG %}[DEV] {% endif %}Mix-Mind BETA{% endblock %}</title>
-		<!-- bootstrap cdn-delivered stylesheet -->
+		<!-- load jQuery -->
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+		<!-- third-party stylesheets -->
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"></link>
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" crossorigin="anonymous"></link>
-		<!-- custom stylesheets -->
+		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"></link>
 		<link rel="stylesheet" href="/static/css/custom.css"></link>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 		<!-- favicons -->
 		<link rel="apple-touch-icon" sizes="180x180" href="/static/icons_outline/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/static/icons_outline/favicon-32x32.png">
@@ -19,13 +21,6 @@
 		<meta name="msapplication-TileColor" content="#da532c"></meta>
 		<meta name="msapplication-config" content="/static/icons_outline/browserconfig.xml"></meta>
 		<meta name="theme-color" content="#ffffff"></meta>
-		<!-- load jQuery full before use -->
-		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-		<!-- JavaScript plugins -->
-	 	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
-	 	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
 	</head>
 
 	<body>
@@ -86,6 +81,13 @@
 			{% block footer %}
 			{% endblock footer %}
 		</div>
+
+		<!-- rest of the javascript  -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+	 	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+	 	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
 
 	</body>
 </html>
