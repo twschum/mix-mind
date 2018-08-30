@@ -1,0 +1,14 @@
+/* fonts */
+@font-face {
+    font-family: 'cmu_typewriter_variable';
+    src: url('/static/fonts/cmunvt-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'cmu_typewriter_roman';
+    src: url('/static/fonts/cmuntt-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
