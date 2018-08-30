@@ -25,7 +25,9 @@ from . import log, app, mms, current_bar
 
 """
 BUGS:
+- toggle style is way wrong
 - can't disable the bartender on duty
+- Suprise Me with filters that return 0 results raises an exception
 NOTES:
 * cards should be same sizes
 * template improvements
@@ -34,6 +36,7 @@ NOTES:
     - use more bootstrap form goodness
         - TOGGLES!
 * admin pages
+    - raise 404 on not authorized
     - add/remove ingredients dynamically?
         - using jQuery, ajax and datatables. And the editable datatable plugin
     - add/remove recipes as raw json
@@ -453,13 +456,6 @@ def admin_dashboard():
             users=users, orders=orders,
             bars=bars, user_table=user_table, order_table=order_table)
 
-
-@app.route("/api/test")
-def api_test():
-    a = request.args.get('a', 0, type=int)
-    b = request.args.get('b', 0, type=int)
-    return jsonify(result=a + b)
-
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
@@ -615,3 +611,10 @@ def recipe_json(recipe_name):
 def handle_internal_server_error(e):
     flash(e, 'danger')
     return render_template('result.html', heading="OOPS - Something went wrong..."), 500
+
+
+@app.route("/api/test")
+def api_test():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a + b)
