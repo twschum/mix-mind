@@ -25,14 +25,11 @@ from . import log, app, mms, current_bar
 
 """
 BUGS:
-- can't disable the bartender on duty
 NOTES:
 * cards should be same sizes
 * template improvements
     - make email template
         - change email confirmation to result page
-    - use more bootstrap form goodness
-        - TOGGLES!
 * admin pages
     - raise 404 on not authorized
     - add/remove ingredients dynamically?
@@ -411,6 +408,10 @@ def admin_dashboard():
                     bar.bartenders.append(user)
                     bar.bartender_on_duty = user.id
                     # TODO send email to bartender on duty
+                else:
+                    # closed/no bartender is same result
+                    if not user or edit_bar_form.status.data == False:
+                        bar.bartender_on_duty = None
 
                 for attr in BAR_BULK_ATTRS:
                     setattr(bar, attr, getattr(edit_bar_form, attr).data)
@@ -440,6 +441,8 @@ def admin_dashboard():
 
     # for GET requests, fill in the edit bar form
     edit_bar_form.bar_id.render_kw['value'] = current_bar.id
+    edit_bar_form.status.data = not current_bar.is_closed
+    edit_bar_form.bartender.data = '' if current_bar.is_closed else current_bar.bartender.email
     for attr in BAR_BULK_ATTRS:
         setattr(getattr(edit_bar_form, attr), 'data', getattr(current_bar, attr))
 
