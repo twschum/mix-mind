@@ -10,7 +10,18 @@ from .util import VALID_UNITS
 # TODO refactor with flask_wtf which presets form csrfs (or roll my own I guess)
 # TODO use InputRequired validator
 
+class BaseForm(Form):
+    """Custom Form class that implements csrf by default
+    render with {{ form.csrf }} in templates
+    """
+    def reset(self):
+        blankData = MultiDict([('csrf', self.reset_csrf())])
+        self.process(blankData)
+
+
 class CSVField(Field):
+    """Text field that parses data as comma separated values
+    """
     widget = widgets.TextInput()
 
     def _value(self):
@@ -25,10 +36,31 @@ class CSVField(Field):
         else:
             self.data = []
 
+class ToggleField(BooleanField):
+    """Subclass check field to take advantge of the
+    bootstrap toggle plugin
+    """
+    def __init__(self, label='', validators=None, **kwargs):
+        """on and off are the text for on/off states
+        onstyle/offstyle are the button style, see bs buttons
+        """
+        render_kw = kwargs.pop('render_kw', {})
+        render_kw['data-toggle'] = 'toggle'
+        for field in 'on,onstyle,off,offstyle,size'.split(','):
+            arg = kwargs.pop(field, None)
+            if arg:
+                render_kw['data-{}'.format(field)] = arg
+        super(ToggleField, self).__init__(label, validators, render_kw=render_kw, **kwargs)
+
+
 class HiddenIntField(IntegerField):
+    """Hidden field and have it coerced into an integer on validate
+    """
     widget = widgets.HiddenInput()
 
 class EmailField(TextField):
+    """Todo
+    """
     def process_formdata(self, valuelist):
         if valuelist[0]:
             self.data = valuelist[0].strip()
@@ -38,11 +70,7 @@ class EmailField(TextField):
 def pairs(l):
     return [(x,x) for x in l]
 
-class DrinksForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
-
+class DrinksForm(BaseForm):
     # display options
     prices = BooleanField("Prices", description="Display prices for drinks based on stock")
     prep_line = BooleanField("Preparation", description="Display a line showing glass, ice, and prep")
@@ -90,14 +118,11 @@ class DrinksForm(Form):
     tagline = TextField("Tagline", description="Tagline to use below the title")
 
 
-class RecipeIngredientForm(Form):
+class RecipeIngredientForm(BaseForm):
     ingredient = TextField("Ingredient", validators=[validators.required()])
     quantity = DecimalField("Quantity", validators=[validators.required()])
     is_optional = BooleanField("Optional")
-class RecipeForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class RecipeForm(BaseForm):
     name = TextField("Name", description="The recipe name", validators=[validators.required()])
     info = TextField("Info", description="Additional information about the recipe")
     ingredients = FieldList(FormField(RecipeIngredientForm), min_entries=1, validators=[validators.required()])
@@ -108,27 +133,18 @@ class RecipeForm(Form):
     #ice =
     #garnish =
 
-class RecipeListSelector(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class RecipeListSelector(BaseForm):
     recipes = SelectMultipleField("Available Recipe Lists", description="Select recipe lists to be used for generating a menu",
             choices=[("recipes_schubar.json", "Core Recipes (from @Schubar)"),
                 ("IBA_unforgettables.json", "IBA Unforgettables"),
                 ("IBA_contemporary_classics.json", "IBA Contemporary Classics"),
                 ("IBA_new_era_drinks.json", "IBA New Era Drinks")])
 
-class UploadBarstockForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class UploadBarstockForm(BaseForm):
     upload_csv = FileField("Upload a Barstock CSV", [validators.regexp(ur'^[^/\\]\.csv$')])
     replace_existing = BooleanField("Replace existing stock?", default=False)
 
-class BarstockForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class BarstockForm(BaseForm):
 
     categories = 'Spirit,Liqueur,Vermouth,Bitters,Syrup,Dry,Juice,Mixer,Wine,Ice'.split(',')
     #types = ',Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
@@ -140,62 +156,62 @@ class BarstockForm(Form):
     size_ml = DecimalField("Size (mL)", description="Size of the ingredient in mL", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
     price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=2000)])
 
-class OrderForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class OrderForm(BaseForm):
     notes = TextField("Notes")
 
 class OrderFormAnon(OrderForm):
     name = TextField("Your Name", validators=[validators.required()])
     email = EmailField("Confirmation Email", validators=[validators.Email("Invalid email address"), validators.required()])
 
-class LoginForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class LoginForm(BaseForm):
     #name = TextField("Your Name", validators=[validators.required()])
     email = EmailField("Email", validators=[validators.required()])
     password = PasswordField("Password", validators=[validators.required()])
 
-class EditUserForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class EditUserForm(BaseForm):
     first_name = StringField('First Name')
     last_name = StringField('Last Name')
     nickname = StringField('Nickname')
     venmo_id = StringField('Venmo ID') # TODO integrate venmo logo!
     submit = SubmitField('Save Profile')
 
-class CreateBarForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class CreateBarForm(BaseForm):
     cname = TextField("Bar Unique Name", description="Unique name for the bar", validators=[validators.required()])
     name = TextField("Bar Display Name", description="Display name for the bar, leave blank to use unique name")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
     create_bar = SubmitField("Create Bar", render_kw={"class": "btn btn-success"})
 
-class EditBarForm(Form):
-    def reset(self):
-        blankData = MultiDict([('csrf', self.reset_csrf())])
-        self.process(blankData)
+class EditBarForm(BaseForm):
     bar_id = HiddenIntField("bar_id", render_kw={})
     name = TextField("Bar Name", description="Display name for the bar")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
 
+    ONTEXT = "On"
+    OFFTEXT = "Off"
+    ONSTYLE = "secondary"
+    OFFSTYLE = None
+
     # someday use just "bartenders"
+    status = ToggleField("Bar Status", description="Open or close the bar to orders",
+            on="Open", off="Closed", onstyle="success", offstyle="danger")
     bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders",
             choices=[('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()])
 
-    prices = BooleanField("Prices", description="Show prices")
-    prep_line = BooleanField("Preparation", description="Show preparation instructions")
-    examples = BooleanField("Examples", description="Show specific examples for each recipe")
-    convert = TextField("Convert", description="Convert all recipes to one unit", default='', validators=[validators.AnyOf(['']+VALID_UNITS), validators.Optional()])
+    prices = ToggleField("Prices", description="Show prices",
+            on="Included", off="Free", onstyle="success", offstyle="secondary")
+    prep_line = ToggleField("Preparation", description="Show preparation instructions",
+            on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
+    examples = ToggleField("Examples", description="Show specific examples for each recipe",
+            on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
+    convert = TextField("Convert", description="Convert all recipes to one unit", default='',
+            validators=[validators.AnyOf(['']+VALID_UNITS), validators.Optional()])
     markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)")
-    info = BooleanField("Info", description="Adds info tidbit to recipes")
-    origin = BooleanField("Origin", description="Denote drinks originating at Schubar")
-    variants = BooleanField("Variants", description="List variants for drinks")
-    summarize = BooleanField("Summarize", description="List ingredient names instead of full recipe")
-    edit_bar = SubmitField("Commit Changes", render_kw={"class": "btn btn-success"})
+    info = ToggleField("Info", description="Adds info tidbit to recipes",
+            on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
+    origin = ToggleField("Origin", description="Denote drinks originating at Schubar",
+            on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
+    variants = ToggleField("Variants", description="List variants for drinks",
+            on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
+    summarize = ToggleField("Summarize", description="List ingredient names instead of full recipe",
+            on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
+    edit_bar = SubmitField("Commit Changes", render_kw={"class": "btn btn-primary"})
