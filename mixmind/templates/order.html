@@ -17,14 +17,14 @@
 		{{ render_field(form.notes) }}
 	</div>
 <!-- align the buttons -->
-<div class="container row">
+<div class="row no-gutters">
 	<div class="col-auto mr-auto">
-		<input type="submit" name="submit-order" form="order-form" class="btn btn-success" value="Submit Order" {% if g.current_bar.is_closed %}disabled{% endif %}></input>
+		<input type="submit" form="cancel-nav" class="btn btn-outline-danger" value="Cancel"></input>
 	</div>
 </form>
 <form id="cancel-nav" action="/">
-	<div class="col-auto">
-	<input type="submit" form="cancel-nav" class="btn btn-outline-danger" value="Cancel"></input>
+	<div class="col-auto pr-0">
+		<input type="submit" name="submit-order" form="order-form" class="btn btn-success" value="Submit Order" {% if g.current_bar.is_closed %}disabled{% endif %}></input>
 	</div>
 </form>
 </div>
@@ -43,5 +43,13 @@
 {% endblock formblock %}
 
 {% block footer %}
+{% if g.current_bar.prices %}
 $$ amount shown is recommended tip, calculated from cost of ingredients
+{% endif %}
+{% if g.current_bar.prices and g.current_bar.origin %}
+<br>
+{% endif %}
+{% if g.current_bar.origin %}
+* denotes an {{ g.current_bar.name }} original recipe
+{% endif %}
 {% endblock footer %}

@@ -29,8 +29,8 @@
 						{{ render_field(form.sorting) }}
 						<a href="#misc-filters" data-toggle="collapse"><h4>Additional Filters</h4></a>
 						<div id="misc-filters" class="collapse">
-							{{ render_field(form.use_or) }}
 							{{ render_field(form.name) }}
+							{{ render_field(form.use_or) }}
 							{{ render_field(form.style) }}
 							{{ render_field(form.glass) }}
 							{{ render_field(form.prep) }}
@@ -82,6 +82,6 @@ $$ amount shown is recommended tip, calculated from cost of ingredients
 <br>
 {% endif %}
 {% if g.current_bar.origin %}
-* denotes an {{ current_bar.name }} original recipe
+* denotes an {{ g.current_bar.name }} original recipe
 {% endif %}
 {% endblock footer %}
