@@ -11,6 +11,7 @@
 		<link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" crossorigin="anonymous"></link>
 		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"></link>
 		<link rel="stylesheet" href="/static/css/custom.css"></link>
+		<link rel="stylesheet" href="/static/fonts/font_style.css"></link>
 		<!-- favicons -->
 		<link rel="apple-touch-icon" sizes="180x180" href="/static/icons_outline/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/static/icons_outline/favicon-32x32.png">
@@ -23,16 +24,16 @@
 		<meta name="theme-color" content="#ffffff"></meta>
 	</head>
 
-	<body>
+	<body class="recipe">
 		<!-- navbar is shown at the top of every page -->
 		{% block navbar %}
-		<nav class="navbar navbar-expand-sm navbar-light bg-light px-0">
+		<nav class="navbar navbar-expand-sm navbar-light bg-light p-0">
 			{% block navbar_layout %}
 			<div class="container-fluid pl-0">
 			{% endblock navbar_layout %}
-				<a class="navbar-brand btn" href="/">
-					<img src="/static/icons_outline/favicon.ico" width="30" height="30" alt="">
-					<span class="text">{{ g.current_bar.name }}</span>
+				<a class="navbar-brand btn py-0" href="/">
+					<img src="/static/icons_outline/favicon.ico" style="margin-top:-10px" width="34" height="34" alt="">
+					<span class="text" style="font-size: 30px;">{{ g.current_bar.name }}</span>
 				</a>
 
 				{# everything after this is in the toggler on xs #}

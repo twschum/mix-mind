@@ -44,6 +44,11 @@ http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/
     display: block;
 }
 
+/* styling for recipe with font */
+.recipe {
+    font-family: 'cmu_typewriter_roman';
+}
+
 /* use to wrap entire card as a link */
 a.card,
 a.card:hover {
