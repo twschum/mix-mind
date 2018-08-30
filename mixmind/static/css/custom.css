@@ -1,4 +1,31 @@
-/* custom css defining layout container classes */
+/* fonts */
+@font-face {
+    font-family: 'cmu_typewriter_roman';
+    src: url('/static/fonts/cmuntt-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'cmu_typewriter_bold';
+    src: url('/static/fonts/cmuntb-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'cmu_typewriter_wide';
+    src: url('/static/fonts/cmunvt-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+body {
+    font-family: 'cmu_typewriter_roman';
+}
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'cmu_typewriter_bold';
+}
+.navbar-brand {
+    font-family: 'cmu_typewriter_wide';
+}
 
 /* spans the top of the page */
 .bg-light {
@@ -42,11 +69,6 @@ http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/
     background: white;
     cursor: inherit;
     display: block;
-}
-
-/* styling for recipe with font */
-.recipe {
-    font-family: 'cmu_typewriter_roman';
 }
 
 /* use to wrap entire card as a link */
