@@ -25,9 +25,7 @@ from . import log, app, mms, current_bar
 
 """
 BUGS:
-- toggle style is way wrong
 - can't disable the bartender on duty
-- Suprise Me with filters that return 0 results raises an exception
 NOTES:
 * cards should be same sizes
 * template improvements
@@ -50,7 +48,7 @@ NOTES:
     - test error handling
 * configuration management
     - better support for declaring someone a bartener
-        - or better yet, removing them as a bartender anbd keeping implicit declared
+        - or better yet, removing them as a bartender and keeping implicit declared
 * "remember" form open/close position of collapses
     - use util to unshow the filters button??
 * computer modern typerwriter font for recipes
@@ -128,16 +126,15 @@ def browse():
 
     if request.method == 'POST':
         if form.validate():
-            print request
-            if 'suprise-menu' in request.form:
-                recipes = [random.choice(recipes)]
-                flash("Bartender's choice! Just try again if you want something else!")
-            else:
-                n_results = len(recipes)
-                if n_results > 0:
-                    flash("Filters applied. Showing {} available recipes".format(n_results), 'success')
+            n_results = len(recipes)
+            if n_results > 0:
+                if 'suprise-menu' in request.form:
+                    recipes = [random.choice(recipes)]
+                    flash("Bartender's choice! Just try again if you want something else!")
                 else:
-                    flash("No results after filtering, try being less specific", 'warning')
+                    flash("Filters applied. Showing {} available recipes".format(n_results), 'success')
+            else:
+                flash("No results after filtering, try being less specific", 'warning')
         else:
             flash("Error in form validation", 'danger')
 
