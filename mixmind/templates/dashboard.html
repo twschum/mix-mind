@@ -61,12 +61,14 @@
 	</div>
 
 	<div class="form-row">
-		{{ render_field(edit_bar_form.bartender, "col-md-6") }}
+		{{ render_field(edit_bar_form.status, "col-md-2") }}
+		{{ render_field(edit_bar_form.bartender, "col-md-4") }}
+		<div class="col-md-1"></div>
 		{{ render_field(edit_bar_form.prices, "col-md-2") }}
-		{{ render_field(edit_bar_form.markup, "col-md-4") }}
+		{{ render_field(edit_bar_form.markup, "col-md-3") }}
 	</div>
 
-	<div class="form-row">
+	<div class="row">
 		{{ render_field(edit_bar_form.convert, "col-md") }}
 		{{ render_field(edit_bar_form.summarize, "col-md") }}
 
