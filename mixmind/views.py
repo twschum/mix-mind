@@ -27,9 +27,6 @@ from . import log, app, mms, current_bar
 BUGS:
 NOTES:
 * cards should be same sizes
-* template improvements
-    - make email template
-        - change email confirmation to result page
 * admin pages
     - raise 404 on not authorized
     - add/remove ingredients dynamically?
