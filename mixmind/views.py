@@ -49,7 +49,6 @@ NOTES:
     - better support for declaring someone a bartener
         - or better yet, removing them as a bartender anbd keeping implicit declared
 * "remember" form open/close position of collapses
-    - and default open on large viewports
     - use util to unshow the filters button??
 * computer modern typerwriter font for recipes
 """

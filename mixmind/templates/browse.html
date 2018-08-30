@@ -11,15 +11,17 @@
 			{% block formdiv %}
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
 			<form id="menu-settings" action="" method="post" role="form">
-			<div class="row">
+
+			<div class="row d-md-none">
 				<div class="col-auto mr-auto">
-					{# TODO default to open on large displays #}
-					<a href="#filters" data-toggle="collapse"><h4>Filters</h4></a></div>
-				<div class="col-auto">
-				<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+					<a class="btn btn-outline-primary mb-3" href="#filters" data-toggle="collapse">Filters</a>
 				</div>
-			</div><!-- row -->
-			<div id="filters" class="collapse" style="margin-bottom:0.75rem">
+				<div class="col-auto">
+					<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+				</div>
+			</div>
+
+			<div id="filters" class="collapse d-md-block" style="margin-bottom:0.75rem">
 					{{ form.csrf }}
 					<div class="form-group">
 						{{ render_field(form.include) }}
@@ -35,14 +37,23 @@
 							{{ render_field(form.ice) }}
 						</div><!-- misc-filters -->
 					</div><!-- form-group -->
-				<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+
+				<div class="row">
+					<div class="col-auto mr-auto">
+						<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+					</div>
+					<div class="col-auto d-none d-md-block">
+						<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+					</div>
+				</div>
+
 			</div><!-- filters -->
 			</form>
 			{% endblock formdiv %}
 		</div><!-- Heading and filters col -->
 
 		<!-- Recipe column - 2/3 at md-lg, 3/4 at xl -->
-		<div class="col-md-8 col-xl-9" style="margin-top:15px;">
+		<div class="col-md-8 col-xl-9 mt-3">
 		{% if recipes %}
 			{% for recipe in recipes %}
 			{% if loop.index0 % 6 == 0 %}
