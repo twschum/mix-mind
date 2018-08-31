@@ -47,13 +47,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 /* Use to make file upload look better
 <span class="btn btn-default btn-file">
-  Browse <input type="file">
+Browse <input type="file">
 </span>
 http://www.abeautifulsite.net/whipping-file-inputs-into-shape-with-bootstrap-3/
  */
 .btn-file {
-  position: relative;
-  overflow: hidden;
+    position: relative;
+    overflow: hidden;
 }
 .btn-file input[type=file] {
     position: absolute;
