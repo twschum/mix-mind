@@ -64,7 +64,7 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 		{% else %}
 		<label class="form-label" for="{{ field.id }}">
 		{% endif %}
-			{{ field.label.text }}{% if field.flags.required %}*{% endif %}
+		{{ field.label.text|safe }} {% if field.flags.required %}*{% endif %}
 		</label>
 		<br> {# hack for getting toggle buttons to work right #}
 	{% endif %}
@@ -83,7 +83,7 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 	{% endif %}
 	{% if prepend %} </div> {% endif %} {# closes div for input-group #}
 	{# render the description #}
-	{% if field.description and show_label  %}
+	{% if field.description and show_label %}
 	<small id="{{ field.id }}_help" class="form-text text-muted">{{ field.description }}</small>
 	{% endif %}
 

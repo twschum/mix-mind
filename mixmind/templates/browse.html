@@ -11,6 +11,8 @@
 			{% block formdiv %}
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
 			<form id="menu-settings" action="" method="post" role="form">
+			{# ghost button, ensures we always apply filters on 'ENTER' #}
+			<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
 
 			<div class="row d-md-none">
 				<div class="col-auto mr-auto">
@@ -24,13 +26,27 @@
 			<div id="filters" class="collapse d-md-block" style="margin-bottom:0.75rem">
 					{{ form.csrf }}
 					<div class="form-group">
-						{{ render_field(form.include) }}
-						{{ render_field(form.exclude) }}
+						<div class="form-row no-gutters">
+						{{ render_field(form.include, form_group_classes="col") }}
+						{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
+						</div>
+						<div class="form-row no-gutters">
+						{{ render_field(form.exclude, form_group_classes="col") }}
+						{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
+						</div>
 						{{ render_field(form.sorting) }}
-						<a class="btn btn-outline-primary mb-3" href="#misc-filters" data-toggle="collapse"><h4 style="position:relative; top:2px; margin-bottom:0px">Additional Filters</h4></a>
+						{#<a class="btn btn-outline-primary mb-3" href="#misc-filters" data-toggle="collapse"><h4 style="position:relative; top:2px; margin-bottom:0px">Additional Filters</h4></a>#}
+						<div class="row mb-3">
+							<div class="col-auto mr-auto">
+								<a class="btn btn-outline-primary" href="#misc-filters" data-toggle="collapse">More Filters</a>
+							</div>
+							<div class="col-auto">
+								<a class="btn btn-outline-danger" href="/">Clear</a>
+							</div>
+						</div>
+
 						<div id="misc-filters" class="collapse">
 							{{ render_field(form.name) }}
-							{{ render_field(form.use_or) }}
 							{{ render_field(form.style) }}
 							{{ render_field(form.glass) }}
 							{{ render_field(form.prep) }}
@@ -40,10 +56,10 @@
 
 				<div class="row">
 					<div class="col-auto mr-auto">
-						<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+						<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
 					</div>
 					<div class="col-auto d-none d-md-block">
-						<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+						<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
 					</div>
 				</div>
 
@@ -67,21 +83,19 @@
 			{% endif %}
 			{% endfor %}
 		{% endif %}
+			<div class="footer pb-3">
+				{% if g.current_bar.prices %}
+				$$ amount shown is recommended tip, calculated from cost of ingredients
+				{% endif %}
+				{% if g.current_bar.prices and g.current_bar.origin %}
+				<br>
+				{% endif %}
+				{% if g.current_bar.origin %}
+				* denotes an {{ g.current_bar.name }} original recipe
+				{% endif %}
+			</div><!-- footer -->
 		</div><!-- recipes column -->
 	</div><!-- row -->
 </div><!-- container -->
 {% endblock body %}
 
-<!--</div> row for sidebar+recipes -->
-
-{% block footer %}
-{% if g.current_bar.prices %}
-$$ amount shown is recommended tip, calculated from cost of ingredients
-{% endif %}
-{% if g.current_bar.prices and g.current_bar.origin %}
-<br>
-{% endif %}
-{% if g.current_bar.origin %}
-* denotes an {{ g.current_bar.name }} original recipe
-{% endif %}
-{% endblock footer %}
