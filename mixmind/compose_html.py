@@ -59,11 +59,13 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         recipe.convert(convert_to)
 
     main_tag = 'div'
-    extra_kwargs = {}
+    extra_kwargs = {"klass": "card card-body"}
+    if fancy:
+        extra_kwargs['klass'] += " shadow-sm"
     if order_link:
         main_tag = 'a'
-        extra_kwargs = {"href": order_link}
-    with tag(main_tag, id=recipe.name, klass="card card-body", **extra_kwargs):
+        extra_kwargs['href'] = order_link
+    with tag(main_tag, id=recipe.name, **extra_kwargs):
         # embed glass image in name line
         name_line = []
         # attempt hack for keeping text aligned right of image when wrapping

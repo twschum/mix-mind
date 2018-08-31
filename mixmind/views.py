@@ -103,7 +103,7 @@ def browse():
 
     if request.method == 'GET':
         # filter for current recipes that can be made on the core list
-        filter_options = FilterOptions(all_=False,include="",exclude="",use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
+        filter_options = FilterOptions(all_=False,include="",exclude="",include_use_or=False,exclude_use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
     display_opts = DisplayOptions(
                         prices=current_bar.prices,
