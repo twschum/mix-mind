@@ -126,3 +126,7 @@ tr:nth-child(odd)     { background-color:#fff; }
     background-color: white;
     border: thin rgba(0, 0, 0, .25) solid;
 }
+
+.toggle-and-or-col {
+    flex: 0 0 70px;
+}

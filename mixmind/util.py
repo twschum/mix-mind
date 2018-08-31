@@ -12,19 +12,20 @@ from . import log
 
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
-FilterOptions = namedtuple('FilterOptions', 'all_,include,exclude,use_or,style,glass,prep,ice,name,tag')
+FilterOptions = namedtuple('FilterOptions', 'all_,include,exclude,include_use_or,exclude_use_or,style,glass,prep,ice,name,tag')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 
 VALID_UNITS = ['oz', 'mL', 'cL']
 
 def filter_recipes(all_recipes, filter_options):
-    reduce_fn = any if filter_options.use_or else all
     recipes = [recipe for recipe in all_recipes if filter_options.all_ or recipe.can_make]
     if filter_options.include:
+        reduce_fn = any if filter_options.include_use_or else all
         recipes = [recipe for recipe in recipes if
                 reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
                 for ingredient in filter_options.include))]
     if filter_options.exclude:
+        reduce_fn = any if filter_options.exclude_use_or else all
         recipes = [recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
                 for ingredient in filter_options.exclude))]

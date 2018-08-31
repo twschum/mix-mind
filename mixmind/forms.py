@@ -52,7 +52,6 @@ class ToggleField(BooleanField):
                 render_kw['data-{}'.format(field)] = arg
         super(ToggleField, self).__init__(label, validators, render_kw=render_kw, **kwargs)
 
-
 class HiddenIntField(IntegerField):
     """Hidden field and have it coerced into an integer on validate
     """
@@ -85,9 +84,10 @@ class DrinksForm(BaseForm):
 
     # filtering options
     all_ = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
-    include = CSVField("Include Ingredients", description="Ingredient(s), separated by commas")
-    exclude = CSVField("Exclude Ingredients", description="Ingredient(s), separated by commas")
-    use_or = ToggleField("Include/Exclude Logic", description="Logic to apply when multiple include/exclude ingredients listed", on="OR", off="AND", onstyle="secondary", offstyle="secondary")
+    include = CSVField("Include Ingredients", description="Recipes that contain any/all of these comma separated ingredient(s)")
+    exclude = CSVField("Exclude Ingredients", description="Recipes that don't contain any/all of these comma separated ingredient(s)")
+    include_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
+    exclude_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
     name = TextField("Name", description="Filter by a cocktail's name")
     tag = TextField("Tag", description="Filter by tag")
     style = SelectField("Style", description="", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
