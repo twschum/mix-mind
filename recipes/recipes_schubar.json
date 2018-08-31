@@ -624,6 +624,17 @@
         }
     },
 
+    "Bitters and Soda": {
+        "info": "Lots of room for experimentation",
+        "tag": "core",
+        "ingredients": {
+            "bitters": "6 to 12 dashes",
+            "soda water": "Top with"
+        },
+        "glass": "rocks",
+        "prep": "build"
+    },
+
     "Vermouth De Mure": {
         "info": "Perfect refresher on a warm afternoon",
         "style": "Longdrink",
@@ -687,7 +698,7 @@
             "sweet vermouth": 1,
             "aromatic bitters": "dash"
         },
-        "perp": "stir",
+        "prep": "stir",
         "profile": ["strong"],
         "garnish": "Lemon twist"
     },
