@@ -21,7 +21,7 @@ class RecipeError(StandardError):
 class DrinkRecipe(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
-    RecipeExample = recordtype('RecipeExample', [('bottles', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
+    RecipeExample = recordtype('RecipeExample', [('bottles', []), ('bitters', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
     RecipeStats = recordtype('RecipeStats', 'min_cost,max_cost,min_abv,max_abv,min_std_drinks,max_std_drinks,avg_abv,avg_cost,avg_std_drinks,volume', default=RecipeExample)
 
     @util.default_initializer
@@ -37,6 +37,8 @@ class DrinkRecipe(object):
         self.ice       =  recipe_dict.get('ice', 'cubed') # crushed, neat
         self.glass     =  recipe_dict.get('glass', 'cocktail') # rocks, martini, flute, collins, highball
         self.variants  =  recipe_dict.get('variants',  [])
+        # shorter output with all the bitters generating examples
+        self.summarize_bitters = recipe_dict.get('summarize_bitters', False)
         self.max_cost     =  0
         self.examples     =  []
         self.ingredients  =  []
@@ -105,7 +107,7 @@ class DrinkRecipe(object):
         self.examples = []
         for bottles in example_bottles:
             # TODO refactor to generate IngredientSpecifiers for the bottle lists
-            example = DrinkRecipe.RecipeExample(); example.bottles = []
+            example = DrinkRecipe.RecipeExample(); example.bottles = []; example.bitters = []
             for bottle, ingredient in zip(bottles, ingredients):
                 if ingredient.unit == 'literal':
                     continue
@@ -113,8 +115,15 @@ class DrinkRecipe(object):
                 example.std_drinks += ingredient.get_std_drinks(bottle, barstock)
                 example.volume     += ingredient.get_amount_as(self.unit, rounded=False, single_value=True)
                 # remove juice and such from the bottles listed
-                if barstock.get_bottle_category(util.IngredientSpecifier(ingredient.specifier.what, bottle)) in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit', 'Wine']:
+                bottle_category = barstock.get_bottle_category(util.IngredientSpecifier(ingredient.specifier.what, bottle))
+                if bottle_category in ['Vermouth', 'Liqueur', 'Spirit', 'Wine']:
                     example.bottles.append(bottle)
+                # make bitters their own list for better deduplication of recipe
+                elif bottle_category == 'Bitters':
+                    if self.summarize_bitters:
+                        example.bitters.append(bottle)
+                    else:
+                        example.bottles.append(bottle)
             example.bottles = ', '.join(example.bottles);
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
