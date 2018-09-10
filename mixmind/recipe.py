@@ -120,10 +120,7 @@ class DrinkRecipe(object):
                     example.bottles.append(bottle)
                 # make bitters their own list for better deduplication of recipe
                 elif bottle_category == 'Bitters':
-                    if self.summarize_bitters:
-                        example.bitters.append(bottle)
-                    else:
-                        example.bottles.append(bottle)
+                    example.bitters.append(bottle)
             example.bottles = ', '.join(example.bottles);
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
