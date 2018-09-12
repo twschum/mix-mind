@@ -577,7 +577,17 @@ def ingredient_stock():
 
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     stock_table = ingredients_as_table(ingredients)
-    return render_template('ingredients.html', form=form, upload_form=upload_form, stock_table=stock_table)
+    # XXX
+    return render_template('test_ingredient.html', form=form, upload_form=upload_form, stock_table=stock_table)
+
+@app.route("/api/load_ingredients", methods=['GET'])
+@login_required
+@roles_required('admin')
+def load_ingredients():
+    ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
+    ingredients = [i.as_dict() for i in ingredients]
+    return jsonify({"data": ingredients})
+
 
 @app.route("/admin/debug", methods=['GET'])
 @login_required
