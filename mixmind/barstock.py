@@ -1,6 +1,7 @@
 import string
 import itertools
 import logging as log
+import copy
 
 try:
     import pandas as pd
@@ -34,6 +35,11 @@ class Ingredient(db.Model):
     Cost_per_mL  = Column(Float(), default=0.0)
     Cost_per_cL  = Column(Float(), default=0.0)
     Cost_per_oz  = Column(Float(), default=0.0)
+
+    def as_dict(self):
+        data = copy.copy(self.__dict__)
+        del data['_sa_instance_state']
+        return data
 
     def __str__(self):
         return "|".join([self.Category, self.Type, self.Bottle])
