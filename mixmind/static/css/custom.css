@@ -87,12 +87,12 @@ a.card:hover {
     font-style: italic;
 }
 
-table, th, td {
+table.dataTable, th, td {
     border: none;
     border-bottom: 1px solid #C8C8C8;
-    border-collapse: collapse;
+    border-collapse: collapse !important;
     text-align:left;
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 40px;
     font-size: 0.9em;
 }
