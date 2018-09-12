@@ -1,16 +1,21 @@
 $.fn.dataTable.render.money_fmt = function(data, type, row, meta) {
     if (true) {
-    //if (type === "display") {
+        //if (type === "display") {
         var value = (data+0.001).toFixed(2);
         return ret = "$" + " ".repeat(7-value.length) + value;
     }
     return data;
 }
 
+function myCallbackFunction (updatedCell, updatedRow, oldValue) {
+    console.log("The new value for the cell is: " + updatedCell.data());
+    console.log("The values for each cell in that row are: " + updatedRow.data());
+}
+
 $(document).ready( function () {
-	$("#barstock-table").DataTable( {
-		"paging": false,
-		"ajax": "/api/load_ingredients",
+    var barstock_table = $("#barstock-table").DataTable( {
+        "paging": false,
+        "ajax": "/api/load_ingredients",
         "columns": [
             {data: "Category"}, // TODO use an enum def to sort by caregory
             {data: "Type"},
@@ -29,5 +34,17 @@ $(document).ready( function () {
             {data: "Price_Paid", className: "text-right monospace", render: $.fn.dataTable.render.money_fmt},
             {data: "Cost_per_oz", className: "text-right monospace", render: $.fn.dataTable.render.money_fmt}
         ]
-		});
+    });
+    // editCell integration
+    barstock_table.MakeCellsEditable({
+        "onUpdate": myCallbackFunction,
+        "confirmationButton": {
+            "confirmCss": 'btn btn-sm btn-success',
+            "cancelCss": 'btn btn-sm btn-outline-danger',
+            "confirmValue": 'Y'
+        },
+
+    })
 } );
+
+
