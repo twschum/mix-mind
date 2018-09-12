@@ -1,0 +1,36 @@
+{# template for admin to manage ingredient stock #}
+{% extends "dashboard.html" %}
+{% from "_macros.html" import show_flashed, render_field %}
+{% block dashbody %}
+
+{#<h3>Ingredients Stock for {{ g.current_bar.cname }}</h3>#}
+{{ show_flashed() }}
+
+<div class="row">
+	<h3 class="col-auto">Ingredient Stock for {{ g.current_bar.cname }}</h3>
+	<form id="refresh-recipes" action="" method="post" role="form">
+		<input type="submit" class="btn btn-primary col-auto" target="_blank" name="reload-recipes" value="Refresh Recipes from these Ingredients"></input>
+	</form>
+</div>
+
+<table id="barstock-table" class="table">
+	<thead>
+		<tr>
+			<th scope="col">Category</th>
+			<th scope="col">Type</th>
+			<th scope="col">Bottle</th>
+			<th scope="col">In Stock</th>
+			<th scope="col">ABV</th>
+			<th scope="col">Size (oz)</th>
+			<th scope="col">Price</th>
+			<th scope="col">$/oz</th>
+		</tr>
+	</thead>
+</table>
+
+
+{% endblock dashbody %}
+
+{% block scripts %}
+<script src="/static/js/ingredients.js"></script>
+{% endblock scripts %}
