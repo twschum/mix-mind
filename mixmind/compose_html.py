@@ -120,6 +120,7 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
             # special display for recipe with examples
             # TODO pull out bitters into supplimental list
+            # TODO use a scrollable table
             if display_opts.prices:
                 for e in sorted(recipe.examples, key=lambda x: x.cost):
                     markup = 1.1+display_opts.markup if recipe.name == "A Dram" else display_opts.markup
