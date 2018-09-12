@@ -34,7 +34,9 @@
 		<input type="submit" class="btn btn-primary col-auto" target="_blank" name="reload-recipes" value="Refresh Recipes from these Ingredients"></input>
 	</form>
 </div>
+
 {{ stock_table | safe }}
+
 <script type=text/javascript>
 $(document).ready( function () {
 	$('#ingredient_table').DataTable( {
