@@ -1,16 +1,25 @@
+
+var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup": 4, "Juice": 5, "Mixer": 6, "Wine": 7, "Beer": 8, "Dry": 9, "Ice": 10}
 // NOTE: in datatables 2.0, can use simply api.column(id).name()
 var number_col_classes = "text-right monospace"
 var column_settings = [
-    {data: "Category", name: "Category"}, // TODO use an enum def to sort by caregory
+    {data: "Category", name: "Category", render: function(data, type, row, meta){
+        switch (type) {
+            case "sort":
+            case "type":
+                return categories[data];
+        };
+        return data;
+    }},
     {data: "Type", name: "Type"},
     {data: "Bottle", name: "Bottle"},
     {data: "In_Stock", name: "In_Stock"},
-    {data: "Proof", name: "Proof", className: number_col_classes, render: function(data, type, row, meta){
+    {data: "ABV", name: "ABV", className: number_col_classes, render: function(data, type, row, meta){
         if (type === "display"){
             if (data == 0) {
                 return "&mdash;"
             }
-            return ((data / 2.0)+0.01).toFixed(1) + " %";
+            return (data+0.01).toFixed(1) + " %";
         }
         return data;
     }},
