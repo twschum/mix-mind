@@ -1,18 +1,11 @@
-$.fn.dataTable.render.money_fmt = function(data, type, row, meta) {
-    if (true) {
-        //if (type === "display") {
-        var value = (data+0.001).toFixed(2);
-        return ret = "$" + " ".repeat(7-value.length) + value;
-    }
-    return data;
-}
-
+// NOTE: in datatables 2.0, can use simply api.column(id).name()
+var number_col_classes = "text-right monospace"
 var column_settings = [
     {data: "Category", name: "Category"}, // TODO use an enum def to sort by caregory
     {data: "Type", name: "Type"},
     {data: "Bottle", name: "Bottle"},
     {data: "In_Stock", name: "In_Stock"},
-    {data: "Proof", name: "Proof", className: "text-right monospace", render: function(data, type, row, meta){
+    {data: "Proof", name: "Proof", className: number_col_classes, render: function(data, type, row, meta){
         if (type === "display"){
             if (data == 0) {
                 return "&mdash;"
@@ -21,12 +14,14 @@ var column_settings = [
         }
         return data;
     }},
+    {data: "Size_mL", name: "Size_mL",
+        className: number_col_classes, render: $.fn.dataTable.render.number('','.',0,''," mL")},
     {data: "Size_oz", name: "Size_oz",
-        className: "text-right monospace", render: $.fn.dataTable.render.number('','.',1,''," oz")},
+        className: number_col_classes, render: $.fn.dataTable.render.number('','.',1,''," oz")},
     {data: "Price_Paid", name: "Price_Paid",
-        className: "text-right monospace", render: $.fn.dataTable.render.money_fmt},
+        className: number_col_classes, render: $.fn.dataTable.render.number(',','.',2,"$ ")},
     {data: "Cost_per_oz", name: "Cost_per_oz",
-        className: "text-right monospace", render: $.fn.dataTable.render.money_fmt}
+        className: number_col_classes, render: $.fn.dataTable.render.number(',','.',3,"$ ")}
 ]
 
 var barstock_table;
@@ -48,6 +43,7 @@ $(document).ready( function () {
 
     })
 } );
+
 
 function editCell (cell, row, oldValue) {
     console.log("The new value for the cell is: " + cell.data());
