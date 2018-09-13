@@ -28,7 +28,7 @@ var barstock_table;
 $(document).ready( function () {
     barstock_table = $("#barstock-table").DataTable( {
         "paging": false,
-        "ajax": "/api/load_ingredients",
+        "ajax": "/api/ingredients",
         "columns": column_settings
     });
     // editCell integration
@@ -46,8 +46,16 @@ $(document).ready( function () {
 
 
 function editCell (cell, row, oldValue) {
-    console.log("The new value for the cell is: " + cell.data());
-    if (cell.data() == oldValue) {
-        return null;
+    if (cell.data() != oldValue) {
+        return;
     }
+    console.log("The new value for the cell is: " + cell.data());
+    var col = column_settings[ cell.index().column ].name
+    $.put("/api/ingredient", { Bottle: row.data().Bottle, Type: row.data().Type,
+            field: col, value: cell.data() })
+        .done(function(data) {
+            // update the rest of the row with the received data
+            // perhaps table.draw() ?
+        }
+    );
 }
