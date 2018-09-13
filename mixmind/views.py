@@ -580,13 +580,43 @@ def ingredient_stock():
     # XXX
     return render_template('test_ingredient.html', form=form, upload_form=upload_form, stock_table=stock_table)
 
-@app.route("/api/load_ingredients", methods=['GET'])
+@app.route("/api/ingredients", methods=['GET'])
 @login_required
 @roles_required('admin')
 def load_ingredients():
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     ingredients = [i.as_dict() for i in ingredients]
     return jsonify({"data": ingredients})
+
+@app.route("/api/ingredient", methods=['POST', 'GET', 'PUT', 'DELETE'])
+@login_required
+@roles_required('admin')
+def load_ingredients():
+    """CRUD endpoint for individual ingredients
+    Indentifying parameters:
+    :param string Bottle: bottle for ingredient
+    :param string Type: type for ingredient
+
+    Create params:
+    :param string Category: Category idenfitier
+    :param float ABV: ABV value
+    :param float Size_mL: Size in mL, this or Size_oz is required
+    :param float Size_oz: Size in oz, this or Size_mL is required
+    :param float Price: price of the ingredint
+
+    Read:
+
+    Update:
+    :param string field: the value being modified
+    :param string value: the new value (type coerced from field)
+
+    Delete:
+
+    """
+    bar_id = current_bar.id
+    Bottle = request.args.get('Bottle')
+    Type = request.args.get('Type')
+
 
 
 @app.route("/admin/debug", methods=['GET'])
