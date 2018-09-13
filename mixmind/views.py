@@ -532,7 +532,7 @@ def ingredient_stock():
             row['Category'] = form.category.data
             row['Type'] = form.type_.data
             row['Bottle'] = form.bottle.data
-            row['Proof'] = float(form.proof.data)
+            row['ABV'] = float(form.abv.data)
             row['Size (mL)'] = float(form.size_ml.data)
             row['Price Paid'] = float(form.price.data)
             Barstock_SQL(current_bar.id).add_row(row)

@@ -157,12 +157,12 @@ def to_fraction(amount):
 def calculate_price(cost, markup):
     return int(((cost + 1) * float(markup)) +1)
 
-def calculate_std_drinks(proof, amount, unit):
-    """ Standard drink is 1.5 oz or 45 ml at 80 proof
+def calculate_std_drinks(abv, amount, unit):
+    """ Standard drink is 1.5 oz or 45 ml at 40% abv
     """
-    adjusted_proof = proof / 80.0
+    adjusted_abv = abv / 40.0
     adjusted_amount = convert_units(amount, unit, 'oz') / 1.5
-    return adjusted_proof * adjusted_amount
+    return adjusted_abv * adjusted_amount
 
 def calculate_abv(std_drinks, volume, unit):
     if unit == 'oz':

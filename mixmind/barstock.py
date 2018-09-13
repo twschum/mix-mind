@@ -26,7 +26,7 @@ class Ingredient(db.Model):
     Type       = Column(String(100), primary_key=True)
     Bottle     = Column(String(255), primary_key=True)
     In_Stock   = Column(Boolean(), default=True)
-    Proof      = Column(Float(), default=0.0)
+    ABV        = Column(Float(), default=0.0)
     Size_mL    = Column(Float(), default=0.0)
     Price_Paid = Column(Float(), default=0.0)
     # computed
@@ -80,7 +80,7 @@ class Ingredient(db.Model):
         "Type":        {'k':  "Type",         'v':  unicode},
         "Bottle":      {'k':  "Bottle",       'v':  unicode},
         "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_int},
-        "Proof":       {'k':  "Proof",        'v':  util.from_float},
+        "ABV":         {'k':  "ABV",          'v':  util.from_float},
         "Size (mL)":   {'k':  "Size_mL",      'v':  util.from_float},
         "Size (oz)":   {'k':  "Size_oz",      'v':  util.from_float},
         "Price Paid":  {'k':  "Price_Paid",   'v':  util.from_price_float},
@@ -189,8 +189,8 @@ class Barstock_SQL(Barstock):
         opts = itertools.product(*bottle_lists)
         return opts
 
-    def get_bottle_proof(self, ingredient):
-        return self.get_bottle_field(ingredient, 'Proof')
+    def get_bottle_abv(self, ingredient):
+        return self.get_bottle_field(ingredient, 'ABV')
 
     def get_bottle_category(self, ingredient):
         return self.get_bottle_field(ingredient, 'Category')
@@ -262,8 +262,8 @@ class Barstock_DF(Barstock):
         opts = itertools.product(*bottle_lists)
         return opts
 
-    def get_bottle_proof(self, ingredient):
-        return self.get_bottle_field(ingredient, 'Proof')
+    def get_bottle_abv(self, ingredient):
+        return self.get_bottle_field(ingredient, 'ABV')
 
     def get_bottle_category(self, ingredient):
         return self.get_bottle_field(ingredient, 'Category')

@@ -179,13 +179,13 @@ def bars_as_table(bars):
 
 def ingredients_as_table(ingredients):
     headings = "Category,Type,Bottle,In Stock,ABV,Size (oz),$,$/oz".split(',')
-    cells = "Category,Type,Bottle,instock_toggle,Proof,Size_oz,Price_Paid,Cost_per_oz".split(',')
+    cells = "Category,Type,Bottle,instock_toggle,ABV,Size_oz,Price_Paid,Cost_per_oz".split(',')
     # make cell yellow if out?
     def as_money(s):
         return '${:.2f}'.format(s)
     formatters = [
             str, str, str, lambda x: x(),
-            lambda x: '{:.1f}%'.format(x/2.0),
+            lambda x: '{:.1f}%'.format(x),
             lambda x: '{:.1f}'.format(x), as_money, as_money]
     return as_table(ingredients, headings, cells, formatters, table_id="ingredient_table", table_cls="table table-sm")
 
