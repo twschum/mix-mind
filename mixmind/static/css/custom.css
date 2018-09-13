@@ -30,6 +30,12 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'cmu_typewriter_wide';
 }
 
+/* add default width to icons */
+i {
+    width: 2.1rem;
+    text-align: center;
+}
+
 /* spans the top of the page */
 .bg-light {
     background-color: #e8ebef!important;
@@ -49,12 +55,18 @@ h1, h2, h3, h4, h5, h6 {
     font-style: italic;
 }
 
+/* The comp modern typerwriter fonts have extra spacing below
+ * which distorts buttons a lot*/
+.btn {
+}
+
 /* Use with icons as buttons */
 .btn-icon {
     font-size: 1.0rem;
     padding-bottom: 0;
     line-height: 1.2;
 }
+
 
 /* Use to make file upload look better
 <span class="btn btn-default btn-file">
