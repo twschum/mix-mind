@@ -580,10 +580,25 @@ def ingredient_stock():
     # XXX
     return render_template('test_ingredient.html', form=form, upload_form=upload_form, stock_table=stock_table)
 
+
+################################################################################
+# API routes
+################################################################################
+# All of these routes are designed to be used against ajax calls
+# Each route will return a json object with the following parameters:
+#  status:  "success" - successful go ahead and use the data
+#           "error"   - something went wrong
+#  message: "..."     - error message
+#  data:    {...}     - the expected data returned to caller
+def api_error(message):
+    return jsonify(status="error", message=message)
+def api_success(data, message=""):
+    return jsonify(status="success", message=message, data=data)
+
 @app.route("/api/ingredients", methods=['GET'])
 @login_required
 @roles_required('admin')
-def load_ingredients():
+def api_ingredients():
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     ingredients = [i.as_dict() for i in ingredients]
     return jsonify({"data": ingredients})
@@ -591,7 +606,7 @@ def load_ingredients():
 @app.route("/api/ingredient", methods=['POST', 'GET', 'PUT', 'DELETE'])
 @login_required
 @roles_required('admin')
-def load_ingredients():
+def api_ingredient():
     """CRUD endpoint for individual ingredients
     Indentifying parameters:
     :param string Bottle: bottle for ingredient
@@ -614,9 +629,36 @@ def load_ingredients():
 
     """
     bar_id = current_bar.id
-    Bottle = request.args.get('Bottle')
-    Type = request.args.get('Type')
+    Bottle = request.form.get('Bottle')
+    Type = request.form.get('Type')
+    import ipdb; ipdb.set_trace()
+    print request
 
+    # create
+    if request.method == 'POST':
+        pass
+    # read
+    elif request.method == 'GET':
+        pass
+    # update
+    elif request.method == 'PUT':
+        field = request.form.get('field')
+        if not field:
+            return api_error("'field' is a required parameter")
+        value = request.form.get('value')
+        if not value:
+            return api_error("'value' is a required parameter")
+
+        # do the update
+
+        # reload the effected recipes
+
+
+    # delete
+    elif request.method == 'DELETE':
+        pass
+
+    return api_error("Unknwon method")
 
 
 @app.route("/admin/debug", methods=['GET'])
