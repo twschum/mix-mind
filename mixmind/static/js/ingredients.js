@@ -7,9 +7,8 @@ $.fn.dataTable.render.money_fmt = function(data, type, row, meta) {
     return data;
 }
 
-function myCallbackFunction (updatedCell, updatedRow, oldValue) {
+function editCell (updatedCell, updatedRow, oldValue) {
     console.log("The new value for the cell is: " + updatedCell.data());
-    console.log("The values for each cell in that row are: " + updatedRow.data());
 }
 
 $(document).ready( function () {
@@ -37,12 +36,12 @@ $(document).ready( function () {
     });
     // editCell integration
     barstock_table.MakeCellsEditable({
-        "onUpdate": myCallbackFunction,
+        "onUpdate": editCell,
         "confirmationButton": {
             "confirmCss": 'btn btn-sm btn-outline-success btn-icon',
             "cancelCss": 'btn btn-sm btn-outline-danger btn-icon',
-            "confirmValue": '<i class="fa fa-check"></i>',
-            "cancelValue": '<i class="fa fa-times"></i>'
+            "confirmValue": '<i class="fa fa-check" style="width:1rem;"></i>',
+            "cancelValue": '<i class="fa fa-times" style="width:1rem;"></i>'
         },
 
     })
