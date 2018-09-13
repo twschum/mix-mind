@@ -49,7 +49,25 @@ $(document).ready( function () {
             "confirmValue": '<i class="fa fa-check" style="width:1rem;"></i>',
             "cancelValue": '<i class="fa fa-times" style="width:1rem;"></i>'
         },
-
+        "inputTypes": [
+            {
+                "column": 0,
+                "type": "list",
+                "options": [
+                    {"value":  "Spirit",    "display":  "Spirit"},
+                    {"value":  "Liqueur",   "display":  "Liqueur"},
+                    {"value":  "Vermouth",  "display":  "Vermouth"},
+                    {"value":  "Bitters",   "display":  "Bitters"},
+                    {"value":  "Syrup",     "display":  "Syrup"},
+                    {"value":  "Juice",     "display":  "Juice"},
+                    {"value":  "Mixer",     "display":  "Mixer"},
+                    {"value":  "Wine",      "display":  "Wine"},
+                    {"value":  "Beer",      "display":  "Beer"},
+                    {"value":  "Dry",       "display":  "Dry"},
+                    {"value":  "Ice",       "display":  "Ice"},
+                ]
+            }
+        ]
     })
 } );
 
