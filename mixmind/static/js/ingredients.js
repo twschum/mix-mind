@@ -80,15 +80,18 @@ function editCell (cell, row, oldValue) {
     else {
         type_ = row.data().Type;
     }
-    $.put("/api/ingredient", { Bottle: bottle, Type: type_,
+    $.put("/api/ingredient", { row_index: row.index(), Bottle: bottle, Type: type_,
         field: col, value: cell.data() })
-        .done(function(data) {
-            console.log(data)
-            // update the rest of the row with the received data
-            // perhaps table.draw() ?
-        })
-        .fail(function(data) {
-            console.log("error");
-            console.log("error");
+        .done(function(result) {
+            if (result.status == "error") {
+                alert("Error: " + result.message);
+            }
+            else if (result.status == "success") {
+                barstock_table.row(result.row_index).data(result.data)
+                // perhaps table.draw() ?
+            }
+            else {
+                console.log("Unknown formatted response: " + result)
+            }
         });
 };

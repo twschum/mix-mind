@@ -590,10 +590,10 @@ def ingredient_stock():
 #           "error"   - something went wrong
 #  message: "..."     - error message
 #  data:    {...}     - the expected data returned to caller
-def api_error(message):
-    return jsonify(status="error", message=message)
-def api_success(data, message=""):
-    return jsonify(status="success", message=message, data=data)
+def api_error(message, **kwargs):
+    return jsonify(status="error", message=message, **kwargs)
+def api_success(data, message="", **kwargs):
+    return jsonify(status="success", message=message, data=data, **kwargs)
 
 @app.route("/api/ingredients", methods=['GET'])
 @login_required
@@ -601,13 +601,14 @@ def api_success(data, message=""):
 def api_ingredients():
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     ingredients = [i.as_dict() for i in ingredients]
-    return jsonify({"data": ingredients})
+    return api_success(ingredients)
 
 @app.route("/api/ingredient", methods=['POST', 'GET', 'PUT', 'DELETE'])
 @login_required
 @roles_required('admin')
 def api_ingredient():
     """CRUD endpoint for individual ingredients
+
     Indentifying parameters:
     :param string Bottle: bottle for ingredient
     :param string Type: type for ingredient
@@ -622,21 +623,24 @@ def api_ingredient():
     Read:
 
     Update:
+    :param int row_index: index of the changed row, pass back to requester
     :param string field: the value being modified
     :param string value: the new value (type coerced from field)
 
     Delete:
 
     """
-    bar_id = current_bar.id
+    #bar_id = current_bar.id
     Bottle = request.form.get('Bottle')
     Type = request.form.get('Type')
-    import ipdb; ipdb.set_trace()
-    print request
+    ingredient = Ingredient.query.filter_by(bar_id=current_bar.id, Bottle=Bottle, Type=Type).one_or_none()
+    if not ingredient and not request.method == 'POST':
+        return api_error("Ingredient not found")
 
     # create
     if request.method == 'POST':
-        pass
+        if ingredient:
+            return api_error("Ingredient '{}' already exists, try editing it instead".format(ingredient))
     # read
     elif request.method == 'GET':
         pass
@@ -645,14 +649,23 @@ def api_ingredient():
         field = request.form.get('field')
         if not field:
             return api_error("'field' is a required parameter")
+        elif field not in "Category,Type,Bottle,In_Stock,ABV,Size_mL,Size_oz,Price_Paid".split(','):
+            return api_error("'{}' is not allowed to be edited via the API".format(field))
         value = request.form.get('value')
         if not value:
             return api_error("'value' is a required parameter")
+        row_index = request.form.get('row_index')
 
-        # do the update
+        # depending on the field, special handling must be applied
+
+
+        ingredient[field] = value
+        data = ingredient.as_dict()
+        db.session.commit()
+        return api_success(data,
+                message="Successfully updated '{}' for '{}'".format(field, ingredient), row_index=row_index)
 
         # reload the effected recipes
-
 
     # delete
     elif request.method == 'DELETE':
