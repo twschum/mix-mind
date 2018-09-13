@@ -15,10 +15,10 @@ from flask_login import current_user
 from .notifier import send_mail
 from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm, CreateBarForm, EditBarForm, EditUserForm
 from .authorization import user_datastore
-from .barstock import Barstock_SQL, Ingredient
+from .barstock import Barstock_SQL, Ingredient, _update_computed_fields
 from .formatted_menu import filename_from_options, generate_recipes_pdf
 from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table, ingredients_as_table
-from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
+from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe, convert_units
 from .database import db
 from .models import User, Order, Bar
 from . import log, app, mms, current_bar
@@ -656,16 +656,29 @@ def api_ingredient():
             return api_error("'value' is a required parameter")
         row_index = request.form.get('row_index')
 
-        # depending on the field, special handling must be applied
+        # TODO value constraints
+        try:
+            value = type(ingredient[field])(value)
+        except AttributeError:
+            return api_error("Invalid field '{}' for an Ingredient".format(field))
+        except ValueError as e:
+            return api_error(str(e))
 
+        # special handling
+        if field == 'Size_oz':
+            # convert to mL because that's how everything works
+            ingredient['Size_mL'] = convert_units(value, 'oz', 'mL')
+        else:
+            ingredient[field] = value
+        if field in ['Size_mL', 'Size_oz', 'Price_Paid', 'Type']:
+            _update_computed_fields(ingredient)
 
-        ingredient[field] = value
         data = ingredient.as_dict()
         db.session.commit()
         return api_success(data,
                 message="Successfully updated '{}' for '{}'".format(field, ingredient), row_index=row_index)
 
-        # reload the effected recipes
+        # reload the affected recipes
 
     # delete
     elif request.method == 'DELETE':

@@ -20,6 +20,8 @@ from .compose_html import close
 
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
+# TODO break this out into own module
+# TODO value constraints (e.g. 100% max abv, no negative price, etc.)
 class Ingredient(db.Model):
     bar_id     = Column(Integer(), ForeignKey('bar.id'), primary_key=True)
     Category   = Column(Enum(*Categories))

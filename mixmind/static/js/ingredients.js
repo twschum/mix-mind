@@ -115,11 +115,10 @@ function editCell (cell, row, oldValue) {
                 alert("Error: " + result.message);
             }
             else if (result.status == "success") {
-                barstock_table.row(result.row_index).data(result.data)
-                // perhaps table.draw() ?
+                barstock_table.row(result.row_index).data(result.data);
             }
             else {
-                console.log("Unknown formatted response: " + result)
+                console.log("Unknown formatted response: " + result);
             }
         });
 };
