@@ -16,10 +16,10 @@ var column_settings = [
     {data: "In_Stock", name: "In_Stock"},
     {data: "ABV", name: "ABV", className: number_col_classes, render: function(data, type, row, meta){
         if (type === "display"){
-            if (data == 0) {
+            if (data == 0 || data == "0") {
                 return "&mdash;"
             }
-            return (data+0.01).toFixed(1) + " %";
+            return ((data/1.0)+0.01).toFixed(1) + " %";
         }
         return data;
     }},
@@ -49,6 +49,7 @@ $(document).ready( function () {
             "confirmValue": '<i class="fa fa-check" style="width:1rem;"></i>',
             "cancelValue": '<i class="fa fa-times" style="width:1rem;"></i>'
         },
+        "columns": [0,1,2,3,4,5,6,7], // allowed to edit these columns
         "inputTypes": [
             {
                 "column": 0,
