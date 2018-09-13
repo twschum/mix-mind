@@ -44,18 +44,51 @@ $(document).ready( function () {
     })
 } );
 
+jQuery.each( [ "put", "delete" ], function( i, method ) {
+    jQuery[ method ] = function( url, data, callback, type ) {
+        if ( jQuery.isFunction( data ) ) {
+            type = type || callback;
+            callback = data;
+            data = undefined;
+        }
+
+        return jQuery.ajax({
+            url: url,
+            type: method,
+            dataType: type,
+            data: data,
+            success: callback
+        });
+    };
+});
 
 function editCell (cell, row, oldValue) {
-    if (cell.data() != oldValue) {
+    if (cell.data() == oldValue) {
         return;
     }
     console.log("The new value for the cell is: " + cell.data());
     var col = column_settings[ cell.index().column ].name
-    $.put("/api/ingredient", { Bottle: row.data().Bottle, Type: row.data().Type,
-            field: col, value: cell.data() })
+    if (col == "Bottle") {
+        bottle = oldValue;
+    }
+    else {
+        bottle = row.data().Bottle;
+    }
+    if (col == "Type") {
+        type_ = oldValue;
+    }
+    else {
+        type_ = row.data().Type;
+    }
+    $.put("/api/ingredient", { Bottle: bottle, Type: type_,
+        field: col, value: cell.data() })
         .done(function(data) {
+            console.log(data)
             // update the rest of the row with the received data
             // perhaps table.draw() ?
-        }
-    );
-}
+        })
+        .fail(function(data) {
+            console.log("error");
+            console.log("error");
+        });
+};
