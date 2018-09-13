@@ -141,10 +141,10 @@ def from_price_float(s):
     if isinstance(s, basestring):
         return from_float(s.replace('$', ''))
     return from_float(s)
-def from_bool_from_int(s):
+def from_bool_from_num(s):
     if not s:
         return False
-    return bool(int(s))
+    return bool(float(s))
 
 def to_fraction(amount):
     fraction = Fraction.from_float(float(amount)).limit_denominator(99)

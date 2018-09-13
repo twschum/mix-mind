@@ -79,7 +79,7 @@ class Ingredient(db.Model):
         "Category":    {'k':  "Category",     'v':  unicode},
         "Type":        {'k':  "Type",         'v':  unicode},
         "Bottle":      {'k':  "Bottle",       'v':  unicode},
-        "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_int},
+        "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_num},
         "ABV":         {'k':  "ABV",          'v':  util.from_float},
         "Size (mL)":   {'k':  "Size_mL",      'v':  util.from_float},
         "Size (oz)":   {'k':  "Size_oz",      'v':  util.from_float},
