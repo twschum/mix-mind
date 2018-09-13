@@ -14,10 +14,10 @@
 
 {% block extra_navitems %}
   {% if security.registerable %}
-  <a class="nav-item nav-link" href="{{ url_for_security('register') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}">{{ _('Register') }}</a>
+	<a class="nav-item nav-link" href="{{ url_for_security('register') }}{% if 'next' in request.args %}?next={{ request.args.next|urlencode }}{% endif %}"><i class="fas fa-user-plus"></i> {{ _('Register') }}</a>
   {% endif %}
   {% if security.confirmable %}
-  <a class="nav-item nav-link" href="{{ url_for_security('send_confirmation') }}">{{ _('Resend Confirmation') }}</a>
+	<a class="nav-item nav-link" href="{{ url_for_security('send_confirmation') }}"><i class="fas fa-share-square"></i> {{ _('Resend Confirmation') }}</a>
   {% endif %}
 {% endblock extra_navitems %}
 

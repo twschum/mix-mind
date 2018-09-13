@@ -39,9 +39,10 @@ $(document).ready( function () {
     barstock_table.MakeCellsEditable({
         "onUpdate": myCallbackFunction,
         "confirmationButton": {
-            "confirmCss": 'btn btn-sm btn-success',
-            "cancelCss": 'btn btn-sm btn-outline-danger',
-            "confirmValue": 'Y'
+            "confirmCss": 'btn btn-sm btn-outline-success btn-icon',
+            "cancelCss": 'btn btn-sm btn-outline-danger btn-icon',
+            "confirmValue": '<i class="fa fa-check"></i>',
+            "cancelValue": '<i class="fa fa-times"></i>'
         },
 
     })
