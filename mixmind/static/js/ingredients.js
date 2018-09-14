@@ -1,4 +1,3 @@
-
 var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup": 4, "Juice": 5, "Mixer": 6, "Wine": 7, "Beer": 8, "Dry": 9, "Ice": 10}
 // NOTE: in datatables 2.0, can use simply api.column(id).name()
 var number_col_classes = "text-right monospace"
@@ -13,9 +12,19 @@ var column_settings = [
     }},
     {data: "Type", name: "Type"},
     {data: "Bottle", name: "Bottle"},
-    {data: "In_Stock", name: "In_Stock"},
+    {data: "In_Stock", name: "In_Stock", render: function(data, type, row, meta){
+        if (type == "display") {
+            input = '<input class="toggle-switch" type="checkbox"';
+            input += ' data-toggle="toggle" data-on="&check;" data-off="&times;" data-onstyle="success" data-offstyle="danger" data-size="small"'
+            input += ' onchange="$(this).updateEditableCell(this);"'
+            input += (data) ? ' value="on" checked' : ' value="off"'
+            input += '>';
+            return input;
+        }
+        return data;
+    }},
     {data: "ABV", name: "ABV", className: number_col_classes, render: function(data, type, row, meta){
-        if (type === "display"){
+        if (type == "display"){
             if (data == 0 || data == "0") {
                 return "&mdash;"
             }
@@ -38,7 +47,11 @@ $(document).ready( function () {
     barstock_table = $("#barstock-table").DataTable( {
         "paging": false,
         "ajax": "/api/ingredients",
-        "columns": column_settings
+        "columns": column_settings,
+        // handles rendering of the toggle switches in the table
+        "drawCallback": function() {
+            $(".toggle-switch").bootstrapToggle();
+        }
     });
     // editCell integration
     barstock_table.MakeCellsEditable({
@@ -116,6 +129,7 @@ function editCell (cell, row, oldValue) {
             }
             else if (result.status == "success") {
                 barstock_table.row(result.row_index).data(result.data);
+                $(".toggle-switch").bootstrapToggle();
             }
             else {
                 console.log("Unknown formatted response: " + result);
