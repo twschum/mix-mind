@@ -658,7 +658,12 @@ def api_ingredient():
 
         # TODO value constraints
         try:
-            value = type(ingredient[field])(value)
+            # the toggle switches return 'on'/'off'
+            # but that is their current state, so toggle value here
+            if field == 'In_Stock':
+                value = {'on': False, 'off': True}[value]
+            else:
+                value = type(ingredient[field])(value)
         except AttributeError:
             return api_error("Invalid field '{}' for an Ingredient".format(field))
         except ValueError as e:
