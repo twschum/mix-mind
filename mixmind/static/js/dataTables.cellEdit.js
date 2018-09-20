@@ -143,7 +143,8 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
 
     if (settings.confirmationButton) {
         inputType = inputType + "-confirm";
-        input.html = "<div class='input-group'>";
+        // TODO min widths here
+        input.html = "<div class='input-group' style='min-width:9rem;'>";
     }
     else {
     input.html = "";

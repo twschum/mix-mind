@@ -72,8 +72,8 @@ $(document).ready( function () {
             //"confirmCss": 'btn btn-sm btn-outline-success btn-icon',
             "confirmCss": 'close close-color',
             "cancelCss": 'close close-color',
-            "confirmValue": '<i class="fa fa-check text-success"></i>',
-            "cancelValue": '<i class="fa fa-times text-danger" style="width:2rem;"></i>'
+            "confirmValue": '<i class="fa fa-check text-success line-200"></i>',
+            "cancelValue": '<i class="fa fa-times text-danger line-200"></i>'
         },
         "inputCss": '',
         "columns": [1,2,3,4,5,6,7,8], // allowed to edit these columns
