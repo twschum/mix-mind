@@ -114,8 +114,9 @@ table.dataTable, th, td {
     border: none;
     border-bottom: 1px solid #C8C8C8;
     border-collapse: collapse !important;
-    text-align:left;
-    padding: 10px;
+    text-align: left;
+    vertical-align: middle !important;
+    padding: 0.4rem;
     margin-bottom: 40px;
     font-size: 0.9em;
 }

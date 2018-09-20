@@ -1,7 +1,16 @@
+function deleteRow (cell, row) {
+
+};
+
 var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup": 4, "Juice": 5, "Mixer": 6, "Wine": 7, "Beer": 8, "Dry": 9, "Ice": 10}
 // NOTE: in datatables 2.0, can use simply api.column(id).name()
 var number_col_classes = "text-right monospace"
 var column_settings = [
+    {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
+        //<i class="fas fa-plus"></i>
+        var del_btn = '<button class="btn btn-sm btn-outline-danger" onclick="deleteRow(this)"><i class="far fa-trash-alt"></i></button>';
+        return del_btn;
+    }},
     {data: "Category", name: "Category", render: function(data, type, row, meta){
         switch (type) {
             case "sort":
@@ -14,10 +23,10 @@ var column_settings = [
     {data: "Bottle", name: "Bottle"},
     {data: "In_Stock", name: "In_Stock", render: function(data, type, row, meta){
         if (type == "display") {
-            input = '<input class="toggle-switch" type="checkbox"';
-            input += ' data-toggle="toggle" data-on="&check;" data-off="&times;" data-onstyle="success" data-offstyle="danger" data-size="small"'
-            input += ' onchange="$(this).updateEditableCell(this);"'
-            input += (data) ? ' value="on" checked' : ' value="off"'
+            var input = '<input class="toggle-switch" type="checkbox"';
+            input += ' data-toggle="toggle" data-on="&check;" data-off="&times;" data-onstyle="success" data-offstyle="danger" data-size="small"';
+            input += ' onchange="$(this).updateEditableCell(this);"';
+            input += (data) ? ' value="on" checked' : ' value="off"';
             input += '>';
             return input;
         }
@@ -62,7 +71,7 @@ $(document).ready( function () {
             "confirmValue": '<i class="fa fa-check" style="width:1rem;"></i>',
             "cancelValue": '<i class="fa fa-times" style="width:1rem;"></i>'
         },
-        "columns": [0,1,2,3,4,5,6,7], // allowed to edit these columns
+        "columns": [1,2,3,4,5,6,7,8], // allowed to edit these columns
         "inputTypes": [
             {
                 "column": 0,
