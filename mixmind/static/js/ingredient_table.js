@@ -79,7 +79,7 @@ $(document).ready( function () {
         "columns": [1,2,3,4,5,6,7,8], // allowed to edit these columns
         "inputTypes": [
             {
-                "column": 0,
+                "column": 1,
                 "type": "list",
                 "options": [
                     {"value":  "Spirit",    "display":  "Spirit"},
@@ -118,6 +118,7 @@ jQuery.each( [ "put", "delete" ], function( i, method ) {
 });
 
 function editCell (cell, row, oldValue) {
+    // TODO trim trailing whitespace
     if (cell.data() == oldValue) {
         return;
     }
