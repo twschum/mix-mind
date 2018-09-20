@@ -67,6 +67,14 @@ i {
     line-height: 1.2;
 }
 
+/* These tag along with the close class which makes the best icon button.
+ * Use with text-[danger|success|...] for more saturated colors */
+.close-color {
+    opacity: 0.85;
+}
+.close-color:not(:disabled):not(.disabled):focus, .close-color:not(:disabled):not(.disabled):hover {
+    opacity: 1;
+}
 
 /* Use to make file upload look better
 <span class="btn btn-default btn-file">
