@@ -77,6 +77,12 @@ i {
     height: calc(2.875rem + 2px);
 }
 
+.line-50 {
+    line-height 0.50rem;
+}
+.line-75 {
+    line-height 0.75rem;
+}
 .line-90 {
     line-height 0.90rem;
 }
@@ -88,6 +94,15 @@ i {
 }
 .line-120 {
     line-height 1.2rem;
+}
+.line-125 {
+    line-height 1.25rem;
+}
+.line-150 {
+    line-height 1.50rem;
+}
+.line-200 {
+    line-height 2.00rem;
 }
 
 

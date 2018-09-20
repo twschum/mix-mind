@@ -136,8 +136,9 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
         });
     }
 
+    inputCss = "form-control form-control-sm "
     if (settings.inputCss) {
-        inputCss = settings.inputCss;
+        inputCss += settings.inputCss;
     }
 
     if (settings.confirmationButton) {
@@ -214,9 +215,9 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
         confirmValue = settings.confirmationButton.confirmValue;
         cancelCss = settings.confirmationButton.cancelCss;
         cancelValue = settings.confirmationButton.cancelValue;
-        input.html += "<div class='input-group-prepend'>";
-        input.html += "<div class='input-group-text'><a href='javascript:void(0);' class='" + confirmCss + "' onclick='$(this).updateEditableCell(this)'>" + confirmValue + "</a></div>";
-        input.html += "<div class='input-group-text'><a href='javascript:void(0);' class='" + cancelCss + "' onclick='$(this).cancelEditableCell(this)'>" + cancelValue + "</a></div>";
+        input.html += "<div class='input-group-append form-ht-sm'>"
+        input.html += "<div class='input-group-text p-0'><a href='javascript:void(0);' class='" + confirmCss + "' onclick='$(this).updateEditableCell(this)'>" + confirmValue + "</a>";
+        input.html += "<a href='javascript:void(0);' class='" + cancelCss + "' onclick='$(this).cancelEditableCell(this)'>" + cancelValue + "</a></div>";
         input.html += "</div>"; // from the input-group-append
         input.html += "</div>"; // from the input-group
     }
