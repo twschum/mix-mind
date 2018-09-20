@@ -67,6 +67,30 @@ i {
     line-height: 1.2;
 }
 
+.form-ht-sm {
+    height: calc(1.8125rem + 2px);
+}
+.form-ht {
+    height: calc(2.25rem + 2px);
+}
+.form-ht-lg {
+    height: calc(2.875rem + 2px);
+}
+
+.line-90 {
+    line-height 0.90rem;
+}
+.line-100 {
+    line-height 1.00rem;
+}
+.line-110 {
+    line-height 1.10rem;
+}
+.line-120 {
+    line-height 1.2rem;
+}
+
+
 /* These tag along with the close class which makes the best icon button.
  * Use with text-[danger|success|...] for more saturated colors */
 .close-color {
