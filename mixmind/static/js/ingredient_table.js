@@ -8,7 +8,8 @@ var number_col_classes = "text-right monospace"
 var column_settings = [
     {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
         //<i class="fas fa-plus"></i>
-        var del_btn = '<button class="btn btn-sm btn-outline-danger" onclick="deleteRow(this)"><i class="far fa-trash-alt"></i></button>';
+        // TODO modal for confirm delete - mention the alternate using the in stock toggle
+        var del_btn = '<button class="close" onclick="deleteRow(this)"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
     }},
     {data: "Category", name: "Category", render: function(data, type, row, meta){
@@ -57,6 +58,8 @@ $(document).ready( function () {
         "paging": false,
         "ajax": "/api/ingredients",
         "columns": column_settings,
+        // sort by the Category column
+        "order": [[ 1, 'asc' ]],
         // handles rendering of the toggle switches in the table
         "drawCallback": function() {
             $(".toggle-switch").bootstrapToggle();
@@ -66,11 +69,13 @@ $(document).ready( function () {
     barstock_table.MakeCellsEditable({
         "onUpdate": editCell,
         "confirmationButton": {
-            "confirmCss": 'btn btn-sm btn-outline-success btn-icon',
-            "cancelCss": 'btn btn-sm btn-outline-danger btn-icon',
-            "confirmValue": '<i class="fa fa-check" style="width:1rem;"></i>',
-            "cancelValue": '<i class="fa fa-times" style="width:1rem;"></i>'
+            //"confirmCss": 'btn btn-sm btn-outline-success btn-icon',
+            "confirmCss": 'close close-color',
+            "cancelCss": 'close close-color',
+            "confirmValue": '<i class="fa fa-check text-success" style="width:2rem;"></i>',
+            "cancelValue": '<i class="fa fa-times text-danger" style="width:2rem;"></i>'
         },
+        "inputCss": 'form-control form-control-sm',
         "columns": [1,2,3,4,5,6,7,8], // allowed to edit these columns
         "inputTypes": [
             {
