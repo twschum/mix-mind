@@ -18,7 +18,7 @@
 <table id="barstock-table" class="table">
 	<thead>
 		<tr>
-			<th scope="col"></th>
+			<th scope="col"></th> {# TODO consider making a "+" button here that opens the new ingredient button #}
 			<th scope="col">Category</th>
 			<th scope="col">Type</th>
 			<th scope="col">Ingredient</th>
@@ -36,5 +36,5 @@
 {% endblock dashbody %}
 
 {% block scripts %}
-<script src="/static/js/ingredients.js"></script>
+<script src="/static/js/ingredient_table.js"></script>
 {% endblock scripts %}
