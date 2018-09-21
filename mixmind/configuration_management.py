@@ -57,23 +57,29 @@ class MixMindServer():
             db.session.add(default_bar)
             db.session.commit()
         # setup ingredient stock, using default if the database is empty
-        # TODO remove from self.
-        self.barstock = Barstock_SQL(default_bar.id)
+        barstock = Barstock_SQL(default_bar.id)
         if Ingredient.query.count() == 0:
             barstock_files = get_ingredient_files(app)
             print ("STARTUP: Loading ingredient stock from files: {}".format(barstock_files))
-            self.barstock.load_from_csv(barstock_files, default_bar.id)
+            barstock.load_from_csv(barstock_files, default_bar.id)
         # initialize recipe library
         recipe_files = get_recipe_files(app)
         print ("STARTUP: Loading recipes from files: {}".format(recipe_files))
         self.base_recipes = load_recipe_json(recipe_files)
         print ("STARTUP: Generating recipe library".format(recipe_files))
-        self.recipes = [DrinkRecipe(name, recipe).generate_examples(self.barstock, stats=True)
+        self.recipes = [DrinkRecipe(name, recipe).generate_examples(barstock, stats=True)
                 for name, recipe in self.base_recipes.iteritems()]
 
-    def regenerate_recipes(self, bar):
-        print ("Regenerating recipe library for {}".format(bar.cname))
-        self.recipes = [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in  self.recipes]
+    def regenerate_recipes(self, bar, ingredient=None):
+        """Regenerate the examples and statistics data for the recipes at the given bar
+        :param string ingredient: only updates recipes with the given ingredient
+        """
+        if ingredient:
+            print ("Updating recipes containing {} for {}".format(ingredient, bar.cname))
+        else:
+            print ("Regenerating recipe library for {}".format(bar.cname))
+        [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes
+                            if recipe.contains_ingredient(ingredient)]
 
 BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed")
 

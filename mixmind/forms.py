@@ -157,7 +157,7 @@ class BarstockForm(BaseForm):
     bottle = TextField("Brand", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.required()])
     abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.required(), validators.NumberRange(min=0, max=100)])
 
-    unit = SelectField("Unit", choices=pairs(VALID_UNITS), validators=[validators.required()])
+    unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0],VALID_UNITS[2:]]), validators=[validators.required()])
     size = DecimalField("Size", description="Size of the ingredient in the unit selected", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
     price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=9999999999)])
 

@@ -3,7 +3,6 @@ var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup
 var number_col_classes = "text-right monospace"
 var column_settings = [
     {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
-        //<i class="fas fa-plus"></i>
         // TODO modal for confirm delete - mention the alternate using the in stock toggle
         var del_btn = '<button class="close" onclick="$(this).deleteEditableCell(this)" title="Delete this ingredient completely"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
@@ -166,7 +165,7 @@ function deleteRow(cell, row) {
             }
             else if (result.status == "success") {
                 if (result.row_index) {
-                    console.log("DEL:"+result.message);
+                    console.log("DEL: "+result.message);
                     barstock_table.row(result.row_index).remove().draw();
                 }
                 else {

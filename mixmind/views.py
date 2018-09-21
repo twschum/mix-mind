@@ -479,6 +479,7 @@ def menu_generator():
 @roles_required('admin')
 def menu_download():
     form = get_form(DrinksForm)
+    raise NotImplementedError
 
     if form.validate():
         print request
@@ -538,7 +539,7 @@ def ingredient_stock():
                 row['Size (mL)'] = convert_units(float(form.size.data), form.unit.data, 'mL')
                 row['Price Paid'] = float(form.price.data)
                 ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
-                #mms.regenerate_recipes(current_bar) TODO need a more efficient reload for single ingredient changes
+                mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
                 return redirect(request.url)
             else:
                 form_open = True
@@ -560,10 +561,6 @@ def ingredient_stock():
                     csv_file.filename, current_bar.id)
             log.info(msg)
             flash(msg, 'success')
-
-        elif 'reload-recipes' in request.form:
-            mms.regenerate_recipes(current_bar)
-            flash("Reloaded the recipe library from current ingredients for {}".format(current_bar.cname))
 
     # XXX
     return render_template('test_ingredient.html', form=form, upload_form=upload_form, form_open=form_open)
@@ -604,8 +601,8 @@ def api_ingredient():
     Create params:
     :param string Category: Category idenfitier
     :param float ABV: ABV value
-    :param float Size_mL: Size in mL, this or Size_oz is required
-    :param float Size_oz: Size in oz, this or Size_mL is required
+    :param float Size: Size
+    :param string Unit: one of util.VALID_UNITS
     :param float Price: price of the ingredint
 
     Read:
@@ -616,25 +613,26 @@ def api_ingredient():
     :param string value: the new value (type coerced from field)
 
     Delete:
+    :param int row_index: index of the changed row, pass back to requester
 
     """
-    #bar_id = current_bar.id
     Bottle = request.form.get('Bottle')
     Type = request.form.get('Type')
     ingredient = Ingredient.query.filter_by(bar_id=current_bar.id, Bottle=Bottle, Type=Type).one_or_none()
     if not ingredient and not request.method == 'POST':
         return api_error("Ingredient not found")
     row_index = request.form.get('row_index')
-    if row_index is None and request.method != 'POST':
+    if row_index is None and request.method in ['PUT', 'DELETE']:
         return api_error("row_index is a required parameter for {}".fromat(request.method))
 
     # create
     if request.method == 'POST':
         if ingredient:
             return api_error("Ingredient '{}' already exists, try editing it instead".format(ingredient))
+        return api_error("Not implemented")
     # read
     elif request.method == 'GET':
-        pass
+        return api_success(ingredient.as_dict(), messaage="Ingredient: {}".format(ingredient))
     # update
     elif request.method == 'PUT':
         field = request.form.get('field')
@@ -670,15 +668,15 @@ def api_ingredient():
 
         data = ingredient.as_dict()
         db.session.commit()
+        mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
         return api_success(data,
                 message="Successfully updated '{}' for '{}'".format(field, ingredient), row_index=row_index)
-
-        # reload the affected recipes
 
     # delete
     elif request.method == 'DELETE':
         db.session.delete(ingredient)
         db.session.commit()
+        mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
         return api_success({}, message="Successfully deleted {}".format(ingredient), row_index=row_index)
 
     return api_error("Unknwon method")

@@ -155,7 +155,8 @@ class Barstock_SQL(Barstock):
                         log.warning(e)
 
     def add_row(self, row, bar_id):
-        """ where row is a dict of fields from the csv"""
+        """ where row is a dict of fields from the csv
+        returns the Model object for the updated/inserted row"""
         if not row.get('Type') and not row.get('Bottle'):
             log.warning("Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
             return
@@ -165,7 +166,7 @@ class Barstock_SQL(Barstock):
                     if k in Ingredient.display_name_mappings}
         except UnicodeDecodeError:
             log.warning("UnicodeDecodeError for ingredient: {}".format(row))
-            return
+            return None
         try:
             ingredient = Ingredient(bar_id=bar_id, **clean_row)
             row = Ingredient.query.filter_by(bar_id=ingredient.bar_id,
@@ -174,10 +175,13 @@ class Barstock_SQL(Barstock):
                 for k, v in clean_row.iteritems():
                     row[k] = v
                 _update_computed_fields(row)
+                db.session.commit()
+                return row
             else: # insert
                 _update_computed_fields(ingredient)
                 db.session.add(ingredient)
-            db.session.commit()
+                db.session.commit()
+                return ingredient
         except SQLAlchemyError as err:
             msg = "{}: on row: {}".format(err, clean_row)
             raise DataError(msg)
