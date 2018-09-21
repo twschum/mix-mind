@@ -636,6 +636,9 @@ def api_ingredient():
     ingredient = Ingredient.query.filter_by(bar_id=current_bar.id, Bottle=Bottle, Type=Type).one_or_none()
     if not ingredient and not request.method == 'POST':
         return api_error("Ingredient not found")
+    row_index = request.form.get('row_index')
+    if row_index is None and request.method != 'POST':
+        return api_error("row_index is a required parameter for {}".fromat(request.method))
 
     # create
     if request.method == 'POST':
@@ -654,7 +657,6 @@ def api_ingredient():
         value = request.form.get('value')
         if not value:
             return api_error("'value' is a required parameter")
-        row_index = request.form.get('row_index')
 
         # TODO value constraints
         try:
@@ -687,7 +689,9 @@ def api_ingredient():
 
     # delete
     elif request.method == 'DELETE':
-        pass
+        db.session.delete(ingredient)
+        db.session.commit()
+        return api_success({}, message="Successfully deleted {}".format(ingredient), row_index=row_index)
 
     return api_error("Unknwon method")
 

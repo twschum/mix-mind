@@ -140,8 +140,13 @@ function editCell(cell, row, oldValue) {
                 alert("Error: " + result.message);
             }
             else if (result.status == "success") {
-                barstock_table.row(result.row_index).data(result.data);
-                $(".toggle-switch").bootstrapToggle();
+                if (result.row_index) {
+                    barstock_table.row(result.row_index).data(result.data);
+                    $(".toggle-switch").bootstrapToggle();
+                }
+                else {
+                    console.log("Error: response missing 'row_index'");
+                }
             }
             else {
                 console.log("Unknown formatted response: " + result);
@@ -152,9 +157,6 @@ function editCell(cell, row, oldValue) {
 function deleteRow(cell, row) {
     // Confirm modal here???
     var type_, bottle;
-    type = row.data().Type;
-    bottle =
-    console.log("Deleting: " + row);
     $.delete("/api/ingredient", {
             row_index: row.index(), Bottle: row.data().Bottle, Type: row.data().Type
         })
@@ -163,8 +165,13 @@ function deleteRow(cell, row) {
                 alert("Error: " + result.message);
             }
             else if (result.status == "success") {
-                barstock_table.row(result.row_index).data(result.data);
-                $(".toggle-switch").bootstrapToggle();
+                if (result.row_index) {
+                    console.log("DEL:"+result.message);
+                    barstock_table.row(result.row_index).remove().draw();
+                }
+                else {
+                    console.log("Error: response missing 'row_index'");
+                }
             }
             else {
                 console.log("Unknown formatted response: " + result);
