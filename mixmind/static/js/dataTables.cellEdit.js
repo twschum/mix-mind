@@ -122,8 +122,20 @@ jQuery.fn.dataTable.Api.register('MakeCellsEditable()', function (settings) {
 
 });
 
+function onEnterHandler(event, callingElement) {
+    // Allow submit-on-enter from text form fields
+    // cancel-on-esc broken in chrome
+    if (event.key === "Enter") {
+        $(callingElement).updateEditableCell(callingElement);
+    }
+    else if (event.key === "Esc" || event.key === "Escape") {
+        $(callingElement).cancelEditableCell(callingElement);
+    }
+};
+
 function getInputHtml(currentColumnIndex, settings, oldValue) {
     var inputSetting, inputType, input, inputCss, confirmCss, cancelCss, confirmValue, cancelValue;
+    var registerOnEnter = "onkeyup='onEnterHandler(event, this)'";
 
     input = {"focus":true,"html":null}
 
@@ -201,11 +213,11 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
             break;
         case "undefined-confirm": // text input w/ confirm
         case "text-confirm": // text input w/ confirm
-            input.html += "<input id='ejbeatycelledit' class='" + inputCss + "' value='" + oldValue + "'></input>";
+            input.html += "<input id='ejbeatycelledit' class='"+ inputCss +"' "+ registerOnEnter +" value='"+ oldValue +"'></input>";
             break;
         case "textarea":
         case "textarea-confirm":
-            input.html += "<textarea id='ejbeatycelledit' class='" + inputCss + "'>" + oldValue + "</textarea>";
+            input.html += "<textarea id='ejbeatycelledit' class='"+ inputCss +"' "+ registerOnEnter +">"+ oldValue +"</textarea>";
             break;
         default: // text input
             input.html += "<input id='ejbeatycelledit' class='" + inputCss + "' onfocusout='$(this).updateEditableCell(this)' value='" + oldValue + "'></input>";
