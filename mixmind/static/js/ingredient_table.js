@@ -3,8 +3,7 @@ var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup
 var number_col_classes = "text-right monospace"
 var column_settings = [
     {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
-        // TODO modal for confirm delete - mention the alternate using the in stock toggle
-        var del_btn = '<button class="close" onclick="$(this).deleteEditableCell(this)" title="Delete this ingredient completely"><i class="far fa-trash-alt"></i></button>';
+        var del_btn = '<button type="button" class="close" data-toggle="modal" data-target="#confirm-delete-ingredient" title="Delete this ingredient completely"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
     }},
     {data: "Category", name: "Category", render: function(data, type, row, meta){
@@ -153,27 +152,46 @@ function editCell(cell, row, oldValue) {
         });
 };
 
+
+// Bind to modal opening to set necessary data properties to be used to make request
+$('#confirm-delete-ingredient').on('show.bs.modal', function(event) {
+    var caller = event.relatedTarget;
+    var table = $(caller).closest("table").DataTable().table();
+    var row = table.row($(caller).parents('tr'));
+    var text = 'Are you sure you want to remove '+ row.data().Bottle +' ('+ row.data().Type +') from the database?';
+    $(this).find('p').text(text)
+    $(this).on('click', '.btn-danger', function(e) {
+        $(caller).deleteEditableCell(caller);
+    });
+});
+
 function deleteRow(cell, row) {
-    // Confirm modal here???
-    var type_, bottle;
+    var type_, bottle, modal, msg;
+    type_ = row.data().Type;
+    bottle = row.data().Bottle;
+    modal = $('#confirm-delete-ingredient');
     $.delete("/api/ingredient", {
             row_index: row.index(), Bottle: row.data().Bottle, Type: row.data().Type
         })
         .done(function(result) {
+            modal.find('.btn-danger').addClass('d-none');
             if (result.status == "error") {
-                alert("Error: " + result.message);
+                msg = "Error: " + result.message;
             }
             else if (result.status == "success") {
                 if (result.row_index) {
                     console.log("DEL: "+result.message);
-                    barstock_table.row(result.row_index).remove().draw();
+                    row.remove().draw();
+                    // give some feedback via the modal
+                    msg = 'Successfully removed '+ bottle +' ('+ type_ +').';
                 }
                 else {
-                    console.log("Error: response missing 'row_index'");
+                    msg = "Error: response missing 'row_index'";
                 }
             }
             else {
-                console.log("Unknown formatted response: " + result);
+                msg = "Unknown formatted response: " + result;
             }
+            modal.find('p').text(msg);
         });
 };
