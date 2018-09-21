@@ -82,6 +82,19 @@ jQuery.fn.dataTable.Api.register('MakeCellsEditable()', function (settings) {
 
             // Redraw table
             table.draw();
+        },
+        // DELETE
+        deleteEditableCell: function(callingElement) {
+            var table = $(callingElement).closest("table").DataTable().table();
+            var row = table.row($(callingElement).parents('tr'));
+            var cell = table.cell($(callingElement).parents('td'));
+            // Return cell & row.
+            settings.onDelete(cell, row);
+
+            // Get current page
+            var currentPageIndex = table.page.info().page;
+            // Redraw table
+            table.page(currentPageIndex).draw(false);
         }
     });
 

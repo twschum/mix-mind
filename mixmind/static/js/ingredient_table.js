@@ -1,7 +1,3 @@
-function deleteRow (cell, row) {
-
-};
-
 var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup": 4, "Juice": 5, "Mixer": 6, "Wine": 7, "Beer": 8, "Dry": 9, "Ice": 10}
 // NOTE: in datatables 2.0, can use simply api.column(id).name()
 var number_col_classes = "text-right monospace"
@@ -9,7 +5,7 @@ var column_settings = [
     {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
         //<i class="fas fa-plus"></i>
         // TODO modal for confirm delete - mention the alternate using the in stock toggle
-        var del_btn = '<button class="close" onclick="deleteRow(this)"><i class="far fa-trash-alt"></i></button>';
+        var del_btn = '<button class="close" onclick="$(this).deleteEditableCell(this)" title="Delete this ingredient completely"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
     }},
     {data: "Category", name: "Category", render: function(data, type, row, meta){
@@ -68,6 +64,7 @@ $(document).ready( function () {
     // editCell integration
     barstock_table.MakeCellsEditable({
         "onUpdate": editCell,
+        "onDelete": deleteRow,
         "confirmationButton": {
             //"confirmCss": 'btn btn-sm btn-outline-success btn-icon',
             "confirmCss": 'close close-color',
@@ -117,12 +114,12 @@ jQuery.each( [ "put", "delete" ], function( i, method ) {
     };
 });
 
-function editCell (cell, row, oldValue) {
-    var data = cell.data().trim();
+function editCell(cell, row, oldValue) {
+    var data, type_, bottle;
+    data = cell.data().trim();
     if (data == oldValue) {
         return;
     }
-    console.log("The new value for the cell is: " + data);
     var col = column_settings[ cell.index().column ].name
     if (col == "Bottle") {
         bottle = oldValue;
@@ -138,6 +135,29 @@ function editCell (cell, row, oldValue) {
     }
     $.put("/api/ingredient", { row_index: row.index(), Bottle: bottle, Type: type_,
         field: col, value: data })
+        .done(function(result) {
+            if (result.status == "error") {
+                alert("Error: " + result.message);
+            }
+            else if (result.status == "success") {
+                barstock_table.row(result.row_index).data(result.data);
+                $(".toggle-switch").bootstrapToggle();
+            }
+            else {
+                console.log("Unknown formatted response: " + result);
+            }
+        });
+};
+
+function deleteRow(cell, row) {
+    // Confirm modal here???
+    var type_, bottle;
+    type = row.data().Type;
+    bottle =
+    console.log("Deleting: " + row);
+    $.delete("/api/ingredient", {
+            row_index: row.index(), Bottle: row.data().Bottle, Type: row.data().Type
+        })
         .done(function(result) {
             if (result.status == "error") {
                 alert("Error: " + result.message);
