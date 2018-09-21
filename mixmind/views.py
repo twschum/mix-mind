@@ -562,8 +562,7 @@ def ingredient_stock():
             log.info(msg)
             flash(msg, 'success')
 
-    # XXX
-    return render_template('test_ingredient.html', form=form, upload_form=upload_form, form_open=form_open)
+    return render_template('ingredients.html', form=form, upload_form=upload_form, form_open=form_open)
 
 
 ################################################################################
