@@ -77,7 +77,7 @@ class DrinksForm(BaseForm):
     examples = BooleanField("Examples", description="Show specific examples of a recipe based on the ingredient stock")
     all_ingredients = BooleanField("All Ingredients", description="Show every ingredient instead of just the main liquors with each example")
     convert = TextField("Convert", description="Convert recipes to a different primary unit", default=None, validators=[validators.AnyOf(VALID_UNITS), validators.Optional()])
-    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.1) # TODO config management
+    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)", default=1.1) # TODO config management (current_bar)
     info = BooleanField("Info", description="Show the info line for recipes")
     origin = BooleanField("Origin", description="Check origin and mark drinks as Schubar originals")
     variants = BooleanField("Variants", description="Show variants for drinks")
@@ -172,7 +172,7 @@ class EditUserForm(BaseForm):
     first_name = StringField('First Name')
     last_name = StringField('Last Name')
     nickname = StringField('Nickname')
-    venmo_id = StringField('Venmo ID') # TODO integrate venmo logo!
+    venmo_id = StringField('Venmo ID')
     submit = SubmitField('Save Profile')
 
 class CreateBarForm(BaseForm):
@@ -191,7 +191,8 @@ class EditBarForm(BaseForm):
     ONSTYLE = "secondary"
     OFFSTYLE = None
 
-    # someday use just "bartenders"
+    # TODO use just "bartenders" for the current bar after there's a real syetem
+    # for bars to pick bartenders - maybe off the user page
     status = ToggleField("Bar Status", description="Open or close the bar to orders",
             on="Open", off="Closed", onstyle="success", offstyle="danger")
     bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders",
