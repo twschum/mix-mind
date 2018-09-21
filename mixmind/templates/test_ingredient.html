@@ -9,11 +9,28 @@
 {# TODO info modal that comes up for ingredient and discusses each component thing #}
 
 <div class="row">
-	<h3 class="col-auto">Ingredient Stock for {{ g.current_bar.cname }}</h3>
+	<h2 class="col-auto">Ingredient Stock for {{ g.current_bar.cname }}</h2>
 	<form id="refresh-recipes" action="" method="post" role="form">
-		<input type="submit" class="btn btn-primary col-auto" target="_blank" name="reload-recipes" value="Refresh Recipes from these Ingredients"></input>
+		<input type="submit" class="btn btn-primary col-auto" target="_blank" name="reload-recipes" value="Refresh Recipes{#from these Ingredients#}"></input>
 	</form>
 </div>
+
+<form  id="add-ingredient-form" action="" method="post" role="form">
+	{{ form.csrf }}
+	<a href="#add-ingredient" data-toggle="collapse" class="close" style="float: none;">
+		<h3><i class="fas fa-plus"></i>New Ingredient</h3>
+	</a>
+	<div id="add-ingredient" class="collapse{% if form_open %} show{% endif %}">
+		{{ render_field(form.bottle) }}
+		{{ render_field(form.category) }}
+		{{ render_field(form.type_) }}
+		{{ render_field(form.abv) }}
+		{{ render_field(form.size) }}
+		{{ render_field(form.unit) }}
+		{{ render_field(form.price) }}
+		<input type="submit" class="btn btn-success" target="_blank" name="add-ingredient" value="Add"></input>
+	</div>
+</form>
 
 <table id="barstock-table" class="table">
 	<thead>

@@ -17,7 +17,7 @@ from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListS
 from .authorization import user_datastore
 from .barstock import Barstock_SQL, Ingredient, _update_computed_fields
 from .formatted_menu import filename_from_options, generate_recipes_pdf
-from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table, ingredients_as_table
+from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe, convert_units
 from .database import db
 from .models import User, Order, Bar
@@ -523,36 +523,26 @@ def recipe_library():
 def ingredient_stock():
     form = get_form(BarstockForm)
     upload_form = get_form(UploadBarstockForm)
+    form_open = False
     print form.errors
 
     if request.method == 'POST':
         print request
         if 'add-ingredient' in request.form:
-            row = {}
-            row['Category'] = form.category.data
-            row['Type'] = form.type_.data
-            row['Bottle'] = form.bottle.data
-            row['ABV'] = float(form.abv.data)
-            row['Size (mL)'] = float(form.size_ml.data)
-            row['Price Paid'] = float(form.price.data)
-            Barstock_SQL(current_bar.id).add_row(row)
-            mms.regenerate_recipes(current_bar)
-
-        elif 'remove-ingredient' in request.form:
-            pass # TODO this with datatable
-            bottle = form.bottle.data
-            if bottle in mms.barstock.df.Bottle.values:
-                mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
-                mms.regenerate_recipes(current_bar)
-                flash("Removed {}".format(bottle))
+            if form.validate():
+                row = {}
+                row['Category'] = form.category.data
+                row['Type'] = form.type_.data
+                row['Bottle'] = form.bottle.data
+                row['ABV'] = float(form.abv.data)
+                row['Size (mL)'] = convert_units(float(form.size.data), form.unit.data, 'mL')
+                row['Price Paid'] = float(form.price.data)
+                ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
+                #mms.regenerate_recipes(current_bar) TODO need a more efficient reload for single ingredient changes
+                return redirect(request.url)
             else:
-                flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle), 'danger')
-
-        elif 'toggle-in-stock' in request.form:
-            uid = urllib.unquote(request.form['uid'])
-            ingredient = Ingredient.query_by_uid(uid)
-            ingredient.In_Stock = not ingredient.In_Stock
-            db.session.commit()
+                form_open = True
+                flash("Error in form validation", 'danger')
 
         elif 'upload-csv' in request.form:
             # TODO handle files < 500 kb by keeping in mem
@@ -575,10 +565,8 @@ def ingredient_stock():
             mms.regenerate_recipes(current_bar)
             flash("Reloaded the recipe library from current ingredients for {}".format(current_bar.cname))
 
-    ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
-    stock_table = ingredients_as_table(ingredients)
     # XXX
-    return render_template('test_ingredient.html', form=form, upload_form=upload_form, stock_table=stock_table)
+    return render_template('test_ingredient.html', form=form, upload_form=upload_form, form_open=form_open)
 
 
 ################################################################################

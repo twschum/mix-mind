@@ -126,7 +126,7 @@ class RecipeForm(BaseForm):
     name = TextField("Name", description="The recipe name", validators=[validators.required()])
     info = TextField("Info", description="Additional information about the recipe")
     ingredients = FieldList(FormField(RecipeIngredientForm), min_entries=1, validators=[validators.required()])
-    unit = SelectField("Unit", choices=pairs([VALID_UNITS]), validators=[validators.required()])
+    unit = SelectField("Unit", choices=pairs(VALID_UNITS), validators=[validators.required()])
     #glass =
     #unit =
     #prep =
@@ -147,14 +147,19 @@ class UploadBarstockForm(BaseForm):
 class BarstockForm(BaseForm):
 
     categories = 'Spirit,Liqueur,Vermouth,Bitters,Syrup,Dry,Juice,Mixer,Wine,Ice'.split(',')
-    #types = ',Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
+    # TODO maybe as an "other" then fill...
+    types = 'Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
+    def types_list(self):
+        return ', '.join(types)
     category = SelectField("Category", validators=[validators.required()], choices=pairs(categories))
     #type_ = SelectField("Type", validators=[validators.required()], choices=pairs(types))
-    type_ = TextField("Type", validators=[validators.required()])
-    bottle = TextField("Brand", description='Specify the bottle, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.required()])
-    abv = DecimalField("ABV", description="Alcohol by Volume (percentage) of the ingredient, if any", validators=[validators.required(), validators.NumberRange(min=0, max=200)])
-    size_ml = DecimalField("Size (mL)", description="Size of the ingredient in mL", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
-    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=2000)])
+    type_ = TextField("Type", description='The broader type that an ingredient falls info, e.g. "Dry Gin" or "Orange Liqueur"', validators=[validators.required()])
+    bottle = TextField("Brand", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.required()])
+    abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.required(), validators.NumberRange(min=0, max=100)])
+
+    unit = SelectField("Unit", choices=pairs(VALID_UNITS), validators=[validators.required()])
+    size = DecimalField("Size", description="Size of the ingredient in the unit selected", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
+    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=9999999999)])
 
 class OrderForm(BaseForm):
     notes = TextField("Notes")
