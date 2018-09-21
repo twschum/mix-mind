@@ -118,11 +118,11 @@ jQuery.each( [ "put", "delete" ], function( i, method ) {
 });
 
 function editCell (cell, row, oldValue) {
-    // TODO trim trailing whitespace
-    if (cell.data() == oldValue) {
+    var data = cell.data().trim();
+    if (data == oldValue) {
         return;
     }
-    console.log("The new value for the cell is: " + cell.data());
+    console.log("The new value for the cell is: " + data);
     var col = column_settings[ cell.index().column ].name
     if (col == "Bottle") {
         bottle = oldValue;
@@ -137,7 +137,7 @@ function editCell (cell, row, oldValue) {
         type_ = row.data().Type;
     }
     $.put("/api/ingredient", { row_index: row.index(), Bottle: bottle, Type: type_,
-        field: col, value: cell.data() })
+        field: col, value: data })
         .done(function(result) {
             if (result.status == "error") {
                 alert("Error: " + result.message);
