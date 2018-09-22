@@ -19,7 +19,7 @@ var column_settings = [
     {data: "In_Stock", name: "In_Stock", render: function(data, type, row, meta){
         if (type == "display") {
             var input = '<input class="toggle-switch" type="checkbox"';
-            input += ' data-toggle="toggle" data-on="&check;" data-off="&times;" data-onstyle="success" data-offstyle="danger" data-size="small"';
+            input += ' data-toggle="toggle" data-on="&lt;i class=&quot;fas fa-check toggle-icon&quot;&gt;&lt;/i&gt;" data-off="&lt;i class=&quot;fas fa-times toggle-icon&quot;&gt;&lt;/i&gt;" data-onstyle="success" data-offstyle="danger" data-height="1.75rem;" data-width="2.5rem;"';
             input += ' onchange="$(this).updateEditableCell(this);"';
             input += (data) ? ' value="on" checked' : ' value="off"';
             input += '>';

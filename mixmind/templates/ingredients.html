@@ -60,7 +60,7 @@
 
 <form  id="upload_csv" action="" method="post" role="form" enctype="multipart/form-data">
 	{{ upload_form.csrf }}
-	<a href="#add-barstock" data-toggle="collapse"><h3><i class="fas fa-file-upload"></i>Upload Bar Stock File&nbsp;<i class="fas fa-caret-down"></i></h3></a>
+	<a href="#add-barstock" data-toggle="collapse"><h3><i class="fas fa-file-upload"></i> Upload Bar Stock File&nbsp;<i class="fas fa-caret-down"></i></h3></a>
 	<div id="add-barstock" class="collapse">
 		{{ render_field(upload_form.upload_csv) }}
 		{{ render_field(upload_form.replace_existing) }}
