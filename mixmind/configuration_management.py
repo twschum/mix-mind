@@ -76,10 +76,11 @@ class MixMindServer():
         """
         if ingredient:
             print ("Updating recipes containing {} for {}".format(ingredient, bar.cname))
+            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes
+                            if recipe.contains_ingredient(ingredient)]
         else:
             print ("Regenerating recipe library for {}".format(bar.cname))
-        [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes
-                            if recipe.contains_ingredient(ingredient)]
+            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes]
 
 BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed")
 

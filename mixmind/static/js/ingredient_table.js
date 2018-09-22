@@ -6,6 +6,17 @@ var column_settings = [
         var del_btn = '<button type="button" class="close" data-toggle="modal" data-target="#confirm-delete-ingredient" title="Delete this ingredient completely"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
     }},
+    {data: "In_Stock", name: "In_Stock", render: function(data, type, row, meta){
+        if (type == "display") {
+            var input = '<input class="toggle-switch" type="checkbox"';
+            input += ' data-toggle="toggle" data-on="&lt;i class=&quot;fas fa-check toggle-icon&quot;&gt;&lt;/i&gt;" data-off="&lt;i class=&quot;fas fa-times toggle-icon&quot;&gt;&lt;/i&gt;" data-onstyle="success" data-offstyle="secondary" data-height="1.75rem;" data-width="2.5rem;"';
+            input += ' onchange="$(this).updateEditableCell(this);"';
+            input += (data) ? ' value="on" checked' : ' value="off"';
+            input += '>';
+            return input;
+        }
+        return data;
+    }},
     {data: "Category", name: "Category", render: function(data, type, row, meta){
         switch (type) {
             case "sort":
@@ -16,17 +27,6 @@ var column_settings = [
     }},
     {data: "Type", name: "Type"},
     {data: "Bottle", name: "Bottle"},
-    {data: "In_Stock", name: "In_Stock", render: function(data, type, row, meta){
-        if (type == "display") {
-            var input = '<input class="toggle-switch" type="checkbox"';
-            input += ' data-toggle="toggle" data-on="&lt;i class=&quot;fas fa-check toggle-icon&quot;&gt;&lt;/i&gt;" data-off="&lt;i class=&quot;fas fa-times toggle-icon&quot;&gt;&lt;/i&gt;" data-onstyle="success" data-offstyle="danger" data-height="1.75rem;" data-width="2.5rem;"';
-            input += ' onchange="$(this).updateEditableCell(this);"';
-            input += (data) ? ' value="on" checked' : ' value="off"';
-            input += '>';
-            return input;
-        }
-        return data;
-    }},
     {data: "ABV", name: "ABV", className: number_col_classes, render: function(data, type, row, meta){
         if (type == "display"){
             if (data == 0 || data == "0") {
@@ -53,7 +53,7 @@ $(document).ready( function () {
         "ajax": "/api/ingredients",
         "columns": column_settings,
         // sort by the Category column
-        "order": [[ 1, 'asc' ]],
+        "order": [[ 2, 'asc' ]],
         // handles rendering of the toggle switches in the table
         "drawCallback": function() {
             $(".toggle-switch").bootstrapToggle();
