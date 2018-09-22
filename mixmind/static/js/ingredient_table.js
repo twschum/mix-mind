@@ -1,7 +1,13 @@
+// TODO add a "copy" column
+// TODO add a download as csv
 var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup": 4, "Juice": 5, "Mixer": 6, "Wine": 7, "Beer": 8, "Dry": 9, "Ice": 10}
 // NOTE: in datatables 2.0, can use simply api.column(id).name()
 var number_col_classes = "text-right monospace"
 var column_settings = [
+    {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
+        var clone_btn = '<button type="button" class="close" onclick="cloneIngredient(this)" title="Add new ingreadient starting with a copy of this ingredient"><i class="far fa-clone"></i></button>';
+        return clone_btn;
+    }},
     {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
         var del_btn = '<button type="button" class="close" data-toggle="modal" data-target="#confirm-delete-ingredient" title="Delete this ingredient completely"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
@@ -53,7 +59,7 @@ $(document).ready( function () {
         "ajax": "/api/ingredients",
         "columns": column_settings,
         // sort by the Category column
-        "order": [[ 2, 'asc' ]],
+        "order": [[ 3, 'asc' ]],
         // handles rendering of the toggle switches in the table
         "drawCallback": function() {
             $(".toggle-switch").bootstrapToggle();
@@ -71,7 +77,7 @@ $(document).ready( function () {
             "cancelValue": '<i class="fa fa-times text-danger line-200"></i>'
         },
         "inputCss": '',
-        "columns": [1,2,3,4,5,6,7,8], // allowed to edit these columns
+        "columns": [2,3,4,5,6,7,8,9], // allowed to edit these columns
         "inputTypes": [
             {
                 "column": 1,
@@ -195,3 +201,26 @@ function deleteRow(cell, row) {
             modal.find('p').text(msg);
         });
 };
+
+function cloneIngredient(callingElement) {
+    var modal = $('#add-ingredient');
+    var row = $(callingElement).closest("table").DataTable().table().row($(callingElement).parents('tr'));
+    modal.find('input[name="bottle"]').val(row.data().Bottle)
+    modal.find('input[name="category"]').val(row.data().Category)
+    modal.find('input[name="type_"]').val(row.data().Type)
+    modal.find('input[name="abv"]').val(row.data().ABV)
+    modal.find('input[name="size"]').val(row.data().Size_mL)
+    modal.find('input[name="price"]').val(row.data().Price_Paid)
+    modal.modal('show');
+};
+
+function clearModalForm() {
+    var modal = $('#add-ingredient');
+    modal.find('input[name="bottle"]').val('')
+    modal.find('input[name="category"]').val('')
+    modal.find('input[name="type_"]').val('')
+    modal.find('input[name="abv"]').val('')
+    modal.find('input[name="size"]').val('')
+    modal.find('input[name="price"]').val('')
+}
+
