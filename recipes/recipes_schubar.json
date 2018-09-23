@@ -354,6 +354,18 @@
                      "Gin Fizz: Swap in lemon"]
     },
 
+    "Ruby": {
+        "info": "From Longroad, showcasing their barrel aged gin and all-Michigan cherry liqueur",
+        "style": "All Day Cocktail",
+        "tag": "core",
+        "ingredients": {
+            "dry gin": 1,
+            "sweet vermouth": 0.75,
+            "cherry liqueur": 0.5,
+            "aromatic bitters": "dash"
+        }
+    },
+
     "Tom Collins": {
         "style": "Longdrink",
         "ingredients": {
