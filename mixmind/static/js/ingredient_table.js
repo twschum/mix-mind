@@ -9,7 +9,7 @@ var column_settings = [
         return clone_btn;
     }},
     {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
-        var del_btn = '<button type="button" class="close" data-toggle="modal" data-target="#confirm-delete-ingredient" title="Delete this ingredient completely"><i class="far fa-trash-alt"></i></button>';
+        var del_btn = '<button type="button" class="close" data-toggle="modal" data-target="#confirm-delete-ingredient" title="Delete this ingredient"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
     }},
     {data: "In_Stock", name: "In_Stock", render: function(data, type, row, meta){
@@ -165,7 +165,8 @@ $('#confirm-delete-ingredient').on('show.bs.modal', function(event) {
     var table = $(caller).closest("table").DataTable().table();
     var row = table.row($(caller).parents('tr'));
     var text = 'Are you sure you want to remove '+ row.data().Bottle +' ('+ row.data().Type +') from the database?';
-    $(this).find('p').text(text)
+    $(this).find('p').text(text);
+    $(this).find('.btn-danger').removeClass('d-none');
     $(this).on('click', '.btn-danger', function(e) {
         $(caller).deleteEditableCell(caller);
     });
