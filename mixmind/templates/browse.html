@@ -10,10 +10,11 @@
 		<div class="col-md-4 col-xl-3">
 			{% block formdiv %}
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
-			<form id="menu-settings" action="" method="post" role="form">
+			<form id="filter-recipes" action="" method="post" role="form">
 			{# ghost button, ensures we always apply filters on 'ENTER' #}
 			<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
 
+			{# collapse the filters in small viewports #}
 			<div class="row d-md-none">
 				<div class="col-auto mr-auto">
 					<a class="btn btn-outline-primary mb-3" href="#filters" data-toggle="collapse">Filters</a>
@@ -26,6 +27,12 @@
 			<div id="filters" class="collapse d-md-block" style="margin-bottom:0.75rem">
 					{{ form.csrf }}
 					<div class="form-group">
+						<div class="form-row no-gutters">
+							{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
+							<div class="form-group search-btn-submit">
+								<button type="submit" id="search-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
+							</div>
+						</div>
 						<div class="form-row no-gutters">
 						{{ render_field(form.include, form_group_classes="col") }}
 						{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
