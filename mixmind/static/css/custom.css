@@ -26,6 +26,21 @@ h1, h2, h3, h4, h5, h6 {
 .navbar-brand {
     font-family: 'cmu_typewriter_wide';
 }
+.monospace {
+    font-family: 'cmu_typewriter_wide';
+}
+
+/* add default width to icons */
+i {
+    width: 2.1rem;
+    text-align: center;
+    line-height: 1rem;
+}
+
+.toggle-icon {
+    width: 1.5rem;
+    font-size: 1.25rem;
+}
 
 /* spans the top of the page */
 .bg-light {
@@ -45,6 +60,66 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.7em;
     font-style: italic;
 }
+
+/* The comp modern typerwriter fonts have extra spacing below
+ * which distorts buttons a lot*/
+.btn {
+}
+
+/* Use with icons as buttons */
+.btn-icon {
+    font-size: 1.0rem;
+    padding-bottom: 0;
+    line-height: 1.2;
+}
+
+.form-ht-sm {
+    height: calc(1.8125rem + 2px);
+}
+.form-ht {
+    height: calc(2.25rem + 2px);
+}
+.form-ht-lg {
+    height: calc(2.875rem + 2px);
+}
+
+.line-50 {
+    line-height: 0.50rem;
+}
+.line-75 {
+    line-height: 0.75rem;
+}
+.line-90 {
+    line-height: 0.90rem;
+}
+.line-100 {
+    line-height: 1.00rem;
+}
+.line-110 {
+    line-height: 1.10rem;
+}
+.line-120 {
+    line-height: 1.2rem;
+}
+.line-125 {
+    line-height: 1.25rem;
+}
+.line-150 {
+    line-height: 1.50rem;
+}
+.line-200 {
+    line-height: 2.00rem;
+}
+
+/* These tag along with the close class which makes the best icon button.
+ * Use with text-[danger|success|...] for more saturated colors */
+.close-color {
+    opacity: 0.85;
+}
+.close-color:not(:disabled):not(.disabled):focus, .close-color:not(:disabled):not(.disabled):hover {
+    opacity: 1;
+}
+
 /* Use to make file upload look better
 <span class="btn btn-default btn-file">
 Browse <input type="file">
@@ -87,12 +162,13 @@ a.card:hover {
     font-style: italic;
 }
 
-table, th, td {
+table.dataTable, th, td {
     border: none;
     border-bottom: 1px solid #C8C8C8;
-    border-collapse: collapse;
-    text-align:left;
-    padding: 8px;
+    border-collapse: collapse !important;
+    text-align: left;
+    vertical-align: middle !important;
+    padding: 0.4rem;
     margin-bottom: 40px;
     font-size: 0.9em;
 }
@@ -113,20 +189,16 @@ tr:nth-child(odd)     { background-color:#fff; }
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
     color: #adadad;
 }
-
 .toggle.off {
     border-color: rgba(0, 0, 0, .25);
 }
-
 .toggle.off {
     border-color: rgba(0, 0, 0, .25);
 }
-
 .toggle-handle {
     background-color: white;
     border: thin rgba(0, 0, 0, .25) solid;
 }
-
 .toggle-and-or-col {
     flex: 0 0 70px;
 }

@@ -43,12 +43,12 @@ A json file of recipes conforming to the schema
     }}
 }}
 A csv of ingredients based on the following format:
-Category  Type              Bottle           In Stock  Proof  Size (mL)  Price Paid
-Spirit    Rye Whiskey       Bulleit Rye      1         90     750        $28.96
-Spirit    Dry Gin           New Amsterdam    0         88     1750       $25.49
-Liqueur   Orange Liqueur    Triple Sec       1         30     750        $5.99
-Vermouth  Dry Vermouth      Noilly Prat Dry  1         32     375        $6.99
-Bitters   Aromatic Bitters  Angostura        1         89.4   118        $7.95
+Category  Type              Bottle           In Stock  ABV    Size (mL)  Price Paid
+Spirit    Rye Whiskey       Bulleit Rye      1         45     750        $28.96
+Spirit    Dry Gin           New Amsterdam    0         44     1750       $25.49
+Liqueur   Orange Liqueur    Triple Sec       1         15     750        $5.99
+Vermouth  Dry Vermouth      Noilly Prat Dry  1         16     375        $6.99
+Bitters   Aromatic Bitters  Angostura        1         44.7   118        $7.95
 Syrup     Simple Syrup      Homemade         1         0      4000       $2.79
 Juice     Lemon Juice       Fresh            1         0      45         $0.80
 Mixer     Club Soda         Club Soda        0         0      178        $1.00

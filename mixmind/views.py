@@ -15,10 +15,10 @@ from flask_login import current_user
 from .notifier import send_mail
 from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm, CreateBarForm, EditBarForm, EditUserForm
 from .authorization import user_datastore
-from .barstock import Barstock_SQL, Ingredient
+from .barstock import Barstock_SQL, Ingredient, _update_computed_fields
 from .formatted_menu import filename_from_options, generate_recipes_pdf
-from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table, ingredients_as_table
-from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe
+from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table
+from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe, convert_units
 from .database import db
 from .models import User, Order, Bar
 from . import log, app, mms, current_bar
@@ -479,6 +479,7 @@ def menu_generator():
 @roles_required('admin')
 def menu_download():
     form = get_form(DrinksForm)
+    raise NotImplementedError
 
     if form.validate():
         print request
@@ -523,36 +524,26 @@ def recipe_library():
 def ingredient_stock():
     form = get_form(BarstockForm)
     upload_form = get_form(UploadBarstockForm)
+    form_open = False
     print form.errors
 
     if request.method == 'POST':
         print request
         if 'add-ingredient' in request.form:
-            row = {}
-            row['Category'] = form.category.data
-            row['Type'] = form.type_.data
-            row['Bottle'] = form.bottle.data
-            row['Proof'] = float(form.proof.data)
-            row['Size (mL)'] = float(form.size_ml.data)
-            row['Price Paid'] = float(form.price.data)
-            Barstock_SQL(current_bar.id).add_row(row)
-            mms.regenerate_recipes(current_bar)
-
-        elif 'remove-ingredient' in request.form:
-            pass # TODO this with datatable
-            bottle = form.bottle.data
-            if bottle in mms.barstock.df.Bottle.values:
-                mms.barstock.df = mms.barstock.df[mms.barstock.df.Bottle != bottle]
-                mms.regenerate_recipes(current_bar)
-                flash("Removed {}".format(bottle))
+            if form.validate():
+                row = {}
+                row['Category'] = form.category.data
+                row['Type'] = form.type_.data
+                row['Bottle'] = form.bottle.data
+                row['ABV'] = float(form.abv.data)
+                row['Size (mL)'] = convert_units(float(form.size.data), form.unit.data, 'mL')
+                row['Price Paid'] = float(form.price.data)
+                ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
+                mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
+                return redirect(request.url)
             else:
-                flash("Error: \"{}\" not found; must match as shown below exactly".format(bottle), 'danger')
-
-        elif 'toggle-in-stock' in request.form:
-            uid = urllib.unquote(request.form['uid'])
-            ingredient = Ingredient.query_by_uid(uid)
-            ingredient.In_Stock = not ingredient.In_Stock
-            db.session.commit()
+                form_open = True
+                flash("Error in form validation", 'danger')
 
         elif 'upload-csv' in request.form:
             # TODO handle files < 500 kb by keeping in mem
@@ -571,13 +562,124 @@ def ingredient_stock():
             log.info(msg)
             flash(msg, 'success')
 
-        elif 'reload-recipes' in request.form:
-            mms.regenerate_recipes(current_bar)
-            flash("Reloaded the recipe library from current ingredients for {}".format(current_bar.cname))
+    return render_template('ingredients.html', form=form, upload_form=upload_form, form_open=form_open)
 
+
+################################################################################
+# API routes
+################################################################################
+# All of these routes are designed to be used against ajax calls
+# Each route will return a json object with the following parameters:
+#  status:  "success" - successful go ahead and use the data
+#           "error"   - something went wrong
+#  message: "..."     - error message
+#  data:    {...}     - the expected data returned to caller
+def api_error(message, **kwargs):
+    return jsonify(status="error", message=message, **kwargs)
+def api_success(data, message="", **kwargs):
+    return jsonify(status="success", message=message, data=data, **kwargs)
+
+@app.route("/api/ingredients", methods=['GET'])
+@login_required
+@roles_required('admin')
+def api_ingredients():
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
-    stock_table = ingredients_as_table(ingredients)
-    return render_template('ingredients.html', form=form, upload_form=upload_form, stock_table=stock_table)
+    ingredients = [i.as_dict() for i in ingredients]
+    return api_success(ingredients)
+
+@app.route("/api/ingredient", methods=['POST', 'GET', 'PUT', 'DELETE'])
+@login_required
+@roles_required('admin')
+def api_ingredient():
+    """CRUD endpoint for individual ingredients
+
+    Indentifying parameters:
+    :param string Bottle: bottle for ingredient
+    :param string Type: type for ingredient
+
+    Create params:
+    :param string Category: Category idenfitier
+    :param float ABV: ABV value
+    :param float Size: Size
+    :param string Unit: one of util.VALID_UNITS
+    :param float Price: price of the ingredint
+
+    Read:
+
+    Update:
+    :param int row_index: index of the changed row, pass back to requester
+    :param string field: the value being modified
+    :param string value: the new value (type coerced from field)
+
+    Delete:
+    :param int row_index: index of the changed row, pass back to requester
+
+    """
+    Bottle = request.form.get('Bottle')
+    Type = request.form.get('Type')
+    ingredient = Ingredient.query.filter_by(bar_id=current_bar.id, Bottle=Bottle, Type=Type).one_or_none()
+    if not ingredient and not request.method == 'POST':
+        return api_error("Ingredient not found")
+    row_index = request.form.get('row_index')
+    if row_index is None and request.method in ['PUT', 'DELETE']:
+        return api_error("row_index is a required parameter for {}".fromat(request.method))
+
+    # create
+    if request.method == 'POST':
+        if ingredient:
+            return api_error("Ingredient '{}' already exists, try editing it instead".format(ingredient))
+        return api_error("Not implemented")
+    # read
+    elif request.method == 'GET':
+        return api_success(ingredient.as_dict(), messaage="Ingredient: {}".format(ingredient))
+    # update
+    elif request.method == 'PUT':
+        field = request.form.get('field')
+        if not field:
+            return api_error("'field' is a required parameter")
+        elif field not in "Category,Type,Bottle,In_Stock,ABV,Size_mL,Size_oz,Price_Paid".split(','):
+            return api_error("'{}' is not allowed to be edited via the API".format(field))
+        value = request.form.get('value')
+        if not value:
+            return api_error("'value' is a required parameter")
+
+        # TODO value constraints
+        try:
+            # the toggle switches return 'on'/'off'
+            # but that is their current state, so toggle value here
+            if field == 'In_Stock':
+                value = {'on': False, 'off': True}[value]
+            else:
+                value = type(ingredient[field])(value)
+        except AttributeError:
+            return api_error("Invalid field '{}' for an Ingredient".format(field))
+        except ValueError as e:
+            return api_error(str(e))
+
+        # special handling
+        if field == 'Size_oz':
+            # convert to mL because that's how everything works
+            ingredient['Size_mL'] = convert_units(value, 'oz', 'mL')
+        else:
+            ingredient[field] = value
+        if field in ['Size_mL', 'Size_oz', 'Price_Paid', 'Type']:
+            _update_computed_fields(ingredient)
+
+        data = ingredient.as_dict()
+        db.session.commit()
+        mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
+        return api_success(data,
+                message="Successfully updated '{}' for '{}'".format(field, ingredient), row_index=row_index)
+
+    # delete
+    elif request.method == 'DELETE':
+        db.session.delete(ingredient)
+        db.session.commit()
+        mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
+        return api_success({}, message="Successfully deleted {}".format(ingredient), row_index=row_index)
+
+    return api_error("Unknwon method")
+
 
 @app.route("/admin/debug", methods=['GET'])
 @login_required

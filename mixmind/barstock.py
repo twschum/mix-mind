@@ -1,6 +1,7 @@
 import string
 import itertools
 import logging as log
+import copy
 
 try:
     import pandas as pd
@@ -19,13 +20,15 @@ from .compose_html import close
 
 Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ice'.split()
 
+# TODO break this out into own module
+# TODO value constraints (e.g. 100% max abv, no negative price, etc.)
 class Ingredient(db.Model):
     bar_id     = Column(Integer(), ForeignKey('bar.id'), primary_key=True)
     Category   = Column(Enum(*Categories))
     Type       = Column(String(100), primary_key=True)
     Bottle     = Column(String(255), primary_key=True)
     In_Stock   = Column(Boolean(), default=True)
-    Proof      = Column(Float(), default=0.0)
+    ABV        = Column(Float(), default=0.0)
     Size_mL    = Column(Float(), default=0.0)
     Price_Paid = Column(Float(), default=0.0)
     # computed
@@ -34,6 +37,11 @@ class Ingredient(db.Model):
     Cost_per_mL  = Column(Float(), default=0.0)
     Cost_per_cL  = Column(Float(), default=0.0)
     Cost_per_oz  = Column(Float(), default=0.0)
+
+    def as_dict(self):
+        data = copy.copy(self.__dict__)
+        del data['_sa_instance_state']
+        return data
 
     def __str__(self):
         return "|".join([self.Category, self.Type, self.Bottle])
@@ -73,8 +81,8 @@ class Ingredient(db.Model):
         "Category":    {'k':  "Category",     'v':  unicode},
         "Type":        {'k':  "Type",         'v':  unicode},
         "Bottle":      {'k':  "Bottle",       'v':  unicode},
-        "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_int},
-        "Proof":       {'k':  "Proof",        'v':  util.from_float},
+        "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_num},
+        "ABV":         {'k':  "ABV",          'v':  util.from_float},
         "Size (mL)":   {'k':  "Size_mL",      'v':  util.from_float},
         "Size (oz)":   {'k':  "Size_oz",      'v':  util.from_float},
         "Price Paid":  {'k':  "Price_Paid",   'v':  util.from_price_float},
@@ -147,7 +155,8 @@ class Barstock_SQL(Barstock):
                         log.warning(e)
 
     def add_row(self, row, bar_id):
-        """ where row is a dict of fields from the csv"""
+        """ where row is a dict of fields from the csv
+        returns the Model object for the updated/inserted row"""
         if not row.get('Type') and not row.get('Bottle'):
             log.warning("Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
             return
@@ -157,7 +166,7 @@ class Barstock_SQL(Barstock):
                     if k in Ingredient.display_name_mappings}
         except UnicodeDecodeError:
             log.warning("UnicodeDecodeError for ingredient: {}".format(row))
-            return
+            return None
         try:
             ingredient = Ingredient(bar_id=bar_id, **clean_row)
             row = Ingredient.query.filter_by(bar_id=ingredient.bar_id,
@@ -166,10 +175,13 @@ class Barstock_SQL(Barstock):
                 for k, v in clean_row.iteritems():
                     row[k] = v
                 _update_computed_fields(row)
+                db.session.commit()
+                return row
             else: # insert
                 _update_computed_fields(ingredient)
                 db.session.add(ingredient)
-            db.session.commit()
+                db.session.commit()
+                return ingredient
         except SQLAlchemyError as err:
             msg = "{}: on row: {}".format(err, clean_row)
             raise DataError(msg)
@@ -183,8 +195,8 @@ class Barstock_SQL(Barstock):
         opts = itertools.product(*bottle_lists)
         return opts
 
-    def get_bottle_proof(self, ingredient):
-        return self.get_bottle_field(ingredient, 'Proof')
+    def get_bottle_abv(self, ingredient):
+        return self.get_bottle_field(ingredient, 'ABV')
 
     def get_bottle_category(self, ingredient):
         return self.get_bottle_field(ingredient, 'Category')
@@ -256,8 +268,8 @@ class Barstock_DF(Barstock):
         opts = itertools.product(*bottle_lists)
         return opts
 
-    def get_bottle_proof(self, ingredient):
-        return self.get_bottle_field(ingredient, 'Proof')
+    def get_bottle_abv(self, ingredient):
+        return self.get_bottle_field(ingredient, 'ABV')
 
     def get_bottle_category(self, ingredient):
         return self.get_bottle_field(ingredient, 'Category')

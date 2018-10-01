@@ -340,8 +340,8 @@ class QuantizedIngredient(Ingredient):
         if self.unit == 'literal':
             return 0
         amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
-        proof = barstock.get_bottle_proof(util.IngredientSpecifier(self.specifier.what, bottle))
-        return util.calculate_std_drinks(proof, amount, self.recipe_unit)
+        abv = barstock.get_bottle_abv(util.IngredientSpecifier(self.specifier.what, bottle))
+        return util.calculate_std_drinks(abv, amount, self.recipe_unit)
 
 
 class OptionalIngredient(QuantizedIngredient):
