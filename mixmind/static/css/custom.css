@@ -119,6 +119,9 @@ i {
 .close-color:not(:disabled):not(.disabled):focus, .close-color:not(:disabled):not(.disabled):hover {
     opacity: 1;
 }
+.close-btn-txt {
+    font-size: 1.3rem;
+}
 
 /* Use to make file upload look better
 <span class="btn btn-default btn-file">
@@ -201,4 +204,7 @@ tr:nth-child(odd)     { background-color:#fff; }
 }
 .toggle-and-or-col {
     flex: 0 0 70px;
+}
+.search-btn-submit {
+    flex: 0 0 35px;
 }

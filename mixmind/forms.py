@@ -1,7 +1,7 @@
 """
 Definitions of the various forms used
 """
-from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField, StringField, SubmitField, HiddenField
+from wtforms import validators, widgets, Form, Field, FormField, FieldList, TextField, TextAreaField, BooleanField, DecimalField, IntegerField, SelectField, SelectMultipleField, FileField, PasswordField, StringField, SubmitField, HiddenField, compat
 from flask import g
 
 from .models import User
@@ -17,7 +17,6 @@ class BaseForm(Form):
     def reset(self):
         blankData = MultiDict([('csrf', self.reset_csrf())])
         self.process(blankData)
-
 
 class CSVField(Field):
     """Text field that parses data as comma separated values
@@ -35,6 +34,52 @@ class CSVField(Field):
             self.data = [x.strip().lower() for x in valuelist[0].split(',') if x.strip()]
         else:
             self.data = []
+
+class SelectExtended(widgets.Select):
+    """
+    Renders a select field, with disabled options
+
+    If `multiple` is True, then the `size` property should be specified on
+    rendering to make the field useful.
+
+    The field must provide an `iter_choices()` method which the widget will
+    call on rendering; this method must yield tuples of
+    `(value, label, selected, disabled)`.
+    """
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        if self.multiple:
+            kwargs['multiple'] = True
+        html = ['<select %s>' % widgets.html_params(name=field.name, **kwargs)]
+        for val, label, selected, disabled in field.iter_choices():
+            html.append(self.render_option(val, label, selected, disabled))
+        html.append('</select>')
+        return widgets.HTMLString(''.join(html))
+
+    @classmethod
+    def render_option(cls, value, label, selected, disabled, **kwargs):
+        if value is True:
+            # Handle the special case of a 'True' value.
+            value = compat.text_type(value)
+        options = dict(kwargs, value=value)
+        if selected:
+            options['selected'] = True
+        if disabled:
+            options['disabled'] = True
+        return widgets.HTMLString('<option %s>%s</option>' % (widgets.html_params(**options), compat.text_type(label)))
+
+
+class SelectWithPlaceholderField(SelectField):
+    """Make the first option disabled selected, thus like a placeholder
+    <option value="" disabled selected>Select your option</option>
+    """
+    widget = SelectExtended()
+    def iter_choices(self):
+        first = True
+        for value, label in self.choices:
+            yield (value, label, self.coerce(value) == self.data, first)
+            first = False
+
 
 class ToggleField(BooleanField):
     """Subclass check field to take advantge of the
@@ -83,6 +128,7 @@ class DrinksForm(BaseForm):
     variants = BooleanField("Variants", description="Show variants for drinks")
 
     # filtering options
+    search = TextField("", description="")
     all_ = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
     include = CSVField("Include Ingredients", description="Recipes that contain any/all of these comma separated ingredient(s)")
     exclude = CSVField("Exclude Ingredients", description="Recipes that don't contain any/all of these comma separated ingredient(s)")
@@ -97,8 +143,8 @@ class DrinksForm(BaseForm):
 
     # sorting options
     # abv, cost, alcohol content
-    sorting = SelectField("Sort Results", choices=[
-        ("", ""),
+    sorting = SelectWithPlaceholderField("", choices=[
+        ('None', "Sort Results..."),
         ('abv', "ABV (Low to High)"),
         ('abvX', "ABV (High to Low)"),
         ('cost', "Cost ($ to $$$)"),

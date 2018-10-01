@@ -10,21 +10,46 @@
 		<div class="col-md-4 col-xl-3">
 			{% block formdiv %}
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
-			<form id="menu-settings" action="" method="post" role="form">
+			<form id="filter-recipes" action="" method="post" role="form">
+			{{ form.csrf }}
+			<div {#class="form-group"#}>
+				<div class="form-row no-gutters">
+					{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
+					<div class="form-group search-btn-submit">
+						<button type="submit" id="search-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
+					</div>
+					<div class="form-group search-btn-submit">
+						<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
+					</div>
+				</div>
+			</div>
 			{# ghost button, ensures we always apply filters on 'ENTER' #}
 			<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
 
+			{# collapse the filters in small viewports #}
 			<div class="row d-md-none">
 				<div class="col-auto mr-auto">
-					<a class="btn btn-outline-primary mb-3" href="#filters" data-toggle="collapse">Filters</a>
+					<button type="button" class="btn close btn-outline-primary mb-3" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
+					<button type="button" class="btn close btn-outline-primary mb-3" data-target="#sorting" data-toggle="collapse"><i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span></button>
 				</div>
 				<div class="col-auto">
 					<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
 				</div>
 			</div>
 
+			<div id="sorting" class="collapse d-md-block" style="margin-bottom:0.75rem">
+				<div class="form-row no-gutters">
+					{{ render_field(form.sorting, form_group_classes="col") }}
+					<div class="form-group search-btn-submit">
+						<button type="submit" id="sort-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
+					</div>
+					<div class="form-group search-btn-submit">
+						<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
+					</div>
+				</div>
+			</div>
+
 			<div id="filters" class="collapse d-md-block" style="margin-bottom:0.75rem">
-					{{ form.csrf }}
 					<div class="form-group">
 						<div class="form-row no-gutters">
 						{{ render_field(form.include, form_group_classes="col") }}
@@ -34,11 +59,10 @@
 						{{ render_field(form.exclude, form_group_classes="col") }}
 						{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
 						</div>
-						{{ render_field(form.sorting) }}
 						{#<a class="btn btn-outline-primary mb-3" href="#misc-filters" data-toggle="collapse"><h4 style="position:relative; top:2px; margin-bottom:0px">Additional Filters</h4></a>#}
 						<div class="row mb-3">
 							<div class="col-auto mr-auto">
-								<a class="btn btn-outline-primary" href="#misc-filters" data-toggle="collapse">More Filters</a>
+								<a class="btn btn-outline-primary" href="#misc-filters" data-toggle="collapse">Advanced Filters</a>
 							</div>
 							<div class="col-auto d-none d-md-block">
 								<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
