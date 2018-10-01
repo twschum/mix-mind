@@ -83,6 +83,7 @@ class DrinksForm(BaseForm):
     variants = BooleanField("Variants", description="Show variants for drinks")
 
     # filtering options
+    search = TextField("", description="")
     all_ = BooleanField("Allow all ingredients", description="Include all recipes, regardless of if they can be made from the loaded barstock")
     include = CSVField("Include Ingredients", description="Recipes that contain any/all of these comma separated ingredient(s)")
     exclude = CSVField("Exclude Ingredients", description="Recipes that don't contain any/all of these comma separated ingredient(s)")
