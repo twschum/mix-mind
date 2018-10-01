@@ -17,6 +17,32 @@ PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_lis
 
 VALID_UNITS = ['oz', 'mL', 'cL']
 
+class ResultRecipes(object):
+    def add_items(self, recipes):
+        pass
+    def get_items(self):
+        pass
+
+class UnionResultRecipes(ResultRecipes):
+    def __init__(self):
+        self.container = OrderedDict()
+    def add_items(self, recipes):
+        for recipe in recipes:
+            self.container[recipe.name] = recipe
+    def get_items(self):
+        return self.container.values()
+
+class IntersectionResultRecipes(ResultRecipes):
+    def __init__(self):
+        self.container = None
+    def add_items(self, recipes):
+        if self.container is None:
+            self.container = recipes
+        else:
+            self.container = [x for x in self.container if x in recipes]
+    def get_items(self):
+        return self.container
+
 def filter_recipes(all_recipes, filter_options, union_results=False):
     """Filters the recipe list based on a FilterOptions bundle of parameters
     :param list[Recipe] all_recipes: list of recipe object to filter
@@ -25,7 +51,7 @@ def filter_recipes(all_recipes, filter_options, union_results=False):
     :param bool union_results: for each attributes searched against, combine results
         with set intersection by default, or union if True
     """
-    result_recipes = []
+    result_recipes = UnionResultRecipes() if union_results else IntersectionResultRecipes()
     recipes = [recipe for recipe in all_recipes if filter_options.all_ or recipe.can_make]
     if filter_options.search:
         include_list = [filter_options.search.lower()]
@@ -33,21 +59,18 @@ def filter_recipes(all_recipes, filter_options, union_results=False):
         include_list = filter_options.include
     if include_list:
         reduce_fn = any if filter_options.include_use_or else all
-        result_recipes.append([recipe for recipe in recipes if
+        result_recipes.add_items([recipe for recipe in recipes if
                 reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
                 for ingredient in include_list))])
     if filter_options.exclude:
         reduce_fn = any if filter_options.exclude_use_or else all
-        result_recipes.append([recipe for recipe in recipes if
+        result_recipes.add_items([recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
                 for ingredient in filter_options.exclude))])
     for attr in 'style glass prep ice name tag'.split():
-        result_recipes.append(filter_on_attribute(recipes, filter_options, attr))
+        result_recipes.add_items(filter_on_attribute(recipes, filter_options, attr))
 
-    result_recipes = [set(r) for r in result_recipes if r]
-    if result_recipes:
-        reduce_fn = (lambda a,b: a | b) if union_results else (lambda a,b: a & b)
-        result_recipes = list(reduce(reduce_fn, result_recipes))
+    result_recipes = result_recipes.get_items()
 
     def get_names(items):
         return set(map(lambda i: i.name, items))
