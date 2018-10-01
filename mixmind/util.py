@@ -12,31 +12,48 @@ from . import log
 
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
-FilterOptions = namedtuple('FilterOptions', 'all_,include,exclude,include_use_or,exclude_use_or,style,glass,prep,ice,name,tag')
+FilterOptions = namedtuple('FilterOptions', 'search,all_,include,exclude,include_use_or,exclude_use_or,style,glass,prep,ice,name,tag')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 
 VALID_UNITS = ['oz', 'mL', 'cL']
 
-def filter_recipes(all_recipes, filter_options):
+def filter_recipes(all_recipes, filter_options, union_results=False):
+    """Filters the recipe list based on a FilterOptions bundle of parameters
+    :param list[Recipe] all_recipes: list of recipe object to filter
+    :param FilterOptions filter_options: bundle of filtering parameters
+        search str: search an arbitrary string against the ingredients and attributes
+    :param bool union_results: for each attributes searched against, combine results
+        with set intersection by default, or union if True
+    """
+    result_recipes = []
     recipes = [recipe for recipe in all_recipes if filter_options.all_ or recipe.can_make]
-    if filter_options.include:
+    if filter_options.search:
+        include_list = [filter_options.search.lower()]
+    else:
+        include_list = filter_options.include
+    if include_list:
         reduce_fn = any if filter_options.include_use_or else all
-        recipes = [recipe for recipe in recipes if
+        result_recipes.append([recipe for recipe in recipes if
                 reduce_fn((recipe.contains_ingredient(ingredient, include_optional=True)
-                for ingredient in filter_options.include))]
+                for ingredient in include_list))])
     if filter_options.exclude:
         reduce_fn = any if filter_options.exclude_use_or else all
-        recipes = [recipe for recipe in recipes if
+        result_recipes.append([recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
-                for ingredient in filter_options.exclude))]
+                for ingredient in filter_options.exclude))])
     for attr in 'style glass prep ice name tag'.split():
-        recipes = filter_on_attribute(recipes, filter_options, attr)
+        result_recipes.append(filter_on_attribute(recipes, filter_options, attr))
+
+    result_recipes = [set(r) for r in result_recipes if r]
+    if result_recipes:
+        reduce_fn = (lambda a,b: a | b) if union_results else (lambda a,b: a & b)
+        result_recipes = list(reduce(reduce_fn, result_recipes))
 
     def get_names(items):
         return set(map(lambda i: i.name, items))
-    excluded = sorted(list(get_names(all_recipes) - get_names(recipes)))
-    log.debug("    Can't make: {}\n".format(', '.join(excluded)))
-    return recipes, excluded
+    excluded = sorted(list(get_names(all_recipes) - get_names(result_recipes)))
+    log.debug("Excluded: {}\n".format(', '.join(excluded)))
+    return result_recipes, excluded
 
 def find_recipe(recipes, name):
     for recipe in recipes:
@@ -45,8 +62,10 @@ def find_recipe(recipes, name):
     return None
 
 def filter_on_attribute(recipes, filter_options, attribute):
-    if getattr(filter_options, attribute):
-        attr_value = getattr(filter_options, attribute).lower()
+    attr_value = getattr(filter_options, attribute).lower()
+    if filter_options.search and not attr_value:
+        attr_value = filter_options.search.lower()
+    if attr_value:
         recipes = [recipe for recipe in recipes if attr_value in getattr(recipe, attribute).lower()]
     return recipes
 
