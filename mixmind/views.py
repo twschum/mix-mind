@@ -70,7 +70,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     """
     display_options = bundle_options(DisplayOptions, form) if not display_opts else display_opts
     filter_options = bundle_options(FilterOptions, form) if not filter_opts else filter_opts
-    recipes, excluded = filter_recipes(mms.recipes, filter_options)
+    recipes, excluded = filter_recipes(mms.recipes, filter_options, union_results=bool(filter_options.search))
     if form.sorting.data and form.sorting.data != 'None': # TODO this is weird
         reverse = 'X' in form.sorting.data
         attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
@@ -103,7 +103,7 @@ def browse():
 
     if request.method == 'GET':
         # filter for current recipes that can be made on the core list
-        filter_options = FilterOptions(all_=False,include="",exclude="",include_use_or=False,exclude_use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
+        filter_options = FilterOptions(search="",all_=False,include="",exclude="",include_use_or=False,exclude_use_or=False,style="",glass="",prep="",ice="",name="",tag="core")
 
     display_opts = DisplayOptions(
                         prices=current_bar.prices,
