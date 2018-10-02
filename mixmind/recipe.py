@@ -27,28 +27,28 @@ class DrinkRecipe(object):
     @util.default_initializer
     def __init__(self, name, recipe_dict, stock_df=None):
         # from recipe dict pull out other info and set defaults
-        self.info      =  recipe_dict.get('info', '')
-        self.style     =  recipe_dict.get('style', '')
-        self.tag       =  recipe_dict.get('tag', '')
-        self.iba_info  =  recipe_dict.get('IBA_description', '')
-        self.origin    =  recipe_dict.get('origin', '')
-        self.unit      =  recipe_dict.get('unit', 'oz') # cL, mL, tsp, dash, drop
-        self.prep      =  recipe_dict.get('prep', 'shake') # build, stir, blend
-        self.ice       =  recipe_dict.get('ice', 'cubed') # crushed, neat
-        self.glass     =  recipe_dict.get('glass', 'cocktail') # rocks, martini, flute, collins, highball
-        self.variants  =  recipe_dict.get('variants',  [])
+        self.info      =  recipe_dict.get(u'info', u'')
+        self.style     =  recipe_dict.get(u'style', u'')
+        self.tag       =  recipe_dict.get(u'tag', u'')
+        self.iba_info  =  recipe_dict.get(u'IBA_description', u'')
+        self.origin    =  recipe_dict.get(u'origin', u'')
+        self.unit      =  recipe_dict.get(u'unit', u'oz') # cL, mL, tsp, dash, drop
+        self.prep      =  recipe_dict.get(u'prep', u'shake') # build, stir, blend
+        self.ice       =  recipe_dict.get(u'ice', u'cubed') # crushed, neat
+        self.glass     =  recipe_dict.get(u'glass', u'cocktail') # rocks, martini, flute, collins, highball
+        self.variants  =  recipe_dict.get(u'variants',  [])
         self.max_cost     =  0
         self.examples     =  []
         self.ingredients  =  []
         self.stats = None
-        for type_str, quantity in recipe_dict.get('ingredients', {}).iteritems():
+        for type_str, quantity in recipe_dict.get(u'ingredients', {}).iteritems():
             self.ingredients.append(QuantizedIngredient(type_str, quantity, self.unit))
-        for type_str, quantity in recipe_dict.get('optional', {}).iteritems():
+        for type_str, quantity in recipe_dict.get(u'optional', {}).iteritems():
             self.ingredients.append(OptionalIngredient(type_str, quantity, self.unit))
-        if recipe_dict.get('misc'):
-            self.ingredients.append(Ingredient(recipe_dict.get('misc')))
-        if recipe_dict.get('garnish'):
-            self.ingredients.append(Garnish(recipe_dict.get('garnish')))
+        if recipe_dict.get(u'misc'):
+            self.ingredients.append(Ingredient(recipe_dict.get(u'misc')))
+        if recipe_dict.get(u'garnish'):
+            self.ingredients.append(Garnish(recipe_dict.get(u'garnish')))
 
         self.show_examples = False
 
@@ -59,20 +59,20 @@ class DrinkRecipe(object):
         lines.append(self.name)
         lines.extend([i.str() for i in self.ingredients])
         if self.variants:
-            lines.append("\tVariants:")
-            lines.extend(['\t'+v for v in self.variants])
+            lines.append(u"\tVariants:")
+            lines.extend([u'\t'+v for v in self.variants])
         if self.show_examples:
-            lines.append("\tExamples:")
-            lines.extend(['\t'+v for v in self.examples])
-        lines.append('')
-        return '\n'.join(lines)
+            lines.append(u"\tExamples:")
+            lines.extend([u'\t'+v for v in self.examples])
+        lines.append(u'')
+        return u'\n'.join(lines)
 
     def __repr__(self):
-        return "{}:{}".format(self.__class__.__name__, self.name)
+        return u"{}:{}".format(self.__class__.__name__, self.name)
 
     def prep_line(self, extended=True, caps=True):
         case_fn = string.upper if caps else string.lower
-        layout = "{{}} glass | {{}}{} | {{}}".format("" if self.ice == 'neat' else " ice") if extended else "{} | {} | {}"
+        layout = u"{{}} glass | {{}}{} | {{}}".format("" if self.ice == 'neat' else " ice") if extended else u"{} | {} | {}"
         return case_fn(layout.format(self.glass, self.ice, self.prep))
 
     @property
@@ -86,7 +86,7 @@ class DrinkRecipe(object):
             return
         for ingredient in self.ingredients:
             ingredient.recipe_unit = to_unit
-            if ingredient.unit in ['ds', 'drop'] and not convert_nonstandard:
+            if ingredient.unit in [u'ds', 'drop'] and not convert_nonstandard:
                 continue
             try:
                 ingredient.convert(to_unit, rounded=rounded)
@@ -107,15 +107,15 @@ class DrinkRecipe(object):
             # TODO refactor to generate IngredientSpecifiers for the bottle lists
             example = DrinkRecipe.RecipeExample(); example.bottles = []
             for bottle, ingredient in zip(bottles, ingredients):
-                if ingredient.unit == 'literal':
+                if ingredient.unit == u'literal':
                     continue
                 example.cost       += ingredient.get_cost(bottle, barstock)
                 example.std_drinks += ingredient.get_std_drinks(bottle, barstock)
                 example.volume     += ingredient.get_amount_as(self.unit, rounded=False, single_value=True)
                 # remove juice and such from the bottles listed
-                if barstock.get_bottle_category(util.IngredientSpecifier(ingredient.specifier.what, bottle)) in ['Vermouth', 'Liqueur', 'Bitters', 'Spirit', 'Wine']:
+                if barstock.get_bottle_category(util.IngredientSpecifier(ingredient.specifier.what, bottle)) in [u'Vermouth', u'Liqueur', u'Bitters', u'Spirit', u'Wine']:
                     example.bottles.append(bottle)
-            example.bottles = ', '.join(example.bottles);
+            example.bottles = u', '.join(example.bottles);
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
@@ -138,16 +138,16 @@ class DrinkRecipe(object):
         def _mean(examples, attr):
             return sum((getattr(e, attr) for e in examples)) / float(len(examples))
         self.stats = self.RecipeStats()
-        self.stats.min_cost = _find_example(self.examples, 'cost')
-        self.stats.max_cost = _find_example(self.examples, 'cost', max_=True)
-        self.stats.min_abv = _find_example(self.examples, 'abv')
-        self.stats.max_abv = _find_example(self.examples, 'abv', max_=True)
-        self.stats.min_std_drinks = _find_example(self.examples, 'std_drinks')
-        self.stats.max_std_drinks = _find_example(self.examples, 'std_drinks', max_=True)
-        self.stats.volume = _find_example(self.examples, 'volume', max_=True).volume
-        self.stats.avg_cost = _mean(self.examples, 'cost')
-        self.stats.avg_abv = _mean(self.examples, 'abv')
-        self.stats.avg_std_drinks = _mean(self.examples, 'std_drinks')
+        self.stats.min_cost = _find_example(self.examples, u'cost')
+        self.stats.max_cost = _find_example(self.examples, u'cost', max_=True)
+        self.stats.min_abv = _find_example(self.examples, u'abv')
+        self.stats.max_abv = _find_example(self.examples, u'abv', max_=True)
+        self.stats.min_std_drinks = _find_example(self.examples, u'std_drinks')
+        self.stats.max_std_drinks = _find_example(self.examples, u'std_drinks', max_=True)
+        self.stats.volume = _find_example(self.examples, u'volume', max_=True).volume
+        self.stats.avg_cost = _mean(self.examples, u'cost')
+        self.stats.avg_abv = _mean(self.examples, u'abv')
+        self.stats.avg_std_drinks = _mean(self.examples, u'std_drinks')
         return True
 
     def get_ingredient_list(self, all=True, optional=False):
@@ -184,7 +184,7 @@ class Ingredient(object):
     """ An "ingredient" is every item that should be represented in standard text
     """
     def _repr_fmt(self):
-        return "<{}[{{}}]>".format(self.__class__.__name__)
+        return u"<{}[{{}}]>".format(self.__class__.__name__)
 
     @util.default_initializer
     def __init__(self, description):
@@ -192,7 +192,7 @@ class Ingredient(object):
         self.specifier = util.IngredientSpecifier(description)
 
     def str(self):
-        return str(self.description)
+        return unicode(self.description)
 
     def __repr__(self):
         return self._repr_fmt().format(self.description)
@@ -205,7 +205,7 @@ class Garnish(Ingredient):
     """ An ingredient line that denotes it's a garnish
     """
     def str(self):
-        return "{}, for garnish".format(super(Garnish, self).str())
+        return u"{}, for garnish".format(super(Garnish, self).str())
 
     def __repr__(self):
         return super(Garnish, self)._repr_fmt().format(self.description)
@@ -224,58 +224,58 @@ class QuantizedIngredient(Ingredient):
 
         # interpret the raw quantity
         if isinstance(raw_quantity, basestring):
-            if raw_quantity == 'Top with': # counts at 3 ounces on average
-                self.amount = util.convert_units(3.0, 'oz', recipe_unit, rounded=True)
+            if raw_quantity == u'Top with': # counts at 3 ounces on average
+                self.amount = util.convert_units(3.0, u'oz', recipe_unit, rounded=True)
                 self.unit = recipe_unit
                 self.top_with = True
 
-            elif 'dash' in raw_quantity:
-                self.unit = 'ds'
-                if raw_quantity == 'dash':
+            elif u'dash' in raw_quantity:
+                self.unit = u'ds'
+                if raw_quantity == u'dash':
                     self.amount = 1
                 elif re.match(r'[0-9]+ dashes', raw_quantity):
                     self.amount = int(raw_quantity.split()[0])
                 elif re.match(r'[0-9]+ to [0-9]+ dashes', raw_quantity):
                     self.amount = (int(raw_quantity.split()[0]), int(raw_quantity.split()[2]))
                 else:
-                    raise RecipeError("Unknown format for dash amount: {} {}".format(raw_quantity, type_str))
+                    raise RecipeError(u"Unknown format for dash amount: {} {}".format(raw_quantity, type_str))
 
-            elif 'tsp' in raw_quantity:
+            elif u'tsp' in raw_quantity:
                 try:
                     self.amount = float(raw_quantity.split()[0])
                 except ValueError:
                     self.amount = float(Fraction(raw_quantity.split()[0]))
-                self.unit = 'tsp'
+                self.unit = u'tsp'
 
-            elif 'drop' in raw_quantity:
-                self.unit = 'drop'
-                if raw_quantity == 'drop':
+            elif u'drop' in raw_quantity:
+                self.unit = u'drop'
+                if raw_quantity == u'drop':
                     self.amount = 1
                 elif re.match(r'[0-9]+ drops', raw_quantity):
                     self.amount = int(raw_quantity.split()[0])
                 else:
-                    raise RecipeError("Unknown format for drop amount: {} {}".format(raw_quantity, type_str))
+                    raise RecipeError(u"Unknown format for drop amount: {} {}".format(raw_quantity, type_str))
 
-            elif raw_quantity in ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']:
+            elif raw_quantity in [u'one', u'two', u'three', u'four', u'five', u'six', u'seven', u'eight']:
                 self.amount = raw_quantity
-                self.unit = 'literal'
+                self.unit = u'literal'
             else:
-                raise RecipeError("Unknown ingredient quantity: {} {}".format(raw_quantity, type_str))
+                raise RecipeError(u"Unknown ingredient quantity: {} {}".format(raw_quantity, type_str))
         else:
             self.amount = raw_quantity
             self.unit = recipe_unit
 
     def __repr__(self):
-        return super(QuantizedIngredient, self)._repr_fmt().format("{},{},{}".format(self.amount, self.unit, self.specifier))
+        return super(QuantizedIngredient, self)._repr_fmt().format(u"{},{},{}".format(self.amount, self.unit, self.specifier))
 
     def convert(self, new_unit, rounded=True):
-        if self.unit == 'literal':
+        if self.unit == u'literal':
             return
         self.amount = self.get_amount_as(new_unit, rounded=rounded)
         self.unit = new_unit
 
     def get_amount_as(self, new_unit, rounded=True, single_value=False):
-        if self.unit == 'literal':
+        if self.unit == u'literal':
             return
         if isinstance(self.amount, tuple):
             lower  = util.convert_units(self.amount[0], self.unit, new_unit, rounded=rounded)
@@ -287,57 +287,57 @@ class QuantizedIngredient(Ingredient):
 
     def str(self):
         if self.top_with:
-            return "Top with {}".format(self.specifier)
-        if self.unit == 'literal':
-            return "{} {}".format(self.amount, self.specifier)
+            return u"Top with {}".format(self.specifier)
+        if self.unit == u'literal':
+            return u"{} {}".format(self.amount, self.specifier)
 
-        if self.unit == 'ds':
+        if self.unit == u'ds':
             if isinstance(self.amount, tuple):
-                amount = "{:.0f} to {:.0f}".format(self.amount[0], self.amount[1])
-                unit = 'dashes'
+                amount = u"{:.0f} to {:.0f}".format(self.amount[0], self.amount[1])
+                unit = u'dashes'
             elif self.amount == 1:
-                amount = 'dash'
-                unit = 'of'
+                amount = u'dash'
+                unit = u'of'
             else:
-                amount = "{:.0f}".format(self.amount)
-                unit = 'dashes'
-        elif self.unit == 'drop':
+                amount = u"{:.0f}".format(self.amount)
+                unit = u'dashes'
+        elif self.unit == u'drop':
             if isinstance(self.amount, tuple):
-                amount = "{:.0f} to {:.0f}".format(self.amount[0], self.amount[1])
-                unit = 'drops'
+                amount = u"{:.0f} to {:.0f}".format(self.amount[0], self.amount[1])
+                unit = u'drops'
             elif self.amount == 1:
-                amount = 'drop'
-                unit = 'of'
+                amount = u'drop'
+                unit = u'of'
             else:
-                amount = "{:.0f}".format(self.amount)
-                unit = 'drops'
-        elif self.unit in ['oz', 'tsp']:
+                amount = u"{:.0f}".format(self.amount)
+                unit = u'drops'
+        elif self.unit in [u'oz', u'tsp']:
             amount = util.to_fraction(self.amount)
             unit = self.unit
-        elif self.unit == 'mL':
+        elif self.unit == u'mL':
             unit = self.unit
             if self.amount < 10.0:
-                amount = "{:.1f}".format(self.amount)
+                amount = u"{:.1f}".format(self.amount)
             else:
-                amount = "{:.0f}".format(self.amount)
+                amount = u"{:.0f}".format(self.amount)
         else:
             amount = self.amount
             unit = self.unit
 
         formats = {
-                #'mL': u"{:.0f} {} {}",
-                'cL': u"{:.1f} {} {}",
+                #u'mL': u"{:.0f} {} {}",
+                u'cL': u"{:.1f} {} {}",
                 }
         return formats.get(self.unit, u"{} {} {}").format(amount, unit, self.specifier)
 
     def get_cost(self, bottle, barstock):
-        if self.unit == 'literal':
+        if self.unit == u'literal':
             return 0
         amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
         return barstock.cost_by_bottle_and_volume(util.IngredientSpecifier(self.specifier.what, bottle), amount, self.recipe_unit)
 
     def get_std_drinks(self, bottle, barstock):
-        if self.unit == 'literal':
+        if self.unit == u'literal':
             return 0
         amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
         abv = barstock.get_bottle_abv(util.IngredientSpecifier(self.specifier.what, bottle))
@@ -348,5 +348,5 @@ class OptionalIngredient(QuantizedIngredient):
     """ A quantized ingredient that just gets an extra output tag
     """
     def str(self):
-        return "{}, (optional)".format(super(OptionalIngredient, self).str())
+        return u"{}, (optional)".format(super(OptionalIngredient, self).str())
 

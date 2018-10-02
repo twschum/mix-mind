@@ -1,3 +1,4 @@
+alembic==1.0.0
 asn1crypto==0.24.0
 Babel==2.6.0
 bcrypt==3.1.4
@@ -6,6 +7,7 @@ cffi==1.11.5
 chardet==3.0.4
 click==6.7
 Flask==1.0.2
+Flask-Alembic==2.0.1
 Flask-BabelEx==0.9.3
 Flask-Login==0.4.1
 Flask-Mail==0.9.1

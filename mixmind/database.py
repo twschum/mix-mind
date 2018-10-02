@@ -1,5 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_alembic import Alembic
+
 db = SQLAlchemy()
+alembic = Alembic()
 
 def init_db():
     # import all modules here that might define models so that
@@ -14,3 +17,7 @@ def init_db():
     user_datastore.find_or_create_role(name='manager', description='This user can do limited management at one bar')
     user_datastore.find_or_create_role(name='customer', description='Customer may register to make it easier to order drinks')
     db.session.commit()
+
+    # now handle alembic revisions
+    alembic.revision('Convert columns to support unicode')
+    alembic.upgrade()
