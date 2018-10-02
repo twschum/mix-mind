@@ -78,9 +78,9 @@ class Ingredient(db.Model):
                 'form', id='stock-{}'.format(self._uid()), action="", method="post", role="form")
 
     display_name_mappings = {
-        "Category":    {'k':  "Category",     'v':  unicode},
-        "Type":        {'k':  "Type",         'v':  unicode},
-        "Bottle":      {'k':  "Bottle",       'v':  unicode},
+        "Category":    {'k':  "Category",     'v':  util.as_utf8},
+        "Type":        {'k':  "Type",         'v':  util.as_utf8},
+        "Bottle":      {'k':  "Bottle",       'v':  util.as_utf8},
         "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_num},
         "ABV":         {'k':  "ABV",          'v':  util.from_float},
         "Proof":       {'k':  "ABV",          'v':  lambda x: util.from_float(x) / 2.0},
@@ -159,7 +159,7 @@ class Barstock_SQL(Barstock):
         """ where row is a dict of fields from the csv
         returns the Model object for the updated/inserted row"""
         if not row.get('Type') and not row.get('Bottle'):
-            log.warning(u"Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
+            log.debug(u"Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
             return
         try:
             clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
