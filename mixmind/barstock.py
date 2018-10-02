@@ -44,10 +44,10 @@ class Ingredient(db.Model):
         return data
 
     def __str__(self):
-        return "|".join([self.Category, self.Type, self.Bottle])
+        return u"|".join([self.Category, self.Type, self.Bottle])
 
     def __repr__(self):
-        return "|".join([self.Category, self.Type, self.Bottle])
+        return u"|".join([self.Category, self.Type, self.Bottle])
 
     def __getitem__(self, field):
         return getattr(self, field)
@@ -56,7 +56,7 @@ class Ingredient(db.Model):
         return setattr(self, field, value)
 
     def _uid(self):
-        return "|".join([str(self.bar_id), self.Type, self.Bottle])
+        return u"|".join([str(self.bar_id), self.Type, self.Bottle])
 
     @classmethod
     def query_by_uid(cls, uid):
@@ -83,6 +83,7 @@ class Ingredient(db.Model):
         "Bottle":      {'k':  "Bottle",       'v':  unicode},
         "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_num},
         "ABV":         {'k':  "ABV",          'v':  util.from_float},
+        "Proof":       {'k':  "ABV",          'v':  lambda x: util.from_float(x) / 2.0},
         "Size (mL)":   {'k':  "Size_mL",      'v':  util.from_float},
         "Size (oz)":   {'k':  "Size_oz",      'v':  util.from_float},
         "Price Paid":  {'k':  "Price_Paid",   'v':  util.from_price_float},
@@ -158,14 +159,14 @@ class Barstock_SQL(Barstock):
         """ where row is a dict of fields from the csv
         returns the Model object for the updated/inserted row"""
         if not row.get('Type') and not row.get('Bottle'):
-            log.warning("Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
+            log.warning(u"Primary key (Type, Bottle) missing, skipping ingredient: {}".format(row))
             return
         try:
             clean_row = {Ingredient.display_name_mappings[k]['k'] : Ingredient.display_name_mappings[k]['v'](v)
                     for k,v in row.iteritems()
                     if k in Ingredient.display_name_mappings}
         except UnicodeDecodeError:
-            log.warning("UnicodeDecodeError for ingredient: {}".format(row))
+            log.warning(u"UnicodeDecodeError for ingredient: {}".format(row))
             return None
         try:
             ingredient = Ingredient(bar_id=bar_id, **clean_row)
@@ -183,7 +184,7 @@ class Barstock_SQL(Barstock):
                 db.session.commit()
                 return ingredient
         except SQLAlchemyError as err:
-            msg = "{}: on row: {}".format(err, clean_row)
+            msg = u"{}: on row: {}".format(err, clean_row)
             raise DataError(msg)
 
     def get_all_bottle_combinations(self, specifiers):
@@ -196,28 +197,28 @@ class Barstock_SQL(Barstock):
         return opts
 
     def get_bottle_abv(self, ingredient):
-        return self.get_bottle_field(ingredient, 'ABV')
+        return self.get_bottle_field(ingredient, u'ABV')
 
     def get_bottle_category(self, ingredient):
-        return self.get_bottle_field(ingredient, 'Category')
+        return self.get_bottle_field(ingredient, u'Category')
 
-    def cost_by_bottle_and_volume(self, ingredient, amount, unit='oz'):
-        per_unit = self.get_bottle_field(ingredient, 'Cost_per_{}'.format(unit))
+    def cost_by_bottle_and_volume(self, ingredient, amount, unit=u'oz'):
+        per_unit = self.get_bottle_field(ingredient, u'Cost_per_{}'.format(unit))
         return per_unit * amount
 
     def get_bottle_field(self, ingredient, field):
         if field not in Ingredient.__table__.columns.keys():
-            raise AttributeError("get-bottle-field '{}' not a valid field in the data".format(field))
+            raise AttributeError(u"get-bottle-field '{}' not a valid field in the data".format(field))
         return self.get_ingredient_row(ingredient)[field]
 
     def get_ingredient_row(self, ingredient):
         if ingredient.bottle is None:
-            raise ValueError("ingredient {} has no bottle specified".format(ingredient.__repr__()))
+            raise ValueError(u"ingredient {} has no bottle specified".format(ingredient.__repr__()))
         row = self.slice_on_type(ingredient)
         if len(row) > 1:
-            raise ValueError('{} has multiple entries in the input data!'.format(ingredient.__repr__()))
+            raise ValueError(u'{} has multiple entries in the input data!'.format(ingredient.__repr__()))
         elif len(row) < 1:
-            raise ValueError('{} has no entry in the input data!'.format(ingredient.__repr__()))
+            raise ValueError(u'{} has no entry in the input data!'.format(ingredient.__repr__()))
         return row[0]
 
     # TODO sqlqlchemy exception decorator?
@@ -226,14 +227,14 @@ class Barstock_SQL(Barstock):
         Handles several special cases
         """
         type_ = specifier.what.lower()
-        if type_ in ['rum', 'whiskey', 'whisky', 'tequila', 'vermouth']:
-            type_ = 'whisk' if type_ == 'whisky' else type_
-            filter_ = Ingredient.type_.like('%{}%'.format(type_))
-        elif type_ == 'any spirit':
-            spirits = ['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'cognac', 'brandy', 'aquavit']
+        if type_ in [u'rum', u'whiskey', u'whisky', u'tequila', u'vermouth']:
+            type_ = u'whisk' if type_ == u'whisky' else type_
+            filter_ = Ingredient.type_.like(u'%{}%'.format(type_))
+        elif type_ == u'any spirit':
+            spirits = [u'dry gin', u'rye whiskey', u'bourbon whiskey', u'amber rum', u'dark rum', u'white rum', u'genever', u'cognac', u'brandy', u'aquavit']
             filter_ = Ingredient.type_.in_(spirits)
-        elif type_ == 'bitters':
-            filter_ = Ingredient.Category == 'Bitters'
+        elif type_ == u'bitters':
+            filter_ = Ingredient.Category == u'Bitters'
         else:
             filter_ = Ingredient.type_ == type_
 
@@ -245,10 +246,10 @@ class Barstock_SQL(Barstock):
 
     def to_csv(self):
         cols = Ingredient.__table__.columns.keys()
-        result = [','.join(cols)]
+        result = [u','.join(cols)]
         for row in Ingredient.query.all():
-            result.append(','.join([unicode(row[col]) for col in cols]))
-        return '\n'.join(result)
+            result.append(u','.join([unicode(row[col]) for col in cols]))
+        return u'\n'.join(result)
 
 
 class Barstock_DF(Barstock):
