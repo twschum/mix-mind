@@ -413,7 +413,7 @@ def admin_dashboard():
                 for attr in BAR_BULK_ATTRS:
                     setattr(bar, attr, getattr(edit_bar_form, attr).data)
                 db.session.commit()
-                flash("Successfully updated config for {}".format(bar.cname))
+                flash(u"Successfully updated config for {}".format(bar.cname))
                 return redirect(request.url)
             else:
                 flash("Error in form validation", 'warning')
@@ -421,11 +421,11 @@ def admin_dashboard():
         elif 'activate-bar' in request.form:
             bar_id = request.form.get('bar_id', None, int)
             if bar_id == current_bar.id:
-                flash("Bar ID: {} is already active".format(bar_id), 'warning')
+                flash(u"Bar ID: {} is already active".format(bar_id), 'warning')
                 return redirect(request.url)
             to_activate_bar = Bar.query.filter_by(id=bar_id).one_or_none()
             if not to_activate_bar:
-                flash("Error: Bar ID: {} is invalid".format(bar_id), 'danger')
+                flash(u"Error: Bar ID: {} is invalid".format(bar_id), 'danger')
                 return redirect(request.url)
             # TODO make this shit atomicer
             bars = Bar.query.all()
@@ -433,7 +433,7 @@ def admin_dashboard():
                 bar.is_active = bar.id == bar_id
             db.session.commit()
             mms.regenerate_recipes(to_activate_bar)
-            flash("Bar ID: {} is now active".format(bar_id), 'success')
+            flash(u"Bar ID: {} is now active".format(bar_id), 'success')
             return redirect(request.url)
 
     # for GET requests, fill in the edit bar form
@@ -669,14 +669,14 @@ def api_ingredient():
         db.session.commit()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
         return api_success(data,
-                message="Successfully updated '{}' for '{}'".format(field, ingredient), row_index=row_index)
+                message=u'Successfully updated "{}" for "{}"'.format(field, ingredient), row_index=row_index)
 
     # delete
     elif request.method == 'DELETE':
         db.session.delete(ingredient)
         db.session.commit()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-        return api_success({}, message="Successfully deleted {}".format(ingredient), row_index=row_index)
+        return api_success({}, message=u'Successfully deleted "{}"'.format(ingredient), row_index=row_index)
 
     return api_error("Unknwon method")
 
