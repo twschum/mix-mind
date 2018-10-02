@@ -203,7 +203,7 @@ class BarstockForm(BaseForm):
     bottle = TextField("Brand", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.required()])
     abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.required(), validators.NumberRange(min=0, max=100)])
 
-    unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0],VALID_UNITS[2:]]), validators=[validators.required()])
+    unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0]]+VALID_UNITS[2:]), validators=[validators.required()])
     size = DecimalField("Size", description="Size of the ingredient in the unit selected", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
     price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=9999999999)])
 
@@ -255,8 +255,7 @@ class EditBarForm(BaseForm):
             on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
     examples = ToggleField("Examples", description="Show specific examples for each recipe",
             on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
-    convert = TextField("Convert", description="Convert all recipes to one unit", default='',
-            validators=[validators.AnyOf(['']+VALID_UNITS), validators.Optional()])
+    convert = SelectField("Convert to", choices=[('', 'None')]+pairs(VALID_UNITS))
     markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)")
     info = ToggleField("Info", description="Adds info tidbit to recipes",
             on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)

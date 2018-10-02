@@ -43,19 +43,19 @@ class User(db.Model, UserMixin):
     def get_name(self, short=False):
         if short:
             if self.nickname:
-                return self.nickname
+                return unicode(self.nickname)
             else:
-                return self.first_name
-        return '{} {}'.format(self.first_name, self.last_name)
+                return unicode(self.first_name)
+        return u'{} {}'.format(self.first_name, self.last_name)
 
     def get_name_with_email(self):
         return u'{} ({})'.format(self.get_name(short=True), self.email)
 
     def get_role_names(self):
-        return ', '.join([role.name for role in self.roles])
+        return u', '.join([role.name for role in self.roles])
 
     def get_bar_names(self):
-        return ', '.join([bar.cname for bar in self.works_at])
+        return u', '.join([bar.cname for bar in self.works_at])
 
 class Order(db.Model):
     id = Column(Integer, primary_key=True)
