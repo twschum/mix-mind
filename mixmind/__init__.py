@@ -15,8 +15,9 @@ app.config['UPLOADS_DEFAULT_DEST'] = './stockdb'
 datafiles = UploadSet('datafiles', DATA)
 configure_uploads(app, (datafiles,))
 
-from mixmind.database import db, init_db
+from mixmind.database import db, init_db, alembic
 db.init_app(app)
+alembic.init_app(app)
 with app.app_context():
     init_db()
 

@@ -1,5 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from flask_alembic import Alembic
+
 db = SQLAlchemy()
+alembic = Alembic()
 
 def init_db():
     # import all modules here that might define models so that
