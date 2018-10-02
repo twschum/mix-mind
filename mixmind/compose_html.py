@@ -10,19 +10,19 @@ def close(content, tag, **kwargs):
         kwargs["class"] = kwargs["class_"]
     if "klass" in kwargs:
         kwargs["class"] = kwargs["klass"]
-    attributes = ' '.join(['{}="{}"'.format(k, v) for k, v in kwargs.iteritems()])
-    return '<{0} {2}>{1}</{0}>'.format(tag, content, attributes)
+    attributes = ' '.join([u'{}="{}"'.format(k, v) for k, v in kwargs.iteritems()])
+    return u'<{0} {2}>{1}</{0}>'.format(tag, content, attributes)
 
 def em(content, **kwargs):
-    return close(content, 'em', **kwargs)
+    return close(content, u'em', **kwargs)
 def small(content, **kwargs):
-    return close(content, 'small', **kwargs)
+    return close(content, u'small', **kwargs)
 def sup(content, **kwargs):
-    return close(content, 'sup', **kwargs)
+    return close(content, u'sup', **kwargs)
 def small_br(content, **kwargs):
-    return small(content+'<br>', **kwargs)
+    return small(content+u'<br>', **kwargs)
 def wrap_link(link, content, **kwargs):
-    return '<a href={}>{}</a>'.format(link, content, **kwargs)
+    return u'<a href={}>{}</a>'.format(link, content, **kwargs)
 
 def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=False, fancy=True, convert_to=None):
     """ use yattag lib to build an html blob contained in a div for the recipe"""
@@ -70,24 +70,24 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         name_line = []
         # attempt hack for keeping text aligned right of image when wrapping
         if fancy:
-            name_line.append('<div class="clearfix" style="vertical-align:middle;">')
-            name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
+            name_line.append(u'<div class="clearfix" style="vertical-align:middle;">')
+            name_line.append(u'<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
         name_line.append(recipe.name)
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
             price = util.calculate_price(recipe.max_cost, display_opts.markup)
-            price = '&{};{}{}'.format('nbsp' if fancy else 'mdash', sup('$'), price)
+            price = u'&{};{}{}'.format('nbsp' if fancy else 'mdash', sup('$'), price)
             if fancy:
                 name_line.append(close(price, 'p', style="float:right"))
             else:
                 name_line.append(price)
         if fancy:
-            name_line.append("</div><!-- recipe name text -->")
+            name_line.append(u"</div><!-- recipe name text -->")
             name_line = close(''.join(name_line), 'h4', class_="card-title",
                 style="margin-left:-0.35em; vertical-align:middle;") # tweak to the left
         else:
-            name_line = close(''.join(name_line), 'h3')
+            name_line = close(u''.join(name_line), 'h3')
         doc.asis(name_line)
 
         if display_opts.prep_line:
@@ -97,9 +97,9 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
             doc.asis(small_br(em(recipe.info)))
 
         if condense_ingredients:
-            ingredients = ', '.join([str(ingredient.specifier) for ingredient in recipe.ingredients
+            ingredients = u', '.join([unicode(ingredient.specifier) for ingredient in recipe.ingredients
                     if isinstance(ingredient, QuantizedIngredient)])
-            doc.asis(ingredients+'<br>')
+            doc.asis(ingredients+u'<br>')
         else:
             with tag('ul', id='ingredients'):
                 for item in recipe.ingredients:
@@ -153,13 +153,17 @@ def as_table(objects, headings, cells, formatters, outer_div="", table_id="", ta
                 for obj in objects:
                     with tag('tr'):
                         for cell, formatter in zip(cells, formatters):
-                            doc.asis(close(formatter(getattr(obj, cell)), 'td'))
+                            try:
+                                doc.asis(close(formatter(getattr(obj, cell)), 'td'))
+                            except UnicodeEncodeError as e:
+                                import ipdb; ipdb.set_trace()
+                                doc.asis(close(formatter(getattr(obj, cell)), 'td'))
     return unicode(doc.getvalue())
 
 def users_as_table(users):
     headings = "ID,Email,First,Last,Nickname,Logins,Last,Confirmed,Roles,Orders".split(',')
     cells = "id,email,first_name,last_name,nickname,login_count,last_login_at,confirmed_at,get_role_names,orders".split(',')
-    formatters = [str, str, str, str, str, str, str, str, lambda x: x(), len]
+    formatters = [unicode, unicode, unicode, unicode, unicode, unicode, unicode, unicode, lambda x: x(), len]
     return as_table(users, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
 
 def yes_no(b):
@@ -168,11 +172,11 @@ def yes_no(b):
 def orders_as_table(orders):
     headings = "ID,Timestamp,Confirmed,User ID,Bar ID,Recipe".split(',')
     cells = "id,timestamp,confirmed,user_id,bar_id,recipe_name".split(',')
-    formatters = [str, str, yes_no, str, str, str]
+    formatters = [unicode, unicode, yes_no, unicode, unicode, unicode]
     return as_table(orders, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
 
 def bars_as_table(bars):
     headings = "ID,Name,CName,Total Orders".split(',')
     cells = "id,name,cname,orders".split(',')
-    formatters = [str,str,str,len]
+    formatters = [unicode,unicode,unicode,len]
     return as_table(bars, headings, cells, formatters, outer_div="table-responsive-sm", table_cls="table table-sm")
