@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float, Text
+from sqlalchemy import Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float, Text, Unicode
 
 import pendulum
 
@@ -20,11 +21,11 @@ class Role(db.Model, RoleMixin):
 
 class User(db.Model, UserMixin):
     id = Column(Integer, primary_key=True)
-    email = Column(String(127), unique=True)
-    first_name = Column(String(127))
-    last_name = Column(String(127))
-    nickname = Column(String(127))
-    password = Column(String(127))
+    email = Column(Unicode(length=127), unique=True)
+    first_name = Column(Unicode(length=127))
+    last_name = Column(Unicode(length=127))
+    nickname = Column(Unicode(length=127))
+    password = Column(Unicode(length=127))
     # TODO timezone rip
     last_login_at = Column(DateTime())
     current_login_at = Column(DateTime())
@@ -38,7 +39,6 @@ class User(db.Model, UserMixin):
     orders_served = relationship('Order', back_populates="bartender", foreign_keys='Order.bartender_id')#primaryjoin="User.id==Order.bartender_id") # one to many (for bartenders)
     works_at = relationship('Bar', secondary='bartenders', backref=backref('bartenders', lazy='dynamic')) # many to many
     venmo_id = Column(String(63)) # venmo id as a string
-
 
     def get_name(self, short=False):
         if short:
@@ -66,7 +66,7 @@ class Order(db.Model):
     bartender = relationship('User', back_populates="orders_served", foreign_keys=[bartender_id])
     timestamp = Column(DateTime())
     confirmed = Column(DateTime())
-    recipe_name = Column(String(127))
+    recipe_name = Column(Unicode(length=127))
     recipe_html = Column(Text())
 
     def where(self):
@@ -83,9 +83,9 @@ class Order(db.Model):
 
 class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
-    cname = Column(String(63), unique=True) # unique name for finding the bar
-    name = Column(String(63))
-    tagline = Column(String(255), default="Tips &mdash; always appreciated, never required")
+    cname = Column(Unicode(length=63), unique=True) # unique name for finding the bar
+    name = Column(Unicode(length=63))
+    tagline = Column(Unicode(length=255), default=u"Tips – always appreciated, never required")
     is_active = Column(Boolean(), default=False)
     bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
     ingredients = relationship('Ingredient') # one to many
