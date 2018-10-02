@@ -49,7 +49,7 @@ class User(db.Model, UserMixin):
         return '{} {}'.format(self.first_name, self.last_name)
 
     def get_name_with_email(self):
-        return '{} ({})'.format(self.get_name(short=True), self.email)
+        return u'{} ({})'.format(self.get_name(short=True), self.email)
 
     def get_role_names(self):
         return ', '.join([role.name for role in self.roles])

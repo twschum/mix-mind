@@ -192,7 +192,7 @@ class Ingredient(object):
         self.specifier = util.IngredientSpecifier(description)
 
     def str(self):
-        return str(self.description)
+        return unicode(self.description)
 
     def __repr__(self):
         return self._repr_fmt().format(self.description)
@@ -205,7 +205,7 @@ class Garnish(Ingredient):
     """ An ingredient line that denotes it's a garnish
     """
     def str(self):
-        return "{}, for garnish".format(super(Garnish, self).str())
+        return u"{}, for garnish".format(super(Garnish, self).str())
 
     def __repr__(self):
         return super(Garnish, self)._repr_fmt().format(self.description)
