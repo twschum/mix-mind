@@ -124,13 +124,13 @@ def browse():
             if n_results > 0:
                 if 'suprise-menu' in request.form:
                     recipes = [random.choice(recipes)]
-                    flash("Bartender's choice! Just try again if you want something else!")
+                    flash(u"Bartender's choice! Just try again if you want something else!")
                 else:
-                    flash("Filters applied. Showing {} available recipes".format(n_results), 'success')
+                    flash(u"Filters applied. Showing {} available recipes".format(n_results), 'success')
             else:
-                flash("No results after filtering, try being less specific", 'warning')
+                flash(u"No results after filtering, try being less specific", 'warning')
         else:
-            flash("Error in form validation", 'danger')
+            flash(u"Error in form validation", 'danger')
 
     return render_template('browse.html', form=form, recipes=recipes)
 
@@ -143,12 +143,12 @@ def order(recipe_name):
 
     recipe_name = urllib.unquote_plus(recipe_name)
     show_form = False
-    heading = "Order:"
+    heading = u"Order:"
 
     recipe = find_recipe(mms.recipes, recipe_name)
-    recipe.convert('oz')
+    recipe.convert(u'oz')
     if not recipe:
-        flash('Error: unknown recipe "{}"'.format(recipe_name), 'danger')
+        flash(u'Error: unknown recipe "{}"'.format(recipe_name), 'danger')
         return render_template('result.html', heading=heading)
     else:
         recipe_html = recipe_as_html(recipe, DisplayOptions(
@@ -163,7 +163,7 @@ def order(recipe_name):
                             variants=True), convert_to=current_bar.convert)
 
     if not recipe.can_make:
-        flash('Ingredients to make this are out of stock :(', 'warning')
+        flash(u'Ingredients to make this are out of stock :(', 'warning')
         return render_template('order.html', form=form, recipe=recipe_html, show_form=False)
 
     if request.method == 'GET':
@@ -171,7 +171,7 @@ def order(recipe_name):
         if current_user.is_authenticated:
             heading = "Order for {}:".format(current_user.get_name(short=True))
         if current_bar.is_closed:
-            flash("It's closed. So sad.", 'warning')
+            flash(u"It's closed. So sad.", 'warning')
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
@@ -184,7 +184,7 @@ def order(recipe_name):
                     user_email = form.email.data
 
                 if current_bar.is_closed:
-                    flash('The bar is currently closed for orders.', 'warning')
+                    flash(u'The bar is currently closed for orders.', 'warning')
                     return redirect(request.url)
 
                 # use simpler html for recording an order
@@ -220,17 +220,17 @@ def order(recipe_name):
                         notes=form.notes.data,
                         recipe_html=email_recipe_html)
 
-                flash("Your order has been submitted, and you'll receive a confirmation email once the bartender acknowledges it", 'success')
+                flash(u"Your order has been submitted, and you'll receive a confirmation email once the bartender acknowledges it", 'success')
                 if not current_user.is_authenticated:
                     if User.query.filter_by(email=user_email).one_or_none():
-                        flash("Hey, if you log in you won't have to keep typing your email address for orders ;)", 'secondary')
+                        flash(u"Hey, if you log in you won't have to keep typing your email address for orders ;)", 'secondary')
                         return redirect(url_for('security.login'))
                     else:
-                        flash("Hey, if you register I'll remember your name and email in future orders!", 'secondary')
+                        flash(u"Hey, if you register I'll remember your name and email in future orders!", 'secondary')
                         return redirect(url_for('security.register'))
                 return render_template('result.html', heading="Order Placed")
             else:
-                flash("Error in form validation", 'danger')
+                flash(u"Error in form validation", 'danger')
 
     # either provide the recipe and the form,
     # or after the post show the result
@@ -244,10 +244,10 @@ def confirm_order():
     order_id = request.args.get('order_id')
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
-        flash("Error: Invalid order_id", 'danger')
+        flash(u"Error: Invalid order_id", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
     if order.confirmed:
-        flash("Error: Order has already been confirmed", 'danger')
+        flash(u"Error: Order has already been confirmed", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
 
     bartender = user_datastore.find_user(id=order.bartender_id)
@@ -280,7 +280,7 @@ def confirm_order():
     except Exception:
         log.error("Error sending confirmation email for {} to {}".format(recipe, email))
 
-    flash('Confirmation sent')
+    flash(u'Confirmation sent')
     return render_template('result.html', heading="Order Confirmation")
 
 
@@ -290,7 +290,7 @@ def user_profile():
     try:
         user_id = int(request.args.get('user_id'))
     except ValueError:
-        flash("Invalid user_id parameter", 'danger')
+        flash(u"Invalid user_id parameter", 'danger')
         return render_template('result.html', "User profile unavailable")
 
     if current_user.id != user_id and not current_user.has_role('admin'):
@@ -302,11 +302,11 @@ def user_profile():
             admin = user_datastore.find_role('admin')
             user_datastore.add_role_to_user(current_user, admin)
             user_datastore.commit()
-            flash("You have been upgraded to admin", 'success')
+            flash(u"You have been upgraded to admin", 'success')
 
     this_user = user_datastore.find_user(id=user_id)
     if not this_user:
-        flash("Unknown user_id", 'danger')
+        flash(u"Unknown user_id", 'danger')
         return render_template('result.html', "User profile unavailable")
 
     form = get_form(EditUserForm)
@@ -317,10 +317,10 @@ def user_profile():
             this_user.nickname = form.nickname.data
             this_user.venmo_id = form.venmo_id.data
             user_datastore.commit()
-            flash("Profile updated", 'success')
+            flash(u"Profile updated", 'success')
             return redirect(request.url)
         else:
-            flash("Error in form validation", 'danger')
+            flash(u"Error in form validation", 'danger')
             return render_template('user_profile.html', this_user=this_user, edit_user=form,
                     human_timestamp=mms.time_human_formatter, human_timediff=mms.time_diff_formatter,
                     timestamp=mms.timestamp_formatter)
@@ -372,7 +372,7 @@ def admin_dashboard():
         if 'create_bar' in request.form:
             if new_bar_form.validate():
                 if Bar.query.filter_by(cname=new_bar_form.cname.data).one_or_none():
-                    flash("Bar name already in use", 'warning')
+                    flash(u"Bar name already in use", 'warning')
                     return redirect(request.url)
                 bar_args = {'cname': new_bar_form.cname.data}
                 if new_bar_form.name.data == "":
@@ -384,9 +384,9 @@ def admin_dashboard():
                 new_bar = Bar(**bar_args)
                 db.session.add(new_bar)
                 db.session.commit()
-                flash("Created a new bar", 'success')
+                flash(u"Created a new bar", 'success')
             else:
-                flash("Error in form validation", 'warning')
+                flash(u"Error in form validation", 'warning')
 
         elif 'edit_bar' in request.form:
             if edit_bar_form.validate():
@@ -394,7 +394,7 @@ def admin_dashboard():
                 bar_id = edit_bar_form.bar_id.data
                 bar = Bar.query.filter_by(id=bar_id).one_or_none()
                 if bar is None:
-                    flash("Invalid bar_id: {}".format(edit_bar_form.bar_id.data), 'danger')
+                    flash(u"Invalid bar_id: {}".format(edit_bar_form.bar_id.data), 'danger')
                     return redirect(request.url)
 
                 # add bartender on duty
@@ -416,7 +416,7 @@ def admin_dashboard():
                 flash(u"Successfully updated config for {}".format(bar.cname))
                 return redirect(request.url)
             else:
-                flash("Error in form validation", 'warning')
+                flash(u"Error in form validation", 'warning')
 
         elif 'activate-bar' in request.form:
             bar_id = request.form.get('bar_id', None, int)
@@ -467,9 +467,9 @@ def menu_generator():
         if form.validate():
             print request
             recipes, excluded, stats = recipes_from_options(form, to_html=True)
-            flash("Settings applied. Showing {} available recipes".format(len(recipes)))
+            flash(u"Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
-            flash("Error in form validation", 'danger')
+            flash(u"Error in form validation", 'danger')
 
     return render_template('menu_generator.html', form=form, recipes=recipes, excluded=excluded, stats=stats)
 
@@ -494,7 +494,7 @@ def menu_download():
         return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
 
     else:
-        flash("Error in form validation", 'danger')
+        flash(u"Error in form validation", 'danger')
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
 
@@ -513,7 +513,7 @@ def recipe_library():
         if 'recipe-list-select' in request.form:
             recipes = select_form.recipes.data
             mms.regenerate_recipes(current_bar)
-            flash("Now using recipes from {}".format(recipes))
+            flash(u"Now using recipes from {}".format(recipes))
 
     return render_template('recipes.html', select_form=select_form, add_form=add_form)
 
@@ -543,24 +543,28 @@ def ingredient_stock():
                 return redirect(request.url)
             else:
                 form_open = True
-                flash("Error in form validation", 'danger')
+                flash(u"Error in form validation", 'danger')
 
         elif 'upload-csv' in request.form:
             # TODO handle files < 500 kb by keeping in mem
             csv_file = request.files['upload_csv']
             if not csv_file or csv_file.filename == '':
-                flash('No selected file', 'danger')
+                flash(u'No selected file', 'danger')
                 return redirect(request.url)
             _, tmp_filename = tempfile.mkstemp()
             csv_file.save(tmp_filename)
-            Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id)
+            Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id,
+                    replace_existing=upload_form.replace_existing.data)
             os.remove(tmp_filename)
             mms.regenerate_recipes(current_bar)
-            msg = "Ingredients database {} {} for bar {}".format(
+            msg = u"Ingredients database {} {} for bar {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
                     csv_file.filename, current_bar.id)
             log.info(msg)
             flash(msg, 'success')
+
+        elif 'download' in request.form:
+            pass
 
     return render_template('ingredients.html', form=form, upload_form=upload_form, form_open=form_open)
 
