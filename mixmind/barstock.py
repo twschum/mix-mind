@@ -9,7 +9,7 @@ try:
 except ImportError:
     has_pandas = False
 
-from sqlalchemy import and_, Boolean, DateTime, Column, Integer, String, ForeignKey, Enum, Float
+from sqlalchemy import and_, Boolean, DateTime, Column, Integer, ForeignKey, Enum, Float, Unicode
 from sqlalchemy.exc import SQLAlchemyError
 import csv
 import urllib
@@ -25,14 +25,14 @@ Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ic
 class Ingredient(db.Model):
     bar_id     = Column(Integer(), ForeignKey('bar.id'), primary_key=True)
     Category   = Column(Enum(*Categories))
-    Type       = Column(String(100), primary_key=True)
-    Bottle     = Column(String(255), primary_key=True)
+    Type       = Column(Unicode(length=100), primary_key=True)
+    Bottle     = Column(Unicode(length=255), primary_key=True)
     In_Stock   = Column(Boolean(), default=True)
     ABV        = Column(Float(), default=0.0)
     Size_mL    = Column(Float(), default=0.0)
     Price_Paid = Column(Float(), default=0.0)
     # computed
-    type_        = Column(String(100))
+    type_        = Column(Unicode(length=100))
     Size_oz      = Column(Float(), default=0.0)
     Cost_per_mL  = Column(Float(), default=0.0)
     Cost_per_cL  = Column(Float(), default=0.0)
