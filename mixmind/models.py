@@ -38,6 +38,7 @@ class User(db.Model, UserMixin):
     orders = relationship('Order', back_populates="user", foreign_keys='Order.user_id')# primaryjoin="User.id==Order.user_id") # one to many
     orders_served = relationship('Order', back_populates="bartender", foreign_keys='Order.bartender_id')#primaryjoin="User.id==Order.bartender_id") # one to many (for bartenders)
     works_at = relationship('Bar', secondary='bartenders', backref=backref('bartenders', lazy='dynamic')) # many to many
+    owns = relationship('Bar', back_populates="owner", foreign_keys='Bar.owner_id') # one to many
     venmo_id = Column(String(63)) # venmo id as a string
 
     def get_name(self, short=False):
@@ -88,6 +89,8 @@ class Bar(db.Model):
     tagline = Column(Unicode(length=255), default=u"Tips – always appreciated, never required")
     is_active = Column(Boolean(), default=False)
     bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
+    owner_id = Column(Integer(), ForeignKey('user.id'))
+    owner = relationship('User', back_populates="owns", foreign_keys=[owner_id])
     ingredients = relationship('Ingredient') # one to many
     orders = relationship('Order') # one to many
     # browse display settings
