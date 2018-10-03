@@ -128,10 +128,10 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
                             'abv': e.abv,
                             'bottles': e.bottles
                             }
-                    doc.asis(small_br("${cost:>3.0f} | {abv:.1f}% | {bottles}".format(**fields)))
+                    doc.asis(small_br(u"${cost:>3.0f} | {abv:.1f}% | {bottles}".format(**fields)))
             else:
                 for e in recipe.examples:
-                    doc.asis(small_br("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
+                    doc.asis(small_br(u"${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
 
     return unicode(doc.getvalue())
 
