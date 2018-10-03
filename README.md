@@ -28,7 +28,7 @@ Recipes are stored as a json file, with a base file providing a common set of re
   - Owner - this user has at least one bar
   - Admin - admin user may modify any user, assign bars to users, modify the main recipe library, modify any bar
 - Bar
-  - A bar represents a collection of ingredients 
+  - A bar represents a collection of ingredients
   - May have up to one bartender on duty (this will be the email address orders are sent to)
   - Has one owner
   - Has a number of configuration values for how to display recipes and set optional prices
@@ -54,9 +54,9 @@ pip install -r requirements.txt
 
 ### Configuration
 
-Configuration for the flask app is contained in a config.py and instance/config.py. See the [flask config docs](http://flask.pocoo.org/docs/1.0/config/)
+Configuration for the flask app is contained in a `config.py` and `instance/config.py`. See the [flask config docs](http://flask.pocoo.org/docs/1.0/config/)
 
-This repo includes an example instance/config_example.py, to be used for all the secret configuration.
+This repo includes an example [instance/config_example.py](instance/config_example.py), to be used for all the secret configuration.
 
 For email notifications with the user system and order notifications, an email account with api access will be required. This is easy to do with gmail, and the base configuration assumes as much.
 
@@ -82,7 +82,7 @@ Please feel free to check out the open issues and submit a PR!
 
 ## Versioning
 
-This project uses [Semantic Versioning](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/twschum/mix-mind/tags). 
+This project uses [Semantic Versioning](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/twschum/mix-mind/tags).
 
 ## Authors
 
@@ -92,5 +92,5 @@ See also the list of [contributors](https://github.com/twschum/mix-mind/contribu
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the Apache-2.0 License - see the [LICENSE](LICENSE) file for details.
 
