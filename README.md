@@ -15,7 +15,7 @@ Ingredients come from a spreadsheet, but are loaded into a bar's database on the
 Recipes are stored as a json file, with a base file providing a common set of recipes, and each bar being able to add custom recipes.
 
 ### Entities
-![Entity model](erd.svg "Entity Relational Model")
+![Entity model](docs/erd.svg "Entity Relational Model")
 - User
   - User is uniquely identified by email
   - Some basic stats are kept on each user
