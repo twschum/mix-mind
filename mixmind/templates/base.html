@@ -12,7 +12,7 @@
 		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"></link>
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous"></link>
 		{#<link rel="stylesheet" href="/static/css/theme_v1.css"></link>#}
-		<link rel="stylesheet" href="/static/css/custom.css"></link>
+		<link rel="stylesheet" href="/static/css/custom.css?v=1.1.1"></link>
 		<!-- favicons -->
 		<link rel="apple-touch-icon" sizes="180x180" href="/static/icons_outline/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/static/icons_outline/favicon-32x32.png">
@@ -82,6 +82,8 @@
 		<div class="footer pb-3">
 			{% block footer %}
 			{% endblock footer %}
+			<a href="https://github.com/twschum/mix-mind/" class="gh-link"><i class="fab fa-github gh-icon"></i>Mix-Mind Project</a>
+			<p>Copyright &copy; 2017<script>new Date().getFullYear()>2017&&document.write("-"+new Date().getFullYear());</script> Tim Schumacher. All rights reserved.</p>
 		</div>
 
 		<!-- rest of the javascript  -->
@@ -90,7 +92,7 @@
 		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 	 	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
 	 	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
-		<script src="/static/js/dataTables.cellEdit.js"></script>
+		<script src="/static/js/dataTables.cellEdit.js?v=1.0"></script>
 		{# load javascript after libraries #}
 		{% block scripts %}
 		{% endblock scripts %}

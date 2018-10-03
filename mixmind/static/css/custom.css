@@ -30,6 +30,22 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'cmu_typewriter_wide';
 }
 
+/* link defaults */
+a:link {
+    color: gray;
+}
+a:visited {
+    color: gray;
+}
+a:hover {
+    color: #343a40; /* gray-dark */
+    text-decoration: none;
+}
+a:active {
+    color: #343a40;
+    text-decoration: none;
+}
+
 /* add default width to icons */
 i {
     width: 2.1rem;
@@ -71,6 +87,13 @@ i {
     font-size: 1.0rem;
     padding-bottom: 0;
     line-height: 1.2;
+}
+
+.gh-icon {
+    font-size: 1.5rem;
+}
+.gh-link {
+    font-size: 1.2rem;
 }
 
 .form-ht-sm {
