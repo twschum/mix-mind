@@ -43,13 +43,19 @@
 {% endblock formblock %}
 
 {% block footer %}
+{% if g.current_bar.prices or g.current_bar.origin %}
+<p>
+{% endif %}
 {% if g.current_bar.prices %}
 $$ amount shown is recommended tip, calculated from cost of ingredients
 {% endif %}
-{% if g.current_bar.prices and g.current_bar.origin %}
+{% if g.current_bar.prices or g.current_bar.origin %}
 <br>
 {% endif %}
 {% if g.current_bar.origin %}
 * denotes an {{ g.current_bar.name }} original recipe
+{% endif %}
+{% if g.current_bar.prices or g.current_bar.origin %}
+</p>
 {% endif %}
 {% endblock footer %}
