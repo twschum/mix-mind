@@ -18,7 +18,7 @@ from .authorization import user_datastore
 from .barstock import Barstock_SQL, Ingredient, _update_computed_fields
 from .formatted_menu import filename_from_options, generate_recipes_pdf
 from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_as_table
-from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, find_recipe, convert_units
+from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, convert_units
 from .database import db
 from .models import User, Order, Bar
 from . import log, app, mms, current_bar
@@ -70,7 +70,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     """
     display_options = bundle_options(DisplayOptions, form) if not display_opts else display_opts
     filter_options = bundle_options(FilterOptions, form) if not filter_opts else filter_opts
-    recipes, excluded = filter_recipes(mms.recipes, filter_options, union_results=bool(filter_options.search))
+    recipes, excluded = filter_recipes(mms.processed_recipes[current_bar.id], filter_options, union_results=bool(filter_options.search))
     if form.sorting.data and form.sorting.data != 'None': # TODO this is weird
         reverse = 'X' in form.sorting.data
         attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
@@ -81,6 +81,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
         stats = report_stats(recipes, as_html=True)
     else:
         stats = None
+    # TODO this can certainly be cached
     if to_html:
         if order_link:
             recipes = [recipe_as_html(recipe, display_options,
@@ -145,7 +146,7 @@ def order(recipe_name):
     show_form = False
     heading = u"Order:"
 
-    recipe = find_recipe(mms.recipes, recipe_name)
+    recipe = mms.find_recipe(current_bar.id, recipe_name)
     recipe.convert(u'oz')
     if not recipe:
         flash(u'Error: unknown recipe "{}"'.format(recipe_name), 'danger')
@@ -434,17 +435,16 @@ def admin_dashboard():
 
         elif 'set-default-bar' in request.form:
             bar_id = request.form.get('bar_id', None, int)
-            if bar_id == current_bar.id:
+            to_activate_bar = Bar.query.filter_by(id=bar_id).one_or_none()
+            if to_activate_bar.is_default:
                 flash(u"Bar ID: {} is already the default".format(bar_id), 'warning')
                 return redirect(request.url)
-            to_activate_bar = Bar.query.filter_by(id=bar_id).one_or_none()
             if not to_activate_bar:
                 flash(u"Error: Bar ID: {} is invalid".format(bar_id), 'danger')
                 return redirect(request.url)
-            # TODO make this shit atomicer
             bars = Bar.query.all()
             for bar in bars:
-                bar.is_default = bar.id == bar_id
+                bar.is_default = (bar.id == bar_id)
             db.session.commit()
             mms.regenerate_recipes(to_activate_bar)
             flash(u"Bar ID: {} is now the default".format(bar_id), 'success')

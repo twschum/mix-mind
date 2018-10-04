@@ -15,7 +15,7 @@ from .recipe import DrinkRecipe
 from .barstock import Barstock_SQL, Ingredient
 from .database import db
 from .models import Bar, User
-from .util import load_recipe_json, to_human_diff, get_ts_formatter, find_recipe
+from .util import load_recipe_json, to_human_diff, get_ts_formatter
 from . import log
 # TODO: No handlers could be found for logger "root"
 # actual log infos instead of prints

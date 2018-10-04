@@ -78,12 +78,6 @@ def filter_recipes(all_recipes, filter_options, union_results=False):
     log.debug("Excluded: {}\n".format(', '.join(excluded)))
     return result_recipes, excluded
 
-def find_recipe(recipes, name):
-    for recipe in recipes:
-        if recipe.name == name:
-            return recipe
-    return None
-
 def filter_on_attribute(recipes, filter_options, attribute):
     attr_value = getattr(filter_options, attribute).lower()
     if filter_options.search and not attr_value:
