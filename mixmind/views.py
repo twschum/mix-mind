@@ -291,7 +291,7 @@ def user_profile():
         user_id = int(request.args.get('user_id'))
     except ValueError:
         flash(u"Invalid user_id parameter", 'danger')
-        return render_template('result.html', "User profile unavailable")
+        return render_template('result.html', heading="User profile unavailable")
 
     if current_user.id != user_id and not current_user.has_role('admin'):
         return _get_unauthorized_view()
@@ -307,7 +307,7 @@ def user_profile():
     this_user = user_datastore.find_user(id=user_id)
     if not this_user:
         flash(u"Unknown user_id", 'danger')
-        return render_template('result.html', "User profile unavailable")
+        return render_template('result.html', heading="User profile unavailable")
 
     form = get_form(EditUserForm)
     if request.method == 'POST':
@@ -365,7 +365,7 @@ def user_confirmation_hook():
 @login_required
 @roles_required('admin')
 def admin_dashboard():
-    BAR_BULK_ATTRS = 'name,tagline,prices,prep_line,examples,convert,markup,info,origin,variants,summarize'.split(',')
+    BAR_BULK_ATTRS = 'name,tagline,is_public,prices,prep_line,examples,convert,markup,info,origin,variants,summarize'.split(',')
     new_bar_form = get_form(CreateBarForm)
     edit_bar_form = get_form(EditBarForm)
     if request.method == 'POST':
@@ -406,7 +406,7 @@ def admin_dashboard():
                     bar.owner = user
                     # TODO send email to owner!
                     flash(u"{} is now the proud owner of {}".format(user.get_name(), bar.cname))
-                elif edit_bar_form.owner.data == '':
+                elif edit_bar_form.owner.data == '' and bar.owner:
                     # remove the owner from this bar
                     flash(u"{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
                     bar.owner = None
@@ -432,10 +432,10 @@ def admin_dashboard():
             else:
                 flash(u"Error in form validation", 'warning')
 
-        elif 'activate-bar' in request.form:
+        elif 'set-default-bar' in request.form:
             bar_id = request.form.get('bar_id', None, int)
             if bar_id == current_bar.id:
-                flash(u"Bar ID: {} is already active".format(bar_id), 'warning')
+                flash(u"Bar ID: {} is already the default".format(bar_id), 'warning')
                 return redirect(request.url)
             to_activate_bar = Bar.query.filter_by(id=bar_id).one_or_none()
             if not to_activate_bar:
@@ -444,10 +444,10 @@ def admin_dashboard():
             # TODO make this shit atomicer
             bars = Bar.query.all()
             for bar in bars:
-                bar.is_active = bar.id == bar_id
+                bar.is_default = bar.id == bar_id
             db.session.commit()
             mms.regenerate_recipes(to_activate_bar)
-            flash(u"Bar ID: {} is now active".format(bar_id), 'success')
+            flash(u"Bar ID: {} is now the default".format(bar_id), 'success')
             return redirect(request.url)
 
     # for GET requests, fill in the edit bar form
@@ -699,6 +699,38 @@ def api_ingredient():
 
     return api_error("Unknwon method")
 
+@app.route("/api/user_default_bar", methods=['POST', 'GET', 'PUT', 'DELETE'])
+@login_required
+def api_user_default_bar():
+    try:
+        user_id = int(request.args.get('user_id'))
+    except ValueError:
+        flash(u"Invalid user_id parameter", 'danger')
+        return render_template('result.html', heading="User profile unavailable")
+    try:
+        bar_id = int(request.args.get('bar_id'))
+    except ValueError:
+        flash(u"Invalid bar_id parameter", 'danger')
+        return render_template('result.html', heading="Bar unavailable")
+
+    user = user_datastore.find_user(id=user_id)
+    if user:
+        if user != current_user and not current_user.has_role('admin'):
+            flash(u"Cannot change default bar for another user {}".format(user_id), 'danger')
+            return render_template('result.html', heading="Invalid default bar request")
+        bar = Bar.query.filter_by(id=bar_id).one_or_none()
+        if not bar or (not bar.is_public and (user.id != bar.owner_id or not user.has_role('admin'))):
+            flash(u"Bar {} is invalid for selection (if it does exist, you need to be the owner or admin)".format(bar_id), 'danger')
+            return render_template('result.html', heading="Invalid bar")
+        user.current_bar_id = bar.id
+        user_datastore.commit()
+    else:
+        flash(u"Invalid user {}".format(user_id), 'danger')
+        return render_template('result.html', heading="Invalid user")
+
+    # TODO return to same page
+    return redirect(url_for('browse'))
+
 
 @app.route("/admin/debug", methods=['GET'])
 @login_required
@@ -728,7 +760,7 @@ def recipe_json(recipe_name):
 @app.errorhandler(500)
 def handle_internal_server_error(e):
     flash(e, 'danger')
-    return render_template('result.html', heading="OOPS - Something went wrong..."), 500
+    return render_template('result.html', heading="OOPS - Something went wrong...")#, 500
 
 
 @app.route("/api/test")
