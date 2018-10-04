@@ -18,27 +18,6 @@
 </div>
 {{ show_flashed() }}
 
-{#
-	<h3>TEST:</h3>
-<script type=text/javascript>
-	$(function() {
-		$('a#calculate').bind('click', function() {
-			$.getJSON("{{ url_for('api_test') }}", {
-				a: $('input[name="a"]').val(),
-				b: $('input[name="b"]').val()
-			}, function(data) {
-				$("#result").text(data.result);
-			});
-			return true;
-		});
-	});
-</script>
-<p><input type=text size=5 name=a> +
-   <input type=text size=5 name=b> =
-   <span id=result>?</span>
-<p><a href=# id=calculate>calculate server side</a>
-#}
-
 <div id="create-bar-container" class="collapse">
 	<form id="create-bar" method="post" role="form">
 		{{ new_bar_form.csrf }}
@@ -61,11 +40,15 @@
 	</div>
 
 	<div class="form-row">
+		{{ render_field(edit_bar_form.owner, "col-md-3") }}
+	</div>
+
+	<div class="form-row">
 		{{ render_field(edit_bar_form.status, "col-md-2") }}
-		{{ render_field(edit_bar_form.bartender, "col-md-4") }}
-		<div class="col-md-1"></div>
+		{{ render_field(edit_bar_form.bartender, "col-md-3") }}
+		<div class="col-md-2"></div>
 		{{ render_field(edit_bar_form.prices, "col-md-2") }}
-		{{ render_field(edit_bar_form.markup, "col-md-3") }}
+		{{ render_field(edit_bar_form.markup, "col-md-2") }}
 	</div>
 
 	<div class="row">
