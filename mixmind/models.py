@@ -21,19 +21,21 @@ class Role(db.Model, RoleMixin):
 
 class User(db.Model, UserMixin):
     id = Column(Integer, primary_key=True)
+    # flask-security attributes
     email = Column(Unicode(length=127), unique=True)
     first_name = Column(Unicode(length=127))
     last_name = Column(Unicode(length=127))
     nickname = Column(Unicode(length=127))
     password = Column(Unicode(length=127))
-    # TODO timezone rip
     last_login_at = Column(DateTime())
     current_login_at = Column(DateTime())
     last_login_ip = Column(String(63))
     current_login_ip = Column(String(63))
-    login_count = Column(Integer)
+    login_count = Column(Integer())
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
+    # other attributes
+    current_bar_id = Column(Integer())
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic')) # many to many
     orders = relationship('Order', back_populates="user", foreign_keys='Order.user_id')# primaryjoin="User.id==Order.user_id") # one to many
     orders_served = relationship('Order', back_populates="bartender", foreign_keys='Order.bartender_id')#primaryjoin="User.id==Order.bartender_id") # one to many (for bartenders)
@@ -88,6 +90,7 @@ class Bar(db.Model):
     name = Column(Unicode(length=63))
     tagline = Column(Unicode(length=255), default=u"Tips – always appreciated, never required")
     is_active = Column(Boolean(), default=False)
+    is_default = Column(Boolean(), default=False) # the current default bar
     bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
     owner_id = Column(Integer(), ForeignKey('user.id'))
     owner = relationship('User', back_populates="owns", foreign_keys=[owner_id])
