@@ -397,6 +397,20 @@ def admin_dashboard():
                     flash(u"Invalid bar_id: {}".format(edit_bar_form.bar_id.data), 'danger')
                     return redirect(request.url)
 
+                # assign owner
+                user = user_datastore.find_user(email=edit_bar_form.owner.data)
+                if user and user.id != bar.owner_id:
+                    # TODO remove "owner" role if user does not own any more bars
+                    owner = user_datastore.find_role('owner')
+                    user_datastore.add_role_to_user(user, owner)
+                    bar.owner = user
+                    # TODO send email to owner!
+                    flash(u"{} is now the proud owner of {}".format(user.get_name(), bar.cname))
+                elif edit_bar_form.owner.data == '':
+                    # remove the owner from this bar
+                    flash(u"{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
+                    bar.owner = None
+
                 # add bartender on duty
                 user = user_datastore.find_user(email=edit_bar_form.bartender.data)
                 if user and user.id != bar.bartender_on_duty:
@@ -440,6 +454,7 @@ def admin_dashboard():
     edit_bar_form.bar_id.render_kw['value'] = current_bar.id
     edit_bar_form.status.data = not current_bar.is_closed
     edit_bar_form.bartender.data = '' if current_bar.is_closed else current_bar.bartender.email
+    edit_bar_form.owner.data = '' if not current_bar.owner else current_bar.owner.email
     for attr in BAR_BULK_ATTRS:
         setattr(getattr(edit_bar_form, attr), 'data', getattr(current_bar, attr))
 
