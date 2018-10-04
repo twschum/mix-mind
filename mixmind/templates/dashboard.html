@@ -44,9 +44,10 @@
 	</div>
 
 	<div class="form-row">
+		{{ render_field(edit_bar_form.is_public, "col-md-2") }}
 		{{ render_field(edit_bar_form.status, "col-md-2") }}
 		{{ render_field(edit_bar_form.bartender, "col-md-3") }}
-		<div class="col-md-2"></div>
+		<div class="col-md-1"></div>
 		{{ render_field(edit_bar_form.prices, "col-md-2") }}
 		{{ render_field(edit_bar_form.markup, "col-md-2") }}
 	</div>
@@ -70,7 +71,8 @@
 	<table id="bar_table" class="table">
 		<thead>
 			<tr>
-				<th scope="col">Active</th>
+				<th scope="col">Default</th>
+				<th scope="col">Public</th>
 				<th scope="col">ID</th>
 				<th scope="col">Name</th>
 				<th scope="col">CName</th>
@@ -84,8 +86,9 @@
 			<tr>
 				<td><form action="" method="post" role="form">
 						<input type="hidden" name="bar_id" value="{{ bar.id }}"></input>
-						<input class="btn btn-small {% if bar.is_active %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="activate-bar" value="{% if bar.is_active %}&check;{% else %}&times;{% endif %}"></input>
+						<button class="btn btn-small {% if bar.is_default %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="set-default-bar">{% if bar.is_default %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}</button>
 					</form></td>
+				<td>{% if bar.is_public %}Visible{% else %}Hidden{% endif %}</td>
 				<td>{{ bar.id }}</td>
 				<td>{{ bar.name }}</td>
 				<td>{{ bar.cname }}</td>
