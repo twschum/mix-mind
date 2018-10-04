@@ -15,7 +15,7 @@ from .recipe import DrinkRecipe
 from .barstock import Barstock_SQL, Ingredient
 from .database import db
 from .models import Bar, User
-from .util import load_recipe_json, to_human_diff, get_ts_formatter
+from .util import load_recipe_json, to_human_diff, get_ts_formatter, find_recipe
 from . import log
 # TODO: No handlers could be found for logger "root"
 # actual log infos instead of prints
@@ -71,14 +71,21 @@ class MixMindServer():
         self.recipes = [DrinkRecipe(name, recipe).generate_examples(barstock, stats=True)
                 for name, recipe in self.base_recipes.iteritems()]
 
-    def regenerate_recipes(self, bar, ingredient=None):
+    def regenerate_recipes(self, bar, ingredient=None, recipe_name=None):
         """Regenerate the examples and statistics data for the recipes at the given bar
         :param string ingredient: only updates recipes with the given ingredient
+        :param string reipce_name: only updates the given recipe
         """
         if ingredient:
             print ("Updating recipes containing {} for {}".format(ingredient, bar.cname))
             [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes
                             if recipe.contains_ingredient(ingredient)]
+        elif recipe:
+            recipe = find_recipe(self.recipes, recipe_name)
+            if recipe is None:
+                print ("Error: no recipe found matching name \"{}\"".format(recipe_name))
+            print ("Updating recipe {} at {}".format(recipe, bar.cname))
+            recipe.generate_examples(Barstock_SQL(bar.id), stats=True)
         else:
             print ("Regenerating recipe library for {}".format(bar.cname))
             [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes]
