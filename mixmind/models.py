@@ -89,7 +89,7 @@ class Bar(db.Model):
     cname = Column(Unicode(length=63), unique=True) # unique name for finding the bar
     name = Column(Unicode(length=63))
     tagline = Column(Unicode(length=255), default=u"Tips – always appreciated, never required")
-    is_public = Column(Boolean(), default=True) # visible to public customers
+    is_public = Column(Boolean(), default=False) # visible to public customers
     is_default = Column(Boolean(), default=False) # the current default bar
     bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
     owner_id = Column(Integer(), ForeignKey('user.id'))
