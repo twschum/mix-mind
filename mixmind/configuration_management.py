@@ -9,6 +9,7 @@ import os.path
 from collections import namedtuple
 
 from flask import g, flash
+from flask_login import current_user
 
 from .recipe import DrinkRecipe
 from .barstock import Barstock_SQL, Ingredient
@@ -82,22 +83,27 @@ class MixMindServer():
             print ("Regenerating recipe library for {}".format(bar.cname))
             [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes]
 
-BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed")
+BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,owner,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed")
 
 def get_bar_config():
     """ For now, only one bar bay me "active" at a time
     """
     if 'current_bar' not in g:
-        active_list = Bar.query.filter_by(is_active=True).all()
-        if len(active_list) == 0:
-            flash("No bars currently active!", 'danger')
-            raise RuntimeError("No active bars in the database - must be at least one.")
-        elif len(active_list) > 1:
-            flash("More than one bar is active, using first one", 'danger')
-        bar = active_list[0]
+        bar = None
+        if current_user.is_authenticated and current_user.current_bar_id:
+            bar = Bar.query.filter_by(id=current_user.current_bar_id).one_or_none()
+        if not bar:
+            default_list = Bar.query.filter_by(is_default=True).all()
+            default_list = Bar.query.filter_by(id=1).all() # XXX TODO
+            if len(default_list) == 0:
+                flash("No bars currently set to default!", 'danger')
+                raise RuntimeError("No bar set to default in the database - must be at least one.")
+            elif len(default_list) > 1:
+                flash("More than one bar is set to default, using first one", 'danger')
+            bar = default_list[0]
         bartender = User.query.filter_by(id=bar.bartender_on_duty).one_or_none()
         g.current_bar = BarConfig(id=bar.id, cname=bar.cname, name=bar.name,
-                tagline=bar.tagline, bartender=bartender, markup=bar.markup,
+                tagline=bar.tagline, owner=bar.owner, bartender=bartender, markup=bar.markup,
                 prices=bar.prices, stats=bar.stats, examples=bar.examples, convert=bar.convert,
                 prep_line=bar.prep_line, origin=bar.origin, info=bar.info,
                 variants=bar.variants, summarize=bar.summarize, is_closed=not bartender)
