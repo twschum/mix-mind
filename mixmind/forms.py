@@ -232,6 +232,12 @@ class CreateBarForm(BaseForm):
     create_bar = SubmitField("Create Bar", render_kw={"class": "btn btn-success"})
 
 class EditBarForm(BaseForm):
+    def __init__(self, *args, **kwargs):
+        super(EditBarForm, self).__init__(*args, **kwargs)
+        print "GENERATING USER CHOICES"
+        choices = [('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()]
+        self.bartender.choices = choices
+        self.owner.choices = choices
     bar_id = HiddenIntField("bar_id", render_kw={})
     name = TextField("Bar Name", description="Display name for the bar")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
@@ -245,8 +251,10 @@ class EditBarForm(BaseForm):
     # for bars to pick bartenders - maybe off the user page
     status = ToggleField("Bar Status", description="Open or close the bar to orders",
             on="Open", off="Closed", onstyle="success", offstyle="danger")
-    bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders",
-            choices=[('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()])
+    active = ToggleField("Active", description="Make the bar available to browse",
+            on="Active", off="Inactive", onstyle="success", offstyle="danger")
+    bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders", choices=[])
+    owner = SelectField("Assign Bar Owner", description="Assign an owner who can manage the bar's stock and settings", choices=[])
 
     prices = ToggleField("Prices", description="Show prices",
             on="Included", off="Free", onstyle="success", offstyle="secondary")
