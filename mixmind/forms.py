@@ -250,10 +250,11 @@ class EditBarForm(BaseForm):
 
     # TODO use just "bartenders" for the current bar after there's a real syetem
     # for bars to pick bartenders - maybe off the user page
+    # user table on dashboard could generate links to edit the user page, user has a selectmultiple for roles
     status = ToggleField("Bar Status", description="Open or close the bar to orders",
             on="Open", off="Closed", onstyle="success", offstyle="danger")
-    active = ToggleField("Active", description="Make the bar available to browse",
-            on="Active", off="Inactive", onstyle="success", offstyle="danger")
+    is_public = ToggleField("Public", description="Make the bar available to browse",
+            on="Available", off="Hidden", onstyle="success", offstyle="danger")
     bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders", choices=[])
     owner = SelectField("Assign Bar Owner", description="Assign an owner who can manage the bar's stock and settings", choices=[])
 
