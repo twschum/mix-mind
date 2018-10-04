@@ -49,7 +49,7 @@ class MixMindServer():
         # setup default Bar
         default_bar = Bar(name=app.config['MIXMIND_DEFAULT_BAR_NAME'],
                 cname=app.config.get('MIXMIND_DEFAULT_BAR_CNAME', app.config['MIXMIND_DEFAULT_BAR_NAME']),
-                is_active=True)
+                is_public=True, is_default=True)
         existing_default_bar = Bar.query.filter_by(cname=default_bar.cname).one_or_none()
         if existing_default_bar:
             default_bar = existing_default_bar
@@ -83,18 +83,20 @@ class MixMindServer():
             print ("Regenerating recipe library for {}".format(bar.cname))
             [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes]
 
-BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,owner,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed")
+BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,owner,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed,is_public")
 
 def get_bar_config():
     """ For now, only one bar bay me "active" at a time
     """
+    if 'bar_list' not in g:
+        # HAX just putting it here for now to get initialized
+        g.bar_list = Bar.query.all()
     if 'current_bar' not in g:
         bar = None
         if current_user.is_authenticated and current_user.current_bar_id:
             bar = Bar.query.filter_by(id=current_user.current_bar_id).one_or_none()
         if not bar:
             default_list = Bar.query.filter_by(is_default=True).all()
-            default_list = Bar.query.filter_by(id=1).all() # XXX TODO
             if len(default_list) == 0:
                 flash("No bars currently set to default!", 'danger')
                 raise RuntimeError("No bar set to default in the database - must be at least one.")
@@ -105,6 +107,6 @@ def get_bar_config():
         g.current_bar = BarConfig(id=bar.id, cname=bar.cname, name=bar.name,
                 tagline=bar.tagline, owner=bar.owner, bartender=bartender, markup=bar.markup,
                 prices=bar.prices, stats=bar.stats, examples=bar.examples, convert=bar.convert,
-                prep_line=bar.prep_line, origin=bar.origin, info=bar.info,
-                variants=bar.variants, summarize=bar.summarize, is_closed=not bartender)
+                prep_line=bar.prep_line, origin=bar.origin, info=bar.info, variants=bar.variants,
+                summarize=bar.summarize, is_closed=not bartender, is_public=bar.is_public)
     return g.current_bar
