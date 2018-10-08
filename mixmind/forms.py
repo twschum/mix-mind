@@ -253,7 +253,7 @@ class EditBarForm(BaseForm):
     status = ToggleField("Bar Status", description="Open or close the bar to orders",
             on="Open", off="Closed", onstyle="success", offstyle="danger")
     is_public = ToggleField("Public", description="Make the bar available to browse",
-            on="Available", off="Hidden", onstyle="success", offstyle="danger")
+            on="Visible", off="Hidden", onstyle="success", offstyle="danger")
     bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders", choices=[])
     owner = SelectField("Assign Bar Owner", description="Assign an owner who can manage the bar's stock and settings", choices=[])
 
