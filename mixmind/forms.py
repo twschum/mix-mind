@@ -8,7 +8,6 @@ from .models import User
 from .util import VALID_UNITS
 
 # TODO refactor with flask_wtf which presets form csrfs (or roll my own I guess)
-# TODO use InputRequired validator
 
 class BaseForm(Form):
     """Custom Form class that implements csrf by default
@@ -165,14 +164,14 @@ class DrinksForm(BaseForm):
 
 
 class RecipeIngredientForm(BaseForm):
-    ingredient = TextField("Ingredient", validators=[validators.required()])
-    quantity = DecimalField("Quantity", validators=[validators.required()])
+    ingredient = TextField("Ingredient", validators=[validators.InputRequired()])
+    quantity = DecimalField("Quantity", validators=[validators.InputRequired()])
     is_optional = BooleanField("Optional")
 class RecipeForm(BaseForm):
-    name = TextField("Name", description="The recipe name", validators=[validators.required()])
+    name = TextField("Name", description="The recipe name", validators=[validators.InputRequired()])
     info = TextField("Info", description="Additional information about the recipe")
-    ingredients = FieldList(FormField(RecipeIngredientForm), min_entries=1, validators=[validators.required()])
-    unit = SelectField("Unit", choices=pairs(VALID_UNITS), validators=[validators.required()])
+    ingredients = FieldList(FormField(RecipeIngredientForm), min_entries=1, validators=[validators.InputRequired()])
+    unit = SelectField("Unit", choices=pairs(VALID_UNITS), validators=[validators.InputRequired()])
     #glass =
     #unit =
     #prep =
@@ -197,27 +196,27 @@ class BarstockForm(BaseForm):
     types = 'Brandy,Dry Gin,Genever,Amber Rum,White Rum,Dark Rum,Rye Whiskey,Vodka,Orange Liqueur,Dry Vermouth,Sweet Vermouth,Aromatic Bitters,Orange Bitters,Fruit Bitters,Bourbon Whiskey,Tennessee Whiskey,Irish Whiskey,Scotch Whisky,Silver Tequila,Gold Tequila,Mezcal,Aquavit,Amaretto,Blackberry Liqueur,Raspberry Liqueur,Campari,Amaro,Cynar,Aprol,Creme de Cacao,Creme de Menthe,Grenadine,Simple Syrup,Rich Simple Syrup,Honey Syrup,Orgeat,Maple Syrup,Sugar'.split(',')
     def types_list(self):
         return ', '.join(types)
-    category = SelectField("Category", validators=[validators.required()], choices=pairs(categories))
-    #type_ = SelectField("Type", validators=[validators.required()], choices=pairs(types))
-    type_ = TextField("Type", description='The broader type that an ingredient falls info, e.g. "Dry Gin" or "Orange Liqueur"', validators=[validators.required()])
-    bottle = TextField("Brand", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.required()])
-    abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.required(), validators.NumberRange(min=0, max=100)])
+    category = SelectField("Category", validators=[validators.InputRequired()], choices=pairs(categories))
+    #type_ = SelectField("Type", validators=[validators.InputRequired()], choices=pairs(types))
+    type_ = TextField("Type", description='The broader type that an ingredient falls info, e.g. "Dry Gin" or "Orange Liqueur"', validators=[validators.InputRequired()])
+    bottle = TextField("Brand", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.InputRequired()])
+    abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.InputRequired(), validators.NumberRange(min=0, max=100)])
 
-    unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0]]+VALID_UNITS[2:]), validators=[validators.required()])
-    size = DecimalField("Size", description="Size of the ingredient in the unit selected", validators=[validators.required(), validators.NumberRange(min=0, max=20000)])
-    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.required(), validators.NumberRange(min=0, max=9999999999)])
+    unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0]]+VALID_UNITS[2:]), validators=[validators.InputRequired()])
+    size = DecimalField("Size", description="Size of the ingredient in the unit selected", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=20000)])
+    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=9999999999)])
 
 class OrderForm(BaseForm):
     notes = TextField("Notes")
 
 class OrderFormAnon(OrderForm):
-    name = TextField("Your Name", validators=[validators.required()])
-    email = EmailField("Confirmation Email", validators=[validators.Email("Invalid email address"), validators.required()])
+    name = TextField("Your Name", validators=[validators.InputRequired()])
+    email = EmailField("Confirmation Email", validators=[validators.Email("Invalid email address"), validators.InputRequired()])
 
 class LoginForm(BaseForm):
-    #name = TextField("Your Name", validators=[validators.required()])
-    email = EmailField("Email", validators=[validators.required()])
-    password = PasswordField("Password", validators=[validators.required()])
+    #name = TextField("Your Name", validators=[validators.InputRequired()])
+    email = EmailField("Email", validators=[validators.InputRequired()])
+    password = PasswordField("Password", validators=[validators.InputRequired()])
 
 class EditUserForm(BaseForm):
     first_name = StringField('First Name')
@@ -227,7 +226,7 @@ class EditUserForm(BaseForm):
     submit = SubmitField('Save Profile')
 
 class CreateBarForm(BaseForm):
-    cname = TextField("Bar Unique Name", description="Unique name for the bar", validators=[validators.required()])
+    cname = TextField("Bar Unique Name", description="Unique name for the bar", validators=[validators.InputRequired()])
     name = TextField("Bar Display Name", description="Display name for the bar, leave blank to use unique name")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
     create_bar = SubmitField("Create Bar", render_kw={"class": "btn btn-success"})
