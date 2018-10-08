@@ -56,7 +56,7 @@ def filter_recipes(all_recipes, filter_options, union_results=False):
     if filter_options.search:
         include_list = [filter_options.search.lower()]
     else:
-        include_list = filter_options.include
+        include_list = [i.lower() for i in filter_options.include]
     if include_list:
         reduce_fn = any if filter_options.include_use_or else all
         result_recipes.add_items([recipe for recipe in recipes if
