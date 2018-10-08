@@ -216,6 +216,8 @@ class QuantizedIngredient(Ingredient):
     type_str: as written in the recipe, may be in the form what:bottle
     what: identify an ingredient, e.g. rye whiskey
     bottle: specify an ingredient, e.g. Bulliet Rye
+    TODO: support quantized unit that is a number of items (basil leaves, raspberries, etc.)
+        - may need to use regex to match against "3-4"
     """
     @util.default_initializer
     def __init__(self, type_str, raw_quantity, recipe_unit):
