@@ -23,8 +23,12 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: 'cmu_typewriter_bold';
 }
-.navbar-brand {
-    font-family: 'cmu_typewriter_wide';
+/* style nav dropdows */
+.dropdown-menu {
+    border-radius: 0rem;
+}
+.navbar-light .navbar-nav .show>.nav-link {
+    color: rgba(0,0,0,.5);
 }
 .monospace {
     font-family: 'cmu_typewriter_wide';
