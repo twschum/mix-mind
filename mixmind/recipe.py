@@ -150,12 +150,6 @@ class DrinkRecipe(object):
         self.stats.avg_std_drinks = _mean(self.examples, u'std_drinks')
         return True
 
-    def get_ingredient_list(self, all=True, optional=False):
-        if all:
-            return [i.specifier.what for i in self.ingredients]
-        else:
-            return [i.specifier.what for i in self._get_quantized_ingredients(include_optional=optional)]
-
     def primary_spirit(self):
         max_amount = 0
         max_ingredient = None
@@ -170,15 +164,11 @@ class DrinkRecipe(object):
         return self.ingredients[0].specifier
 
     def contains_ingredient(self, ingredient, include_optional=False):
-        ingredient = ingredient.lower()
-        return any(( ingredient in i.specifier.what.lower() \
-                or (i.specifier.bottle and ingredient in i.specifier.bottle.lower()) \
-                for i in self._get_quantized_ingredients(include_optional=include_optional)))
+        ingredients = self.ingredients if include_optional else self._get_quantized_ingredients()
+        return any((ingredient in i for i in ingredients))
 
     def _get_quantized_ingredients(self, include_optional=False):
-        return [i for i in self.ingredients if isinstance(i, QuantizedIngredient) \
-                and (not isinstance(i, OptionalIngredient) or include_optional)]
-
+        return [i for i in self.ingredients if type(i) == QuantizedIngredient]
 
 class Ingredient(object):
     """ An "ingredient" is every item that should be represented in standard text
@@ -196,6 +186,9 @@ class Ingredient(object):
 
     def __repr__(self):
         return self._repr_fmt().format(self.description)
+
+    def __contains__(self, item):
+        return item in self.description.lower()
 
     def convert(self, *args, **kwargs):
         pass
@@ -267,6 +260,10 @@ class QuantizedIngredient(Ingredient):
         else:
             self.amount = raw_quantity
             self.unit = recipe_unit
+
+    def __contains__(self, item):
+        return item in self.specifier.what.lower() or \
+             (self.specifier.bottle and item in self.specifier.bottle.lower())
 
     def __repr__(self):
         return super(QuantizedIngredient, self)._repr_fmt().format(u"{},{},{}".format(self.amount, self.unit, self.specifier))
