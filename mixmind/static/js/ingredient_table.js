@@ -1,4 +1,3 @@
-// TODO add a "copy" column
 // TODO add a download as csv
 var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup": 4, "Juice": 5, "Mixer": 6, "Wine": 7, "Beer": 8, "Dry": 9, "Ice": 10}
 // NOTE: in datatables 2.0, can use simply api.column(id).name()
@@ -80,7 +79,7 @@ $(document).ready( function () {
         "columns": [2,3,4,5,6,7,8,9], // allowed to edit these columns
         "inputTypes": [
             {
-                "column": 1,
+                "column": 3,
                 "type": "list",
                 "options": [
                     {"value":  "Spirit",    "display":  "Spirit"},
