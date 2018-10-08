@@ -170,7 +170,7 @@ def order(recipe_name):
     if request.method == 'GET':
         show_form = True
         if current_user.is_authenticated:
-            heading = "Order for {}:".format(current_user.get_name(short=True))
+            heading = u"Order for {}:".format(current_user.get_name(short=True))
         if current_bar.is_closed:
             flash(u"It's closed. So sad.", 'warning')
 
@@ -210,7 +210,7 @@ def order(recipe_name):
                 db.session.commit()
 
                 # TODO add a verifiable token to this
-                subject = "{} for {} at {}".format(recipe.name, user_name, current_bar.name)
+                subject = u"{} for {} at {}".format(recipe.name, user_name, current_bar.name)
                 confirmation_link = "https://{}{}".format(request.host,
                         url_for('confirm_order',
                             email=urllib.quote(user_email),
@@ -390,6 +390,7 @@ def admin_dashboard():
                 flash(u"Error in form validation", 'warning')
 
         elif 'edit_bar' in request.form:
+            # TODO invalid to have open without a bartender (js?)
             if edit_bar_form.validate():
                 # TODO allow manager to edit this one? use different post url
                 bar_id = edit_bar_form.bar_id.data
@@ -699,9 +700,16 @@ def api_ingredient():
 
     return api_error("Unknwon method")
 
-@app.route("/api/user_default_bar", methods=['POST', 'GET', 'PUT', 'DELETE'])
+@app.route("/api/user_current_bar", methods=['POST', 'GET', 'PUT', 'DELETE'])
 @login_required
-def api_user_default_bar():
+def api_user_current_bar():
+    """Request endpoint to change a user's current bar
+    :param int user_id: ID of the user to modity
+    :param int bar_id: ID of the bar to set as user's current view default
+        If 0, will use the configured default bar
+    :param string next: Should be the URL of the current page so the user
+        can be redirected to that page
+    """
     try:
         user_id = int(request.args.get('user_id'))
     except ValueError:
@@ -712,6 +720,7 @@ def api_user_default_bar():
     except ValueError:
         flash(u"Invalid bar_id parameter", 'danger')
         return render_template('result.html', heading="Bar unavailable")
+    next_url = request.args.get('next', url_for('browse'))
 
     user = user_datastore.find_user(id=user_id)
     if user:
@@ -719,8 +728,11 @@ def api_user_default_bar():
             flash(u"Cannot change default bar for another user {}".format(user_id), 'danger')
             return render_template('result.html', heading="Invalid default bar request")
         bar = Bar.query.filter_by(id=bar_id).one_or_none()
-        if not bar or (not bar.is_public and (user.id != bar.owner_id or not user.has_role('admin'))):
-            flash(u"Bar {} is invalid for selection (if it does exist, you need to be the owner or admin)".format(bar_id), 'danger')
+        if not bar:
+            flash(u"Invalid bar id: {}".format(bar_id))
+            return render_template('result.html', heading="Invalid bar")
+        if not bar.is_public and (user.id != bar.owner_id) and not user.has_role('admin'):
+            flash(u"Bar {} is not publicly available, you need to be the owner or admin".format(bar_id), 'danger')
             return render_template('result.html', heading="Invalid bar")
         user.current_bar_id = bar.id
         user_datastore.commit()
@@ -728,8 +740,7 @@ def api_user_default_bar():
         flash(u"Invalid user {}".format(user_id), 'danger')
         return render_template('result.html', heading="Invalid user")
 
-    # TODO return to same page
-    return redirect(url_for('browse'))
+    return redirect(next_url)
 
 
 @app.route("/admin/debug", methods=['GET'])
