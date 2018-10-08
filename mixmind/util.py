@@ -188,7 +188,13 @@ def from_bool_from_num(s):
         return False
     return bool(float(s))
 def as_utf8(s):
-    return unicode(s, 'utf-8')
+    try:
+        return unicode(s, 'utf-8')
+    except TypeError as e:
+        if "decoding Unicode is not supported" in str(e):
+            return s
+        raise
+
 
 def to_fraction(amount):
     fraction = Fraction.from_float(float(amount)).limit_denominator(99)
