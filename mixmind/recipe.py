@@ -260,7 +260,10 @@ class QuantizedIngredient(Ingredient):
                 self.amount = raw_quantity
                 self.unit = u'literal'
             else:
-                raise RecipeError(u"Unknown ingredient quantity: {} {}".format(raw_quantity, type_str))
+                # accept other options as literal ingredients
+                self.amount = raw_quantity
+                self.unit = u'literal'
+                #raise RecipeError(u"Unknown ingredient quantity: {} {}".format(raw_quantity, type_str))
         else:
             self.amount = raw_quantity
             self.unit = recipe_unit

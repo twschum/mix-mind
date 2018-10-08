@@ -59,6 +59,23 @@
         "garnish": "Salt rim, lime wedge"
     },
 
+    "Ryeberry Smash": {
+        "info": "Add some tasty fresh berries to a Rye Sour",
+        "tag": "core",
+        "style": "All Day Cocktail",
+        "origin": "Schubar original",
+        "ingredients": {
+            "rye whiskey": 1.5,
+            "honey syrup": 0.25,
+            "lemon juice": 0.75,
+            "raspberries": "4-5"
+        },
+        "misc": "Muddle the berries, juice and honey, shake with the rye",
+        "profile": ["tangy", "citrusy"],
+        "glass": "rocks",
+        "prep": "build"
+    },
+
     "Rye Whiskey Sour": {
         "info": "Most popular drink among regulars",
         "tag": "core",
@@ -105,6 +122,29 @@
             "lime juice": 0.5
         },
         "prep": "shake",
+        "origin": "Schubar original",
+        "garnish": "Basil leaf, and a blackberry (if available)"
+    },
+
+    "Raspberry Herb Smash": {
+        "info": "Basil or sage work well with this",
+        "style": "All Day Cocktail",
+        "tag": "core",
+        "ingredients": {
+            "vodka": 1.5,
+            "simple syrup": 0.25,
+            "lemon juice": 0.5,
+            "raspberries": "4-5",
+            "basil": "2-3 leaves"
+        },
+        "optional": {
+            "balsamic vinager": "dash"
+        },
+        "variants": {
+            "Gin Smash: use gin in place of vodka",
+            "Strawberry Balsamic Smash: sub in strawberries"
+        },
+        "prep": "build",
         "origin": "Schubar original",
         "garnish": "Basil leaf"
     },
