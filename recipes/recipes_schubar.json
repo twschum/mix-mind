@@ -140,10 +140,10 @@
         "optional": {
             "balsamic vinager": "dash"
         },
-        "variants": {
+        "variants": [
             "Gin Smash: use gin in place of vodka",
             "Strawberry Balsamic Smash: sub in strawberries"
-        },
+        ],
         "prep": "build",
         "origin": "Schubar original",
         "garnish": "Basil leaf"
