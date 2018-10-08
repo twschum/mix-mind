@@ -199,6 +199,7 @@
         "style": "Before Dinner Cocktail",
         "IBA_description": "Place sugar cube in old-fashioned glass and saturate with bitters, add a dash of plain water.",
         "unit": "cL",
+        "glass": "rocks",
         "ingredients": {
             "whiskey": 4.5,
             "aromatic bitters:Angostura": "2 dashes",
