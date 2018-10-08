@@ -722,6 +722,8 @@
         "info": "The missing link between modern and ancestral martini styles",
         "style": "Before Dinner Cocktail",
         "tag": "core",
+        "prep": "stir",
+        "glass": "martini",
         "ingredients": {
             "dry gin": 1.5,
             "dry vermouth": 1.5,
@@ -733,7 +735,7 @@
 
     "Aquavit Gimlet": {
         "style": "All Day Cocktail",
-        "info": "Aquavit (ahh-ka-vitt) is a traditional scandinavian spirit with caraway and dill as the primary botanicals",
+        "info": "Aquavit (ahh-ka-vitt) is a traditional scandinavian spirit featuring caraway and dill as the primary botanicals",
         "tag": "core",
         "ingredients": {
             "aquavit": 1.5,
