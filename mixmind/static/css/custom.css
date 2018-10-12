@@ -24,14 +24,17 @@ h1, h2, h3, h4, h5, h6 {
     font-family: 'cmu_typewriter_bold';
 }
 /* style nav dropdows */
+.monospace {
+    font-family: 'cmu_typewriter_wide';
+}
 .dropdown-menu {
     border-radius: 0rem;
 }
 .navbar-light .navbar-nav .show>.nav-link {
     color: rgba(0,0,0,.5);
 }
-.monospace {
-    font-family: 'cmu_typewriter_wide';
+.nav-item .dropdown-item i {
+    color: rgba(0,0,0,.5);
 }
 
 /* link defaults */
