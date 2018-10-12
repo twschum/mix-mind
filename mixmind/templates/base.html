@@ -62,46 +62,62 @@
 					{# Current Bar Selector #}
 					<div class="nav-item dropdown {{ d_full }}">
 						<a class="nav-link dropdown-toggle" href="#" id="barDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<i class="fas fa-sitemap"></i>Change Bar</a>
+							<i class="fas fa-sitemap"></i>Bar</a>
 						<div class="dropdown-menu" id="barDropdown" aria-labelledby="barDropdownToggle">
 							<h6 class="dropdown-header">Change Current Bar</h6>
 							{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner_id == current_user.id or current_user.has_role('admin')) %}
-							<a class="dropdown-item" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">{{ bar.name }}</a>
+							<a class="dropdown-item" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
+								<i class="fas fa-location-arrow"></i>{{ bar.name }}</a>
 							{% endfor %}
 						</div>
 					</div>
 					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#barNavdrop" aria-controls="adminNavdrop" aria-expanded="false">
-						<i class="fas fa-sitemap{#exchange-alt"#}"></i>Change Current Bar<i id="barNavdropIcon" class="fas fa-caret-down"></i></a>
+						<i class="fas fa-sitemap"></i>Change Current Bar<i id="barNavdropIcon" class="fas fa-caret-down"></i></a>
 					<div class="collapse navbar-nav pl-4 w-100" id="barNavdrop">
 						{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner_id == current_user.id or current_user.has_role('admin')) %}
-						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">{{ bar.name }}</a>
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
+							<i class="fas fa-location-arrow"></i>{{ bar.name }}</a>
 						{% endfor %}
 					</div>
 
+					{# Bar management links #}
+					{% if g.current_bar.owner_id == current_user.user_id %}
+					<div class="nav-item dropdown {{ d_full }}">
+						<a class="nav-link dropdown-toggle" href="#" id="currentBarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}</a>
+						<div class="dropdown-menu" aria-labelledby="currentBarDropdown">
+							<h6 class="dropdown-header">Manage {{ g.current_bar.name }}</h6>
+							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
+							<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
+						</div>
+					</div>
+					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#currentBarNavdrop" aria-controls="currentBarNavdrop" aria-expanded="false">
+						<i class="fas fa-cogs"></i>Manage {{ g.current_bar.name }}<i id="currentBarNavdropIcon" class="fas fa-caret-down"></i></a>
+					<div class="collapse navbar-nav pl-4 w-100" id="currentBarNavdrop">
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
+					</div>
+					{% endif %}
+
 					{# Admin tools section #}
 					{% if current_user.has_role('admin') %}
+					<div class="nav-item dropdown {{ d_full }}">
+						<a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-cogs"></i>Admin</a>
+						<div class="dropdown-menu" aria-labelledby="adminDropdown">
+							<h6 class="dropdown-header">Administrative Pages</h6>
+							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+							<a class="dropdown-item" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
+							<a class="dropdown-item" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
+						</div>
+					</div>
 					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#adminNavdrop" aria-controls="adminNavdrop" aria-expanded="false">
-						<i class="fas fa-cogs"></i>Admin<i id="adminNavdropIcon" class="fas fa-caret-down"></i></a>
+						<i class="fas fa-cogs"></i>Admin Section<i id="adminNavdropIcon" class="fas fa-caret-down"></i></a>
 					<div class="collapse navbar-nav pl-4 w-100" id="adminNavdrop">
 						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
 						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
 						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
 					</div>
-					<div class="nav-item dropdown {{ d_full }}">
-						<a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cogs"></i>Admin</a>
-						<div class="dropdown-menu" aria-labelledby="adminDropdown">
-							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
-							<div class="dropdown-divider"></div>
-							<a class="dropdown-item" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
-							<a class="dropdown-item" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
-						</div>
-					</div>
-					{% endif %}
-
-					{# Bar owner links #}
-					{% if g.current_bar.owner_id == current_user.user_id %}
-					<a class="nav-item nav-link" {{ nav_link('admin_dashboard') }}><i class="fas fa-sliders-h"></i>Bar Settings</a>
-					<a class="nav-item nav-link" {{ nav_link('ingredient_stock') }}><i class="fas fa-warehouse"></i>Ingredient Stock</a>
 					{% endif %}
 
 					<a class="nav-item nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i>Log out</a>
