@@ -16,4 +16,11 @@ $(document).ready( function () {
     $("#adminNavdrop").on("hidden.bs.collapse", function() {
         $("#adminNavdropIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
     });
+    // bar management
+    $("#currentBarNavdrop").on("shown.bs.collapse", function() {
+        $("#currentBarNavdropIcon").removeClass("fa-caret-down").addClass("fa-caret-up");
+    });
+    $("#currentBarNavdrop").on("hidden.bs.collapse", function() {
+        $("#currentBarNavdropIcon").removeClass("fa-caret-up").addClass("fa-caret-down");
+    });
 });
