@@ -12,12 +12,12 @@
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
 		</div>
 		<div class="col-md-9 mt-3">
-			<div class="row">
-				<form id="filter-recipes" class="w-100" action="" method="post" role="form">
+			<form id="filter-recipes" class="w-100" action="" method="post" role="form">
+				<div class="row">
 					{{ form.csrf }}
 					{# ghost button, ensures we always apply filters on 'ENTER' #}
 					<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
-					<div class="col-7">
+					<div class="col-md">
 						<div class="form-row no-gutters">
 							{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
 							<div class="form-group search-btn-submit">
@@ -30,7 +30,7 @@
 					</div>
 
 					{# sorting and filtering buttons #}
-					<div class="col-5">
+					<div class="col-md-auto mt-2" style="width:24rem;">
 						<div class="row no-gutters mb-3">
 							<div class="col-auto mr-auto">
 								<button type="button" class="btn close" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
@@ -43,8 +43,10 @@
 							</div>
 						</div>
 					</div>
+				</div>{# row #}
 
-					{# sort dropdown #}
+				{# sort dropdown #}
+				<div class="row">
 					<div id="sorting" class="collapse" style="margin-bottom:0.75rem">
 						<div class="form-row no-gutters">
 							{{ render_field(form.sorting, form_group_classes="col") }}
@@ -96,9 +98,9 @@
 						</div>
 
 					</div><!-- filters -->
-				</form>
-				{% endblock formdiv %}
-			</div><!-- Heading and filters -->
+			</form>
+			{% endblock formdiv %}
+				</div><!-- Heading and filters -->
 		</div><!-- Heading and filters -->
 	</div><!-- Heading and filters -->
 
