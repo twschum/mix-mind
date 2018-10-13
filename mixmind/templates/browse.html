@@ -5,35 +5,34 @@
 <!-- Main form -->
 {% block body %}
 <div class="container-fluid">
-	<div class="row">
 		<!-- Heading & filters column - 1/3 at md-lg, 1/4 at xl -->
-		<div class="col-md-4 col-xl-3">
+		<div class="">
 			{% block formdiv %}
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
 			<form id="filter-recipes" action="" method="post" role="form">
 			{{ form.csrf }}
-			<div {#class="form-group"#}>
-				<div class="form-row no-gutters">
-					{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
-					<div class="form-group search-btn-submit">
-						<button type="submit" id="search-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
-					</div>
-					<div class="form-group search-btn-submit">
-						<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
-					</div>
+			<div class="form-row no-gutters">
+				{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
+				<div class="form-group search-btn-submit">
+					<button type="submit" id="search-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
+				</div>
+				<div class="form-group search-btn-submit">
+					<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
 				</div>
 			</div>
 			{# ghost button, ensures we always apply filters on 'ENTER' #}
 			<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
 
 			{# collapse the filters in small viewports #}
-			<div class="row d-md-none">
+			<div class="row no-gutters d-md-none mb-3">
 				<div class="col-auto mr-auto">
-					<button type="button" class="btn close btn-outline-primary mb-3" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
-					<button type="button" class="btn close btn-outline-primary mb-3" data-target="#sorting" data-toggle="collapse"><i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span></button>
+					<button type="button" class="btn close" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
+				</div>
+				<div class="col-auto mr-auto">
+					<button type="button" class="btn close" data-target="#sorting" data-toggle="collapse"><i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span></button>
 				</div>
 				<div class="col-auto">
-					<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+					<button type="submit" name="suprise-menu" class="close close-color text-success"><i class="fas fa-random text-success"></i><span class="close-btn-txt">Suprise Me</span></button>
 				</div>
 			</div>
 
@@ -90,10 +89,10 @@
 			</div><!-- filters -->
 			</form>
 			{% endblock formdiv %}
-		</div><!-- Heading and filters col -->
+		</div><!-- Heading and filters -->
 
 		<!-- Recipe column - 2/3 at md-lg, 3/4 at xl -->
-		<div class="col-md-8 col-xl-9 mt-3">
+		<div class="mt-3">
 		{% if recipes %}
 			{% for recipe in recipes %}
 			{% if loop.index0 % 6 == 0 %}
@@ -118,8 +117,7 @@
 				* denotes a Schubar original recipe
 				{% endif %}
 			</div><!-- footer -->
-		</div><!-- recipes column -->
-	</div><!-- row -->
+		</div><!-- recipes -->
 </div><!-- container -->
 {% endblock body %}
 
