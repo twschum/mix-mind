@@ -70,9 +70,9 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         name_line = []
         # attempt hack for keeping text aligned right of image when wrapping
         if fancy:
-            name_line.append(u'<div class="clearfix" style="vertical-align:middle;">')
+            name_line.append(u'<div class="clearfix" style="position:relative;">')
             name_line.append(u'<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
-        name_line.append(recipe.name)
+        name_line.append(close(recipe.name, 'span', style="position:absolute;bottom:0;"))
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
@@ -85,7 +85,7 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         if fancy:
             name_line.append(u"</div><!-- recipe name text -->")
             name_line = close(''.join(name_line), 'h4', class_="card-title",
-                style="margin-left:-0.35em; vertical-align:middle;") # tweak to the left
+                style="margin-left:-0.35em;") # tweak to the left
         else:
             name_line = close(u''.join(name_line), 'h3')
         doc.asis(name_line)
