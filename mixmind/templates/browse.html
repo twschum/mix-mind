@@ -5,119 +5,130 @@
 <!-- Main form -->
 {% block body %}
 <div class="container-fluid">
-		<!-- Heading & filters column - 1/3 at md-lg, 1/4 at xl -->
-		<div class="">
-			{% block formdiv %}
+	<!-- Heading & filters column - 1/3 at md-lg, 1/4 at xl -->
+	<div class="row">
+		{% block formdiv %}
+		<div class="col-md-3">
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
-			<form id="filter-recipes" action="" method="post" role="form">
-			{{ form.csrf }}
-			<div class="form-row no-gutters">
-				{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
-				<div class="form-group search-btn-submit">
-					<button type="submit" id="search-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
-				</div>
-				<div class="form-group search-btn-submit">
-					<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
-				</div>
-			</div>
-			{# ghost button, ensures we always apply filters on 'ENTER' #}
-			<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
-
-			{# collapse the filters in small viewports #}
-			<div class="row no-gutters d-md-none mb-3">
-				<div class="col-auto mr-auto">
-					<button type="button" class="btn close" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
-				</div>
-				<div class="col-auto mr-auto">
-					<button type="button" class="btn close" data-target="#sorting" data-toggle="collapse"><i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span></button>
-				</div>
-				<div class="col-auto">
-					<button type="submit" name="suprise-menu" class="close close-color text-success"><i class="fas fa-random text-success"></i><span class="close-btn-txt">Suprise Me</span></button>
-				</div>
-			</div>
-
-			<div id="sorting" class="collapse d-md-block" style="margin-bottom:0.75rem">
-				<div class="form-row no-gutters">
-					{{ render_field(form.sorting, form_group_classes="col") }}
-					<div class="form-group search-btn-submit">
-						<button type="submit" id="sort-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
-					</div>
-					<div class="form-group search-btn-submit">
-						<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
-					</div>
-				</div>
-			</div>
-
-			<div id="filters" class="collapse d-md-block" style="margin-bottom:0.75rem">
-					<div class="form-group">
-						<div class="form-row no-gutters">
-						{{ render_field(form.include, form_group_classes="col") }}
-						{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
-						</div>
-						<div class="form-row no-gutters">
-						{{ render_field(form.exclude, form_group_classes="col") }}
-						{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
-						</div>
-						{#<a class="btn btn-outline-primary mb-3" href="#misc-filters" data-toggle="collapse"><h4 style="position:relative; top:2px; margin-bottom:0px">Additional Filters</h4></a>#}
-						<div class="row mb-3">
-							<div class="col-auto mr-auto">
-								<a class="btn btn-outline-primary" href="#misc-filters" data-toggle="collapse">Advanced Filters</a>
-							</div>
-							<div class="col-auto d-none d-md-block">
-								<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
-							</div>
-						</div>
-
-						<div id="misc-filters" class="collapse">
-							{{ render_field(form.name) }}
-							{{ render_field(form.style) }}
-							{{ render_field(form.glass) }}
-							{{ render_field(form.prep) }}
-							{{ render_field(form.ice) }}
-						</div><!-- misc-filters -->
-					</div><!-- form-group -->
-
-				<div class="row">
-					<div class="col-auto mr-auto">
-						<a class="btn btn-outline-danger" href="/">Clear</a>
-					</div>
-					<div class="col-auto">
-						<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
-					</div>
-				</div>
-
-			</div><!-- filters -->
-			</form>
-			{% endblock formdiv %}
-		</div><!-- Heading and filters -->
-
-		<!-- Recipe column - 2/3 at md-lg, 3/4 at xl -->
-		<div class="mt-3">
-		{% if recipes %}
-			{% for recipe in recipes %}
-			{% if loop.index0 % 6 == 0 %}
+		</div>
+		<div class="col-md-9 mt-3">
 			<div class="row">
+				<form id="filter-recipes" class="w-100" action="" method="post" role="form">
+					{{ form.csrf }}
+					{# ghost button, ensures we always apply filters on 'ENTER' #}
+					<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
+					<div class="col-7">
+						<div class="form-row no-gutters">
+							{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
+							<div class="form-group search-btn-submit">
+								<button type="submit" id="search-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
+							</div>
+							<div class="form-group search-btn-submit">
+								<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
+							</div>
+						</div>
+					</div>
+
+					{# sorting and filtering buttons #}
+					<div class="col-5">
+						<div class="row no-gutters mb-3">
+							<div class="col-auto mr-auto">
+								<button type="button" class="btn close" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
+							</div>
+							<div class="col-auto mr-auto">
+								<button type="button" class="btn close" data-target="#sorting" data-toggle="collapse"><i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span></button>
+							</div>
+							<div class="col-auto">
+								<button type="submit" name="suprise-menu" class="close close-color text-success"><i class="fas fa-random text-success"></i><span class="close-btn-txt">Suprise Me</span></button>
+							</div>
+						</div>
+					</div>
+
+					{# sort dropdown #}
+					<div id="sorting" class="collapse" style="margin-bottom:0.75rem">
+						<div class="form-row no-gutters">
+							{{ render_field(form.sorting, form_group_classes="col") }}
+							<div class="form-group search-btn-submit">
+								<button type="submit" id="sort-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
+							</div>
+							<div class="form-group search-btn-submit">
+								<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
+							</div>
+						</div>
+					</div>
+
+					<div id="filters" class="collapse" style="margin-bottom:0.75rem">
+						<div class="form-group">
+							<div class="form-row no-gutters">
+								{{ render_field(form.include, form_group_classes="col") }}
+								{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
+							</div>
+							<div class="form-row no-gutters">
+								{{ render_field(form.exclude, form_group_classes="col") }}
+								{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
+							</div>
+							{#<a class="btn btn-outline-primary mb-3" href="#misc-filters" data-toggle="collapse"><h4 style="position:relative; top:2px; margin-bottom:0px">Additional Filters</h4></a>#}
+							<div class="row mb-3">
+								<div class="col-auto mr-auto">
+									<a class="btn btn-outline-primary" href="#misc-filters" data-toggle="collapse">Advanced Filters</a>
+								</div>
+								<div class="col-auto d-none d-md-block">
+									<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
+								</div>
+							</div>
+
+							<div id="misc-filters" class="collapse">
+								{{ render_field(form.name) }}
+								{{ render_field(form.style) }}
+								{{ render_field(form.glass) }}
+								{{ render_field(form.prep) }}
+								{{ render_field(form.ice) }}
+							</div><!-- misc-filters -->
+						</div><!-- form-group -->
+
+						<div class="row">
+							<div class="col-auto mr-auto">
+								<a class="btn btn-outline-danger" href="/">Clear</a>
+							</div>
+							<div class="col-auto">
+								<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+							</div>
+						</div>
+
+					</div><!-- filters -->
+				</form>
+				{% endblock formdiv %}
+			</div><!-- Heading and filters -->
+		</div><!-- Heading and filters -->
+	</div><!-- Heading and filters -->
+
+	<!-- Recipe column - 2/3 at md-lg, 3/4 at xl -->
+	<div class="mt-3">
+		{% if recipes %}
+		{% for recipe in recipes %}
+		{% if loop.index0 % 6 == 0 %}
+		<div class="row">
 			{% endif %}
-				<div class="col-sm-6 col-lg-6 col-xl-4" style="margin-bottom:0.75rem;">
+			<div class="col-sm-6 col-lg-6 col-xl-4" style="margin-bottom:0.75rem;">
 				{{ recipe | safe }}
-				</div><!-- col -->
+			</div><!-- col -->
 			{% if loop.index0 % 6 == 5 or loop.last %}
-			</div><!-- row -->
-			{% endif %}
-			{% endfor %}
+		</div><!-- row -->
 		{% endif %}
-			<div class="footer pb-3">
-				{% if g.current_bar.prices %}
-				$$ amount shown is recommended tip, calculated from cost of ingredients
-				{% endif %}
-				{% if g.current_bar.prices and g.current_bar.origin %}
-				<br>
-				{% endif %}
-				{% if g.current_bar.origin %}
-				* denotes a Schubar original recipe
-				{% endif %}
-			</div><!-- footer -->
-		</div><!-- recipes -->
+		{% endfor %}
+		{% endif %}
+		<div class="footer pb-3">
+			{% if g.current_bar.prices %}
+			$$ amount shown is recommended tip, calculated from cost of ingredients
+			{% endif %}
+			{% if g.current_bar.prices and g.current_bar.origin %}
+			<br>
+			{% endif %}
+			{% if g.current_bar.origin %}
+			* denotes a Schubar original recipe
+			{% endif %}
+		</div><!-- footer -->
+	</div><!-- recipes -->
 </div><!-- container -->
 {% endblock body %}
 
