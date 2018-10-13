@@ -27,14 +27,24 @@ h1, h2, h3, h4, h5, h6 {
 .monospace {
     font-family: 'cmu_typewriter_wide';
 }
-.dropdown-menu {
-    border-radius: 0rem;
-}
 .navbar-light .navbar-nav .show>.nav-link {
     color: rgba(0,0,0,.5);
 }
-.nav-item .dropdown-item i {
+.nav-item .dropdown-menu {
+    border: none;
+    border-radius: 0rem;
+    background-color: #e8ebef!important;
+}
+.nav-item .dropdown-item {
     color: rgba(0,0,0,.5);
+}
+.nav-item .dropdown-item:hover {
+    color: rgba(0,0,0,.8);
+    background-color: unset;
+}
+.nav-item .dropdown-item:active {
+    color: rgba(0,0,0,1);
+    background-color: unset;
 }
 
 /* link defaults */
@@ -146,7 +156,7 @@ i {
     opacity: 1;
 }
 .close-btn-txt {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
 /* Use to make file upload look better
