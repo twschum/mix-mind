@@ -147,6 +147,11 @@ i {
     line-height: 2.00rem;
 }
 
+/* used by the search box to extend itself and "capture" the search button */
+.search-box {
+    margin-right: -4.8rem;
+}
+
 /* These tag along with the close class which makes the best icon button.
  * Use with text-[danger|success|...] for more saturated colors */
 .close-color {
