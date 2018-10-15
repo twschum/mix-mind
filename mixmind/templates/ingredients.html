@@ -1,12 +1,9 @@
 {# template for admin to manage ingredient stock #}
 {% extends "dashboard.html" %}
 {% from "_macros.html" import show_flashed, render_field %}
-{% block dashbody %}
 
-<h3>Ingredient Stock for {{ g.current_bar.cname }}</h3>
-{{ show_flashed() }}
-
-<div class="modal fade {% if form_open %} show{% endif %}" id="add-ingredient">
+{% block modal %}
+<div class="modal fade {% if form_open %} show{% endif %}" id="add-ingredient" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -16,18 +13,16 @@
 				</button>
 			</div>
 			<form  id="add-ingredient-form" action="" method="post" role="form">
-				<div class="container-fluid">
-					<div class="modal-body">
-						{{ form.csrf }}
-						{# TODO form layout #}
-						{{ render_field(form.bottle) }}
-						{{ render_field(form.category) }}
-						{{ render_field(form.type_) }}
-						{{ render_field(form.abv) }}
-						{{ render_field(form.size) }}
-						{{ render_field(form.unit) }}
-						{{ render_field(form.price) }}
-					</div>
+				<div class="modal-body">
+					{{ form.csrf }}
+					{# TODO form layout #}
+					{{ render_field(form.bottle) }}
+					{{ render_field(form.category) }}
+					{{ render_field(form.type_) }}
+					{{ render_field(form.abv) }}
+					{{ render_field(form.size) }}
+					{{ render_field(form.unit) }}
+					{{ render_field(form.price) }}
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-outline-secondary" onclick="clearModalForm()" data-dismiss="modal">Close</button>
@@ -38,7 +33,7 @@
 	</div>
 </div>
 
-<div class="modal" id="confirm-delete-ingredient">
+<div class="modal" id="confirm-delete-ingredient" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -57,6 +52,11 @@
 		</div>
 	</div>
 </div>
+{% endblock modal %}
+
+{% block dashbody %}
+<h3>Ingredient Stock for {{ g.current_bar.cname }}</h3>
+{{ show_flashed() }}
 
 <form  id="upload_csv" action="" method="post" role="form" enctype="multipart/form-data">
 	{{ upload_form.csrf }}
