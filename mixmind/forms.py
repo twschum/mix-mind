@@ -132,7 +132,7 @@ class DrinksForm(BaseForm):
     include = CSVField("Include Ingredients", description="Recipes that contain any/all of these comma separated ingredient(s)")
     exclude = CSVField("Exclude Ingredients", description="Recipes that don't contain any/all of these comma separated ingredient(s)")
     include_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
-    exclude_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
+    exclude_use_or = ToggleField("<br>", default='y', on="any", off="all", onstyle="secondary", offstyle="secondary")
     name = TextField("Name", description="")
     tag = TextField("Tag", description="Filter by tag")
     style = SelectField("Style", description="", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
@@ -236,8 +236,6 @@ class EditBarForm(BaseForm):
         super(EditBarForm, self).__init__(*args, **kwargs)
         choices = [('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()]
         self.bartender.choices = choices
-        self.owner.choices = choices
-    bar_id = HiddenIntField("bar_id", render_kw={})
     name = TextField("Bar Name", description="Display name for the bar")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
 
@@ -254,7 +252,6 @@ class EditBarForm(BaseForm):
     is_public = ToggleField("Public", description="Make the bar available to browse",
             on="Visible", off="Hidden", onstyle="success", offstyle="danger")
     bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders", choices=[])
-    owner = SelectField("Assign Bar Owner", description="Assign an owner who can manage the bar's stock and settings", choices=[])
 
     prices = ToggleField("Prices", description="Show prices",
             on="Included", off="Free", onstyle="success", offstyle="secondary")
@@ -273,3 +270,11 @@ class EditBarForm(BaseForm):
     summarize = ToggleField("Summarize", description="List ingredient names instead of full recipe",
             on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
     edit_bar = SubmitField("Commit Changes", render_kw={"class": "btn btn-primary"})
+
+class SetBarOwnerForm(BaseForm):
+    def __init__(self, *args, **kwargs):
+        super(SetBarOwnerForm, self).__init__(*args, **kwargs)
+        choices = [('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()]
+        self.owner.choices = choices
+    owner = SelectField("Assign Bar Owner", description="Assign an owner who can manage the bar's stock and settings", choices=[])
+    submit = SubmitField("Commit Changes", render_kw={"class": "btn btn-primary"})
