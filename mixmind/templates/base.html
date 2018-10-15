@@ -82,7 +82,7 @@
 							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}</a>
 						<div class="dropdown-menu" aria-labelledby="currentBarDropdown">
 							<h6 class="dropdown-header">Manage {{ g.current_bar.name }}</h6>
-							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
+							<a class="dropdown-item" href="{{ url_for('bar_settings') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
 							<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
 						</div>
 					</div>
