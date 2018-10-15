@@ -133,7 +133,7 @@ class DrinksForm(BaseForm):
     exclude = CSVField("Exclude Ingredients", description="Recipes that don't contain any/all of these comma separated ingredient(s)")
     include_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
     exclude_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
-    name = TextField("Name", description="Filter by a cocktail's name")
+    name = TextField("Name", description="")
     tag = TextField("Tag", description="Filter by tag")
     style = SelectField("Style", description="", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
     glass = SelectField("Glass", description="", choices=pairs(['','cocktail','martini','collins','rocks','highball','flute','shot','shooter','mug']))
@@ -234,7 +234,6 @@ class CreateBarForm(BaseForm):
 class EditBarForm(BaseForm):
     def __init__(self, *args, **kwargs):
         super(EditBarForm, self).__init__(*args, **kwargs)
-        print "GENERATING USER CHOICES"
         choices = [('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()]
         self.bartender.choices = choices
         self.owner.choices = choices
