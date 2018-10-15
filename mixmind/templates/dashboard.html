@@ -3,7 +3,7 @@
 {% from "_macros.html" import show_flashed, render_field %}
 
 {% block body %}
-<div class="container mt-3">{# TODO consistent top margin #}
+<div class="container mt-3">
 {% block dashbody %}
 <div class="row mb-2">
 	<h2 class="col-auto mr-auto">Admin Dashboard</h2>
@@ -25,41 +25,13 @@
 	</form>
 </div>
 
-<h3>Current Active Bar:</h3>
-<form id="edit-bar" method="post" role="form">
-	{{ edit_bar_form.csrf }}
-	{{ render_field(edit_bar_form.bar_id) }}
+<h3>Change Active Bar Owner:</h3>
+<form id="set-bar-owner" method="post" action="{{ url_for('set_bar_owner') }}" role="form">
+	{{ set_owner_form.csrf }}
 	<div class="form-row">
-		{{ render_field(edit_bar_form.name, "col-md-4") }}
-		{{ render_field(edit_bar_form.tagline, "col-md-8") }}
+		{{ render_field(set_owner_form.owner, form_group_classes="col-md-3") }}
+		{{ render_field(set_owner_form.submit, form_group_classes="col-md", force_label="&nbsp;") }}
 	</div>
-
-	<div class="form-row">
-		{{ render_field(edit_bar_form.owner, "col-md-3") }}
-	</div>
-
-	<div class="form-row">
-		{{ render_field(edit_bar_form.is_public, "col-md-2") }}
-		{{ render_field(edit_bar_form.status, "col-md-2") }}
-		{{ render_field(edit_bar_form.bartender, "col-md-3") }}
-		<div class="col-md-1"></div>
-		{{ render_field(edit_bar_form.prices, "col-md-2") }}
-		{{ render_field(edit_bar_form.markup, "col-md-2") }}
-	</div>
-
-	<div class="row">
-		{{ render_field(edit_bar_form.convert, "col-md") }}
-		{{ render_field(edit_bar_form.summarize, "col-md") }}
-
-		{{ render_field(edit_bar_form.prep_line, "col-md") }}
-		{{ render_field(edit_bar_form.info, "col-md") }}
-		{{ render_field(edit_bar_form.origin, "col-md") }}
-
-		{{ render_field(edit_bar_form.variants, "col-md") }}
-		{{ render_field(edit_bar_form.examples, "col-md") }}
-	</div>
-
-	{{ render_field(edit_bar_form.edit_bar) }}
 </form>
 
 	<h3>Bars:</h3>
