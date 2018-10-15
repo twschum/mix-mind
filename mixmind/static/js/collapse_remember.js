@@ -1,0 +1,37 @@
+/* Collapse remember
+ * Use a cookie to "remember" the state of bootstrap collapse divs
+ * use the 'collapse-remember' class to get this functionality
+ */
+$(document).ready(function () {
+    const state_cookie_c = 'collapse-remember';
+    var page = window.location.pathname;
+    var state = Cookies.getJSON(state_cookie_c);
+    if (state === undefined) {
+        state = {};
+        Cookies.set(state_cookie_c, state);
+    }
+    if (state[page] === undefined) {
+        state[page] = {};
+        Cookies.set(state_cookie_c, state);
+    }
+    Object.keys(state[page]).forEach(function (collapse_id) {
+        if (state[page][collapse_id]) {
+            console.log('showing: '+collapse_id);
+            $('#'+collapse_id).addClass('show');
+        }
+    });
+    $(".collapse-remember").on('shown.bs.collapse', function () {
+        var id = $(this).attr('id');
+        console.log('Shown: ' + id);
+        state = Cookies.getJSON(state_cookie_c);
+        state[page][id] = true;
+        Cookies.set(state_cookie_c, state);
+    });
+    $(".collapse-remember").on('hidden.bs.collapse', function () {
+        var id = $(this).attr('id');
+        console.log('Hidden: ' + id);
+        state = Cookies.getJSON(state_cookie_c);
+        state[page][id] = false;
+        Cookies.set(state_cookie_c, state);
+    });
+});
