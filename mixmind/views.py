@@ -8,12 +8,12 @@ import tempfile
 import urllib
 
 from flask import g, render_template, flash, request, send_file, jsonify, redirect, url_for
-from flask_security import login_required, roles_required
+from flask_security import login_required, roles_required, roles_accepted
 from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
 
 from .notifier import send_mail
-from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm, CreateBarForm, EditBarForm, EditUserForm
+from .forms import DrinksForm, OrderForm, OrderFormAnon, RecipeForm, RecipeListSelector, BarstockForm, UploadBarstockForm, LoginForm, CreateBarForm, EditBarForm, EditUserForm, SetBarOwnerForm
 from .authorization import user_datastore
 from .barstock import Barstock_SQL, Ingredient, _update_computed_fields
 from .formatted_menu import filename_from_options, generate_recipes_pdf
@@ -357,24 +357,107 @@ def user_confirmation_hook():
         user_datastore.commit()
     return render_template('result.html', heading="Email confirmed")
 
+################################################################################
+# Owner routes
+################################################################################
+@app.route("/manage/bar", methods=['GET', 'POST'])
+@login_required
+@roles_accepted('admin', 'owner')
+def bar_settings():
+    if not current_user.has_role('admin') and current_user.id != current_bar.owner_id:
+        return _get_unauthorized_view()
+    BAR_BULK_ATTRS = 'name,tagline,is_public,prices,prep_line,examples,convert,markup,info,origin,variants,summarize'.split(',')
+    edit_bar_form = get_form(EditBarForm)
+    if request.method == 'POST':
+        # TODO invalid to have open without a bartender (js?)
+        if edit_bar_form.validate():
+            bar_id = current_bar.id
+            bar = Bar.query.filter_by(id=bar_id).one_or_none()
+            if bar is None:
+                flash(u"Invalid bar_id: {}".format(bar_id), 'danger')
+                return redirect(request.url)
+
+            # add bartender on duty
+            user = user_datastore.find_user(email=edit_bar_form.bartender.data)
+            if user and user.id != bar.bartender_on_duty:
+                bartender = user_datastore.find_role('bartender')
+                user_datastore.add_role_to_user(user, bartender)
+                bar.bartenders.append(user)
+                bar.bartender_on_duty = user.id
+                # TODO send email to bartender on duty
+            else:
+                # closed/no bartender is same result
+                if not user or edit_bar_form.status.data == False:
+                    bar.bartender_on_duty = None
+
+            for attr in BAR_BULK_ATTRS:
+                setattr(bar, attr, getattr(edit_bar_form, attr).data)
+            db.session.commit()
+            flash(u"Successfully updated config for {}".format(bar.cname))
+            return redirect(request.url)
+        else:
+            flash(u"Error in form validation", 'warning')
+
+    # for GET requests, fill in the edit bar form
+    edit_bar_form.status.data = not current_bar.is_closed
+    edit_bar_form.bartender.data = '' if current_bar.is_closed else current_bar.bartender.email
+    for attr in BAR_BULK_ATTRS:
+        setattr(getattr(edit_bar_form, attr), 'data', getattr(current_bar, attr))
+    if edit_bar_form is None:
+        return redirect(request.url)
+    orders = Order.query.filter_by(bar_id=current_bar.id)
+    order_table = orders_as_table(orders)
+    return render_template('bar_settings.html', edit_bar_form=edit_bar_form, order_table=order_table)
+
 
 ################################################################################
 # Admin routes
 ################################################################################
 
+@app.route("/admin/set_bar_owner", methods=['POST'])
+@login_required
+@roles_required('admin')
+def set_bar_owner():
+    set_owner_form = get_form(SetBarOwnerForm)
+
+    if set_owner_form.validate():
+        bar_id = current_bar.id
+        bar = Bar.query.filter_by(id=bar_id).one_or_none()
+        if bar is None:
+            flash(u"Invalid bar_id: {}".format(bar_id), 'danger')
+            return None
+
+        # assign owner
+        user = user_datastore.find_user(email=set_owner_form.owner.data)
+        if user and user.id != bar.owner_id:
+            # TODO remove "owner" role if user does not own any more bars
+            owner = user_datastore.find_role('owner')
+            user_datastore.add_role_to_user(user, owner)
+            bar.owner = user
+            # TODO send email to owner!
+            user_datastore.commit()
+            flash(u"{} is now the proud owner of {}".format(user.get_name(), bar.cname))
+        elif set_owner_form.owner.data == '' and bar.owner:
+            # remove the owner from this bar
+            flash(u"{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
+            bar.owner = None
+    else:
+        flash(u"Error in form validation", 'warning')
+
+    return redirect(url_for('admin_dashboard'))
+
 @app.route("/admin/dashboard", methods=['GET', 'POST'])
 @login_required
 @roles_required('admin')
 def admin_dashboard():
-    BAR_BULK_ATTRS = 'name,tagline,is_public,prices,prep_line,examples,convert,markup,info,origin,variants,summarize'.split(',')
     new_bar_form = get_form(CreateBarForm)
-    edit_bar_form = get_form(EditBarForm)
+    set_owner_form = get_form(SetBarOwnerForm)
     if request.method == 'POST':
         if 'create_bar' in request.form:
             if new_bar_form.validate():
                 if Bar.query.filter_by(cname=new_bar_form.cname.data).one_or_none():
                     flash(u"Bar name already in use", 'warning')
-                    return redirect(request.url)
+                    return None
                 bar_args = {'cname': new_bar_form.cname.data}
                 if new_bar_form.name.data == "":
                     bar_args['name'] = bar_args['cname']
@@ -389,52 +472,7 @@ def admin_dashboard():
             else:
                 flash(u"Error in form validation", 'warning')
 
-        elif 'edit_bar' in request.form:
-            # TODO invalid to have open without a bartender (js?)
-            if edit_bar_form.validate():
-                # TODO allow manager to edit this one? use different post url
-                bar_id = edit_bar_form.bar_id.data
-                bar = Bar.query.filter_by(id=bar_id).one_or_none()
-                if bar is None:
-                    flash(u"Invalid bar_id: {}".format(edit_bar_form.bar_id.data), 'danger')
-                    return redirect(request.url)
-
-                # assign owner
-                user = user_datastore.find_user(email=edit_bar_form.owner.data)
-                if user and user.id != bar.owner_id:
-                    # TODO remove "owner" role if user does not own any more bars
-                    owner = user_datastore.find_role('owner')
-                    user_datastore.add_role_to_user(user, owner)
-                    bar.owner = user
-                    # TODO send email to owner!
-                    flash(u"{} is now the proud owner of {}".format(user.get_name(), bar.cname))
-                elif edit_bar_form.owner.data == '' and bar.owner:
-                    # remove the owner from this bar
-                    flash(u"{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
-                    bar.owner = None
-
-                # add bartender on duty
-                user = user_datastore.find_user(email=edit_bar_form.bartender.data)
-                if user and user.id != bar.bartender_on_duty:
-                    bartender = user_datastore.find_role('bartender')
-                    user_datastore.add_role_to_user(user, bartender)
-                    bar.bartenders.append(user)
-                    bar.bartender_on_duty = user.id
-                    # TODO send email to bartender on duty
-                else:
-                    # closed/no bartender is same result
-                    if not user or edit_bar_form.status.data == False:
-                        bar.bartender_on_duty = None
-
-                for attr in BAR_BULK_ATTRS:
-                    setattr(bar, attr, getattr(edit_bar_form, attr).data)
-                db.session.commit()
-                flash(u"Successfully updated config for {}".format(bar.cname))
-                return redirect(request.url)
-            else:
-                flash(u"Error in form validation", 'warning')
-
-        elif 'set-default-bar' in request.form:
+        if 'set-default-bar' in request.form:
             bar_id = request.form.get('bar_id', None, int)
             to_activate_bar = Bar.query.filter_by(id=bar_id).one_or_none()
             if to_activate_bar.is_default:
@@ -451,22 +489,15 @@ def admin_dashboard():
             flash(u"Bar ID: {} is now the default".format(bar_id), 'success')
             return redirect(request.url)
 
-    # for GET requests, fill in the edit bar form
-    edit_bar_form.bar_id.render_kw['value'] = current_bar.id
-    edit_bar_form.status.data = not current_bar.is_closed
-    edit_bar_form.bartender.data = '' if current_bar.is_closed else current_bar.bartender.email
-    edit_bar_form.owner.data = '' if not current_bar.owner else current_bar.owner.email
-    for attr in BAR_BULK_ATTRS:
-        setattr(getattr(edit_bar_form, attr), 'data', getattr(current_bar, attr))
-
+    set_owner_form.owner.data = '' if not current_bar.owner else current_bar.owner.email
     bars = Bar.query.all()
     users = User.query.all()
     orders = Order.query.all()
     #bar_table = bars_as_table(bars)
     user_table = users_as_table(users)
     order_table = orders_as_table(orders)
-    return render_template('dashboard.html', new_bar_form=new_bar_form, edit_bar_form=edit_bar_form,
-            users=users, orders=orders,
+    return render_template('dashboard.html', new_bar_form=new_bar_form,
+            set_owner_form=set_owner_form, users=users, orders=orders,
             bars=bars, user_table=user_table, order_table=order_table)
 
 @app.route("/admin/menu_generator", methods=['GET', 'POST'])
