@@ -43,7 +43,7 @@
 							</div>
 						</div>
 					</div>
-				</div>{# search and controls row #}
+				</div>
 
 				{# sort dropdown #}
 				<div id="sorting" class="row collapse mb-2">
@@ -58,43 +58,48 @@
 					</div>
 				</div>
 
-				<div id="filters" class="row collapse mb-2">
-					<div class="col-md form-row no-gutters">
-						{{ render_field(form.include, form_group_classes="col") }}
-						{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
-					</div>
-					<div class="col-md form-row no-gutters">
-						{{ render_field(form.exclude, form_group_classes="col") }}
-						{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
-					</div>
-					<div class="col-md">
-						<div class="form-row no-gutters">
-							<div class="form-group col">
-								<label class="form-label">&nbsp;</label>
-								<a class="btn btn-outline-primary form-control form-ht" href="#misc-filters" data-toggle="collapse">More</a>
-							</div>
-							<div class="form-group col">
-								<label class="form-label">&nbsp;</label>
-								{#<a class="btn btn-outline-danger form-control form-ht" href="/">Clear</a>#}
-								<button type="button" onclick="document.location.href='/'" class="close form-control" value=""><i class="fas fa-times"></i>Clear</button>
-							</div>
-							<div class="form-group col">
-								<label class="form-label">&nbsp;</label>
-								<input type="submit" name="apply-menu" class="btn btn-success form-control form-ht" value="Apply"></input>
+				{# filters dropdown #}
+				<div id="filters" class="collapse mb-2">
+					<div class="row">
+						<div class="col-md form-row no-gutters">
+							{{ render_field(form.include, form_group_classes="col") }}
+							{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
+						</div>
+						<div class="col-md form-row no-gutters">
+							{{ render_field(form.exclude, form_group_classes="col") }}
+							{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
+						</div>
+						<div class="col-md">
+							<div class="form-row no-gutters">
+								<div class="form-group col">
+									<label class="form-label">&nbsp;</label>
+									<a class="btn btn-outline-secondary form-control form-ht" href="#misc-filters" data-toggle="collapse">More</a>
+								</div>
+								<div class="form-group col">
+									<label class="form-label">&nbsp;</label>
+									<a class="btn btn-outline-danger form-control form-ht" href="/">Clear</a>
+									{#<button type="button" onclick="document.location.href='/'" class="close form-control" value=""><i class="fas fa-times"></i><span class="close-btn-txt">Clear</span></button>#}
+								</div>
+								<div class="form-group col">
+									<label class="form-label">&nbsp;</label>
+									<input type="submit" name="apply-menu" class="btn btn-success form-control form-ht" value="Apply"></input>
+								</div>
 							</div>
 						</div>
 					</div>
 
-					<div id="misc-filters" class="row collapse">
-						<div class="col-md form-row mb-2">
-							{{ render_field(form.name, form_group_classes="col-md") }}
-							{{ render_field(form.style, form_group_classes="col") }}
-							{{ render_field(form.glass, form_group_classes="col") }}
-							{{ render_field(form.prep, form_group_classes="col") }}
-							{{ render_field(form.ice, form_group_classes="col") }}
+					{# Additional fine-grained filters; in single row on full, stacked on mobile #}
+					<div id="misc-filters" class="collapse row mb-2">
+						<div class="col-md">
+							<div class="form-row">
+								{{ render_field(form.name, form_group_classes="col-12 col-md") }}
+								{{ render_field(form.style, form_group_classes="col-6 col-md") }}
+								{{ render_field(form.glass, form_group_classes="col-6 col-md") }}
+								{{ render_field(form.prep, form_group_classes="col-6 col-md") }}
+								{{ render_field(form.ice, form_group_classes="col-6 col-md") }}
+							</div>
 						</div>
 					</div>
-
 				</div>{# filters #}
 
 			</form>
