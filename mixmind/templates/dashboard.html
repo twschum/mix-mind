@@ -2,11 +2,6 @@
 {% extends "base.html" %}
 {% from "_macros.html" import show_flashed, render_field %}
 
-{# do the nav and page at default container width #}
-{% block navbar_layout %}
-<div class="container">
-{% endblock navbar_layout %}
-
 {% block body %}
 <div class="container mt-3">{# TODO consistent top margin #}
 {% block dashbody %}
