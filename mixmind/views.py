@@ -473,6 +473,7 @@ def admin_dashboard():
 @login_required
 @roles_required('admin')
 def menu_generator():
+    return render_template('result.html', heading="Still under construction...")
     form = get_form(DrinksForm)
     print form.errors
     recipes = []
