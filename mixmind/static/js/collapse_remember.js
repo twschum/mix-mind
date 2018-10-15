@@ -10,27 +10,31 @@ $(document).ready(function () {
         state = {};
         Cookies.set(state_cookie_c, state);
     }
-    if (state[page] === undefined) {
-        state[page] = {};
-        Cookies.set(state_cookie_c, state);
+    if (state.hasOwnProperty(page)) {
+        Object.keys(state[page]).forEach(function (collapse_id) {
+            if (state[page][collapse_id]) {
+                console.log('showing: '+collapse_id);
+                $('#'+collapse_id).addClass('show');
+            }
+        });
     }
-    Object.keys(state[page]).forEach(function (collapse_id) {
-        if (state[page][collapse_id]) {
-            console.log('showing: '+collapse_id);
-            $('#'+collapse_id).addClass('show');
-        }
-    });
     $(".collapse-remember").on('shown.bs.collapse', function () {
+        state = Cookies.getJSON(state_cookie_c);
+        if (state[page] === undefined) {
+            state[page] = {};
+        }
         var id = $(this).attr('id');
         console.log('Shown: ' + id);
-        state = Cookies.getJSON(state_cookie_c);
         state[page][id] = true;
         Cookies.set(state_cookie_c, state);
     });
     $(".collapse-remember").on('hidden.bs.collapse', function () {
+        state = Cookies.getJSON(state_cookie_c);
+        if (state[page] === undefined) {
+            state[page] = {};
+        }
         var id = $(this).attr('id');
         console.log('Hidden: ' + id);
-        state = Cookies.getJSON(state_cookie_c);
         state[page][id] = false;
         Cookies.set(state_cookie_c, state);
     });
