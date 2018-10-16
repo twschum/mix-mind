@@ -48,8 +48,8 @@
 				</div>
 
 				{# sort dropdown #}
-				<div id="sorting" class="collapse collapse-remember mb-2">
-					<div class="row">
+				<div id="sorting" class="collapse collapse-remember">
+					<div class="row mb-2">
 						<div class="col-md form-row no-gutters">
 							{{ render_field(form.sorting, form_group_classes="col") }}
 						</div>
@@ -57,8 +57,8 @@
 				</div>
 
 				{# filters dropdown #}
-				<div id="filters" class="collapse collapse-remember mb-2">
-					<div class="row">
+				<div id="filters" class="collapse collapse-remember">
+					<div class="row mb-2">
 						<div class="col-md form-row no-gutters">
 							{{ render_field(form.include, form_group_classes="col") }}
 							{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
@@ -87,14 +87,16 @@
 					</div>
 
 					{# Additional fine-grained filters; in single row on full, stacked on mobile #}
-					<div id="misc-filters" class="collapse collapse-remember row mb-2">
-						<div class="col-md">
-							<div class="form-row">
-								{{ render_field(form.name, form_group_classes="col-12 col-md") }}
-								{{ render_field(form.style, form_group_classes="col-6 col-md") }}
-								{{ render_field(form.glass, form_group_classes="col-6 col-md") }}
-								{{ render_field(form.prep, form_group_classes="col-6 col-md") }}
-								{{ render_field(form.ice, form_group_classes="col-6 col-md") }}
+					<div id="misc-filters" class="collapse collapse-remember">
+						<div class="row mb-2">
+							<div class="col-md">
+								<div class="form-row">
+									{{ render_field(form.name, form_group_classes="col-12 col-md") }}
+									{{ render_field(form.style, form_group_classes="col-6 col-md") }}
+									{{ render_field(form.glass, form_group_classes="col-6 col-md") }}
+									{{ render_field(form.prep, form_group_classes="col-6 col-md") }}
+									{{ render_field(form.ice, form_group_classes="col-6 col-md") }}
+								</div>
 							</div>
 						</div>
 					</div>

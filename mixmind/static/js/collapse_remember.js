@@ -12,13 +12,17 @@ $(document).ready(function () {
     }
     if (state.hasOwnProperty(page)) {
         Object.keys(state[page]).forEach(function (collapse_id) {
-            if (state[page][collapse_id]) {
+            if (state[page][collapse_id] === true) {
                 console.log('showing: '+collapse_id);
                 $('#'+collapse_id).collapse('show');
             }
+            else if (state[page][collapse_id] === false) {
+                console.log('hiding: '+collapse_id);
+                $('#'+collapse_id).collapse('hide');
+            }
         });
     }
-    $(".collapse-remember").on('show.bs.collapse', function () {
+    $(".collapse-remember").on('shown.bs.collapse', function () {
         state = Cookies.getJSON(state_cookie_c);
         if (state[page] === undefined) {
             state[page] = {};
@@ -28,7 +32,7 @@ $(document).ready(function () {
         state[page][id] = true;
         Cookies.set(state_cookie_c, state);
     });
-    $(".collapse-remember").on('hide.bs.collapse', function () {
+    $(".collapse-remember").on('hidden.bs.collapse', function () {
         state = Cookies.getJSON(state_cookie_c);
         if (state[page] === undefined) {
             state[page] = {};
