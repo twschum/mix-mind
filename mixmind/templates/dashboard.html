@@ -4,75 +4,81 @@
 
 {% block body %}
 <div class="container mt-3">
-{% block dashbody %}
-<div class="row mb-2">
-	<h2 class="col-auto mr-auto">Admin Dashboard</h2>
-	<div class="col-auto">
-		<a href="#create-bar-container" data-toggle="collapse" class="btn btn-lg btn-outline-primary" style="position:relative; top:2px; line-height:1; margin-bottom:0px">New Bar</a>
-	</div>
-</div>
-{{ show_flashed() }}
-
-<div id="create-bar-container" class="collapse">
-	<form id="create-bar" method="post" role="form">
-		{{ new_bar_form.csrf }}
-		<div class="form-row">
-			{{ render_field(new_bar_form.cname, "col-md-3") }}
-			{{ render_field(new_bar_form.name, "col-md-3") }}
-			{{ render_field(new_bar_form.tagline, "col-md-6") }}
+	{% block dashbody %}
+	<div class="row mb-2">
+		<h2 class="col-auto mr-auto">Admin Dashboard</h2>
+		<div class="col-auto">
+			<a href="#create-bar-container" data-toggle="collapse" class="btn btn-lg btn-outline-primary" style="position:relative; top:2px; line-height:1; margin-bottom:0px">New Bar</a>
 		</div>
-		{{ render_field(new_bar_form.create_bar) }}
-	</form>
-</div>
-
-<h3>Change Active Bar Owner:</h3>
-<form id="set-bar-owner" method="post" action="{{ url_for('set_bar_owner') }}" role="form">
-	{{ set_owner_form.csrf }}
-	<div class="form-row">
-		{{ render_field(set_owner_form.owner, form_group_classes="col-md-3") }}
-		{{ render_field(set_owner_form.submit, form_group_classes="col-md", force_label="&nbsp;") }}
 	</div>
-</form>
+	{{ show_flashed() }}
+
+	<div id="create-bar-container" class="collapse">
+		<form id="create-bar" method="post" role="form">
+			{{ new_bar_form.csrf }}
+			<div class="form-row">
+				{{ render_field(new_bar_form.cname, "col-md-3") }}
+				{{ render_field(new_bar_form.name, "col-md-3") }}
+				{{ render_field(new_bar_form.tagline, "col-md-6") }}
+			</div>
+			{{ render_field(new_bar_form.create_bar) }}
+		</form>
+	</div>
+
+	<h3>Change Active Bar Owner:</h3>
+	<form id="set-bar-owner" method="post" action="{{ url_for('set_bar_owner') }}" role="form">
+		{{ set_owner_form.csrf }}
+		<div class="form-row">
+			{{ render_field(set_owner_form.owner, form_group_classes="col-md-3") }}
+			{{ render_field(set_owner_form.submit, form_group_classes="col-md", force_label="&nbsp;") }}
+		</div>
+	</form>
 
 	<h3>Bars:</h3>
-	<table id="bar_table" class="table">
-		<thead>
-			<tr>
-				<th scope="col">Default</th>
-				<th scope="col">Public</th>
-				<th scope="col">ID</th>
-				<th scope="col">Name</th>
-				<th scope="col">CName</th>
-				<th scope="col">Tagline</th>
-				<th scope="col">Total Orders</th>
-				<th scope="col">Bartender on Duty</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for bar in bars %}
-			<tr>
-				<td><form action="" method="post" role="form">
-						<input type="hidden" name="bar_id" value="{{ bar.id }}"></input>
-						<button class="btn btn-small {% if bar.is_default %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="set-default-bar">{% if bar.is_default %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}</button>
-					</form></td>
-				<td>{% if bar.is_public %}Visible{% else %}Hidden{% endif %}</td>
-				<td>{{ bar.id }}</td>
-				<td>{{ bar.name }}</td>
-				<td>{{ bar.cname }}</td>
-				<td class="subtitle">{{ bar.tagline|safe }}</td>
-				<td>{{ bar.orders|length }}</td>
-				<td>uid: {{ bar.bartender_on_duty }}</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+	<div class="table-responsive">
+		<table id="bar_table" class="table">
+			<thead>
+				<tr>
+					<th scope="col">Default</th>
+					<th scope="col">Public</th>
+					<th scope="col">ID</th>
+					<th scope="col">Name</th>
+					<th scope="col">CName</th>
+					<th scope="col">Tagline</th>
+					<th scope="col">Total Orders</th>
+					<th scope="col">Bartender on Duty</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for bar in bars %}
+				<tr>
+					<td><form action="" method="post" role="form">
+							<input type="hidden" name="bar_id" value="{{ bar.id }}"></input>
+							<button class="btn btn-small {% if bar.is_default %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="set-default-bar">{% if bar.is_default %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}</button>
+						</form></td>
+						<td>{% if bar.is_public %}Visible{% else %}Hidden{% endif %}</td>
+						<td>{{ bar.id }}</td>
+						<td>{{ bar.name }}</td>
+						<td>{{ bar.cname }}</td>
+						<td class="subtitle">{{ bar.tagline|safe }}</td>
+						<td>{{ bar.orders|length }}</td>
+						<td>uid: {{ bar.bartender_on_duty }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
 
 
 	<h3>Users:</h3>
-	{{ user_table|safe }}
+	<div class="table-responsive">
+		{{ user_table|safe }}
+	</div>
 
 	<h3>Orders:</h3>
-	{{ order_table|safe }}
+	<div class="table-responsive">
+		{{ order_table|safe }}
+	</div>
 
 	{% endblock dashbody %}
 </div><!-- body container -->
