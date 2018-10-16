@@ -55,10 +55,10 @@
 					{% if current_user.is_authenticated %}
 
 					{# Current Bar Selector #}
-					<div class="nav-item dropdown {{ d_full }}">
-						<a class="nav-link dropdown-toggle" href="#" id="barDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<i class="fas fa-map-marked-alt"></i>Bar</a>
-						<div class="dropdown-menu" id="barDropdown" aria-labelledby="barDropdownToggle">
+					<div class="nav-item dropdown {{ d_full }}" id="barDropdown">
+						<a class="nav-link" href="#" id="barDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-map-marked-alt"></i>Bar<i id="barDropdownIcon" class="fas fa-caret-down"></i></a>
+						<div class="dropdown-menu" aria-labelledby="barDropdownToggle">
 							<h6 class="dropdown-header">Change Current Bar</h6>
 							{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner_id == current_user.id or current_user.has_role('admin')) %}
 							<a class="dropdown-item" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
@@ -77,9 +77,9 @@
 
 					{# Bar management links #}
 					{% if g.current_bar.owner_id == current_user.user_id %}
-					<div class="nav-item dropdown {{ d_full }}">
-						<a class="nav-link dropdown-toggle" href="#" id="currentBarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}</a>
+					<div class="nav-item dropdown {{ d_full }}" id="currentBarDropdown">
+						<a class="nav-link" href="#" id="currentBarDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}<i id="currentBarDropdownIcon" class="fas fa-caret-down"></i></a>
 						<div class="dropdown-menu" aria-labelledby="currentBarDropdown">
 							<h6 class="dropdown-header">Manage {{ g.current_bar.name }}</h6>
 							<a class="dropdown-item" href="{{ url_for('bar_settings') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
@@ -96,9 +96,9 @@
 
 					{# Admin tools section #}
 					{% if current_user.has_role('admin') %}
-					<div class="nav-item dropdown {{ d_full }}">
-						<a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							<i class="fas fa-toolbox"></i>Admin</a>
+					<div class="nav-item dropdown {{ d_full }}" id="adminDropdown">
+						<a class="nav-link" href="#" id="adminDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-toolbox"></i>Admin<i id="adminDropdownIcon" class="fas fa-caret-down"></i></a>
 						<div class="dropdown-menu" aria-labelledby="adminDropdown">
 							<h6 class="dropdown-header">Administrative Pages</h6>
 							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
@@ -166,7 +166,7 @@
 	 	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
 		<script src="/static/js/dataTables.cellEdit.js?v=1.0"></script>
 		{# load javascript after libraries #}
-		<script src="/static/js/navbar.js?v=1.0"></script>
+		<script src="/static/js/navbar.js?v=1.1"></script>
 		<script src="/static/js/collapse_remember.js?v=1.0"></script>
 		{% block scripts %}
 		{% endblock scripts %}
