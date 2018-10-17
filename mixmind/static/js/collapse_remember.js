@@ -13,11 +13,9 @@ $(document).ready(function () {
     if (state.hasOwnProperty(page)) {
         Object.keys(state[page]).forEach(function (collapse_id) {
             if (state[page][collapse_id] === true) {
-                console.log('showing: '+collapse_id);
                 $('#'+collapse_id).collapse('show');
             }
             else if (state[page][collapse_id] === false) {
-                console.log('hiding: '+collapse_id);
                 $('#'+collapse_id).collapse('hide');
             }
         });
@@ -28,7 +26,6 @@ $(document).ready(function () {
             state[page] = {};
         }
         var id = $(this).attr('id');
-        console.log('Shown: ' + id);
         state[page][id] = true;
         Cookies.set(state_cookie_c, state);
     });
@@ -38,7 +35,6 @@ $(document).ready(function () {
             state[page] = {};
         }
         var id = $(this).attr('id');
-        console.log('Hidden: ' + id);
         state[page][id] = false;
         Cookies.set(state_cookie_c, state);
     });

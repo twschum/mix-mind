@@ -35,10 +35,14 @@
 					<div class="col-md-auto mt-2" style="width:24rem;">
 						<div class="row no-gutters mb-3">
 							<div class="col-auto mr-auto">
-								<button type="button" class="btn close" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
+								<button type="button" class="btn close" data-target="#sort-expand" data-toggle="collapse">
+									<i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span>
+								</button>
 							</div>
 							<div class="col-auto mr-auto">
-								<button type="button" class="btn close" data-target="#sorting" data-toggle="collapse"><i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span></button>
+								<button type="button" class="btn close" data-target="#filter-expand" data-toggle="collapse">
+									<i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span>
+								</button>
 							</div>
 							<div class="col-auto">
 								<button type="submit" name="suprise-menu" class="close close-color text-success"><i class="fas fa-random text-success"></i><span class="close-btn-txt">Suprise Me</span></button>
@@ -47,17 +51,17 @@
 					</div>
 				</div>
 
-				{# sort dropdown #}
-				<div id="sorting" class="collapse collapse-remember">
+				{# sorting dropdown #}
+				<div id="sort-expand" class="collapse collapse-remember">
 					<div class="row mb-2">
-						<div class="col-md form-row no-gutters">
+						<div class="col-md no-gutters">
 							{{ render_field(form.sorting, form_group_classes="col") }}
 						</div>
 					</div>
 				</div>
 
 				{# filters dropdown #}
-				<div id="filters" class="collapse collapse-remember">
+				<div id="filter-expand" class="collapse collapse-remember">
 					<div class="row mb-2">
 						<div class="col-md form-row no-gutters">
 							{{ render_field(form.include, form_group_classes="col") }}
