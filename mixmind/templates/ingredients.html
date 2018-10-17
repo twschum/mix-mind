@@ -35,6 +35,27 @@
 
 {# TODO "info" modal that includes detailed information about the up/downloads
 the various fields for an "ingredient" #}
+<div class="modal" id="info-panel" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Ingredients</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<h4>What defines an "Ingredient"?</h4>
+				<p>Simply a unique ingredient that is used for making drinks. This will mostly be the bottles of alcohol stocked at your bar, but it includes things like syrups, juices, and dry ingredients like sugar. This program requires you to be a little more specific than just "rum", and instead to specify a brand or specific bottle such as "Bacardi Carta Blanca" in addition to what type of ingredient it is, "white rum". The brand/bottle along with the type of ingredient is what uniquely identifies it. This allows the program to generate all the different ways to make each drink, the "examples" section when viewing a menu item in detail. For example, if you're looking at a <a href="/order/Martini">Martini</a>, you'll see every combination of dry gin and dry vermouth that could be used to make it.</p>
+				<h4>CSV Import/Export Format</h4>
+				<p>A CSV file can be supplied to initialize (or replace, or update) the ingredient database.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <div class="modal" id="confirm-delete-ingredient" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-dialog-centered" role="document">
