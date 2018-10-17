@@ -60,7 +60,7 @@
 							<i class="fas fa-map-marked-alt"></i>Bar<i id="barDropdownIcon" class="fas fa-caret-down"></i></a>
 						<div class="dropdown-menu" aria-labelledby="barDropdownToggle">
 							<h6 class="dropdown-header">Change Current Bar</h6>
-							{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner_id == current_user.id or current_user.has_role('admin')) %}
+							{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner == current_user or current_user.has_role('admin')) %}
 							<a class="dropdown-item" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
 								<i class="fas fa-map-marker-alt"></i>{{ bar.name }}</a>
 							{% endfor %}
@@ -69,14 +69,14 @@
 					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#barNavdrop" aria-controls="adminNavdrop" aria-expanded="false">
 						<i class="fas fa-map-marked-alt"></i>Change Current Bar<i id="barNavdropIcon" class="fas fa-caret-down"></i></a>
 					<div class="collapse navbar-nav pl-4 w-100" id="barNavdrop">
-						{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner_id == current_user.id or current_user.has_role('admin')) %}
+						{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner == current_user or current_user.has_role('admin')) %}
 						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
 							<i class="fas fa-map-marker-alt"></i>{{ bar.name }}</a>
 						{% endfor %}
 					</div>
 
 					{# Bar management links #}
-					{% if g.current_bar.owner_id == current_user.user_id %}
+					{% if g.current_bar.owner == current_user %}
 					<div class="nav-item dropdown {{ d_full }}" id="currentBarDropdown">
 						<a class="nav-link" href="#" id="currentBarDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}<i id="currentBarDropdownIcon" class="fas fa-caret-down"></i></a>
