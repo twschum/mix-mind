@@ -6,6 +6,7 @@ import random
 import datetime
 import tempfile
 import urllib
+import pendulum
 
 from flask import g, render_template, flash, request, send_file, jsonify, redirect, url_for
 from flask_security import login_required, roles_required, roles_accepted
@@ -597,9 +598,9 @@ def ingredient_stock():
                     replace_existing=upload_form.replace_existing.data)
             os.remove(tmp_filename)
             mms.regenerate_recipes(current_bar)
-            msg = u"Ingredients database {} {} for bar {}".format(
+            msg = u"Ingredients database {} {} for {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
-                    csv_file.filename, current_bar.id)
+                    csv_file.filename, current_bar.cname)
             log.info(msg)
             flash(msg, 'success')
 
@@ -723,6 +724,20 @@ def api_ingredient():
         return api_success({}, message=u'Successfully deleted "{}"'.format(ingredient), row_index=row_index)
 
     return api_error("Unknwon method")
+
+@app.route("/api/ingredients/download", methods=['GET'])
+@login_required
+@roles_accepted('admin', 'owner')
+def api_ingredients_download():
+    # TODO check owner
+    ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
+    ingredients = [Ingredient.csv_heading()] + [i.as_csv() for i in ingredients]
+    filename = "{}_ingredients_{}.csv".format(current_bar.cname.replace(' ','_'), pendulum.now().int_timestamp)
+    with tempfile.SpooledTemporaryFile() as fp:
+        fp.writelines((i.encode('utf8',) for i in ingredients))
+        fp.seek(0)
+        ret = send_file(fp, 'text/csv', as_attachment=True, attachment_filename=filename)
+    return ret
 
 @app.route("/api/user_current_bar", methods=['POST', 'GET', 'PUT', 'DELETE'])
 @login_required
