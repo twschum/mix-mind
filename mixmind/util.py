@@ -5,6 +5,7 @@ from fractions import Fraction
 from collections import OrderedDict, namedtuple
 import operator
 import json
+import csv
 import inspect
 import uuid
 import pendulum
@@ -368,4 +369,9 @@ def to_human_diff(dt):
 def get_ts_formatter(fmt, tz):
     """Returns callable that will format a datetime"""
     return lambda dt: pendulum.instance(dt).in_timezone(tz).format(fmt) if dt else '-'
+
+class UnicodeDictReader(csv.DictReader, object):
+    def next(self):
+        row = super(UnicodeDictReader, self).next()
+        return {unicode(key, 'utf-8'): unicode(value, 'utf-8') for key, value in row.iteritems()}
 
