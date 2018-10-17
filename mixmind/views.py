@@ -6,7 +6,9 @@ import random
 import datetime
 import tempfile
 import urllib
+
 import pendulum
+from functools import wraps
 
 from flask import g, render_template, flash, request, send_file, jsonify, redirect, url_for
 from flask_security import login_required, roles_required, roles_accepted
@@ -353,12 +355,21 @@ def user_confirmation_hook():
 ################################################################################
 # Owner routes
 ################################################################################
+def check_ownership(f):
+    """ Ensure current_user owns this bar, or is admin
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.has_role('admin') and current_user.id != current_bar.owner_id:
+            return _get_unauthorized_view()
+        return f(*args, **kwargs)
+    return decorated_function
+
 @app.route("/manage/bar", methods=['GET', 'POST'])
 @login_required
 @roles_accepted('admin', 'owner')
+@check_ownership
 def bar_settings():
-    if not current_user.has_role('admin') and current_user.id != current_bar.owner_id:
-        return _get_unauthorized_view()
     BAR_BULK_ATTRS = 'name,tagline,is_public,prices,prep_line,examples,convert,markup,info,origin,variants,summarize'.split(',')
     edit_bar_form = get_form(EditBarForm)
     if request.method == 'POST':
@@ -401,6 +412,55 @@ def bar_settings():
     orders = Order.query.filter_by(bar_id=current_bar.id)
     order_table = orders_as_table(orders)
     return render_template('bar_settings.html', edit_bar_form=edit_bar_form, order_table=order_table)
+
+@app.route("/manage/ingredients", methods=['GET','POST'])
+@login_required
+@roles_accepted('admin', 'owner')
+@check_ownership
+def ingredient_stock():
+    form = get_form(BarstockForm)
+    upload_form = get_form(UploadBarstockForm)
+    form_open = False
+    print form.errors
+
+    if request.method == 'POST':
+        print request
+        if 'add-ingredient' in request.form:
+            if form.validate():
+                row = {}
+                row['Category'] = form.category.data
+                row['Type'] = form.type_.data
+                row['Bottle'] = form.bottle.data
+                row['ABV'] = float(form.abv.data)
+                row['Size (mL)'] = convert_units(float(form.size.data), form.unit.data, 'mL')
+                row['Price Paid'] = float(form.price.data)
+                ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
+                mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
+                return redirect(request.url)
+            else:
+                form_open = True
+                flash(u"Error in form validation", 'danger')
+
+        elif 'upload-csv' in request.form:
+            # TODO handle files < 500 kb by keeping in mem
+            csv_file = request.files['upload_csv']
+            if not csv_file or csv_file.filename == '':
+                flash(u'No selected file', 'danger')
+                return redirect(request.url)
+            # TODO use tempfile module to handle cleanup
+            _, tmp_filename = tempfile.mkstemp()
+            csv_file.save(tmp_filename)
+            Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id,
+                    replace_existing=upload_form.replace_existing.data)
+            os.remove(tmp_filename)
+            mms.regenerate_recipes(current_bar)
+            msg = u"Ingredients database {} {} for {}".format(
+                    "replaced by" if upload_form.replace_existing.data else "added to from",
+                    csv_file.filename, current_bar.cname)
+            log.info(msg)
+            flash(msg, 'success')
+
+    return render_template('ingredients.html', form=form, upload_form=upload_form, form_open=form_open)
 
 
 ################################################################################
@@ -559,56 +619,6 @@ def recipe_library():
     return render_template('recipes.html', select_form=select_form, add_form=add_form)
 
 
-@app.route("/admin/ingredients", methods=['GET','POST'])
-@login_required
-@roles_required('admin')
-def ingredient_stock():
-    form = get_form(BarstockForm)
-    upload_form = get_form(UploadBarstockForm)
-    form_open = False
-    print form.errors
-
-    if request.method == 'POST':
-        print request
-        if 'add-ingredient' in request.form:
-            if form.validate():
-                row = {}
-                row['Category'] = form.category.data
-                row['Type'] = form.type_.data
-                row['Bottle'] = form.bottle.data
-                row['ABV'] = float(form.abv.data)
-                row['Size (mL)'] = convert_units(float(form.size.data), form.unit.data, 'mL')
-                row['Price Paid'] = float(form.price.data)
-                ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
-                mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-                return redirect(request.url)
-            else:
-                form_open = True
-                flash(u"Error in form validation", 'danger')
-
-        elif 'upload-csv' in request.form:
-            # TODO handle files < 500 kb by keeping in mem
-            csv_file = request.files['upload_csv']
-            if not csv_file or csv_file.filename == '':
-                flash(u'No selected file', 'danger')
-                return redirect(request.url)
-            _, tmp_filename = tempfile.mkstemp()
-            csv_file.save(tmp_filename)
-            Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id,
-                    replace_existing=upload_form.replace_existing.data)
-            os.remove(tmp_filename)
-            mms.regenerate_recipes(current_bar)
-            msg = u"Ingredients database {} {} for {}".format(
-                    "replaced by" if upload_form.replace_existing.data else "added to from",
-                    csv_file.filename, current_bar.cname)
-            log.info(msg)
-            flash(msg, 'success')
-
-        elif 'download' in request.form:
-            pass
-
-    return render_template('ingredients.html', form=form, upload_form=upload_form, form_open=form_open)
-
 
 ################################################################################
 # API routes
@@ -626,7 +636,8 @@ def api_success(data, message="", **kwargs):
 
 @app.route("/api/ingredients", methods=['GET'])
 @login_required
-@roles_required('admin')
+@roles_accepted('admin', 'owner')
+@check_ownership
 def api_ingredients():
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     ingredients = [i.as_dict() for i in ingredients]
@@ -634,7 +645,8 @@ def api_ingredients():
 
 @app.route("/api/ingredient", methods=['POST', 'GET', 'PUT', 'DELETE'])
 @login_required
-@roles_required('admin')
+@roles_accepted('admin', 'owner')
+@check_ownership
 def api_ingredient():
     """CRUD endpoint for individual ingredients
 
@@ -728,6 +740,7 @@ def api_ingredient():
 @app.route("/api/ingredients/download", methods=['GET'])
 @login_required
 @roles_accepted('admin', 'owner')
+@check_ownership
 def api_ingredients_download():
     # TODO check owner
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
