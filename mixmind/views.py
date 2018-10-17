@@ -28,7 +28,6 @@ from . import log, app, mms, current_bar
 
 """
 BUGS:
-* sort collapse fires it's events twice
 NOTES:
 * admin pages
     - raise 404 on not authorized
