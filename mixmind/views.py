@@ -25,12 +25,10 @@ from . import log, app, mms, current_bar
 
 """
 BUGS:
+* sort collapse fires it's events twice
 NOTES:
-* cards should be same sizes
 * admin pages
     - raise 404 on not authorized
-    - add/remove ingredients dynamically?
-        - using jQuery, ajax and datatables. And the editable datatable plugin
     - add/remove recipes as raw json
         - ace embeddable text editor
     - menu_generator (what's now "mainpage")
@@ -40,12 +38,6 @@ NOTES:
 * hardening
     - get logging working for reals
     - test error handling
-* configuration management
-    - better support for declaring someone a bartener
-        - or better yet, removing them as a bartender and keeping implicit declared
-* "remember" form open/close position of collapses
-    - use util to unshow the filters button??
-* computer modern typerwriter font for recipes
 """
 @app.before_request
 def initialize_shared_data():
