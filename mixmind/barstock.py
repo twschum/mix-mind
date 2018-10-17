@@ -11,7 +11,6 @@ except ImportError:
 
 from sqlalchemy import and_, Boolean, DateTime, Column, Integer, ForeignKey, Enum, Float, Unicode
 from sqlalchemy.exc import SQLAlchemyError
-import csv
 import urllib
 
 import util
@@ -42,6 +41,16 @@ class Ingredient(db.Model):
         data = copy.copy(self.__dict__)
         del data['_sa_instance_state']
         return data
+
+    _csv_labels = ['Category', 'Type', 'Bottle', 'ABV', 'Size (mL)', 'Price Paid']
+
+    @classmethod
+    def csv_heading(self):
+        return u'{}\n'.format(','.join(self._csv_labels))
+
+    def as_csv(self):
+        return u'{}\n'.format(u','.join([unicode(self[Ingredient.display_name_mappings[attr]['k']])
+                for attr in self._csv_labels]))
 
     def __str__(self):
         return u"|".join([self.Category, self.Type, self.Bottle])
@@ -148,7 +157,7 @@ class Barstock_SQL(Barstock):
             log.info("Dropped {} rows for {} table".format(rows_deleted, Ingredient.__tablename__))
         for csv_file in csv_list:
             with open(csv_file) as fp:
-                reader = csv.DictReader(fp)
+                reader = util.UnicodeDictReader(fp)
                 for row in reader:
                     try:
                         self.add_row(row, bar_id)
