@@ -360,8 +360,9 @@ def check_ownership(f):
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if not current_user.has_role('admin') and current_user.id != current_bar.owner_id:
-            return _get_unauthorized_view()
+        if not current_user.has_role('admin') and current_user != current_bar.owner:
+            flash("You do not have permission to view this resource. This could have been an attempt to switch to a different bar when editing a bar of which you had control.", 'danger')
+            return render_template('result.html', heading="Not Authorized")
         return f(*args, **kwargs)
     return decorated_function
 
@@ -482,18 +483,21 @@ def set_bar_owner():
 
         # assign owner
         user = user_datastore.find_user(email=set_owner_form.owner.data)
-        if user and user.id != bar.owner_id:
-            # TODO remove "owner" role if user does not own any more bars
-            owner = user_datastore.find_role('owner')
+        owner = user_datastore.find_role('owner')
+        if user and user != bar.owner:
             user_datastore.add_role_to_user(user, owner)
             bar.owner = user
             # TODO send email to owner!
-            user_datastore.commit()
             flash(u"{} is now the proud owner of {}".format(user.get_name(), bar.cname))
         elif set_owner_form.owner.data == '' and bar.owner:
             # remove the owner from this bar
             flash(u"{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
+            old_owner = bar.owner
             bar.owner = None
+            # remove "owner" role if user does not own any more bars
+            if not old_owner.owns:
+                user_datastore.remove_role_from_user(old_owner, owner)
+        user_datastore.commit()
     else:
         flash(u"Error in form validation", 'warning')
 
@@ -742,7 +746,6 @@ def api_ingredient():
 @roles_accepted('admin', 'owner')
 @check_ownership
 def api_ingredients_download():
-    # TODO check owner
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     ingredients = [Ingredient.csv_heading()] + [i.as_csv() for i in ingredients]
     filename = "{}_ingredients_{}.csv".format(current_bar.cname.replace(' ','_'), pendulum.now().int_timestamp)
@@ -811,7 +814,7 @@ def admin_database_debug():
 # Helper routes
 ################################################################################
 
-@app.route('/json/<recipe_name>')
+@app.route('/api/json/<recipe_name>')
 def recipe_json(recipe_name):
     recipe_name = urllib.unquote_plus(recipe_name)
     try:
