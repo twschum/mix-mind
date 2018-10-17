@@ -1,6 +1,6 @@
 {# template for admin to manage ingredient stock #}
 {% extends "base.html" %}
-{% from "_macros.html" import show_flashed, render_field %}
+{% from "_macros.html" import formheader, render_field %}
 
 {% block modal %}
 <div class="modal fade {% if form_open %} show{% endif %}" id="add-ingredient" tabindex="-1" role="dialog">
@@ -46,7 +46,7 @@ the various fields for an "ingredient" #}
 				</button>
 			</div>
 			<div class="modal-body">
-				<p>Are you sure you want to delete this ingrediant from the database?</p>
+				<p>Are you sure you want to delete this ingredient from the database?</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
@@ -55,26 +55,58 @@ the various fields for an "ingredient" #}
 		</div>
 	</div>
 </div>
+
+<div class="modal" id="upload-csv-modal" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Upload Ingredients File</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+				<form id="upload-csv-form" method="post" role="form" enctype="multipart/form-data">
+					{{ upload_form.csrf }}
+					{{ render_field(upload_form.upload_csv) }}
+					{{ render_field(upload_form.replace_existing) }}
+					<input type="submit" class="btn btn-primary" target="_blank" name="upload-csv" value="Upload"></input>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock modal %}
 
 {% block body %}
 <div class="container my-3">
-	<h3>Ingredient Stock for {{ g.current_bar.cname }}</h3>
-	{{ show_flashed() }}
+	{{ formheader("Ingredient Stock", "&nbsp;Manage the ingredients at {}".format(g.current_bar.cname)) }}
 
-	<form id="upload_csv" action="" method="post" role="form" enctype="multipart/form-data">
-		{{ upload_form.csrf }}
-		<a href="#add-barstock" data-toggle="collapse"><h3><i class="fas fa-file-upload"></i> Upload Bar Stock File&nbsp;<i class="fas fa-caret-down"></i></h3></a>
-		<div id="add-barstock" class="collapse">
-			{{ render_field(upload_form.upload_csv) }}
-			{{ render_field(upload_form.replace_existing) }}
-			<input type="submit" class="btn btn-primary" target="_blank" name="upload-csv" value="Upload"></input>
+	{# info, upload, download buttons #}
+	<div class="row no-gutters" style="width:24rem;">
+		<div class="col-auto mr-auto">
+			<button type="button" class="close" data-target="#info-panel" data-toggle="modal">
+				<i class="fas fa-info"></i><span class="close-btn-txt">Info</span>
+			</button>
 		</div>
-	</form>
 
-	<form id="download_csv" action="/api/ingredients/download" method="get" role="form" enctype="multipart/form-data">
-		<input type="submit" class="btn btn-primary" target="_blank" name="download-csv" value="Download"></input>
-	</form>
+		<div class="col-auto mr-auto">
+			<button type="button" class="btn close" data-target="#upload-csv-modal" data-toggle="modal">
+				<i class="fas fa-file-upload"></i><span class="close-btn-txt">Import</span>
+			</button>
+		</div>
+
+		<div class="col-auto">
+			<form id="download_csv" action="/api/ingredients/download" method="get" role="form" enctype="multipart/form-data">
+				<button type="submit" class="close" target="_blank" name="download-csv">
+					<i class="fas fa-file-download"></i><span class="close-btn-txt">Export</span>
+				</button>
+			</form>
+		</div>
+	</div>
 
 	<div class="table-responsive">
 		<table id="barstock-table" class="table">
