@@ -3,8 +3,7 @@
 {% from "_macros.html" import show_flashed, render_field %}
 
 {% block body %}
-<div class="container mt-3">
-	{% block dashbody %}
+<div class="container my-3">
 	<div class="row mb-2">
 		<h2 class="col-auto mr-auto">Admin Dashboard</h2>
 		<div class="col-auto">
@@ -80,6 +79,5 @@
 		{{ order_table|safe }}
 	</div>
 
-	{% endblock dashbody %}
-</div><!-- body container -->
+</div>
 {% endblock body %}
