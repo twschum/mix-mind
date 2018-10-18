@@ -54,8 +54,13 @@ var column_settings = [
 var barstock_table;
 $(document).ready( function () {
     barstock_table = $("#barstock-table").DataTable( {
-        "paging": false,
         "ajax": "/api/ingredients",
+        "paging": true,
+        "lengthChange": false,
+        "pageLength": 20,
+        "dom": "<'row'<'col-sm-12 col-md-6'<'#toolbar.row'>><'col-sm-12 col-md-6'f>>" +
+               "<'row'<'col-sm-12'tr>>" +
+               "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         "columns": column_settings,
         // sort by the Category column
         "order": [[ 3, 'asc' ]],
@@ -64,6 +69,8 @@ $(document).ready( function () {
             $(".toggle-switch").bootstrapToggle();
         }
     });
+    // copy the content of the controls div into the toolbar area
+    $('#toolbar').html($('#controls').html());
     // editCell integration
     barstock_table.MakeCellsEditable({
         "onUpdate": editCell,
