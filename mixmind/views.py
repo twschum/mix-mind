@@ -34,7 +34,7 @@ NOTES:
     - raise 404 on not authorized
     - add/remove recipes as raw json
         - ace embeddable text editor
-    - menu_generator (what's now "mainpage")
+    - menu_generator
 * better commits to db with after_this_request
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
@@ -446,7 +446,7 @@ def ingredient_stock():
                 row = {}
                 row['Category'] = form.category.data
                 row['Type'] = form.type_.data
-                row['Bottle'] = form.bottle.data
+                row['Kind'] = form.kind.data
                 row['ABV'] = float(form.abv.data)
                 row['Size (mL)'] = convert_units(float(form.size.data), form.unit.data, 'mL')
                 row['Price Paid'] = float(form.price.data)
@@ -669,7 +669,7 @@ def api_ingredient():
     """CRUD endpoint for individual ingredients
 
     Indentifying parameters:
-    :param string Bottle: bottle for ingredient
+    :param string Kind: kind for ingredient
     :param string Type: type for ingredient
 
     Create params:
@@ -690,9 +690,9 @@ def api_ingredient():
     :param int row_index: index of the changed row, pass back to requester
 
     """
-    Bottle = request.form.get('Bottle')
+    Kind = request.form.get('Kind')
     Type = request.form.get('Type')
-    ingredient = Ingredient.query.filter_by(bar_id=current_bar.id, Bottle=Bottle, Type=Type).one_or_none()
+    ingredient = Ingredient.query.filter_by(bar_id=current_bar.id, Kind=Kind, Type=Type).one_or_none()
     if not ingredient and not request.method == 'POST':
         return api_error("Ingredient not found")
     row_index = request.form.get('row_index')
@@ -712,7 +712,7 @@ def api_ingredient():
         field = request.form.get('field')
         if not field:
             return api_error("'field' is a required parameter")
-        elif field not in "Category,Type,Bottle,In_Stock,ABV,Size_mL,Size_oz,Price_Paid".split(','):
+        elif field not in "Category,Type,Kind,In_Stock,ABV,Size_mL,Size_oz,Price_Paid".split(','):
             return api_error("'{}' is not allowed to be edited via the API".format(field))
         value = request.form.get('value')
         if not value:
