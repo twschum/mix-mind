@@ -198,8 +198,8 @@ class BarstockForm(BaseForm):
         return ', '.join(types)
     category = SelectField("Category", validators=[validators.InputRequired()], choices=pairs(categories))
     #type_ = SelectField("Type", validators=[validators.InputRequired()], choices=pairs(types))
-    type_ = TextField("Type", description='The broader type that an ingredient falls info, e.g. "Dry Gin" or "Orange Liqueur"', validators=[validators.InputRequired()])
-    bottle = TextField("Brand", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.InputRequired()])
+    type_ = TextField("Ingredient", description='The broader type that an ingredient falls info, e.g. "Dry Gin" or "Orange Liqueur"', validators=[validators.InputRequired()])
+    bottle = TextField("Kind", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.InputRequired()])
     abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.InputRequired(), validators.NumberRange(min=0, max=100)])
 
     unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0]]+VALID_UNITS[2:]), validators=[validators.InputRequired()])
