@@ -146,7 +146,7 @@ class Barstock_SQL(Barstock):
         """ Return query results for rows matching an ingredient specifier
         Handles several special cases
         """
-        type_ = specifier.what.lower()
+        type_ = specifier.ingredient.lower()
         if type_ in [u'rum', u'whiskey', u'whisky', u'tequila', u'vermouth']:
             type_ = u'whisk' if type_ == u'whisky' else type_
             filter_ = Ingredient.type_.like(u'%{}%'.format(type_))
@@ -215,7 +215,7 @@ class Barstock_DF(Barstock):
         return row
 
     def slice_on_type(self, specifier):
-        type_ = specifier.what.lower()
+        type_ = specifier.ingredient.lower()
         if type_ in ['rum', 'whiskey', 'whisky', 'tequila', 'vermouth']:
             type_ = 'whisk' if type_ == 'whisky' else type_
             matching = self.df[self.df['type'].str.contains(type_)]

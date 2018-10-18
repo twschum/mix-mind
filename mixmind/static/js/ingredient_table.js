@@ -21,7 +21,7 @@ var column_settings = [
         }
         return data;
     }},
-    {data: "Bottle", name: "Bottle"},
+    {data: "Kind", name: "Kind"},
     {data: "Type", name: "Type"},
     {data: "Category", name: "Category", render: function(data, type, row, meta){
         switch (type) {
@@ -130,17 +130,17 @@ jQuery.each( [ "put", "delete" ], function( i, method ) {
 });
 
 function editCell(cell, row, oldValue) {
-    var data, type_, bottle;
+    var data, type_, kind;
     data = cell.data().trim();
     if (data == oldValue) {
         return;
     }
     var col = column_settings[ cell.index().column ].name
-    if (col == "Bottle") {
-        bottle = oldValue;
+    if (col == "Kind") {
+        kind = oldValue;
     }
     else {
-        bottle = row.data().Bottle;
+        kind = row.data().Kind;
     }
     if (col == "Type") {
         type_ = oldValue;
@@ -148,7 +148,7 @@ function editCell(cell, row, oldValue) {
     else {
         type_ = row.data().Type;
     }
-    $.put("/api/ingredient", { row_index: row.index(), Bottle: bottle, Type: type_,
+    $.put("/api/ingredient", { row_index: row.index(), Kind: kind, Type: type_,
         field: col, value: data })
         .done(function(result) {
             if (result.status == "error") {
@@ -175,7 +175,7 @@ $('#confirm-delete-ingredient').on('show.bs.modal', function(event) {
     var caller = event.relatedTarget;
     var table = $(caller).closest("table").DataTable().table();
     var row = table.row($(caller).parents('tr'));
-    var text = 'Are you sure you want to remove '+ row.data().Bottle +' ('+ row.data().Type +') from the database?';
+    var text = 'Are you sure you want to remove '+ row.data().Kind +' ('+ row.data().Type +') from the database?';
     $(this).find('p').text(text);
     $(this).find('.btn-danger').removeClass('d-none');
     $(this).on('click', '.btn-danger', function(e) {
@@ -184,12 +184,12 @@ $('#confirm-delete-ingredient').on('show.bs.modal', function(event) {
 });
 
 function deleteRow(cell, row) {
-    var type_, bottle, modal, msg;
+    var type_, kind, modal, msg;
     type_ = row.data().Type;
-    bottle = row.data().Bottle;
+    kind = row.data().Kind;
     modal = $('#confirm-delete-ingredient');
     $.delete("/api/ingredient", {
-            row_index: row.index(), Bottle: row.data().Bottle, Type: row.data().Type
+            row_index: row.index(), Kind: row.data().Kind, Type: row.data().Type
         })
         .done(function(result) {
             modal.find('.btn-danger').addClass('d-none');
@@ -201,7 +201,7 @@ function deleteRow(cell, row) {
                     console.log("DEL: "+result.message);
                     row.remove().draw();
                     // give some feedback via the modal
-                    msg = 'Successfully removed '+ bottle +' ('+ type_ +').';
+                    msg = 'Successfully removed '+ kind +' ('+ type_ +').';
                 }
                 else {
                     msg = "Error: response missing 'row_index'";
@@ -217,7 +217,7 @@ function deleteRow(cell, row) {
 function cloneIngredient(callingElement) {
     var modal = $('#add-ingredient');
     var row = $(callingElement).closest("table").DataTable().table().row($(callingElement).parents('tr'));
-    modal.find('input[name="bottle"]').val(row.data().Bottle)
+    modal.find('input[name="kind"]').val(row.data().Kind)
     modal.find('input[name="category"]').val(row.data().Category)
     modal.find('input[name="type_"]').val(row.data().Type)
     modal.find('input[name="abv"]').val(row.data().ABV)
@@ -228,7 +228,7 @@ function cloneIngredient(callingElement) {
 
 function clearModalForm() {
     var modal = $('#add-ingredient');
-    modal.find('input[name="bottle"]').val('')
+    modal.find('input[name="kind"]').val('')
     modal.find('input[name="category"]').val('')
     modal.find('input[name="type_"]').val('')
     modal.find('input[name="abv"]').val('')
