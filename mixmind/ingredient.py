@@ -1,7 +1,7 @@
 import urllib
 import copy
 
-from sqlalchemy import and_, Boolean, DateTime, Column, Integer, ForeignKey, Enum, Float, Unicode
+from sqlalchemy import Boolean, DateTime, Column, Integer, ForeignKey, Enum, Float, Unicode
 from sqlalchemy.exc import SQLAlchemyError
 
 import util

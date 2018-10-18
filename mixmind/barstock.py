@@ -7,6 +7,7 @@ try:
     has_pandas = True
 except ImportError:
     has_pandas = False
+from sqlalchemy import and_
 
 import util
 from .database import db
