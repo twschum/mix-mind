@@ -6,11 +6,12 @@ import random
 import datetime
 import tempfile
 import urllib
+import io
 
 import pendulum
 from functools import wraps
 
-from flask import g, render_template, flash, request, send_file, jsonify, redirect, url_for
+from flask import g, render_template, flash, request, send_file, jsonify, redirect, url_for, after_this_request
 from flask_security import login_required, roles_required, roles_accepted
 from flask_security.decorators import _get_unauthorized_view
 from flask_login import current_user
@@ -85,6 +86,21 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
             recipes = [recipe_as_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
     return recipes, excluded, stats
 
+def get_tmp_file():
+    """ Get a temporary file that will be removed by a callback after
+    the current request
+    :returns: file name as a string
+    """
+    _, tmp_filename = tempfile.mkstemp()
+
+    @after_this_request
+    def rm_tempfile(response):
+        try:
+            os.remove(tmp_filename)
+        except OSError as e:
+            log.warning("OSError: Failed to rm tmp file {}: {}".format(tmp_filename, e))
+        return response
+    return tmp_filename
 
 ################################################################################
 # Customer routes
@@ -447,12 +463,11 @@ def ingredient_stock():
             if not csv_file or csv_file.filename == '':
                 flash(u'No selected file', 'danger')
                 return redirect(request.url)
-            # TODO use tempfile module to handle cleanup
-            _, tmp_filename = tempfile.mkstemp()
+
+            tmp_filename = get_tmp_file()
             csv_file.save(tmp_filename)
             Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id,
                     replace_existing=upload_form.replace_existing.data)
-            os.remove(tmp_filename)
             mms.regenerate_recipes(current_bar)
             msg = u"Ingredients database {} {} for {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
@@ -748,11 +763,10 @@ def api_ingredients_download():
     ingredients = Ingredient.query.filter_by(bar_id=current_bar.id).order_by(Ingredient.Category, Ingredient.Type).all()
     ingredients = [Ingredient.csv_heading()] + [i.as_csv() for i in ingredients]
     filename = "{}_ingredients_{}.csv".format(current_bar.cname.replace(' ','_'), pendulum.now().int_timestamp)
-    with tempfile.SpooledTemporaryFile() as fp:
-        fp.writelines((i.encode('utf8',) for i in ingredients))
-        fp.seek(0)
-        ret = send_file(fp, 'text/csv', as_attachment=True, attachment_filename=filename)
-    return ret
+    tmp_filename = get_tmp_file()
+    with io.open(tmp_filename, 'w', encoding='utf8') as fp:
+        fp.writelines(ingredients)
+    return send_file(tmp_filename, 'text/csv', as_attachment=True, attachment_filename=filename)
 
 @app.route("/api/user_current_bar", methods=['POST', 'GET', 'PUT', 'DELETE'])
 @login_required
