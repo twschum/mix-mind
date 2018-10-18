@@ -92,7 +92,7 @@ the various fields for an "ingredient" #}
 			<div class="modal-footer">
 				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
 				<form id="download-csv-form" action="/api/ingredients/download" method="get" role="form" enctype="multipart/form-data">
-					<button type="submit" class="btn btn-primary" target="_blank" name="download-csv">Download</button>
+					<input type="submit" class="btn btn-primary" target="_blank" name="download-csv" value="Download" onclick='$("#download-csv-modal").modal("hide");'></input>
 				</form>
 			</div>
 		</div>
