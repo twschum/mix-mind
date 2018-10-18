@@ -76,7 +76,7 @@
 					</div>
 
 					{# Bar management links #}
-					{% if g.current_bar.owner == current_user %}
+					{% if g.current_bar.owner == current_user or current_user.has_role('admin') %}
 					<div class="nav-item dropdown {{ d_full }}" id="currentBarDropdown">
 						<a class="nav-link" href="#" id="currentBarDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}<i id="currentBarDropdownIcon" class="fas fa-caret-down"></i></a>
