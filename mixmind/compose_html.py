@@ -126,12 +126,12 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
                     fields = {
                             'cost': util.calculate_price(e.cost, markup),
                             'abv': e.abv,
-                            'bottles': e.bottles
+                            'kinds': e.kinds
                             }
-                    doc.asis(small_br(u"${cost:>3.0f} | {abv:.1f}% | {bottles}".format(**fields)))
+                    doc.asis(small_br(u"${cost:>3.0f} | {abv:.1f}% | {kinds}".format(**fields)))
             else:
                 for e in recipe.examples:
-                    doc.asis(small_br(u"${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
+                    doc.asis(small_br(u"${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {kinds}".format(**e._asdict())))
 
     return unicode(doc.getvalue())
 

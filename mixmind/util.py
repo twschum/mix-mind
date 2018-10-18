@@ -107,11 +107,11 @@ class StatTracker(dict):
             StatTracker._title_width = len(str_title)
 
     def __str__(self):
-        return "{{title:{}}} | {{drink_name:{}}} | ${{cost:.2f}} | {{abv:>5.2f}}% ABV | {{std_drinks:.2f}} | {{bottles}}"\
+        return "{{title:{}}} | {{drink_name:{}}} | ${{cost:.2f}} | {{abv:>5.2f}}% ABV | {{std_drinks:.2f}} | {{kinds}}"\
             .format(self._title_width+1, self._name_width+1).format(**self)
 
     def as_html(self):
-        return u"<tr><td> {{title:{}}} </td><td> {{drink_name:{}}} </td><td> ${{cost:.2f}} </td><td> {{abv:>5.2f}}% ABV </td><td> {{std_drinks:.2f}} </td><td style:text-align=left> {{bottles}} </td></tr>"\
+        return u"<tr><td> {{title:{}}} </td><td> {{drink_name:{}}} </td><td> ${{cost:.2f}} </td><td> {{abv:>5.2f}}% ABV </td><td> {{std_drinks:.2f}} </td><td style:text-align=left> {{kinds}} </td></tr>"\
             .format(self._title_width+1, self._name_width+1).format(**self)
 
     def update_stat(self, recipe):
@@ -329,16 +329,16 @@ def cL_to_volume(amount, unit, rounded=False):
         no_conversion('cL', unit)
 
 class IngredientSpecifier(object):
-    """ Allow type:bottle in recipes,
+    """ Allow ingredient:kind in recipes,
     e.g. "white rum:Barcadi Catra Blanca" or "aromatic bitters:Angostura"
     """
     @default_initializer
-    def __init__(self, what, bottle=None):
-        if what is None:
-            raise ValueError("IngredientSpecifier what (type) cannot be None")
-        if '(' in what and ')' in what:
-            self.extra = what.strip()[what.find('('):]
-            self.what = what.strip()[:what.find('(')].strip()
+    def __init__(self, ingredient, kind=None):
+        if ingredient is None:
+            raise ValueError("IngredientSpecifier ingredient (type) cannot be None")
+        if '(' in ingredient and ')' in ingredient:
+            self.extra = ingredient.strip()[ingredient.find('('):]
+            self.ingredient = ingredient.strip()[:ingredient.find('(')].strip()
         else:
             self.extra = None
 
@@ -347,20 +347,20 @@ class IngredientSpecifier(object):
         if ':' in type_str:
             t = type_str.split(':')
             if len(t) == 2:
-                what = t[0]
-                bottle = t[1]
+                ingredient = t[0]
+                kind = t[1]
             else:
                 raise ValueError("Unknown ingredient specifier: {}".format(type_str))
         else:
-            what = type_str
-            bottle = None
-        return cls(what, bottle)
+            ingredient = type_str
+            kind = None
+        return cls(ingredient, kind)
 
     def __str__(self):
-        return self.bottle if self.bottle else u"{}{}".format(self.what, u' '+self.extra if self.extra else u'')
+        return self.kind if self.kind else u"{}{}".format(self.ingredient, u' '+self.extra if self.extra else u'')
 
     def __repr__(self):
-        return u"{}:{}".format(self.what, self.bottle if self.bottle else '')
+        return u"{}:{}".format(self.ingredient, self.kind if self.kind else '')
 
 def to_human_diff(dt):
     """Return datetime as humanized diff from now"""
