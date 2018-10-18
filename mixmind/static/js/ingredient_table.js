@@ -1,4 +1,3 @@
-// TODO add a download as csv
 var categories = {"Spirit": 0, "Liqueur": 1, "Vermouth": 2, "Bitters": 3, "Syrup": 4, "Juice": 5, "Mixer": 6, "Wine": 7, "Beer": 8, "Dry": 9, "Ice": 10}
 // NOTE: in datatables 2.0, can use simply api.column(id).name()
 var number_col_classes = "text-right monospace"
@@ -22,6 +21,8 @@ var column_settings = [
         }
         return data;
     }},
+    {data: "Bottle", name: "Bottle"},
+    {data: "Type", name: "Type"},
     {data: "Category", name: "Category", render: function(data, type, row, meta){
         switch (type) {
             case "sort":
@@ -30,8 +31,6 @@ var column_settings = [
         };
         return data;
     }},
-    {data: "Type", name: "Type"},
-    {data: "Bottle", name: "Bottle"},
     {data: "ABV", name: "ABV", className: number_col_classes, render: function(data, type, row, meta){
         if (type == "display"){
             if (data == 0 || data == "0") {
@@ -58,12 +57,16 @@ $(document).ready( function () {
         "paging": true,
         "lengthChange": false,
         "pageLength": 20,
-        "dom": "<'row'<'col-sm-12 col-md-6'<'#toolbar.row'>><'col-sm-12 col-md-6'f>>" +
+        "dom": "<'row no-gutters'<'col-sm-12 col-md-4 order-3 order-md-1'<'#toolbar.row no-gutters'>><'col-md-5 order-2'><'col-sm-12 col-md-3 order-1 order-md-3 mb-2'f>>" +
                "<'row'<'col-sm-12'tr>>" +
                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+        "language": {
+            "search": "",
+            "searchPlaceholder": "Search...",
+        },
         "columns": column_settings,
         // sort by the Category column
-        "order": [[ 3, 'asc' ]],
+        "order": [[ 5, 'asc' ]],
         // handles rendering of the toggle switches in the table
         "drawCallback": function() {
             $(".toggle-switch").bootstrapToggle();
@@ -71,6 +74,8 @@ $(document).ready( function () {
     });
     // copy the content of the controls div into the toolbar area
     $('#toolbar').html($('#controls').html());
+    $('#barstock-table_filter > label').addClass('w-100');
+    $('#barstock-table_filter > label > input').addClass('ml-0 w-100').removeClass('form-control-sm');
     // editCell integration
     barstock_table.MakeCellsEditable({
         "onUpdate": editCell,
@@ -86,7 +91,7 @@ $(document).ready( function () {
         "columns": [2,3,4,5,6,7,8,9], // allowed to edit these columns
         "inputTypes": [
             {
-                "column": 3,
+                "column": 5,
                 "type": "list",
                 "options": [
                     {"value":  "Spirit",    "display":  "Spirit"},
