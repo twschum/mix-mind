@@ -57,7 +57,7 @@ $(document).ready( function () {
         "paging": true,
         "lengthChange": false,
         "pageLength": 20,
-        "dom": "<'row no-gutters'<'col-sm-12 col-md-4 order-3 order-md-1'<'#toolbar.row no-gutters'>><'col-md-5 order-2'><'col-sm-12 col-md-3 order-1 order-md-3 mb-2'f>>" +
+        "dom": "<'row no-gutters'<'col-sm-12 col-md-4 order-3 order-md-1'<'#toolbar.row no-gutters'>><'col-md-5 order-2'><'col-sm-12 col-md-3 order-1 order-md-3'f>>" +
                "<'row'<'col-sm-12'tr>>" +
                "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         "language": {
