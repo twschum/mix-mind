@@ -107,7 +107,7 @@ the various fields for an "ingredient" #}
 	{{ formheader("Ingredient Stock", "&nbsp;Manage the ingredients at {}".format(g.current_bar.cname)) }}
 
 	{# info, upload, download buttons #}
-	<div class="row no-gutters" style="width:24rem;">
+	<div id="controls" class="row no-gutters d-none">
 		<div class="col-auto mr-auto">
 			<button type="button" class="close" data-target="#info-panel" data-toggle="modal">
 				<i class="fas fa-info"></i><span class="close-btn-txt">Info</span>
@@ -153,5 +153,5 @@ the various fields for an "ingredient" #}
 {% endblock body %}
 
 {% block scripts %}
-<script src="/static/js/ingredient_table.js?v=1.0"></script>
+<script src="/static/js/ingredient_table.js?v=1.1"></script>
 {% endblock scripts %}
