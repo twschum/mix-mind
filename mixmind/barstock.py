@@ -10,7 +10,7 @@ except ImportError:
 
 import util
 from .database import db
-from .ingredient import Categories, Ingredient
+from .ingredient import Categories, Ingredient, display_name_mappings
 
 def get_barstock_instance(csv_list, use_sql=False, bar_id=None, include_all=False):
     """ Factory for getting the right, initialized barstock
