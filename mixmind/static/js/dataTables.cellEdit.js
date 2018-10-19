@@ -75,7 +75,7 @@ jQuery.fn.dataTable.Api.register('MakeCellsEditable()', function (settings) {
         },
         // CANCEL
         cancelEditableCell: function (callingElement) {
-            var table = $(callingElement.closest("table")).DataTable().table();
+            var table = $(callingElement).closest("table").DataTable().table();
             var cell = table.cell($(callingElement).parents('td'));
             // Set cell to it's original value
             cell.data(cell.data());
@@ -84,12 +84,11 @@ jQuery.fn.dataTable.Api.register('MakeCellsEditable()', function (settings) {
             table.draw();
         },
         // DELETE
-        deleteEditableCell: function(callingElement) {
-            var table = $(callingElement).closest("table").DataTable().table();
-            var row = table.row($(callingElement).parents('tr'));
-            var cell = table.cell($(callingElement).parents('td'));
-            // Return cell & row.
-            settings.onDelete(cell, row);
+        deleteEditableRow: function(rowSelector) {
+            var table = $(rowSelector).closest("table").DataTable().table();
+            var row = table.row(rowSelector);
+            // Handler should call remove on the row
+            settings.onDelete(row);
 
             // Get current page
             var currentPageIndex = table.page.info().page;

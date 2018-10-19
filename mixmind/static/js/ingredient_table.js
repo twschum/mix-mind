@@ -7,7 +7,7 @@ var column_settings = [
         return clone_btn;
     }},
     {data: null, searchable: false, orderable: false, render: function(data, type, row, meta){
-        var del_btn = '<button type="button" class="close" data-toggle="modal" data-target="#confirm-delete-ingredient" title="Delete this ingredient"><i class="far fa-trash-alt"></i></button>';
+        var del_btn = '<button type="button" class="close" onclick="deleteConfirm(this)" title="Delete this ingredient"><i class="far fa-trash-alt"></i></button>';
         return del_btn;
     }},
     {data: "In_Stock", name: "In_Stock", render: function(data, type, row, meta){
@@ -64,6 +64,7 @@ $(document).ready( function () {
             "search": "",
             "searchPlaceholder": "Search...",
         },
+        "rowId": "uid",
         "columns": column_settings,
         // sort by the Category column
         "order": [[ 5, 'asc' ]],
@@ -130,37 +131,26 @@ jQuery.each( [ "put", "delete" ], function( i, method ) {
 });
 
 function editCell(cell, row, oldValue) {
-    var data, type_, kind;
+    var data, col, row_uid;
     data = cell.data().trim();
     if (data == oldValue) {
         return;
     }
-    var col = column_settings[ cell.index().column ].name
-    if (col == "Kind") {
-        kind = oldValue;
-    }
-    else {
-        kind = row.data().Kind;
-    }
-    if (col == "Type") {
-        type_ = oldValue;
-    }
-    else {
-        type_ = row.data().Type;
-    }
-    $.put("/api/ingredient", { row_index: row.index(), Kind: kind, Type: type_,
-        field: col, value: data })
+    row_uid = row.data().uid;
+    col = column_settings[ cell.index().column ].name;
+    $.put("/api/ingredient", { uid: row_uid, field: col, value: data })
         .done(function(result) {
             if (result.status == "error") {
+                cell.data(oldValue);
                 alert("Error: " + result.message);
             }
             else if (result.status == "success") {
-                if (result.row_index) {
-                    barstock_table.row(result.row_index).data(result.data);
+                if (result.data.uid == row_uid) {
+                    row.data(result.data);
                     $(".toggle-switch").bootstrapToggle();
                 }
                 else {
-                    console.log("Error: response missing 'row_index'");
+                    console.log("Error: response missing or has incorrect 'uid'");
                 }
             }
             else {
@@ -169,42 +159,23 @@ function editCell(cell, row, oldValue) {
         });
 };
 
-
-// Bind to modal opening to set necessary data properties to be used to make request
-$('#confirm-delete-ingredient').on('show.bs.modal', function(event) {
-    var caller = event.relatedTarget;
-    var table = $(caller).closest("table").DataTable().table();
-    var row = table.row($(caller).parents('tr'));
-    var text = 'Are you sure you want to remove '+ row.data().Kind +' ('+ row.data().Type +') from the database?';
-    $(this).find('p').text(text);
-    $(this).find('.btn-danger').removeClass('d-none');
-    $(this).on('click', '.btn-danger', function(e) {
-        $(caller).deleteEditableCell(caller);
-    });
-});
-
-function deleteRow(cell, row) {
-    var type_, kind, modal, msg;
-    type_ = row.data().Type;
-    kind = row.data().Kind;
+function deleteRow(row) {
+    var modal, msg;
     modal = $('#confirm-delete-ingredient');
-    $.delete("/api/ingredient", {
-            row_index: row.index(), Kind: row.data().Kind, Type: row.data().Type
-        })
+    $.delete("/api/ingredient", { uid: row.data().uid })
         .done(function(result) {
             modal.find('.btn-danger').addClass('d-none');
             if (result.status == "error") {
                 msg = "Error: " + result.message;
             }
             else if (result.status == "success") {
-                if (result.row_index) {
+                if (result.data.uid == row.data().uid) {
                     console.log("DEL: "+result.message);
-                    row.remove().draw();
-                    // give some feedback via the modal
-                    msg = 'Successfully removed '+ kind +' ('+ type_ +').';
+                    msg = 'Successfully removed '+ row.data().Kind +' ('+ row.data().Type +').';
+                    row.remove();
                 }
                 else {
-                    msg = "Error: response missing 'row_index'";
+                    msg = "Error: response missing or has incorrect 'uid'";
                 }
             }
             else {
@@ -212,6 +183,19 @@ function deleteRow(cell, row) {
             }
             modal.find('p').text(msg);
         });
+};
+
+function deleteConfirm(callingElement) {
+    var modal = $('#confirm-delete-ingredient');
+    var table = $(callingElement).closest("table").DataTable().table();
+    var row = table.row($(callingElement).parents('tr'));
+    var text = 'Are you sure you want to remove '+ row.data().Kind +' ('+ row.data().Type +') from the database?';
+    modal.find('p').text(text);
+    modal.find('.btn-danger').removeClass('d-none');
+    modal.on('click', '.btn-danger', function(e) {
+        $(callingElement).deleteEditableRow(row.id(true));
+    });
+    modal.modal('show');
 };
 
 function cloneIngredient(callingElement) {
