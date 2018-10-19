@@ -64,7 +64,7 @@ $(document).ready( function () {
             "search": "",
             "searchPlaceholder": "Search...",
         },
-        "rowId": "uid",
+        "rowId": "iid",
         "columns": column_settings,
         // sort by the Category column
         "order": [[ 5, 'asc' ]],
@@ -131,26 +131,26 @@ jQuery.each( [ "put", "delete" ], function( i, method ) {
 });
 
 function editCell(cell, row, oldValue) {
-    var data, col, row_uid;
+    var data, col, row_iid;
     data = cell.data().trim();
     if (data == oldValue) {
         return;
     }
-    row_uid = row.data().uid;
+    row_iid = row.data().iid;
     col = column_settings[ cell.index().column ].name;
-    $.put("/api/ingredient", { uid: row_uid, field: col, value: data })
+    $.put("/api/ingredient", { iid: row_iid, field: col, value: data })
         .done(function(result) {
             if (result.status == "error") {
                 cell.data(oldValue);
                 alert("Error: " + result.message);
             }
             else if (result.status == "success") {
-                if (result.data.uid == row_uid) {
+                if (result.data.iid == row_iid) {
                     row.data(result.data);
                     $(".toggle-switch").bootstrapToggle();
                 }
                 else {
-                    console.log("Error: response missing or has incorrect 'uid'");
+                    console.log("Error: response missing or has incorrect 'iid'");
                 }
             }
             else {
@@ -162,20 +162,20 @@ function editCell(cell, row, oldValue) {
 function deleteRow(row) {
     var modal, msg;
     modal = $('#confirm-delete-ingredient');
-    $.delete("/api/ingredient", { uid: row.data().uid })
+    $.delete("/api/ingredient", { iid: row.data().iid })
         .done(function(result) {
             modal.find('.btn-danger').addClass('d-none');
             if (result.status == "error") {
                 msg = "Error: " + result.message;
             }
             else if (result.status == "success") {
-                if (result.data.uid == row.data().uid) {
+                if (result.data.iid == row.data().iid) {
                     console.log("DEL: "+result.message);
                     msg = 'Successfully removed '+ row.data().Kind +' ('+ row.data().Type +').';
                     row.remove();
                 }
                 else {
-                    msg = "Error: response missing or has incorrect 'uid'";
+                    msg = "Error: response missing or has incorrect 'iid'";
                 }
             }
             else {

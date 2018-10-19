@@ -673,7 +673,7 @@ def api_ingredient():
     """CRUD endpoint for individual ingredients
 
     Indentifying parameters:
-    :param string uid: uid of the changed row's ingredient
+    :param string iid: iid of the changed row's ingredient
 
     Create params:
     :param string Category: Category idenfitier
@@ -694,14 +694,14 @@ def api_ingredient():
 
     """
     # check parameters
-    uid = request.form.get('uid')
-    if uid is None and request.method in ['PUT', 'DELETE']:
-        return api_error("uid is a required parameter for {}".fromat(request.method))
-    ingredient = Ingredient.query_by_uid(uid)
+    iid = request.form.get('iid')
+    if iid is None and request.method in ['PUT', 'DELETE']:
+        return api_error("iid is a required parameter for {}".fromat(request.method))
+    ingredient = Ingredient.query_by_iid(iid)
     if not ingredient and not request.method == 'POST':
         return api_error("Ingredient not found")
     if ingredient.bar_id != current_bar.id:
-        return api_error("Request uid {} includes wrong bar_id".format(uid))
+        return api_error("Request iid {} includes wrong bar_id".format(iid))
 
     # create
     if request.method == 'POST':
@@ -750,14 +750,14 @@ def api_ingredient():
 
         data = ingredient.as_dict()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-        return api_success(data, message=u'Successfully updated "{}" for "{}"'.format(field, ingredient.uid()))
+        return api_success(data, message=u'Successfully updated "{}" for "{}"'.format(field, ingredient.iid()))
 
     # delete
     elif request.method == 'DELETE':
         db.session.delete(ingredient)
         db.session.commit()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-        return api_success({'uid': ingredient.uid()}, message=u'Successfully deleted "{}"'.format(ingredient.uid()))
+        return api_success({'iid': ingredient.iid()}, message=u'Successfully deleted "{}"'.format(ingredient.iid()))
 
     return api_error("Unknwon method")
 

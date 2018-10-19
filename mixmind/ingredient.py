@@ -50,7 +50,7 @@ class Ingredient(db.Model):
     Cost_per_oz  = Column(Float(), default=0.0)
 
     def as_dict(self):
-        data = {'uid': self.uid()}
+        data = {'iid': self.iid()}
         for attr in 'Category Type Kind In_Stock ABV Size_mL Price_Paid Size_oz Cost_per_oz'.split(' '):
             data[attr] = getattr(self, attr)
         return data
@@ -73,9 +73,10 @@ class Ingredient(db.Model):
     def __setitem__(self, field, value):
         return setattr(self, field, value)
 
-    def uid(self):
+    def iid(self):
+        """Ingredient ID: combines UUID with prefix suitable as HTML id"""
         return "{}{}".format(self._iid_prefix, self.uuid)
 
     @classmethod
-    def query_by_uid(cls, uid):
-        return cls.query.filter_by(uuid=uuid.UUID(uid[len(cls._iid_prefix):])).one_or_none()
+    def query_by_iid(cls, iid):
+        return cls.query.filter_by(uuid=uuid.UUID(iid[len(cls._iid_prefix):])).one_or_none()
