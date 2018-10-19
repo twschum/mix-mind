@@ -90,6 +90,9 @@ class MixMindServer():
         :param string ingredient: only updates recipes with the given ingredient
         :param string reipce_name: only updates the given recipe
         """
+        if bar.id not in self.processed_recipes:
+            self.generate_recipes(bar)
+            return
         if ingredient:
             print ("Updating recipes containing {} for {}".format(ingredient, bar.cname))
             [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes[bar.id]
