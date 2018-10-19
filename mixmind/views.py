@@ -6,7 +6,7 @@ import random
 import datetime
 import tempfile
 import urllib
-import io
+import codecs
 
 import pendulum
 from functools import wraps
@@ -770,8 +770,9 @@ def api_ingredients_download():
     ingredients = [Ingredient.csv_heading()] + [i.as_csv() for i in ingredients]
     filename = "{}_ingredients_{}.csv".format(current_bar.cname.replace(' ','_'), pendulum.now().int_timestamp)
     tmp_filename = get_tmp_file()
-    with io.open(tmp_filename, 'w', encoding='utf8') as fp:
-        fp.writelines(ingredients)
+    with open(tmp_filename, 'w') as fp:
+        fp.write(codecs.BOM_UTF8)
+        fp.writelines((i.encode('utf-8') for i in ingredients))
     return send_file(tmp_filename, 'text/csv', as_attachment=True, attachment_filename=filename)
 
 @app.route("/api/user_current_bar", methods=['POST', 'GET', 'PUT', 'DELETE'])
@@ -853,3 +854,4 @@ def api_test():
     a = request.args.get('a', 0, type=int)
     b = request.args.get('b', 0, type=int)
     return jsonify(result=a + b)
+
