@@ -7,7 +7,9 @@ try:
     has_pandas = True
 except ImportError:
     has_pandas = False
+
 from sqlalchemy import and_
+from sqlalchemy.exc import SQLAlchemyError
 
 import util
 from .database import db
@@ -79,7 +81,7 @@ class Barstock_SQL(Barstock):
     def add_row(self, row, bar_id):
         """ where row is a dict of fields from the csv
         returns the Model object for the updated/inserted row"""
-        if not row.get('Type') and not row.get('Kind'):
+        if not row.get('Ingredient', row.get('Type')) and not row.get('Kind'):
             log.debug(u"Primary key (Ingredient, Kind) missing, skipping ingredient: {}".format(row))
             return
         try:
