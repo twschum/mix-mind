@@ -50,8 +50,6 @@
 	</div>
 </div>
 
-{# TODO "info" modal that includes detailed information about the up/downloads
-the various fields for an "ingredient" #}
 <div class="modal " id="info-panel" tabindex="-1" role="dialog">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
@@ -75,7 +73,9 @@ the various fields for an "ingredient" #}
 				<p><em>Options: "Spirit", "Liqueur", "Vermouth", "Bitters", "Syrup", "Juice", "Mixer", "Wine", "Beer", "Dry"</em></p>
 				<h4>CSV Import/Export Format</h4>
 				<p>A CSV file can be supplied to initialize (or replace, or update) the ingredient database.</p>
-				{# TODO download example #}
+				<p>If the "replace existing" option is selected, the existing ingredients will be deleted before the new ingredients uploaded. If unselected, the ingredients will merge, with the uploaded ingredients taking priority.</p>
+				<p>The CSV file should be UTF-8 encoded.</p>
+				<a download href="/static/ingredients/ExampleBarstock.csv" target="_blank" name="download-example-csv"><i class="fas fa-file-download"></i>Download an Example CSV</a>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>

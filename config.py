@@ -40,7 +40,7 @@ MIXMIND_RECIPES_DIR = "recipes/"
 MIXMIND_INGREDIENTS_DIR = "mixmind/static/ingredients/"
 
 MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
-MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
+MIXMIND_DEFAULT_INGREDIENTS = ["ExampleBarstock.csv"]
 
 MIXMIND_DEFAULT_BAR_NAME = u"Home Bar"
 

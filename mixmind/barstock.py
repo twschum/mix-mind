@@ -68,6 +68,7 @@ class Barstock_SQL(Barstock):
         """
         if replace_existing:
             rows_deleted = Ingredient.query.filter_by(bar_id=bar_id).delete()
+            db.session.commit()
             log.info("Dropped {} rows for {} table".format(rows_deleted, Ingredient.__tablename__))
         for csv_file in csv_list:
             with open(csv_file) as fp:
