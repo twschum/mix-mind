@@ -20,6 +20,7 @@ display_name_mappings = {
     "Ingredient":  {'k':  "Type",         'v':  util.as_utf8, 'csv': 2},
     "Type":        {'k':  "Type",         'v':  util.as_utf8},
     "Kind":        {'k':  "Kind",         'v':  util.as_utf8, 'csv': 3},
+    "Bottle":      {'k':  "Kind",         'v':  util.as_utf8},
     "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_num},
     "ABV":         {'k':  "ABV",          'v':  util.from_float, 'csv': 5},
     "Proof":       {'k':  "ABV",          'v':  lambda x: util.from_float(x) / 2.0},

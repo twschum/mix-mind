@@ -197,13 +197,13 @@ class BarstockForm(BaseForm):
     def types_list(self):
         return ', '.join(types)
     category = SelectField("Category", validators=[validators.InputRequired()], choices=pairs(categories))
-    type_ = TextField("Ingredient", description='Ingredient type', validators=[validators.InputRequired()])
-    kind = TextField("Kind", description='Specific ingredient', validators=[validators.InputRequired()])
+    type_ = TextField("Ingredient", validators=[validators.InputRequired()])
+    kind = TextField("Kind", validators=[validators.InputRequired()])
     abv = DecimalField("ABV", description='Alcohol by Volume (percentage), i.e. enter "20" if the ABV is 20%', validators=[validators.InputRequired(), validators.NumberRange(min=0, max=100)])
 
     unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0]]+VALID_UNITS[2:]), validators=[validators.InputRequired()])
-    size = DecimalField("Size", description="Volume in the selected unit", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=20000)])
-    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD for amount in Size", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=9999999999)])
+    size = DecimalField("Size", description="Volume in selected unit", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=20000)])
+    price = DecimalField("Price ($)", description="$ paid or ~USD value for Size", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=9999999999)])
 
 class OrderForm(BaseForm):
     notes = TextField("Notes")

@@ -15,17 +15,34 @@
 			<form  id="add-ingredient-form" action="" method="post" role="form">
 				<div class="modal-body">
 					{{ form.csrf }}
-					{# TODO form layout #}
-					{{ render_field(form.kind) }}
-					{{ render_field(form.category) }}
-					{{ render_field(form.type_) }}
-					{{ render_field(form.abv) }}
-					{{ render_field(form.size) }}
-					{{ render_field(form.unit) }}
-					{{ render_field(form.price) }}
+					{{ render_field(form.kind, placeholder='e.g "Tanqueray 10"') }}
+					<div class="form-row">
+						<div class="col-8">
+							{{ render_field(form.type_, placeholder='e.g. "Dry Gin"') }}
+						</div>
+						<div class="col-4">
+							{{ render_field(form.category) }}
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="col-8">
+							{{ render_field(form.size, placeholder="#") }}
+						</div>
+						<div class="col-4">
+							{{ render_field(form.unit) }}
+						</div>
+					</div>
+					<div class="form-row">
+						<div class="col-6">
+							{{ render_field(form.price, placeholder="$") }}
+						</div>
+						<div class="col-6">
+							{{ render_field(form.abv, placeholder="%") }}
+						</div>
+					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-outline-secondary" onclick="clearModalForm()" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-outline-secondary" onclick="clearModalForm()" data-dismiss="modal">Cancel</button>
 					<input type="submit" class="btn btn-success" target="_blank" name="add-ingredient" value="Add"></input>
 				</div>
 			</form>
@@ -81,7 +98,7 @@ the various fields for an "ingredient" #}
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-danger">Confirm Delete</button>
+				<button type="button" id='confirm-delete-button' class="btn btn-danger">Confirm Delete</button>
 			</div>
 		</div>
 	</div>
@@ -97,7 +114,7 @@ the various fields for an "ingredient" #}
 				</button>
 			</div>
 			<div class="modal-body">
-			<p>Download the current ingredient stock as a CSV file?</p>
+				<p>Download the current ingredient stock as a CSV file?</p>
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
