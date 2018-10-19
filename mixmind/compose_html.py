@@ -156,7 +156,6 @@ def as_table(objects, headings, cells, formatters, outer_div="", table_id="", ta
                             try:
                                 doc.asis(close(formatter(getattr(obj, cell)), 'td'))
                             except UnicodeEncodeError as e:
-                                import ipdb; ipdb.set_trace()
                                 doc.asis(close(formatter(getattr(obj, cell)), 'td'))
     return unicode(doc.getvalue())
 
