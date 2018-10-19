@@ -222,7 +222,6 @@ def order(recipe_name):
                 subject = u"{} for {} at {}".format(recipe.name, user_name, current_bar.name)
                 confirmation_link = "https://{}{}".format(request.host,
                         url_for('confirm_order',
-                            email=urllib.quote(user_email),
                             order_id=order.id))
                 send_mail(subject, current_bar.bartender.email, "order_submitted",
                         confirmation_link=confirmation_link,
@@ -249,7 +248,6 @@ def order(recipe_name):
 @app.route('/confirm_order')
 def confirm_order():
     # TODO this needs a security token
-    email = urllib.unquote(request.args.get('email'))
     order_id = request.args.get('order_id')
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
@@ -267,22 +265,25 @@ def confirm_order():
 
     order.confirmed = datetime.datetime.utcnow()
 
-    # TODO record user before account created via email
-    # save email in orders, use that when user registers
     # update users db
-    user = User.query.filter_by(email=email).one_or_none()
+    user = User.query.filter_by(email=order.user_email).one_or_none()
     if user:
         greeting = u"{}, you".format(user.get_name(short=True))
         if order.user_id and order.user_id != user.id:
-            raise ValueError("Order was created with different id than confirming user!")
+            flash("Order was created with different id than confirming user!", 'danger')
+            return render_template('result.html', heading="Invalid request")
         user.orders.append(order)
         user_datastore.put(user)
         user_datastore.commit()
     else:
         greeting = "You"
 
+    bar = Bar.query.filter_by(id=order.bar_id).one_or_none()
+    if bar is None:
+        flash("Invalid bar id with order", 'danger')
+        return render_template('result.html', heading="Invalid request")
     subject = u"[Mix-Mind] Your {} Confirmation".format(current_bar.name)
-    sent = send_mail(subject, email, "order_confirmation",
+    sent = send_mail(subject, order.user_email, "order_confirmation",
             greeting=greeting,
             recipe_name=order.recipe_name,
             recipe_html=order.recipe_html,
@@ -401,6 +402,12 @@ def bar_settings():
                 flash(u"Invalid bar_id: {}".format(bar_id), 'danger')
                 return redirect(request.url)
 
+            # unassign previous bartender
+            if bar.bartender_on_duty:
+                old_bartender = user_datastore.find_user(id=bar.bartender_on_duty)
+                send_mail("[Mix-Mind] Bartender Duty Unassigned", old_bartender.email, 'simple',
+                        heading=u"No longer bartending at {}".format(bar.name),
+                        message=u"You have been unassigned as the bartender-on-duty at {}.".format(bar.name))
             # add bartender on duty
             user = user_datastore.find_user(email=edit_bar_form.bartender.data)
             if user and user.id != bar.bartender_on_duty:
@@ -408,7 +415,9 @@ def bar_settings():
                 user_datastore.add_role_to_user(user, bartender)
                 bar.bartenders.append(user)
                 bar.bartender_on_duty = user.id
-                # TODO send email to bartender on duty
+                send_mail("[Mix-Mind] Bartender Duty Assigned", user.email, 'simple',
+                        heading=u"Bartending at {}".format(bar.name),
+                        message=u"You have been assigned as the bartender-on-duty at {}.".format(bar.name))
             else:
                 # closed/no bartender is same result
                 if not user or edit_bar_form.status.data == False:
@@ -505,19 +514,25 @@ def set_bar_owner():
         # assign owner
         user = user_datastore.find_user(email=set_owner_form.owner.data)
         owner = user_datastore.find_role('owner')
+        old_owner = bar.owner
         if user and user != bar.owner:
             user_datastore.add_role_to_user(user, owner)
             bar.owner = user
-            # TODO send email to owner!
+            send_mail("[Mix-Mind] Bar Ownership Granted", user.email, 'simple',
+                    heading=u"{}, you now own {}".format(user.get_name(), bar.name),
+                    message=u"You have been assigned as the owner of {}</p><p>The bar can now be managed from the site. Switch to your bar, and then navigate to the management settings.".format(bar.name))
             flash(u"{} is now the proud owner of {}".format(user.get_name(), bar.cname))
         elif set_owner_form.owner.data == '' and bar.owner:
             # remove the owner from this bar
             flash(u"{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
-            old_owner = bar.owner
             bar.owner = None
             # remove "owner" role if user does not own any more bars
             if not old_owner.owns:
                 user_datastore.remove_role_from_user(old_owner, owner)
+        if old_owner:
+            send_mail("[Mix-Mind] Bar Ownership Revoked", old_owner.email, 'simple',
+                    heading=u"{}, you no longer own {}".format(old_owner.get_name(), bar.name),
+                    message=u"You have been unassigned as the owner of {}.".format(bar.name))
         user_datastore.commit()
     else:
         flash(u"Error in form validation", 'warning')
