@@ -186,7 +186,7 @@ class RecipeListSelector(BaseForm):
                 ("IBA_new_era_drinks.json", "IBA New Era Drinks")])
 
 class UploadBarstockForm(BaseForm):
-    upload_csv = FileField("Upload a Barstock CSV", [validators.regexp(ur'^[^/\\]\.csv$')])
+    upload_csv = FileField("Choose file", validators=[validators.regexp(ur'^[^/\\]\.csv$')])
     replace_existing = BooleanField("Replace existing stock?", default=False)
 
 class BarstockForm(BaseForm):

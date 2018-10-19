@@ -135,17 +135,17 @@ the various fields for an "ingredient" #}
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<div class="modal-body">
-				<form id="upload-csv-form" method="post" role="form" enctype="multipart/form-data">
+			<form id="upload-csv-form" method="post" role="form" enctype="multipart/form-data">
+				<div class="modal-body">
 					{{ upload_form.csrf }}
-					{{ render_field(upload_form.upload_csv) }}
+					{{ render_field(upload_form.upload_csv, form_group_classes="mb-3") }}
 					{{ render_field(upload_form.replace_existing) }}
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
 					<input type="submit" class="btn btn-primary" target="_blank" name="upload-csv" value="Upload"></input>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-			</div>
+				</div>
+			</form>
 		</div>
 	</div>
 </div>

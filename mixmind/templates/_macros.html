@@ -39,31 +39,28 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 
 <!-- Renders indivdual fields in a from, given WTForm objects -->
 {% macro render_field(field, form_group_classes="", prepend=None, force_label=None) %}
-	{% set check_field = ['BooleanField'] %}
+	{% set label_after = ['BooleanField', 'FileField'] %}
 	{% set show_label = ((field.type not in ['HiddenField', 'SubmitField'] and not field.flags.hidden and field.label.text != "") or force_label)  %}
-	{% set bootstrap_classes = { 'BooleanField': "form-check-input", 'FileField': "form-control-file", 'SubmitField': "btn btn-primary" } %}
-	<div class="form-group {{ form_group_classes }}">
-	{% if field.type in check_field %}
-	<div class="form-check">
-	{% endif %}
+	{% set group_classes = { 'BooleanField': "form-check", 'FileField': "custom-file" } %}
+	{% set label_classes = { 'BooleanField': "form-check-label", 'FileField': "custom-file-label" } %}
+	{% set input_classes = { 'BooleanField': "form-check-input", 'FileField': "custom-file-input", 'SubmitField': "btn btn-primary" } %}
+
+	<div class="{{ group_classes.get(field.type, "form-group") }} {{ form_group_classes }}">
 
 	{# get extra classes to apply #}
-	{% set classes = bootstrap_classes.get(field.type, "form-control") %}
+	{% set classes = input_classes.get(field.type, "form-control") %}
 	{% if field.errors %}
 	{% set classes = "%s is-invalid"|format(classes) %}
 	{% endif %}
 
 	{# render the input field first for checks #}
-	{% if field.type in check_field %}
+	{% if field.type in label_after %}
 	{{ field(class_=classes, **kwargs)|safe }}
 	{% endif %}
+
 	{# render the label #}
 	{% if show_label %}
-		{% if field.type in check_field %}
-		<label class="form-check-label" for="{{ field.id }}">
-		{% else %}
-		<label class="form-label" for="{{ field.id }}">
-		{% endif %}
+		<label class="{{ label_classes.get(field.type, "form-label") }}" for="{{ field.id }}">
 		{% if force_label %}{{ force_label|safe }}{% else %}{{ field.label.text|safe }}{% endif %} {% if field.flags.required %}*{% endif %}
 		</label>
 		<br> {# hack for getting toggle buttons to work right #}
@@ -78,7 +75,7 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 	{% endif %}
 
 	{# render the input field after label for everything else #}
-	{% if field.type not in check_field %}
+	{% if field.type not in label_after %}
 	{{ field(class_=classes, **kwargs)|safe }}
 	{% endif %}
 	{% if prepend %} </div> {% endif %} {# closes div for input-group #}
@@ -94,6 +91,11 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 			{{ error }}
 		</div>
 		{% endfor %}
+	{% endif %}
+
+	{# display the name of the file once selected #}
+	{% if field.type == 'FileField' %}
+	<script> $("#{{ field.id }}").on('change', function() {$(this).siblings('.custom-file-label').text($(this).val());}); </script>
 	{% endif %}
 
 	{% if field.type in check_field %} </div> {% endif %}{# closes div 'form-check-label' #}
