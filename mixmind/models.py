@@ -69,6 +69,7 @@ class Order(db.Model):
     bartender = relationship('User', back_populates="orders_served", foreign_keys=[bartender_id])
     timestamp = Column(DateTime())
     confirmed = Column(DateTime())
+    user_email = Column(Unicode(length=127))
     recipe_name = Column(Unicode(length=127))
     recipe_html = Column(Text())
 

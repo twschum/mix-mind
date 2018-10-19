@@ -195,7 +195,7 @@ def order(recipe_name):
                     user_email = form.email.data
 
                 if current_bar.is_closed:
-                    flash(u'The bar is currently closed for orders.', 'warning')
+                    flash(u'The bar has been closed for orders.', 'warning')
                     return redirect(request.url)
 
                 # use simpler html for recording an order
@@ -212,7 +212,7 @@ def order(recipe_name):
 
                 # add to the order database
                 order = Order(bar_id=current_bar.id, bartender_id=current_bar.bartender.id,
-                        timestamp=datetime.datetime.utcnow(),
+                        timestamp=datetime.datetime.utcnow(), user_email=user_email,
                         recipe_name=recipe.name, recipe_html=email_recipe_html)
                 if current_user.is_authenticated:
                     order.user_id = current_user.id
@@ -349,13 +349,17 @@ def user_profile():
 
 
 @app.route("/user_post_login", methods=['GET'])
+@login_required
 def post_login_redirect():
-    # show main if admin user
-    # maybe use post-register for assigning a role
-    if 'admin' in current_user.roles:
-        return redirect(url_for('browse'))
-    else:
-        return redirect(url_for('browse'))
+    # assign any orders with this user's email to the actual user ID
+    # these could be from before they registered or ordered while logged out
+    orders = Order.query.filter_by(user_email=current_user.email).all()
+    for order in orders:
+        if not order.user_id:
+            order.user_id = current_user.id
+            print "Attributing order {} to user {}".format(order.id, current_user.id)
+    db.session.commit()
+    return redirect(url_for('browse'))
 
 
 @app.route('/user_post_confirm_email')
@@ -365,7 +369,7 @@ def user_confirmation_hook():
         customer = user_datastore.find_role('customer')
         user_datastore.add_role_to_user(current_user, customer)
         user_datastore.commit()
-    return render_template('result.html', heading="Email confirmed")
+    return redirect(url_for('post_login_redirect'))
 
 ################################################################################
 # Owner routes
