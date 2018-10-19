@@ -168,7 +168,7 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
     if (settings.confirmationButton) {
         inputType = inputType + "-confirm";
         // TODO min widths here
-        input.html = "<div class='input-group' style='min-width:9rem;'>";
+        input.html = "<div class='input-group' style='min-width:6rem;'>";
     }
     else {
     input.html = "";
@@ -240,11 +240,9 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
         confirmValue = settings.confirmationButton.confirmValue;
         cancelCss = settings.confirmationButton.cancelCss;
         cancelValue = settings.confirmationButton.cancelValue;
-        input.html += "<div class='input-group-append form-ht-sm'>"
-        input.html += "<div class='input-group-text p-0'><a href='javascript:void(0);' class='" + confirmCss + "' onclick='$(this).updateEditableCell(this)'>" + confirmValue + "</a>";
-        input.html += "<a href='javascript:void(0);' class='" + cancelCss + "' onclick='$(this).cancelEditableCell(this)'>" + cancelValue + "</a></div>";
-        input.html += "</div>"; // from the input-group-append
         input.html += "</div>"; // from the input-group
+        input.html += "<div class='input-group-text clearfix p-0' style='position:absolute;float:right;'><a href='javascript:void(0);' class='" + confirmCss + "' onclick='$(this).updateEditableCell(this)'>" + confirmValue + "</a>";
+        input.html += "<a href='javascript:void(0);' class='" + cancelCss + "' onclick='$(this).cancelEditableCell(this)'>" + cancelValue + "</a></div>";
     }
     return input;
 }
