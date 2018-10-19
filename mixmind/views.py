@@ -450,8 +450,12 @@ def ingredient_stock():
                 row['ABV'] = float(form.abv.data)
                 row['Size (mL)'] = convert_units(float(form.size.data), form.unit.data, 'mL')
                 row['Price Paid'] = float(form.price.data)
-                ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
-                mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
+                try:
+                    ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
+                except DataError as e:
+                    flash('Error: {}'.format(e), 'danger')
+                else:
+                    mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
                 return redirect(request.url)
             else:
                 form_open = True
@@ -669,11 +673,12 @@ def api_ingredient():
     """CRUD endpoint for individual ingredients
 
     Indentifying parameters:
-    :param string Kind: kind for ingredient
-    :param string Type: type for ingredient
+    :param string uid: uid of the changed row's ingredient
 
     Create params:
     :param string Category: Category idenfitier
+    :param string Kind: kind for ingredient
+    :param string Type: type for ingredient
     :param float ABV: ABV value
     :param float Size: Size
     :param string Unit: one of util.VALID_UNITS
@@ -682,22 +687,21 @@ def api_ingredient():
     Read:
 
     Update:
-    :param int row_index: index of the changed row, pass back to requester
     :param string field: the value being modified
     :param string value: the new value (type coerced from field)
 
     Delete:
-    :param int row_index: index of the changed row, pass back to requester
 
     """
-    Kind = request.form.get('Kind')
-    Type = request.form.get('Type')
-    ingredient = Ingredient.query.filter_by(bar_id=current_bar.id, Kind=Kind, Type=Type).one_or_none()
+    # check parameters
+    uid = request.form.get('uid')
+    if uid is None and request.method in ['PUT', 'DELETE']:
+        return api_error("uid is a required parameter for {}".fromat(request.method))
+    ingredient = Ingredient.query_by_uid(uid)
     if not ingredient and not request.method == 'POST':
         return api_error("Ingredient not found")
-    row_index = request.form.get('row_index')
-    if row_index is None and request.method in ['PUT', 'DELETE']:
-        return api_error("row_index is a required parameter for {}".fromat(request.method))
+    if ingredient.bar_id != current_bar.id:
+        return api_error("Request uid {} includes wrong bar_id".format(uid))
 
     # create
     if request.method == 'POST':
@@ -739,19 +743,21 @@ def api_ingredient():
             ingredient[field] = value
         if field in ['Size_mL', 'Size_oz', 'Price_Paid', 'Type']:
             _update_computed_fields(ingredient)
+        try:
+            db.session.commit()
+        except Exception as e:
+            return api_error("{}: {}".format(e.__class__.__name__, e))
 
         data = ingredient.as_dict()
-        db.session.commit()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-        return api_success(data,
-                message=u'Successfully updated "{}" for "{}"'.format(field, ingredient), row_index=row_index)
+        return api_success(data, message=u'Successfully updated "{}" for "{}"'.format(field, ingredient.uid()))
 
     # delete
     elif request.method == 'DELETE':
         db.session.delete(ingredient)
         db.session.commit()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-        return api_success({}, message=u'Successfully deleted "{}"'.format(ingredient), row_index=row_index)
+        return api_success({'uid': ingredient.uid()}, message=u'Successfully deleted "{}"'.format(ingredient.uid()))
 
     return api_error("Unknwon method")
 

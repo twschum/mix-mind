@@ -197,14 +197,13 @@ class BarstockForm(BaseForm):
     def types_list(self):
         return ', '.join(types)
     category = SelectField("Category", validators=[validators.InputRequired()], choices=pairs(categories))
-    #type_ = SelectField("Type", validators=[validators.InputRequired()], choices=pairs(types))
-    type_ = TextField("Ingredient", description='The broader type that an ingredient falls info, e.g. "Dry Gin" or "Orange Liqueur"', validators=[validators.InputRequired()])
-    bottle = TextField("Kind", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.InputRequired()])
-    abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.InputRequired(), validators.NumberRange(min=0, max=100)])
+    type_ = TextField("Ingredient", description='Ingredient type', validators=[validators.InputRequired()])
+    kind = TextField("Kind", description='Specific ingredient', validators=[validators.InputRequired()])
+    abv = DecimalField("ABV", description='Alcohol by Volume (percentage), i.e. enter "20" if the ABV is 20%', validators=[validators.InputRequired(), validators.NumberRange(min=0, max=100)])
 
     unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0]]+VALID_UNITS[2:]), validators=[validators.InputRequired()])
-    size = DecimalField("Size", description="Size of the ingredient in the unit selected", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=20000)])
-    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=9999999999)])
+    size = DecimalField("Size", description="Volume in the selected unit", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=20000)])
+    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD for amount in Size", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=9999999999)])
 
 class OrderForm(BaseForm):
     notes = TextField("Notes")
