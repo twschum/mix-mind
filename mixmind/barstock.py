@@ -1,5 +1,6 @@
 import string
 import itertools
+import codecs
 import logging as log
 
 try:
@@ -72,6 +73,9 @@ class Barstock_SQL(Barstock):
             log.info("Dropped {} rows for {} table".format(rows_deleted, Ingredient.__tablename__))
         for csv_file in csv_list:
             with open(csv_file) as fp:
+                # nom the bom
+                if fp.read(len(codecs.BOM_UTF8)) != codecs.BOM_UTF8:
+                    fp.seek(0)
                 reader = util.UnicodeDictReader(fp)
                 for row in reader:
                     try:
