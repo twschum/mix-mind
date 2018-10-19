@@ -67,14 +67,17 @@ class MixMindServer():
         recipe_files = get_recipe_files(app)
         print ("STARTUP: Loading recipes from files: {}".format(recipe_files))
         self.base_recipes = load_recipe_json(recipe_files)
-        self.processed_recipes = {}
-        # TODO Probably don't load all the recipes rn...
-        for bar in Bar.query.all():
-            print "STARTUP:",
-            self.generate_recipes(bar)
+        self._processed_recipes = {}
 
-    def find_recipe(self, bar_id, name):
-        for recipe in self.processed_recipes[bar_id]:
+    def processed_recipes(self, bar):
+        """Allow lazy loading of the recipes for a given bar"""
+        if bar.id not in self._processed_recipes:
+            self.generate_recipes(bar)
+        return self._processed_recipes[bar.id]
+
+    def find_recipe(self, bar, name):
+        """Find specific recipe at bar"""
+        for recipe in self.processed_recipes(bar):
             if recipe.name == name:
                 return recipe
         return None
@@ -82,7 +85,7 @@ class MixMindServer():
     def generate_recipes(self, bar):
         print ("Generating recipe library for {}".format(bar.cname))
         barstock = Barstock_SQL(bar.id)
-        self.processed_recipes[bar.id] = [DrinkRecipe(name, recipe).generate_examples(barstock, stats=True)
+        self._processed_recipes[bar.id] = [DrinkRecipe(name, recipe).generate_examples(barstock, stats=True)
                 for name, recipe in self.base_recipes.iteritems()]
 
     def regenerate_recipes(self, bar, ingredient=None, recipe_name=None):
@@ -90,22 +93,19 @@ class MixMindServer():
         :param string ingredient: only updates recipes with the given ingredient
         :param string reipce_name: only updates the given recipe
         """
-        if bar.id not in self.processed_recipes:
-            self.generate_recipes(bar)
-            return
         if ingredient:
             print ("Updating recipes containing {} for {}".format(ingredient, bar.cname))
-            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes[bar.id]
+            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes(bar)
                             if recipe.contains_ingredient(ingredient)]
         elif recipe_name:
-            recipe = find_recipe(self.processed_recipes[bar.id], recipe_name)
+            recipe = find_recipe(bar, recipe_name)
             if recipe is None:
                 print ("Error: no recipe found matching name \"{}\"".format(recipe_name))
             print ("Updating recipe {} at {}".format(recipe, bar.cname))
             recipe.generate_examples(Barstock_SQL(bar.id), stats=True)
         else:
             print ("Regenerating recipe library for {}".format(bar.cname))
-            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes[bar.id]]
+            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes(bar)]
 
 BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,owner,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed,is_public")
 

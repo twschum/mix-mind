@@ -65,7 +65,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     """
     display_options = bundle_options(DisplayOptions, form) if not display_opts else display_opts
     filter_options = bundle_options(FilterOptions, form) if not filter_opts else filter_opts
-    recipes, excluded = filter_recipes(mms.processed_recipes[current_bar.id], filter_options, union_results=bool(filter_options.search))
+    recipes, excluded = filter_recipes(mms.processed_recipes(current_bar), filter_options, union_results=bool(filter_options.search))
     if form.sorting.data and form.sorting.data != 'None': # TODO this is weird
         reverse = 'X' in form.sorting.data
         attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
@@ -156,7 +156,7 @@ def order(recipe_name):
     show_form = False
     heading = u"Order:"
 
-    recipe = mms.find_recipe(current_bar.id, recipe_name)
+    recipe = mms.find_recipe(current_bar, recipe_name)
     recipe.convert(u'oz')
     if not recipe:
         flash(u'Error: unknown recipe "{}"'.format(recipe_name), 'danger')
@@ -472,7 +472,6 @@ def ingredient_stock():
             csv_file.save(tmp_filename)
             Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id,
                     replace_existing=upload_form.replace_existing.data)
-            mms.regenerate_recipes(current_bar)
             msg = u"Ingredients database {} {} for {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
                     csv_file.filename, current_bar.cname)
@@ -560,7 +559,6 @@ def admin_dashboard():
             for bar in bars:
                 bar.is_default = (bar.id == bar_id)
             db.session.commit()
-            mms.regenerate_recipes(to_activate_bar)
             flash(u"Bar ID: {} is now the default".format(bar_id), 'success')
             return redirect(request.url)
 
