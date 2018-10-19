@@ -5,6 +5,9 @@
 
 {{ formheader(heading) }}
 <!-- return to main page -->
+<div class="mb-3">
+{{ body|safe }}
+</div>
 <form action="/">
 	<div class="col"> <input type="submit" class="btn btn-primary" value="Back to Browse"></input> </div>
 </form>

@@ -72,7 +72,9 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         if fancy:
             name_line.append(u'<div class="clearfix" style="position:relative;">')
             name_line.append(u'<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
-        name_line.append(close(recipe.name, 'span', style="position:absolute;bottom:0;"))
+            name_line.append(close(recipe.name, 'span', style="position:absolute;bottom:0;"))
+        else:
+            name_line.append(close(recipe.name, 'span'))
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
