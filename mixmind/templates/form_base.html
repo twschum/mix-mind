@@ -1,14 +1,9 @@
 {# template for simple forms #}
 {% extends "base.html" %}
 
-{% block navbar_layout %}
-<div class="container formwidth">
-{% endblock navbar_layout %}
-
 {% block body %}
-	<!-- Page as single form -->
-	<div class="container formwidth formbox">
+	<div class="container formwidth my-3">
 		{% block formblock %}
 		{% endblock formblock %}
-	</div><!-- formblock container -->
+	</div>
 {% endblock body %}

@@ -59,7 +59,7 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         recipe.convert(convert_to)
 
     main_tag = 'div'
-    extra_kwargs = {"klass": "card card-body"}
+    extra_kwargs = {"klass": "card card-body h-100"}
     if fancy:
         extra_kwargs['klass'] += " shadow-sm"
     if order_link:
@@ -70,9 +70,11 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         name_line = []
         # attempt hack for keeping text aligned right of image when wrapping
         if fancy:
-            name_line.append(u'<div class="clearfix" style="vertical-align:middle;">')
+            name_line.append(u'<div class="clearfix" style="position:relative;">')
             name_line.append(u'<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
-        name_line.append(recipe.name)
+            name_line.append(close(recipe.name, 'span', style="position:absolute;bottom:0;"))
+        else:
+            name_line.append(close(recipe.name, 'span'))
         if display_opts.origin and 'schubar original' in recipe.origin.lower():
             name_line.append(sup('*'))
         if display_opts.prices and recipe.max_cost:
@@ -85,7 +87,7 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
         if fancy:
             name_line.append(u"</div><!-- recipe name text -->")
             name_line = close(''.join(name_line), 'h4', class_="card-title",
-                style="margin-left:-0.35em; vertical-align:middle;") # tweak to the left
+                style="margin-left:-0.35em;") # tweak to the left
         else:
             name_line = close(u''.join(name_line), 'h3')
         doc.asis(name_line)
@@ -126,12 +128,12 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
                     fields = {
                             'cost': util.calculate_price(e.cost, markup),
                             'abv': e.abv,
-                            'bottles': e.bottles
+                            'kinds': e.kinds
                             }
-                    doc.asis(small_br(u"${cost:>3.0f} | {abv:.1f}% | {bottles}".format(**fields)))
+                    doc.asis(small_br(u"${cost:>3.0f} | {abv:.1f}% | {kinds}".format(**fields)))
             else:
                 for e in recipe.examples:
-                    doc.asis(small_br(u"${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}".format(**e._asdict())))
+                    doc.asis(small_br(u"${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {kinds}".format(**e._asdict())))
 
     return unicode(doc.getvalue())
 
@@ -156,7 +158,6 @@ def as_table(objects, headings, cells, formatters, outer_div="", table_id="", ta
                             try:
                                 doc.asis(close(formatter(getattr(obj, cell)), 'td'))
                             except UnicodeEncodeError as e:
-                                import ipdb; ipdb.set_trace()
                                 doc.asis(close(formatter(getattr(obj, cell)), 'td'))
     return unicode(doc.getvalue())
 

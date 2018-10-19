@@ -1,0 +1,28 @@
+﻿Category,Ingredient,Kind,ABV,Size (mL),Price Paid
+Spirit,Amber Rum,Havana Club Anejo Clssico PR,40.0,750.0,21.96
+Spirit,Brandy,E&J X.O.,40.0,750.0,13.99
+Spirit,Cognac,St. Remy V.S.O.P.,40.0,750.0,12.99
+Spirit,Dry Gin,New Amsterdam,40.0,1750.0,22.99
+Spirit,Genever,Bøls,42.0,750.0,28.99
+Spirit,Rye Whiskey,Bulleit Rye,45.0,750.0,28.96
+Spirit,Vodka,Skyy,40.0,750.0,14.99
+Spirit,White Rum,Bacardi Carta Blanca,40.0,1000.0,18.99
+Vermouth,Dry Vermouth,Noilly Prat Extra Dry,16.0,375.0,6.99
+Vermouth,Sweet Vermouth,Dolin Rouge,16.0,375.0,6.49
+Liqueur,Orange Liqueur,Mr. Boston Triple Sec,40.0,1000.0,5.99
+Bitters,Aromatic Bitters,Angostura,44.7,200.0,9.99
+Bitters,Orange Bitters,Regan's,46.0,148.0,8.99
+Juice,Lemon Juice,Fresh,0.0,45.0,0.8
+Juice,Lime Juice,Fresh,0.0,30.0,0.34
+Syrup,Grenadine,Rose's,0.0,355.0,3.29
+Syrup,Honey Syrup,Homemade,0.0,3405.0,11.99
+Syrup,Rich Simple Syrup,Homemade,0.0,2000.0,2.79
+Syrup,Simple Syrup,Homemade,0.0,4000.0,2.79
+Mixer,Cola,Coke,0.0,355.0,1.2
+Mixer,Ginger Beer,Bundaberg,0.0,355.0,1.5
+Mixer,Soda Water,Club Soda,0.0,178.0,1.0
+Mixer,Tonic Water,Tonic Water,0.0,178.0,1.0
+Mixer,Water,Water,0.0,750.0,0.0
+Dry,Honey,Kirkland Honey,0.0,2270.0,11.99
+Dry,Sugar,Raw Cane Sugar,0.0,4000.0,2.79
+Dry,Sugar cube,Demerara Sugar,0.0,1000.0,6.01

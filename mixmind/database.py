@@ -19,5 +19,15 @@ def init_db():
     db.session.commit()
 
     # now handle alembic revisions
-    alembic.revision('Convert columns to support unicode')
-    alembic.upgrade()
+    #alembic.stamp('head')
+    #alembic.revision('Convert columns to support unicode')
+    #alembic.revision('1.1 - change bar model')
+    #alembic.revision('1.2 - change bar model')
+    try:
+        alembic.revision('Automatic upgrade')
+    except Exception as err:
+        print "{}: {}".format(err.__class__.__name__, err)
+    try:
+        alembic.upgrade()
+    except NotImplementedError as err:
+        print "{}: {}".format(err.__class__.__name__, err)

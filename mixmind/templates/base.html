@@ -2,7 +2,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 	<head>
-		<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no">
 		<title>{% block title %}{% if config.DEBUG %}[DEV] {% endif %}Mix-Mind BETA{% endblock %}</title>
 		<!-- load jQuery -->
 		<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -12,7 +13,7 @@
 		<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet"></link>
 		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous"></link>
 		{#<link rel="stylesheet" href="/static/css/theme_v1.css"></link>#}
-		<link rel="stylesheet" href="/static/css/custom.css?v=1.1.1"></link>
+		<link rel="stylesheet" href="/static/css/custom.css?v=1.2.0"></link>
 		<!-- favicons -->
 		<link rel="apple-touch-icon" sizes="180x180" href="/static/icons_outline/apple-touch-icon.png">
 		<link rel="icon" type="image/png" sizes="32x32" href="/static/icons_outline/favicon-32x32.png">
@@ -25,44 +26,105 @@
 		<meta name="theme-color" content="#ffffff"></meta>
 	</head>
 
+{# macro for generating nav-link href and "active" attribute #}
+{% macro nav_link(endpoint) %} {% set url_ = url_for(endpoint) %}href="{{ url_ }}" {% if url_ in request.url %} active {% endif %} {% endmacro %}
+
 	<body>
 		<!-- navbar is shown at the top of every page -->
 		{% block navbar %}
-		<nav class="navbar navbar-expand-sm navbar-light bg-light p-0">
+		<nav class="navbar navbar-expand-md navbar-light bg-light p-0">
 			{% block navbar_layout %}
 			<div class="container-fluid pl-0">
 			{% endblock navbar_layout %}
-				<a class="navbar-brand btn py-0" href="/">
-					<img src="/static/icons_outline/favicon.ico" style="margin-top:-10px" width="34" height="34" alt="">
+				{# Mix-Mind icon with current bar name #}
+				<a class="navbar-brand monospace btn py-0" href="/">
+					<img src="/static/logo/coupe_outline.svg" style="margin-top:-10px" width="34" height="34" alt="">
 					<span class="text" style="font-size:30px; position:relative; top:4px;">{{ g.current_bar.name }}</span>
 				</a>
 
-				{# everything after this is in the toggler on xs #}
-				<button class="navbar-toggler mr-2" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
+				{# everything after this is in the collapsed on xs, sm #}
+				{% set d_small = "d-block d-md-none w-100" %}
+				{% set d_full  = "d-none d-md-block" %}
+				<button class="navbar-toggler close mr-2" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarToggler" aria-expanded="false" aria-label="Toggle navigation">
+					<i  class="fas fa-bars"></i>{#<span class="navbar-toggler-icon"></span>#}
 				</button>
-				<div class="collapse navbar-collapse navbar-nav " id="navbarToggler">
+				<div class="collapse navbar-collapse navbar-nav align-items-start px-3" id="navbarToggler">
+					{# dummy element forces remaining items to be right aligned #}
+					<span class="navbar-text ml-sm-auto"></span>
 
-					<span class="navbar-text ml-sm-auto"></span>{# dummy element for alignment #}
 					{% if current_user.is_authenticated %}
-					<a class="nav-item nav-link" href={{ url_for('user_profile', user_id=current_user.id) }}>
-						<i class="far fa-user"></i>{{ current_user.get_name(short=True) }}</a>
 
-						{% if current_user.has_role('admin') %}
-						<div class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-cogs"></i>Admin</a>
-							<div class="dropdown-menu" aria-labelledby="adminDropdown">
-								<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
-								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
-								<a class="dropdown-item" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
-								<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
-							</div>
-						</div><!-- admin dropdown -->
-						{% endif %}
+					{# Current Bar Selector #}
+					<div class="nav-item dropdown {{ d_full }}" id="barDropdown">
+						<a class="nav-link" href="#" id="barDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-map-marked-alt"></i>Bar<i id="barDropdownIcon" class="fas fa-caret-down"></i></a>
+						<div class="dropdown-menu" aria-labelledby="barDropdownToggle">
+							<h6 class="dropdown-header">Change Current Bar</h6>
+							{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner == current_user or current_user.has_role('admin')) %}
+							<a class="dropdown-item" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
+								<i class="fas fa-map-marker-alt"></i>{{ bar.name }}</a>
+							{% endfor %}
+						</div>
+					</div>
+					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#barNavdrop" aria-controls="adminNavdrop" aria-expanded="false">
+						<i class="fas fa-map-marked-alt"></i>Change Current Bar<i id="barNavdropIcon" class="fas fa-caret-down"></i></a>
+					<div class="collapse navbar-nav pl-4 w-100" id="barNavdrop">
+						{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner == current_user or current_user.has_role('admin')) %}
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
+							<i class="fas fa-map-marker-alt"></i>{{ bar.name }}</a>
+						{% endfor %}
+					</div>
 
-						<a class="nav-item nav-link" href="/logout"><i class="fas fa-sign-out-alt"></i>Log out</a>
+					{# Bar management links #}
+					{% if g.current_bar.owner == current_user or current_user.has_role('admin') %}
+					<div class="nav-item dropdown {{ d_full }}" id="currentBarDropdown">
+						<a class="nav-link" href="#" id="currentBarDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}<i id="currentBarDropdownIcon" class="fas fa-caret-down"></i></a>
+						<div class="dropdown-menu" aria-labelledby="currentBarDropdown">
+							<h6 class="dropdown-header">Manage {{ g.current_bar.name }}</h6>
+							<a class="dropdown-item" href="{{ url_for('bar_settings') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
+							<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
+						</div>
+					</div>
+					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#currentBarNavdrop" aria-controls="currentBarNavdrop" aria-expanded="false">
+						<i class="fas fa-cogs"></i>Manage {{ g.current_bar.name }}<i id="currentBarNavdropIcon" class="fas fa-caret-down"></i></a>
+					<div class="collapse navbar-nav pl-4 w-100" id="currentBarNavdrop">
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
+					</div>
 					{% endif %}
+
+					{# Admin tools section #}
+					{% if current_user.has_role('admin') %}
+					<div class="nav-item dropdown {{ d_full }}" id="adminDropdown">
+						<a class="nav-link" href="#" id="adminDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<i class="fas fa-toolbox"></i>Admin<i id="adminDropdownIcon" class="fas fa-caret-down"></i></a>
+						<div class="dropdown-menu" aria-labelledby="adminDropdown">
+							<h6 class="dropdown-header">Administrative Pages</h6>
+							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+							<a class="dropdown-item" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
+							<a class="dropdown-item" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
+						</div>
+					</div>
+					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#adminNavdrop" aria-controls="adminNavdrop" aria-expanded="false">
+							<i class="fas fa-toolbox"></i>Admin Section<i id="adminNavdropIcon" class="fas fa-caret-down"></i></a>
+					<div class="collapse navbar-nav pl-4 w-100" id="adminNavdrop">
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
+						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
+					</div>
+					{% endif %}
+
+					{# User profile #}
+					<a class="nav-item nav-link {{ d_small }}" href={{ url_for('user_profile', user_id=current_user.id) }}>
+						<i class="fas fa-user"></i>{{ current_user.get_name(short=True) }}</a>
+					<a class="nav-item nav-link {{ d_full }}" href={{ url_for('user_profile', user_id=current_user.id) }}>
+						<i class="fas fa-user"></i>{{ current_user.get_name(short=True) }}</a>
+
+					<a class="nav-item nav-link {{ d_small }}" href="/logout"><i class="fas fa-sign-out-alt"></i>Log out</a>
+					<a class="nav-item nav-link {{ d_full }}" href="/logout"><i class="fas fa-sign-out-alt"></i>Log out</a>
+
+					{% endif %}{# user is logged in #}
 
 					{% block extra_navitems %}
 						{% if not current_user.is_authenticated %}
@@ -76,6 +138,10 @@
 		</nav>
 		{% endblock navbar %}
 
+		{# modals need to be defined outside a container #}
+		{% block modal %}
+		{% endblock modal %}
+
 		{% block body %}
 		{% endblock body %}
 
@@ -84,21 +150,24 @@
 		{% endblock footer %}
 		</div>
 
-		<footer class="navbar-light bg-light">
+		<footer class="bg-light">
 			<div class="footer p-1">
 				<span class="footer"><a href="https://github.com/twschum/mix-mind/" class="gh-link"><i class="fab fa-github gh-icon"></i>Mix-Mind Project</a></span>
 				<br><span>Copyright &copy; 2017<script>new Date().getFullYear()>2017&&document.write("-"+new Date().getFullYear());</script> Tim Schumacher. All rights reserved.</span>
 			</div>
-		</nav>
+		</footer>
 
 		<!-- rest of the javascript  -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 		<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
 	 	<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
 	 	<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
 		<script src="/static/js/dataTables.cellEdit.js?v=1.0"></script>
 		{# load javascript after libraries #}
+		<script src="/static/js/navbar.js?v=1.1"></script>
+		<script src="/static/js/collapse_remember.js?v=1.0"></script>
 		{% block scripts %}
 		{% endblock scripts %}
 	</body>

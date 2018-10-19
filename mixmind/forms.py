@@ -132,8 +132,8 @@ class DrinksForm(BaseForm):
     include = CSVField("Include Ingredients", description="Recipes that contain any/all of these comma separated ingredient(s)")
     exclude = CSVField("Exclude Ingredients", description="Recipes that don't contain any/all of these comma separated ingredient(s)")
     include_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
-    exclude_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
-    name = TextField("Name", description="Filter by a cocktail's name")
+    exclude_use_or = ToggleField("<br>", default='y', on="any", off="all", onstyle="secondary", offstyle="secondary")
+    name = TextField("Name", description="")
     tag = TextField("Tag", description="Filter by tag")
     style = SelectField("Style", description="", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
     glass = SelectField("Glass", description="", choices=pairs(['','cocktail','martini','collins','rocks','highball','flute','shot','shooter','mug']))
@@ -186,7 +186,7 @@ class RecipeListSelector(BaseForm):
                 ("IBA_new_era_drinks.json", "IBA New Era Drinks")])
 
 class UploadBarstockForm(BaseForm):
-    upload_csv = FileField("Upload a Barstock CSV", [validators.regexp(ur'^[^/\\]\.csv$')])
+    upload_csv = FileField("Choose file", validators=[validators.regexp(ur'^[^/\\]\.csv$')])
     replace_existing = BooleanField("Replace existing stock?", default=False)
 
 class BarstockForm(BaseForm):
@@ -197,14 +197,13 @@ class BarstockForm(BaseForm):
     def types_list(self):
         return ', '.join(types)
     category = SelectField("Category", validators=[validators.InputRequired()], choices=pairs(categories))
-    #type_ = SelectField("Type", validators=[validators.InputRequired()], choices=pairs(types))
-    type_ = TextField("Type", description='The broader type that an ingredient falls info, e.g. "Dry Gin" or "Orange Liqueur"', validators=[validators.InputRequired()])
-    bottle = TextField("Brand", description='The specific ingredient, e.g. "Bulliet Rye", "Beefeater", "Tito\'s", or "Bacardi Carta Blanca"', validators=[validators.InputRequired()])
-    abv = DecimalField("ABV", description='Alcohol by Volume (percentage) of the ingredient, i.e. enter "20" if the ABV is 20%', validators=[validators.InputRequired(), validators.NumberRange(min=0, max=100)])
+    type_ = TextField("Ingredient", validators=[validators.InputRequired()])
+    kind = TextField("Kind", validators=[validators.InputRequired()])
+    abv = DecimalField("ABV", description='Alcohol by Volume (percentage), i.e. enter "20" if the ABV is 20%', validators=[validators.InputRequired(), validators.NumberRange(min=0, max=100)])
 
     unit = SelectField("Unit", choices=pairs([VALID_UNITS[1],VALID_UNITS[0]]+VALID_UNITS[2:]), validators=[validators.InputRequired()])
-    size = DecimalField("Size", description="Size of the ingredient in the unit selected", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=20000)])
-    price = DecimalField("Price ($)", description="Price paid or approximate market value in USD", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=9999999999)])
+    size = DecimalField("Size", description="Volume in selected unit", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=20000)])
+    price = DecimalField("Price ($)", description="$ paid or ~USD value for Size", validators=[validators.InputRequired(), validators.NumberRange(min=0, max=9999999999)])
 
 class OrderForm(BaseForm):
     notes = TextField("Notes")
@@ -232,7 +231,10 @@ class CreateBarForm(BaseForm):
     create_bar = SubmitField("Create Bar", render_kw={"class": "btn btn-success"})
 
 class EditBarForm(BaseForm):
-    bar_id = HiddenIntField("bar_id", render_kw={})
+    def __init__(self, *args, **kwargs):
+        super(EditBarForm, self).__init__(*args, **kwargs)
+        choices = [('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()]
+        self.bartender.choices = choices
     name = TextField("Bar Name", description="Display name for the bar")
     tagline = TextField("Tagline", description="Tag line or slogan for the bar")
 
@@ -243,10 +245,12 @@ class EditBarForm(BaseForm):
 
     # TODO use just "bartenders" for the current bar after there's a real syetem
     # for bars to pick bartenders - maybe off the user page
+    # user table on dashboard could generate links to edit the user page, user has a selectmultiple for roles
     status = ToggleField("Bar Status", description="Open or close the bar to orders",
             on="Open", off="Closed", onstyle="success", offstyle="danger")
-    bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders",
-            choices=[('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()])
+    is_public = ToggleField("Public", description="Make the bar available to browse",
+            on="Visible", off="Hidden", onstyle="success", offstyle="danger")
+    bartender = SelectField("Assign Bartender On Duty", description="Assign a bartender to receive orders", choices=[])
 
     prices = ToggleField("Prices", description="Show prices",
             on="Included", off="Free", onstyle="success", offstyle="secondary")
@@ -265,3 +269,11 @@ class EditBarForm(BaseForm):
     summarize = ToggleField("Summarize", description="List ingredient names instead of full recipe",
             on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
     edit_bar = SubmitField("Commit Changes", render_kw={"class": "btn btn-primary"})
+
+class SetBarOwnerForm(BaseForm):
+    def __init__(self, *args, **kwargs):
+        super(SetBarOwnerForm, self).__init__(*args, **kwargs)
+        choices = [('', '')]+[(user.email, user.get_name_with_email()) for user in User.query.all()]
+        self.owner.choices = choices
+    owner = SelectField("Assign Bar Owner", description="Assign an owner who can manage the bar's stock and settings", choices=[])
+    submit = SubmitField("Commit Changes", render_kw={"class": "btn btn-primary"})

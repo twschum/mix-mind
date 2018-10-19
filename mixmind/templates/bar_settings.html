@@ -1,0 +1,44 @@
+{# template for admind to do all the things #}
+{% extends "base.html" %}
+{% from "_macros.html" import formheader, render_field %}
+
+{% block body %}
+<div class="container mt-3">
+	{{ formheader(g.current_bar.name) }}
+
+	<form id="edit-bar" method="post" role="form">
+		{{ edit_bar_form.csrf }}
+		<div class="form-row">
+			{{ render_field(edit_bar_form.name, "col-md-4") }}
+			{{ render_field(edit_bar_form.tagline, "col-md-8") }}
+		</div>
+
+		<div class="form-row">
+			{{ render_field(edit_bar_form.is_public, "col-md-2") }}
+			{{ render_field(edit_bar_form.status, "col-md-2") }}
+			{{ render_field(edit_bar_form.bartender, "col-md-3") }}
+			<div class="col-md-1"></div>
+			{{ render_field(edit_bar_form.prices, "col-md-2") }}
+			{{ render_field(edit_bar_form.markup, "col-md-2") }}
+		</div>
+
+		<div class="form-row">
+			{{ render_field(edit_bar_form.convert, "col-md") }}
+			{{ render_field(edit_bar_form.summarize, "col-md") }}
+
+			{{ render_field(edit_bar_form.prep_line, "col-md") }}
+			{{ render_field(edit_bar_form.info, "col-md") }}
+			{{ render_field(edit_bar_form.origin, "col-md") }}
+
+			{{ render_field(edit_bar_form.variants, "col-md") }}
+			{{ render_field(edit_bar_form.examples, "col-md") }}
+		</div>
+
+		{{ render_field(edit_bar_form.edit_bar) }}
+	</form>
+
+	<h4>Orders:</h4>
+	{{ order_table|safe }}
+
+</div>
+{% endblock body %}

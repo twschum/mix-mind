@@ -37,10 +37,10 @@ SECURITY_EMAIL_SUBJECT_CONFIRM = "[Mix-Mind] Please confirm your email"
 # default recipes and ingredients to load
 MIXMIND_DIR = os.path.abspath(os.path.curdir)
 MIXMIND_RECIPES_DIR = "recipes/"
-MIXMIND_INGREDIENTS_DIR = "ingredients/"
+MIXMIND_INGREDIENTS_DIR = "mixmind/static/ingredients/"
 
 MIXMIND_DEFAULT_RECIPES = ["recipes_schubar.json", "IBA_all.json"]
-MIXMIND_DEFAULT_INGREDIENTS = ["12BBplus.csv"]
+MIXMIND_DEFAULT_INGREDIENTS = ["ExampleBarstock.csv"]
 
 MIXMIND_DEFAULT_BAR_NAME = u"Home Bar"
 

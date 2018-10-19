@@ -23,70 +23,76 @@
 </div>
 
 {# TODO collapse this table when editing profile #}
-<table class="table">
-	<tr>
-		<th scope="row">Email</th>
-		<td>{{ this_user.email }}</td>
-	</tr>
-	<tr>
-		<th scope="row">Current Login</th>
-		<td>{{ human_timestamp(this_user.current_login_at) }}</td>
-	</tr>
-	<tr>
-		<th scope="row">Login IP</th>
-		<td>{{ this_user.current_login_ip }}</td>
-	</tr>
-	<tr>
-		<th scope="row">Roles</th>
-		<td>{{ this_user.get_role_names() }}</td>
-	</tr>
-{% if 'bartender' in this_user.get_role_names() %}
-	<tr>
-		<th scope="row">Works at</th>
-		<td>{{ this_user.get_bar_names() }}</td>
-	</tr>
-{% endif %}
-{% if this_user.venmo_id %}
-	</tr>
+<div class="table-responsive">
+	<table class="table">
+		<tr>
+			<th scope="row">Email</th>
+			<td>{{ this_user.email }}</td>
+		</tr>
+		<tr>
+			<th scope="row">Current Login</th>
+			<td>{{ human_timestamp(this_user.current_login_at) }}</td>
+		</tr>
+		<tr>
+			<th scope="row">Login IP</th>
+			<td>{{ this_user.current_login_ip }}</td>
+		</tr>
+		<tr>
+			<th scope="row">Roles</th>
+			<td>{{ this_user.get_role_names() }}</td>
+		</tr>
+		{% if 'bartender' in this_user.get_role_names() %}
+		<tr>
+			<th scope="row">Works at</th>
+			<td>{{ this_user.get_bar_names() }}</td>
+		</tr>
+		{% endif %}
+		{% if this_user.venmo_id %}
+		</tr>
 		<th scope="row">Venmo ID</th>
 		<td>{{ this_user.venmo_id }}</td>
-	</tr>
-{% endif %}
-</table>
+		</tr>
+		{% endif %}
+	</table>
+</div>
+
 
 <h5>Order history:</h5>
-<table class="table table-sm">
-	<tr>
-		<th>What</th>
-		<th>Where</th>
-		<th>When</th>
-		<th>Confirmed</th>
-	</tr>
-	{% for order in this_user.orders %}
-	<tr>
-		<td>{{ order.recipe_name }}</td>
-		<td>{{ order.where() }}</td>
-		<td>{{ human_timestamp(order.timestamp) }}</td>
-		{% if order.confirmed %}
-		<td>{{ human_timediff(order.confirmed) }}</td>
-		{% else %}
-		<td>&mdash;</td>
-		{% endif %}
-	</tr>
-	{% endfor %}
-</table>
+<div class="table-responsive">
+	<table class="table table-sm">
+		<tr>
+			<th>What</th>
+			<th>Where</th>
+			<th>When</th>
+			<th>Confirmed</th>
+		</tr>
+		{% for order in this_user.orders %}
+		<tr>
+			<td>{{ order.recipe_name }}</td>
+			<td>{{ order.where() }}</td>
+			<td>{{ human_timestamp(order.timestamp) }}</td>
+			{% if order.confirmed %}
+			<td>{{ human_timediff(order.confirmed) }}</td>
+			{% else %}
+			<td>&mdash;</td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+	</table>
+</div>
 
 {% if 'bartender' in this_user.get_role_names() %}
 <h5>Orders served:</h5>
-<table class="table table-sm">
-	<tr>
-		<th>What</th>
-		<th>Where</th>
-		<th>When</th>
-		<th>Confirmed</th>
-		<th>Time Elapsed</th>
-	</tr>
-	{% for order in this_user.orders_served %}
+<div class="table-responsive">
+	<table class="table table-sm">
+		<tr>
+			<th>What</th>
+			<th>Where</th>
+			<th>When</th>
+			<th>Confirmed</th>
+			<th>Time Elapsed</th>
+		</tr>
+		{% for order in this_user.orders_served %}
 		{% if order.confirmed %}
 		<tr>
 			<td>{{ order.recipe_name }}</td>
@@ -96,7 +102,8 @@
 			<td>{{ order.time_to_confirm() }}</td>
 		</tr>
 		{% endif %}
-	{% endfor %}
-</table>
+		{% endfor %}
+	</table>
+</div>
 {% endif %}
 {% endblock formblock %}

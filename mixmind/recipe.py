@@ -21,7 +21,7 @@ class RecipeError(StandardError):
 class DrinkRecipe(object):
     """ Initialize a drink with a handle to the available stock data and its recipe json
     """
-    RecipeExample = recordtype('RecipeExample', [('bottles', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
+    RecipeExample = recordtype('RecipeExample', [('kinds', []), ('cost', 0), ('abv', 0), ('std_drinks', 0), ('volume', 0)])
     RecipeStats = recordtype('RecipeStats', 'min_cost,max_cost,min_abv,max_abv,min_std_drinks,max_std_drinks,avg_abv,avg_cost,avg_std_drinks,volume', default=RecipeExample)
 
     @util.default_initializer
@@ -100,22 +100,22 @@ class DrinkRecipe(object):
         that can be made, along with the cost,abv,std_drinks from the ingredients
         """
         ingredients = self._get_quantized_ingredients()
-        example_bottles = barstock.get_all_bottle_combinations((i.specifier for i in ingredients))
+        example_kinds = barstock.get_all_kind_combinations((i.specifier for i in ingredients))
         del self.examples # need to make possible to run again
         self.examples = []
-        for bottles in example_bottles:
-            # TODO refactor to generate IngredientSpecifiers for the bottle lists
-            example = DrinkRecipe.RecipeExample(); example.bottles = []
-            for bottle, ingredient in zip(bottles, ingredients):
+        for kinds in example_kinds:
+            # TODO refactor to generate IngredientSpecifiers for the kind lists
+            example = DrinkRecipe.RecipeExample(); example.kinds = []
+            for kind, ingredient in zip(kinds, ingredients):
                 if ingredient.unit == u'literal':
                     continue
-                example.cost       += ingredient.get_cost(bottle, barstock)
-                example.std_drinks += ingredient.get_std_drinks(bottle, barstock)
+                example.cost       += ingredient.get_cost(kind, barstock)
+                example.std_drinks += ingredient.get_std_drinks(kind, barstock)
                 example.volume     += ingredient.get_amount_as(self.unit, rounded=False, single_value=True)
-                # remove juice and such from the bottles listed
-                if barstock.get_bottle_category(util.IngredientSpecifier(ingredient.specifier.what, bottle)) in [u'Vermouth', u'Liqueur', u'Bitters', u'Spirit', u'Wine']:
-                    example.bottles.append(bottle)
-            example.bottles = u', '.join(example.bottles);
+                # remove juice and such from the kinds listed
+                if barstock.get_kind_category(util.IngredientSpecifier(ingredient.specifier.ingredient, kind)) in [u'Vermouth', u'Liqueur', u'Bitters', u'Spirit', u'Wine']:
+                    example.kinds.append(kind)
+            example.kinds = u', '.join(example.kinds);
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
@@ -157,7 +157,7 @@ class DrinkRecipe(object):
             amount = i.get_amount_as(self.unit, rounded=False, single_value=True)
             if amount > max_amount and not i.top_with:
                 max_amount = amount
-                max_ingredient = i.specifier.what
+                max_ingredient = i.specifier.ingredient
         return max_ingredient
 
     def first_ingredient(self):
@@ -206,9 +206,11 @@ class Garnish(Ingredient):
 
 class QuantizedIngredient(Ingredient):
     """ Has a unit based on the raw quantity, responsible for unit conversions, text output
-    type_str: as written in the recipe, may be in the form what:bottle
-    what: identify an ingredient, e.g. rye whiskey
-    bottle: specify an ingredient, e.g. Bulliet Rye
+    type_str: as written in the recipe, may be in the form ingredient:kind
+    ingredient: identify an ingredient, e.g. rye whiskey
+    kind: specify an ingredient, e.g. Bulliet Rye
+    TODO: support quantized unit that is a number of items (basil leaves, raspberries, etc.)
+        - may need to use regex to match against "3-4"
     """
     @util.default_initializer
     def __init__(self, type_str, raw_quantity, recipe_unit):
@@ -262,8 +264,8 @@ class QuantizedIngredient(Ingredient):
             self.unit = recipe_unit
 
     def __contains__(self, item):
-        return item in self.specifier.what.lower() or \
-             (self.specifier.bottle and item in self.specifier.bottle.lower())
+        return item in self.specifier.ingredient.lower() or \
+             (self.specifier.kind and item in self.specifier.kind.lower())
 
     def __repr__(self):
         return super(QuantizedIngredient, self)._repr_fmt().format(u"{},{},{}".format(self.amount, self.unit, self.specifier))
@@ -330,17 +332,17 @@ class QuantizedIngredient(Ingredient):
                 }
         return formats.get(self.unit, u"{} {} {}").format(amount, unit, self.specifier)
 
-    def get_cost(self, bottle, barstock):
+    def get_cost(self, kind, barstock):
         if self.unit == u'literal':
             return 0
         amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
-        return barstock.cost_by_bottle_and_volume(util.IngredientSpecifier(self.specifier.what, bottle), amount, self.recipe_unit)
+        return barstock.cost_by_kind_and_volume(util.IngredientSpecifier(self.specifier.ingredient, kind), amount, self.recipe_unit)
 
-    def get_std_drinks(self, bottle, barstock):
+    def get_std_drinks(self, kind, barstock):
         if self.unit == u'literal':
             return 0
         amount = self.get_amount_as(self.recipe_unit, rounded=False, single_value=True)
-        abv = barstock.get_bottle_abv(util.IngredientSpecifier(self.specifier.what, bottle))
+        abv = barstock.get_kind_abv(util.IngredientSpecifier(self.specifier.ingredient, kind))
         return util.calculate_std_drinks(abv, amount, self.recipe_unit)
 
 

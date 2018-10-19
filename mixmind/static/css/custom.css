@@ -23,20 +23,31 @@ body {
 h1, h2, h3, h4, h5, h6 {
     font-family: 'cmu_typewriter_bold';
 }
-.navbar-brand {
-    font-family: 'cmu_typewriter_wide';
-}
+/* style nav dropdows */
 .monospace {
     font-family: 'cmu_typewriter_wide';
 }
+.navbar-light .navbar-nav .show>.nav-link {
+    color: rgba(0,0,0,.5);
+}
+.nav-item .dropdown-menu {
+    border: none;
+    border-radius: 0rem;
+    background-color: #e8ebef!important;
+}
+.nav-item .dropdown-item {
+    color: rgba(0,0,0,.5);
+}
+.nav-item .dropdown-item:hover {
+    color: rgba(0,0,0,.8);
+    background-color: unset;
+}
+.nav-item .dropdown-item:active {
+    color: rgba(0,0,0,1);
+    background-color: unset;
+}
 
 /* link defaults */
-a:link {
-    color: gray;
-}
-a:visited {
-    color: gray;
-}
 a:hover {
     color: #343a40; /* gray-dark */
     text-decoration: none;
@@ -94,6 +105,7 @@ i {
     color: black;
 }
 .gh-link {
+    color: gray;
     font-size: 1.2rem;
 }
 
@@ -135,6 +147,11 @@ i {
     line-height: 2.00rem;
 }
 
+/* used by the search box to extend itself and "capture" the search button */
+.search-box {
+    margin-right: -4.8rem;
+}
+
 /* These tag along with the close class which makes the best icon button.
  * Use with text-[danger|success|...] for more saturated colors */
 .close-color {
@@ -144,7 +161,7 @@ i {
     opacity: 1;
 }
 .close-btn-txt {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
 /* Use to make file upload look better

@@ -75,7 +75,7 @@ jQuery.fn.dataTable.Api.register('MakeCellsEditable()', function (settings) {
         },
         // CANCEL
         cancelEditableCell: function (callingElement) {
-            var table = $(callingElement.closest("table")).DataTable().table();
+            var table = $(callingElement).closest("table").DataTable().table();
             var cell = table.cell($(callingElement).parents('td'));
             // Set cell to it's original value
             cell.data(cell.data());
@@ -84,12 +84,11 @@ jQuery.fn.dataTable.Api.register('MakeCellsEditable()', function (settings) {
             table.draw();
         },
         // DELETE
-        deleteEditableCell: function(callingElement) {
-            var table = $(callingElement).closest("table").DataTable().table();
-            var row = table.row($(callingElement).parents('tr'));
-            var cell = table.cell($(callingElement).parents('td'));
-            // Return cell & row.
-            settings.onDelete(cell, row);
+        deleteEditableRow: function(rowSelector) {
+            var table = $(rowSelector).closest("table").DataTable().table();
+            var row = table.row(rowSelector);
+            // Handler should call remove on the row
+            settings.onDelete(row);
 
             // Get current page
             var currentPageIndex = table.page.info().page;
@@ -169,7 +168,7 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
     if (settings.confirmationButton) {
         inputType = inputType + "-confirm";
         // TODO min widths here
-        input.html = "<div class='input-group' style='min-width:9rem;'>";
+        input.html = "<div class='input-group' style='min-width:6rem;'>";
     }
     else {
     input.html = "";
@@ -241,11 +240,9 @@ function getInputHtml(currentColumnIndex, settings, oldValue) {
         confirmValue = settings.confirmationButton.confirmValue;
         cancelCss = settings.confirmationButton.cancelCss;
         cancelValue = settings.confirmationButton.cancelValue;
-        input.html += "<div class='input-group-append form-ht-sm'>"
-        input.html += "<div class='input-group-text p-0'><a href='javascript:void(0);' class='" + confirmCss + "' onclick='$(this).updateEditableCell(this)'>" + confirmValue + "</a>";
-        input.html += "<a href='javascript:void(0);' class='" + cancelCss + "' onclick='$(this).cancelEditableCell(this)'>" + cancelValue + "</a></div>";
-        input.html += "</div>"; // from the input-group-append
         input.html += "</div>"; // from the input-group
+        input.html += "<div class='input-group-text clearfix p-0' style='position:absolute;float:right;'><a href='javascript:void(0);' class='" + confirmCss + "' onclick='$(this).updateEditableCell(this)'>" + confirmValue + "</a>";
+        input.html += "<a href='javascript:void(0);' class='" + cancelCss + "' onclick='$(this).cancelEditableCell(this)'>" + cancelValue + "</a></div>";
     }
     return input;
 }

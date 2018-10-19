@@ -2,124 +2,144 @@
 {% from "_macros.html" import formheader, render_field %}
 {% block title %}{{ super() }} {{ g.current_bar.name }}{% endblock title %}
 
-<!-- Main form -->
 {% block body %}
-<div class="container-fluid">
+<div class="container my-3">
 	<div class="row">
-		<!-- Heading & filters column - 1/3 at md-lg, 1/4 at xl -->
-		<div class="col-md-4 col-xl-3">
-			{% block formdiv %}
+		{% block formdiv %}
+		{# heading column #}
+		<div class="col-md-3">
 			{{ formheader("Browse Menu", subtitle=g.current_bar.tagline) }}
-			<form id="filter-recipes" action="" method="post" role="form">
-			{{ form.csrf }}
-			<div {#class="form-group"#}>
-				<div class="form-row no-gutters">
-					{{ render_field(form.search, placeholder="Search", form_group_classes="col") }}
-					<div class="form-group search-btn-submit">
-						<button type="submit" id="search-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
-					</div>
-					<div class="form-group search-btn-submit">
-						<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
-					</div>
-				</div>
-			</div>
-			{# ghost button, ensures we always apply filters on 'ENTER' #}
-			<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
-
-			{# collapse the filters in small viewports #}
-			<div class="row d-md-none">
-				<div class="col-auto mr-auto">
-					<button type="button" class="btn close btn-outline-primary mb-3" data-target="#filters" data-toggle="collapse"><i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span></button>
-					<button type="button" class="btn close btn-outline-primary mb-3" data-target="#sorting" data-toggle="collapse"><i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span></button>
-				</div>
-				<div class="col-auto">
-					<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
-				</div>
-			</div>
-
-			<div id="sorting" class="collapse d-md-block" style="margin-bottom:0.75rem">
-				<div class="form-row no-gutters">
-					{{ render_field(form.sorting, form_group_classes="col") }}
-					<div class="form-group search-btn-submit">
-						<button type="submit" id="sort-btn" name="apply-menu" class="close form-control" value=""><i class="fas fa-search"></i></button>
-					</div>
-					<div class="form-group search-btn-submit">
-						<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control" value=""><i class="fas fa-times"></i></button>
-					</div>
-				</div>
-			</div>
-
-			<div id="filters" class="collapse d-md-block" style="margin-bottom:0.75rem">
-					<div class="form-group">
-						<div class="form-row no-gutters">
-						{{ render_field(form.include, form_group_classes="col") }}
-						{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
-						</div>
-						<div class="form-row no-gutters">
-						{{ render_field(form.exclude, form_group_classes="col") }}
-						{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
-						</div>
-						{#<a class="btn btn-outline-primary mb-3" href="#misc-filters" data-toggle="collapse"><h4 style="position:relative; top:2px; margin-bottom:0px">Additional Filters</h4></a>#}
-						<div class="row mb-3">
-							<div class="col-auto mr-auto">
-								<a class="btn btn-outline-primary" href="#misc-filters" data-toggle="collapse">Advanced Filters</a>
-							</div>
-							<div class="col-auto d-none d-md-block">
-								<input type="submit" name="suprise-menu" class="btn btn-success" value="Suprise Me"></input>
-							</div>
-						</div>
-
-						<div id="misc-filters" class="collapse">
-							{{ render_field(form.name) }}
-							{{ render_field(form.style) }}
-							{{ render_field(form.glass) }}
-							{{ render_field(form.prep) }}
-							{{ render_field(form.ice) }}
-						</div><!-- misc-filters -->
-					</div><!-- form-group -->
-
+		</div>
+		{# filters column #}
+		<div class="col-md-9 mt-3">
+			<form id="filter-recipes" class="w-100" action="" method="post" role="form">
 				<div class="row">
-					<div class="col-auto mr-auto">
-						<a class="btn btn-outline-danger" href="/">Clear</a>
+					{{ form.csrf }}
+					{# ghost button, ensures we always apply filters on 'ENTER' #}
+					<input type="submit" name="apply-menu" class="d-none" value="Apply"></input>
+
+					{# Omni-search bar, now with integrated search/clear butons #}
+					<div class="col-md">
+						<div class="form-row no-gutters">
+							{{ render_field(form.search, form_group_classes="col search-box", placeholder="Search...") }}
+							<div class="form-group search-btn-submit">
+								<button type="submit" id="search-btn" name="apply-menu" class="close form-control pt-1" value=""><i class="fas fa-search"></i></button>
+							</div>
+							<div class="form-group search-btn-submit">
+								<button type="button" onclick="document.location.href='/'" id="clear-search-btn" name="clear-menu" class="close form-control pt-1" value=""><i class="fas fa-times"></i></button>
+							</div>
+						</div>
 					</div>
-					<div class="col-auto">
-						<input type="submit" name="apply-menu" class="btn btn-success" value="Apply"></input>
+
+					{# sorting and filtering buttons #}
+					<div class="col-md-auto mt-2" style="width:24rem;">
+						<div class="row no-gutters mb-3">
+							<div class="col-auto mr-auto">
+								<button type="button" class="btn close" data-target="#sort-expand" data-toggle="collapse">
+									<i class="fas fa-sort-amount-down"></i><span class="close-btn-txt">Sort</span>
+								</button>
+							</div>
+							<div class="col-auto mr-auto">
+								<button type="button" class="btn close" data-target="#filter-expand" data-toggle="collapse">
+									<i class="fas fa-filter"></i><span class="close-btn-txt">Filter</span>
+								</button>
+							</div>
+							<div class="col-auto">
+								<button type="submit" name="suprise-menu" class="close close-color text-success"><i class="fas fa-random text-success"></i><span class="close-btn-txt">Suprise Me</span></button>
+							</div>
+						</div>
 					</div>
 				</div>
 
-			</div><!-- filters -->
+				{# sorting dropdown #}
+				<div id="sort-expand" class="collapse collapse-remember">
+					<div class="row mb-2">
+						<div class="col-md no-gutters">
+							{{ render_field(form.sorting, form_group_classes="col") }}
+						</div>
+					</div>
+				</div>
+
+				{# filters dropdown #}
+				<div id="filter-expand" class="collapse collapse-remember">
+					<div class="row mb-2">
+						<div class="col-md form-row no-gutters">
+							{{ render_field(form.include, form_group_classes="col") }}
+							{{ render_field(form.include_use_or, form_group_classes="toggle-and-or-col") }}
+						</div>
+						<div class="col-md form-row no-gutters">
+							{{ render_field(form.exclude, form_group_classes="col") }}
+							{{ render_field(form.exclude_use_or, form_group_classes="toggle-and-or-col") }}
+						</div>
+						<div class="col-md">
+							<div class="form-row no-gutters">
+								<div class="form-group col">
+									<label class="form-label">&nbsp;</label>
+									<a class="btn btn-outline-secondary form-control form-ht" href="#misc-filters" data-toggle="collapse">More</a>
+								</div>
+								<div class="form-group col">
+									<label class="form-label">&nbsp;</label>
+									<a class="btn btn-outline-danger form-control form-ht" href="/">Clear</a>
+									{#<button type="button" onclick="document.location.href='/'" class="close form-control" value=""><i class="fas fa-times"></i><span class="close-btn-txt">Clear</span></button>#}
+								</div>
+								<div class="form-group col">
+									<label class="form-label">&nbsp;</label>
+									<input type="submit" name="apply-menu" class="btn btn-success form-control form-ht" value="Apply"></input>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					{# Additional fine-grained filters; in single row on full, stacked on mobile #}
+					<div id="misc-filters" class="collapse collapse-remember">
+						<div class="row mb-2">
+							<div class="col-md">
+								<div class="form-row">
+									{{ render_field(form.name, form_group_classes="col-12 col-md") }}
+									{{ render_field(form.style, form_group_classes="col-6 col-md") }}
+									{{ render_field(form.glass, form_group_classes="col-6 col-md") }}
+									{{ render_field(form.prep, form_group_classes="col-6 col-md") }}
+									{{ render_field(form.ice, form_group_classes="col-6 col-md") }}
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>{# filters #}
+
 			</form>
 			{% endblock formdiv %}
-		</div><!-- Heading and filters col -->
+		</div>{# Heading and filters col #}
+	</div>{# Row containing the controls #}
 
-		<!-- Recipe column - 2/3 at md-lg, 3/4 at xl -->
-		<div class="col-md-8 col-xl-9 mt-3">
+	{# Recipe column - 2/3 at md-lg, 3/4 at xl #}
+	<div class="mt-3">
 		{% if recipes %}
-			{% for recipe in recipes %}
-			{% if loop.index0 % 6 == 0 %}
-			<div class="row">
+		{% for recipe in recipes %}
+		{% if loop.index0 % 6 == 0 %}
+		<div class="row">
 			{% endif %}
-				<div class="col-sm-6 col-lg-6 col-xl-4" style="margin-bottom:0.75rem;">
+			<div class="col-sm-6 col-lg-6 col-xl-4 mb-3">
 				{{ recipe | safe }}
-				</div><!-- col -->
+			</div>
 			{% if loop.index0 % 6 == 5 or loop.last %}
-			</div><!-- row -->
-			{% endif %}
-			{% endfor %}
+		</div>
 		{% endif %}
-			<div class="footer pb-3">
-				{% if g.current_bar.prices %}
-				$$ amount shown is recommended tip, calculated from cost of ingredients
-				{% endif %}
-				{% if g.current_bar.prices and g.current_bar.origin %}
-				<br>
-				{% endif %}
-				{% if g.current_bar.origin %}
-				* denotes a Schubar original recipe
-				{% endif %}
-			</div><!-- footer -->
-		</div><!-- recipes column -->
-	</div><!-- row -->
-</div><!-- container -->
-{% endblock body %}
+		{% endfor %}
+		{% endif %}
+	</div>
 
+	{# Footer #}
+	<div class="footer pb-3">
+		{% if g.current_bar.prices %}
+		$$ amount shown is recommended tip, calculated from cost of ingredients
+		{% endif %}
+		{% if g.current_bar.prices and g.current_bar.origin %}
+		<br>
+		{% endif %}
+		{% if g.current_bar.origin %}
+		* denotes a Schubar original recipe
+		{% endif %}
+	</div>
+
+</div>{# body container-fluid #}
+{% endblock body %}

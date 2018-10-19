@@ -2,125 +2,82 @@
 {% extends "base.html" %}
 {% from "_macros.html" import show_flashed, render_field %}
 
-{# do the nav and page at default container width #}
-{% block navbar_layout %}
-<div class="container">
-{% endblock navbar_layout %}
-
 {% block body %}
-<div class="container mt-3">{# TODO consistent top margin #}
-{% block dashbody %}
-<div class="row mb-2">
-	<h2 class="col-auto mr-auto">Admin Dashboard</h2>
-	<div class="col-auto">
-		<a href="#create-bar-container" data-toggle="collapse" class="btn btn-lg btn-outline-primary" style="position:relative; top:2px; line-height:1; margin-bottom:0px">New Bar</a>
-	</div>
-</div>
-{{ show_flashed() }}
-
-{#
-	<h3>TEST:</h3>
-<script type=text/javascript>
-	$(function() {
-		$('a#calculate').bind('click', function() {
-			$.getJSON("{{ url_for('api_test') }}", {
-				a: $('input[name="a"]').val(),
-				b: $('input[name="b"]').val()
-			}, function(data) {
-				$("#result").text(data.result);
-			});
-			return true;
-		});
-	});
-</script>
-<p><input type=text size=5 name=a> +
-   <input type=text size=5 name=b> =
-   <span id=result>?</span>
-<p><a href=# id=calculate>calculate server side</a>
-#}
-
-<div id="create-bar-container" class="collapse">
-	<form id="create-bar" method="post" role="form">
-		{{ new_bar_form.csrf }}
-		<div class="form-row">
-			{{ render_field(new_bar_form.cname, "col-md-3") }}
-			{{ render_field(new_bar_form.name, "col-md-3") }}
-			{{ render_field(new_bar_form.tagline, "col-md-6") }}
+<div class="container my-3">
+	<div class="row mb-2">
+		<h2 class="col-auto mr-auto">Admin Dashboard</h2>
+		<div class="col-auto">
+			<a href="#create-bar-container" data-toggle="collapse" class="btn btn-lg btn-outline-primary" style="position:relative; top:2px; line-height:1; margin-bottom:0px">New Bar</a>
 		</div>
-		{{ render_field(new_bar_form.create_bar) }}
+	</div>
+	{{ show_flashed() }}
+
+	<div id="create-bar-container" class="collapse">
+		<form id="create-bar" method="post" role="form">
+			{{ new_bar_form.csrf }}
+			<div class="form-row">
+				{{ render_field(new_bar_form.cname, "col-md-3") }}
+				{{ render_field(new_bar_form.name, "col-md-3") }}
+				{{ render_field(new_bar_form.tagline, "col-md-6") }}
+			</div>
+			{{ render_field(new_bar_form.create_bar) }}
+		</form>
+	</div>
+
+	<h3>Change Active Bar Owner:</h3>
+	<form id="set-bar-owner" method="post" action="{{ url_for('set_bar_owner') }}" role="form">
+		{{ set_owner_form.csrf }}
+		<div class="form-row">
+			{{ render_field(set_owner_form.owner, form_group_classes="col-md-3") }}
+			{{ render_field(set_owner_form.submit, form_group_classes="col-md", force_label="&nbsp;") }}
+		</div>
 	</form>
-</div>
-
-<h3>Current Active Bar:</h3>
-<form id="edit-bar" method="post" role="form">
-	{{ edit_bar_form.csrf }}
-	{{ render_field(edit_bar_form.bar_id) }}
-	<div class="form-row">
-		{{ render_field(edit_bar_form.name, "col-md-4") }}
-		{{ render_field(edit_bar_form.tagline, "col-md-8") }}
-	</div>
-
-	<div class="form-row">
-		{{ render_field(edit_bar_form.status, "col-md-2") }}
-		{{ render_field(edit_bar_form.bartender, "col-md-4") }}
-		<div class="col-md-1"></div>
-		{{ render_field(edit_bar_form.prices, "col-md-2") }}
-		{{ render_field(edit_bar_form.markup, "col-md-3") }}
-	</div>
-
-	<div class="row">
-		{{ render_field(edit_bar_form.convert, "col-md") }}
-		{{ render_field(edit_bar_form.summarize, "col-md") }}
-
-		{{ render_field(edit_bar_form.prep_line, "col-md") }}
-		{{ render_field(edit_bar_form.info, "col-md") }}
-		{{ render_field(edit_bar_form.origin, "col-md") }}
-
-		{{ render_field(edit_bar_form.variants, "col-md") }}
-		{{ render_field(edit_bar_form.examples, "col-md") }}
-	</div>
-
-	{{ render_field(edit_bar_form.edit_bar) }}
-</form>
 
 	<h3>Bars:</h3>
-	<table id="bar_table" class="table">
-		<thead>
-			<tr>
-				<th scope="col">Active</th>
-				<th scope="col">ID</th>
-				<th scope="col">Name</th>
-				<th scope="col">CName</th>
-				<th scope="col">Tagline</th>
-				<th scope="col">Total Orders</th>
-				<th scope="col">Bartender on Duty</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for bar in bars %}
-			<tr>
-				<td><form action="" method="post" role="form">
-						<input type="hidden" name="bar_id" value="{{ bar.id }}"></input>
-						<input class="btn btn-small {% if bar.is_active %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="activate-bar" value="{% if bar.is_active %}&check;{% else %}&times;{% endif %}"></input>
-					</form></td>
-				<td>{{ bar.id }}</td>
-				<td>{{ bar.name }}</td>
-				<td>{{ bar.cname }}</td>
-				<td class="subtitle">{{ bar.tagline|safe }}</td>
-				<td>{{ bar.orders|length }}</td>
-				<td>uid: {{ bar.bartender_on_duty }}</td>
-			</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+	<div class="table-responsive">
+		<table id="bar_table" class="table">
+			<thead>
+				<tr>
+					<th scope="col">Default</th>
+					<th scope="col">Public</th>
+					<th scope="col">ID</th>
+					<th scope="col">Name</th>
+					<th scope="col">CName</th>
+					<th scope="col">Tagline</th>
+					<th scope="col">Total Orders</th>
+					<th scope="col">Bartender on Duty</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for bar in bars %}
+				<tr>
+					<td><form action="" method="post" role="form">
+							<input type="hidden" name="bar_id" value="{{ bar.id }}"></input>
+							<button class="btn btn-small {% if bar.is_default %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="set-default-bar">{% if bar.is_default %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}</button>
+						</form></td>
+						<td>{% if bar.is_public %}Visible{% else %}Hidden{% endif %}</td>
+						<td>{{ bar.id }}</td>
+						<td>{{ bar.name }}</td>
+						<td>{{ bar.cname }}</td>
+						<td class="subtitle">{{ bar.tagline|safe }}</td>
+						<td>{{ bar.orders|length }}</td>
+						<td>uid: {{ bar.bartender_on_duty }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
 
 
 	<h3>Users:</h3>
-	{{ user_table|safe }}
+	<div class="table-responsive">
+		{{ user_table|safe }}
+	</div>
 
 	<h3>Orders:</h3>
-	{{ order_table|safe }}
+	<div class="table-responsive">
+		{{ order_table|safe }}
+	</div>
 
-	{% endblock dashbody %}
-</div><!-- body container -->
+</div>
 {% endblock body %}

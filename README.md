@@ -73,6 +73,7 @@ The original version of this site is running on [PythonAnywhere](pythonanywhere.
 * [Flask-WTF](https://flask-wtf.readthedocs.io/en/stable/) - Better WTForms
 * [PyLaTeX](https://jeltef.github.io/PyLaTeX/current/) - Generate TeX menu downloads from python
 * [Pendulum](https://pendulum.eustace.io/) - Better time and date for python
+* [ERAlchemy](https://github.com/Alexis-benoist/eralchemy) - Generates the ER diagram used in this documentation
 * [Datatables](https://datatables.net/) - For the ingredient tables and displaying users, orders
 * [CellEdit](https://github.com/ejbeaty/CellEdit) - Basis for inline-editable ingredient datatable
 

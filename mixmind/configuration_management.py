@@ -9,6 +9,7 @@ import os.path
 from collections import namedtuple
 
 from flask import g, flash
+from flask_login import current_user
 
 from .recipe import DrinkRecipe
 from .barstock import Barstock_SQL, Ingredient
@@ -48,7 +49,7 @@ class MixMindServer():
         # setup default Bar
         default_bar = Bar(name=app.config['MIXMIND_DEFAULT_BAR_NAME'],
                 cname=app.config.get('MIXMIND_DEFAULT_BAR_CNAME', app.config['MIXMIND_DEFAULT_BAR_NAME']),
-                is_active=True)
+                is_public=True, is_default=True)
         existing_default_bar = Bar.query.filter_by(cname=default_bar.cname).one_or_none()
         if existing_default_bar:
             default_bar = existing_default_bar
@@ -58,7 +59,7 @@ class MixMindServer():
             db.session.commit()
         # setup ingredient stock, using default if the database is empty
         barstock = Barstock_SQL(default_bar.id)
-        if Ingredient.query.count() == 0:
+        if Ingredient.query.filter_by(bar_id=default_bar.id).count() == 0:
             barstock_files = get_ingredient_files(app)
             print ("STARTUP: Loading ingredient stock from files: {}".format(barstock_files))
             barstock.load_from_csv(barstock_files, default_bar.id)
@@ -66,39 +67,70 @@ class MixMindServer():
         recipe_files = get_recipe_files(app)
         print ("STARTUP: Loading recipes from files: {}".format(recipe_files))
         self.base_recipes = load_recipe_json(recipe_files)
-        print ("STARTUP: Generating recipe library".format(recipe_files))
-        self.recipes = [DrinkRecipe(name, recipe).generate_examples(barstock, stats=True)
+        self._processed_recipes = {}
+
+    def processed_recipes(self, bar):
+        """Allow lazy loading of the recipes for a given bar"""
+        if bar.id not in self._processed_recipes:
+            self.generate_recipes(bar)
+        return self._processed_recipes[bar.id]
+
+    def find_recipe(self, bar, name):
+        """Find specific recipe at bar"""
+        for recipe in self.processed_recipes(bar):
+            if recipe.name == name:
+                return recipe
+        return None
+
+    def generate_recipes(self, bar):
+        print ("Generating recipe library for {}".format(bar.cname))
+        barstock = Barstock_SQL(bar.id)
+        self._processed_recipes[bar.id] = [DrinkRecipe(name, recipe).generate_examples(barstock, stats=True)
                 for name, recipe in self.base_recipes.iteritems()]
 
-    def regenerate_recipes(self, bar, ingredient=None):
+    def regenerate_recipes(self, bar, ingredient=None, recipe_name=None):
         """Regenerate the examples and statistics data for the recipes at the given bar
         :param string ingredient: only updates recipes with the given ingredient
+        :param string reipce_name: only updates the given recipe
         """
         if ingredient:
             print ("Updating recipes containing {} for {}".format(ingredient, bar.cname))
-            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes
+            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes(bar)
                             if recipe.contains_ingredient(ingredient)]
+        elif recipe_name:
+            recipe = find_recipe(bar, recipe_name)
+            if recipe is None:
+                print ("Error: no recipe found matching name \"{}\"".format(recipe_name))
+            print ("Updating recipe {} at {}".format(recipe, bar.cname))
+            recipe.generate_examples(Barstock_SQL(bar.id), stats=True)
         else:
             print ("Regenerating recipe library for {}".format(bar.cname))
-            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.recipes]
+            [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes(bar)]
 
-BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed")
+BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,owner,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed,is_public")
 
 def get_bar_config():
     """ For now, only one bar bay me "active" at a time
     """
+    if 'bar_list' not in g:
+        # HAX just putting it here for now to get initialized
+        g.bar_list = Bar.query.all()
     if 'current_bar' not in g:
-        active_list = Bar.query.filter_by(is_active=True).all()
-        if len(active_list) == 0:
-            flash("No bars currently active!", 'danger')
-            raise RuntimeError("No active bars in the database - must be at least one.")
-        elif len(active_list) > 1:
-            flash("More than one bar is active, using first one", 'danger')
-        bar = active_list[0]
+        bar = None
+        if current_user.is_authenticated and current_user.current_bar_id:
+            bar = Bar.query.filter_by(id=current_user.current_bar_id).one_or_none()
+        if not bar:
+            default_list = Bar.query.filter_by(is_default=True).all()
+            if len(default_list) == 0:
+                flash("No bars currently set to default!", 'danger')
+                raise RuntimeError("No bar set to default in the database - must be at least one.")
+            elif len(default_list) > 1:
+                flash("More than one bar is set to default, using first one", 'danger')
+            bar = default_list[0]
         bartender = User.query.filter_by(id=bar.bartender_on_duty).one_or_none()
         g.current_bar = BarConfig(id=bar.id, cname=bar.cname, name=bar.name,
-                tagline=bar.tagline, bartender=bartender, markup=bar.markup,
+                tagline=bar.tagline, owner=bar.owner, bartender=bartender, markup=bar.markup,
                 prices=bar.prices, stats=bar.stats, examples=bar.examples, convert=bar.convert,
-                prep_line=bar.prep_line, origin=bar.origin, info=bar.info,
-                variants=bar.variants, summarize=bar.summarize, is_closed=not bartender)
+                prep_line=bar.prep_line, origin=bar.origin, info=bar.info, variants=bar.variants,
+                summarize=bar.summarize, is_closed=not bartender, is_public=bar.is_public)
     return g.current_bar

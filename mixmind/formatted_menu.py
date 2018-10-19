@@ -48,7 +48,7 @@ def superscript(item):
 
 def append_liquor_list(doc, df, own_page):
     # TODO no interaction with dataframe?
-    bottles = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Bottle', 'Type']]
+    kinds = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Kind', 'Type']]
     if own_page:
         print "Appending list as new page"
         doc.append(NewPage())
@@ -65,12 +65,12 @@ def append_liquor_list(doc, df, own_page):
 
     cols = add_paracols_environment(listing, 2, '8pt', sloppy=False)
     with cols.create(FlushRight()):
-        for item in bottles.Bottle:
+        for item in kinds.Kind:
             cols.append(LargeText(item))
             cols.append(Command('\\'))
     cols.append(Command('switchcolumn'))
     with cols.create(FlushLeft()):
-        for item in bottles.Type:
+        for item in kinds.Type:
             cols.append(LargeText(italic(item)))
             cols.append(Command('\\'))
 
@@ -110,7 +110,7 @@ def format_recipe(recipe, display_opts):
 
     if display_opts.examples and recipe.examples:# and recipe.name != 'The Cocktail':
         for e in recipe.examples:
-            recipe_page.append(FootnoteText("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {bottles}\n".format(**e._asdict())))
+            recipe_page.append(FootnoteText("${cost:.2f} | {abv:.2f}% | {std_drinks:.2f} | {kinds}\n".format(**e._asdict())))
 
     recipe_page.append(Command('par'))
     return recipe_page

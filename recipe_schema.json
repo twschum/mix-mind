@@ -64,7 +64,7 @@
           "type": "array",
           "items": {
             "type": "string",
-            "title": "The 0th Schema ",
+            "title": "The profile Schema ",
             "default": "",
             "enum": [
               "strong", "tangy", "citrusy", "sweet", "fruity", "herbal"

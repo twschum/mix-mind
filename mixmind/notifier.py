@@ -24,8 +24,13 @@ def send_mail(subject, recipient, template, **context):
 
     ctx = ('email', template)
     msg.html = render_template('%s/%s.html' % ctx, **context)
-    mail.send(msg)
-
+    try:
+        mail.send(msg)
+    except Exception as e:
+        log.error(u"{} sending {} email to {}: {}".format(e.__class__.__name__, template, email, e))
+        return False
+    else:
+        return True
 
 # note this requires a secrets file to work
 required = ['sender_email', 'sender_pass', 'sender_name', 'target_email']
