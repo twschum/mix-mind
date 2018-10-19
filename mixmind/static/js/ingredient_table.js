@@ -55,13 +55,14 @@ $(document).ready( function () {
     barstock_table = $("#barstock-table").DataTable( {
         "ajax": "/api/ingredients",
         "paging": true,
-        "lengthChange": false,
+        "lengthMenu":  [10, 20, 50, 100],
         "pageLength": 20,
         "dom": "<'row no-gutters'<'col-sm-12 col-md-4 order-3 order-md-1'<'#toolbar.row no-gutters'>><'col-md-5 order-2'><'col-sm-12 col-md-3 order-1 order-md-3'f>>" +
                "<'row'<'col-sm-12'tr>>" +
-               "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+               "<'row'<'col-sm-12 col-md-auto mr-auto'i><'col-sm-12 col-md-auto'l><'col-sm-12 col-md-auto'p>>",
         "language": {
             "search": "",
+            "emptyTable": "Ingredient stock is empty",
             "searchPlaceholder": "Search...",
         },
         "rowId": "iid",
