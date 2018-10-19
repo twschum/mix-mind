@@ -35,8 +35,8 @@
 
 {# TODO "info" modal that includes detailed information about the up/downloads
 the various fields for an "ingredient" #}
-<div class="modal" id="info-panel" tabindex="-1" role="dialog">
-	<div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal " id="info-panel" tabindex="-1" role="dialog">
+	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">Ingredients</h5>
@@ -46,9 +46,19 @@ the various fields for an "ingredient" #}
 			</div>
 			<div class="modal-body">
 				<h4>What defines an "Ingredient"?</h4>
-				<p>Simply a unique ingredient that is used for making drinks. This will mostly be the bottles of alcohol stocked at your bar, but it includes things like syrups, juices, and dry ingredients like sugar. This program requires you to be a little more specific than just "rum", and instead to specify a brand or specific bottle such as "Bacardi Carta Blanca" in addition to what type of ingredient it is, "white rum". The brand/bottle along with the type of ingredient is what uniquely identifies it. This allows the program to generate all the different ways to make each drink, the "examples" section when viewing a menu item in detail. For example, if you're looking at a <a href="/order/Martini">Martini</a>, you'll see every combination of dry gin and dry vermouth that could be used to make it.</p>
+				<p>Unique ingredients allow the program to generate all the different ways to make each drink, complete with the exact alcohol containd, cost of used ingredients, and estimated ABV. <br>See the "examples" section when viewing a menu item in detail from the browse page. <br>For example, if you're looking at a <a href="/order/Martini">Martini</a>, you'll see every combination of dry gin and dry vermouth that could be used to make it.</p>
+				<h5>Kind</h5>
+				<p>The most specific description, usually includes the brand and something to distinguish that specific ingredient.</p>
+				<p><em>Examples: "Bacardi Carta Blanca", "Bulliet Rye", "Bombay Sapphire", "Angostura", "Homemade"(for syrups/liqueurs made in house), "Fresh"(for fresh squeezed juices)</em></p>
+				<h5>Ingredient (Type)</h5>
+				<p>The type of ingredient, as it is usually referenced by recipes. This along with Kind defines a unique ingredient, so you could have both "Fresh Lemon Juice" and "Fresh Lime Juice"</p>
+				<p><em>Examples: "White Rum", "Rye Whiskey", "Dry Gin", "Aromatic Bitters", "Simple Syrup", "Lemon Juice"</em></p>
+				<h5>Category</h5>
+				<p>The broader categorization of the ingredient, used by the system in a handful of ways behind the scenes.</p>
+				<p><em>Options: "Spirit", "Liqueur", "Vermouth", "Bitters", "Syrup", "Juice", "Mixer", "Wine", "Beer", "Dry"</em></p>
 				<h4>CSV Import/Export Format</h4>
 				<p>A CSV file can be supplied to initialize (or replace, or update) the ingredient database.</p>
+				{# TODO download example #}
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
