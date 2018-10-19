@@ -219,7 +219,6 @@ def order(recipe_name):
                 db.session.add(order)
                 db.session.commit()
 
-                # TODO add a verifiable token to this
                 subject = u"{} for {} at {}".format(recipe.name, user_name, current_bar.name)
                 confirmation_link = "https://{}{}".format(request.host,
                         url_for('confirm_order',
@@ -250,7 +249,6 @@ def order(recipe_name):
 @app.route('/confirm_order')
 def confirm_order():
     # TODO this needs a security token
-    # TODO this also needs to handle race conditions when switching bars......
     email = urllib.unquote(request.args.get('email'))
     order_id = request.args.get('order_id')
     order = Order.query.filter_by(id=order_id).one_or_none()
@@ -269,10 +267,12 @@ def confirm_order():
 
     order.confirmed = datetime.datetime.utcnow()
 
+    # TODO record user before account created via email
+    # save email in orders, use that when user registers
     # update users db
     user = User.query.filter_by(email=email).one_or_none()
     if user:
-        greeting = "{}, you".format(user.get_name(short=True))
+        greeting = u"{}, you".format(user.get_name(short=True))
         if order.user_id and order.user_id != user.id:
             raise ValueError("Order was created with different id than confirming user!")
         user.orders.append(order)
@@ -281,18 +281,17 @@ def confirm_order():
     else:
         greeting = "You"
 
-    try:
-        subject = "[Mix-Mind] Your {} Confirmation".format(current_bar.name)
-        send_mail(subject, email, "order_confirmation",
-                greeting=greeting,
-                recipe_name=order.recipe_name,
-                recipe_html=order.recipe_html,
-                venmo_link=venmo_link)
-    except Exception:
-        log.error("Error sending confirmation email for {} to {}".format(recipe, email))
-
-    flash(u'Confirmation sent')
-    return render_template('result.html', heading="Order Confirmation")
+    subject = u"[Mix-Mind] Your {} Confirmation".format(current_bar.name)
+    sent = send_mail(subject, email, "order_confirmation",
+            greeting=greeting,
+            recipe_name=order.recipe_name,
+            recipe_html=order.recipe_html,
+            venmo_link=venmo_link)
+    if sent:
+        flash(u'Confirmation sent')
+    else:
+        flash(u'Confimration email failed', 'danger')
+    return render_template('result.html', heading=u"{} for {}".format(order.recipe_name, user.get_name(short=True) if user else email))
 
 
 @app.route('/user', methods=['GET', 'POST'])
