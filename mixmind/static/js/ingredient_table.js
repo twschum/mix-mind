@@ -172,7 +172,7 @@ function deleteRow(row) {
                 if (result.data.iid == row.data().iid) {
                     console.log("DEL: "+result.message);
                     msg = 'Successfully removed '+ row.data().Kind +' ('+ row.data().Type +').';
-                    row.remove();
+                    row.remove().draw();
                 }
                 else {
                     msg = "Error: response missing or has incorrect 'iid'";
@@ -191,9 +191,9 @@ function deleteConfirm(callingElement) {
     var row = table.row($(callingElement).parents('tr'));
     var text = 'Are you sure you want to remove '+ row.data().Kind +' ('+ row.data().Type +') from the database?';
     modal.find('p').text(text);
-    modal.find('.btn-danger').removeClass('d-none');
-    modal.on('click', '.btn-danger', function(e) {
-        $(callingElement).deleteEditableRow(row.id(true));
+    var button = $('#confirm-delete-button').removeClass('d-none').data('rowSelector', row.id(true));
+    button.on('click', function(e) {
+        $(callingElement).deleteEditableRow($('#confirm-delete-button').data('rowSelector'));
     });
     modal.modal('show');
 };
