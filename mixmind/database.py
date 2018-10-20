@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_alembic import Alembic
+from . import app
 
 db = SQLAlchemy()
 alembic = Alembic()
@@ -20,14 +21,15 @@ def init_db():
 
     # now handle alembic revisions
     #alembic.stamp('head')
-    #alembic.revision('Convert columns to support unicode')
-    #alembic.revision('1.1 - change bar model')
-    #alembic.revision('1.2 - change bar model')
-    try:
+    if app.config.get('DEBUG', False):
+        try:
+            alembic.revision('Automatic upgrade')
+        except Exception as err:
+            print "{}: {}".format(err.__class__.__name__, err)
+        try:
+            alembic.upgrade()
+        except NotImplementedError as err:
+            print "{}: {}".format(err.__class__.__name__, err)
+    elif app.config.get('DO_DB_UPGRADE', False):
         alembic.revision('Automatic upgrade')
-    except Exception as err:
-        print "{}: {}".format(err.__class__.__name__, err)
-    try:
         alembic.upgrade()
-    except NotImplementedError as err:
-        print "{}: {}".format(err.__class__.__name__, err)
