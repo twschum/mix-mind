@@ -47,6 +47,12 @@ h1, h2, h3, h4, h5, h6 {
     background-color: unset;
 }
 
+/* Tweak down icons in buttons */
+.icon-btn-tweak {
+    position: relative;
+    top: 0.075rem;
+}
+
 /* link defaults */
 a:hover {
     color: #343a40; /* gray-dark */

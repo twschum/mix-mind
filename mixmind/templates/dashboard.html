@@ -53,7 +53,7 @@
 				<tr>
 					<td><form action="" method="post" role="form">
 							<input type="hidden" name="bar_id" value="{{ bar.id }}"></input>
-							<button class="btn btn-small {% if bar.is_default %}btn-success{% else %}btn-danger{% endif %}" type="submit" target="_blank" name="set-default-bar">{% if bar.is_default %}<i class="fas fa-check"></i>{% else %}<i class="fas fa-times"></i>{% endif %}</button>
+							<button class="btn btn-small {% if bar.is_default %}btn-success{% else %}btn-danger{% endif %} p-1" type="submit" target="_blank" name="set-default-bar"><i class="fas {% if bar.is_default %}fa-check{% else %}fa-times{% endif %} icon-btn-tweak"></i></button>
 						</form></td>
 						<td>{% if bar.is_public %}Visible{% else %}Hidden{% endif %}</td>
 						<td>{{ bar.id }}</td>
@@ -61,7 +61,7 @@
 						<td>{{ bar.cname }}</td>
 						<td class="subtitle">{{ bar.tagline|safe }}</td>
 						<td>{{ bar.orders|length }}</td>
-						<td>uid: {{ bar.bartender_on_duty }}</td>
+						<td>{{ bar.get_bartender() }}</td>
 				</tr>
 				{% endfor %}
 			</tbody>

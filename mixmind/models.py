@@ -109,6 +109,12 @@ class Bar(db.Model):
     variants   =  Column(Boolean(),  default=False)
     summarize  =  Column(Boolean(),  default=True)
 
+    def get_bartender(self):
+        bartender = User.query.filter_by(id=self.bartender_on_duty).one_or_none()
+        if bartender:
+            return bartender.get_name_with_email()
+        return None
+
 class Bartenders(db.Model):
     id = Column(Integer(), primary_key=True)
     user_id = Column(Integer(), ForeignKey('user.id'))
