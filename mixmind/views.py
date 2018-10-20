@@ -485,6 +485,7 @@ def ingredient_stock():
             csv_file.save(tmp_filename)
             Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id,
                     replace_existing=upload_form.replace_existing.data)
+            mms.generate_recipes(current_bar)
             msg = u"Ingredients database {} {} for {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
                     csv_file.filename, current_bar.cname)
