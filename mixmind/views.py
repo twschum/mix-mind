@@ -133,7 +133,7 @@ def browse():
         if form.validate():
             n_results = len(recipes)
             if n_results > 0:
-                if 'suprise-menu' in request.form:
+                if 'surprise-menu' in request.form:
                     recipes = [random.choice(recipes)]
                     flash(u"Bartender's choice! Just try again if you want something else!")
                 else:
