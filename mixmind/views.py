@@ -292,7 +292,7 @@ def confirm_order():
         flash(u'Confirmation sent')
     else:
         flash(u'Confimration email failed', 'danger')
-    return render_template('result.html', heading=u"{} for {}".format(order.recipe_name, user.get_name(short=True) if user else email),
+    return render_template('result.html', heading=u"{} for {}".format(order.recipe_name, user.get_name(short=True) if user else order.user_email),
             body=order.recipe_html)
 
 
