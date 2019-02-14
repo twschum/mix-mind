@@ -841,6 +841,30 @@
         "ice": "cubed",
         "prep": "build",
         "garnish": "Flag of lemon peel and raspberries"
+    },
+
+    "Cayuga White": {
+        "info": "Vintage 2013",
+        "tag": "core",
+        "unit": "oz",
+        "prep": "cool as desired",
+        "glass": "wine",  
+    },
+
+    "Sweet Swenson White": {
+        "info": "Vintage 2017",
+        "tag": "core",
+        "unit": "oz",
+        "prep": "cool as desired",
+        "glass": "wine",  
+    },
+
+    "Maréchal Foch - Frontenac": {
+        "info": "Vintage 2017",
+        "tag": "core",
+        "unit": "oz",
+        "prep": "serve at room temp",
+        "glass": "wine",  
     }
 
 }
