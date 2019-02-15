@@ -12,8 +12,8 @@ import string
 import util
 
 # water volume added by preperation method for ABV estimate
-# TODO by ice and prep instead -e.g. build, highball, cubed vs build, flute, neat
-WATER_BY_PREP = {'shake': 1.65, 'stir': 1.3, 'build': 1.0}
+WATER_BY_PREP = {'shake': 1.6, 'stir': 1.3, 'build': 1.0, 'pour': 1.0}
+WATER_BY_ICE = {'cubed': 1.1, 'crushed': 1.4, 'neat': 1.0}
 
 class RecipeError(StandardError):
     pass
@@ -117,6 +117,7 @@ class DrinkRecipe(object):
                     example.kinds.append(kind)
             example.kinds = u', '.join(example.kinds);
             example.volume *= WATER_BY_PREP.get(self.prep, 1.0)
+            example.volume *= WATER_BY_ICE.get(self.ice, 1.0)
             example.abv = util.calculate_abv(example.std_drinks, example.volume, self.unit)
             self.max_cost = max(self.max_cost, example.cost)
             self.examples.append(example)
