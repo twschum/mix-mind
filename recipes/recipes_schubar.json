@@ -24,7 +24,7 @@
         "ingredients": {
             "whisky": 1.5
         },
-        "prep": "build",
+        "prep": "pour",
         "ice": "neat",
         "glass": "glencairn"
     },
