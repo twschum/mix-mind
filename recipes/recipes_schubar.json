@@ -269,6 +269,21 @@
         "variants": ["Hanky Panky: The Savoy classic using 1.5oz vermouth, just a dash of Fernet, and an orange twist"],
         "garnish": "Mint sprig"
     },
+    
+    "Beatrice & Bluto": {
+        "info": "Created by Eric the owner 327 Braun Court, named after Popeye, rich smokey amaro and peat",
+        "style": "After Dinner Cocktail",
+        "tag": "core",
+        "ingredients": {
+            "Scotch whisky": 0.5,
+            "Scotch whisky (peated)": 0.25,
+            "Amaro Rabarbaro": 0.75,
+            "Maraschino liqueur": 0.75,
+            "lime juice": 0.75
+        },
+        "prep": "shake",
+        "garnish": "Lime wedge"
+    },
 
     "The Fitzgerald": {
         "info": "Bitters add roundness and subtle complexity",
