@@ -27,7 +27,7 @@ def send_mail(subject, recipient, template, **context):
     try:
         mail.send(msg)
     except Exception as e:
-        log.error(u"{} sending {} email to {}: {}".format(e.__class__.__name__, template, email, e))
+        log.error("{} sending {} email to {}: {}".format(e.__class__.__name__, template, email, e))
         return False
     else:
         return True
@@ -63,7 +63,7 @@ class Notifier():
         msg['To'] = target_email
 
         body = msg.get_payload()
-        for key, value in message_fill.iteritems():
+        for key, value in message_fill.items():
             body = body.replace(key, value)
         msg.set_payload(body)
 
