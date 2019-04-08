@@ -181,7 +181,7 @@ def main():
             recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.items()]
         if args.convert:
             print("Converting recipes to unit: {}".format(args.convert))
-            recipes = [r.convert(args.convert) for r in recipes]
+            [r.convert(args.convert) for r in recipes]
         recipes, excluded = util.filter_recipes(recipes, filter_options)
 
     if args.save_cache:
