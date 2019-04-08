@@ -5,7 +5,7 @@ import os
 import random
 import datetime
 import tempfile
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import codecs
 
 import pendulum
@@ -80,7 +80,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
     if to_html:
         if order_link:
             recipes = [recipe_as_html(recipe, display_options,
-                order_link="/order/{}".format(urllib.quote_plus(recipe.name)),
+                order_link="/order/{}".format(urllib.parse.quote_plus(recipe.name)),
                 **kwargs_for_html) for recipe in recipes]
         else:
             recipes = [recipe_as_html(recipe, display_options, **kwargs_for_html) for recipe in recipes]
@@ -135,13 +135,13 @@ def browse():
             if n_results > 0:
                 if 'surprise-menu' in request.form:
                     recipes = [random.choice(recipes)]
-                    flash(u"Bartender's choice! Just try again if you want something else!")
+                    flash("Bartender's choice! Just try again if you want something else!")
                 else:
-                    flash(u"Filters applied. Showing {} available recipes".format(n_results), 'success')
+                    flash("Filters applied. Showing {} available recipes".format(n_results), 'success')
             else:
-                flash(u"No results after filtering, try being less specific", 'warning')
+                flash("No results after filtering, try being less specific", 'warning')
         else:
-            flash(u"Error in form validation", 'danger')
+            flash("Error in form validation", 'danger')
 
     return render_template('browse.html', form=form, recipes=recipes)
 
@@ -152,14 +152,14 @@ def order(recipe_name):
     else:
         form = get_form(OrderFormAnon)
 
-    recipe_name = urllib.unquote_plus(recipe_name)
+    recipe_name = urllib.parse.unquote_plus(recipe_name)
     show_form = False
-    heading = u"Order:"
+    heading = "Order:"
 
     recipe = mms.find_recipe(current_bar, recipe_name)
-    recipe.convert(u'oz')
+    recipe.convert('oz')
     if not recipe:
-        flash(u'Error: unknown recipe "{}"'.format(recipe_name), 'danger')
+        flash('Error: unknown recipe "{}"'.format(recipe_name), 'danger')
         return render_template('result.html', heading=heading)
     else:
         recipe_html = recipe_as_html(recipe, DisplayOptions(
@@ -174,15 +174,15 @@ def order(recipe_name):
                             variants=True), convert_to=current_bar.convert)
 
     if not recipe.can_make:
-        flash(u'Ingredients to make this are out of stock :(', 'warning')
+        flash('Ingredients to make this are out of stock :(', 'warning')
         return render_template('order.html', form=form, recipe=recipe_html, show_form=False)
 
     if request.method == 'GET':
         show_form = True
         if current_user.is_authenticated:
-            heading = u"Order for {}:".format(current_user.get_name(short=True))
+            heading = "Order for {}:".format(current_user.get_name(short=True))
         if current_bar.is_closed:
-            flash(u"It's closed. So sad.", 'warning')
+            flash("It's closed. So sad.", 'warning')
 
     if request.method == 'POST':
         if 'submit-order' in request.form:
@@ -195,7 +195,7 @@ def order(recipe_name):
                     user_email = form.email.data
 
                 if current_bar.is_closed:
-                    flash(u'The bar has been closed for orders.', 'warning')
+                    flash('The bar has been closed for orders.', 'warning')
                     return redirect(request.url)
 
                 # use simpler html for recording an order
@@ -219,7 +219,7 @@ def order(recipe_name):
                 db.session.add(order)
                 db.session.commit()
 
-                subject = u"{} for {} at {}".format(recipe.name, user_name, current_bar.name)
+                subject = "{} for {} at {}".format(recipe.name, user_name, current_bar.name)
                 confirmation_link = "https://{}{}".format(request.host,
                         url_for('confirm_order',
                             order_id=order.id))
@@ -229,17 +229,17 @@ def order(recipe_name):
                         notes=form.notes.data,
                         recipe_html=email_recipe_html)
 
-                flash(u"Your order has been submitted, and you'll receive a confirmation email once the bartender acknowledges it", 'success')
+                flash("Your order has been submitted, and you'll receive a confirmation email once the bartender acknowledges it", 'success')
                 if not current_user.is_authenticated:
                     if User.query.filter_by(email=user_email).one_or_none():
-                        flash(u"Hey, if you log in you won't have to keep typing your email address for orders ;)", 'secondary')
+                        flash("Hey, if you log in you won't have to keep typing your email address for orders ;)", 'secondary')
                         return redirect(url_for('security.login'))
                     else:
-                        flash(u"Hey, if you register I'll remember your name and email in future orders!", 'secondary')
+                        flash("Hey, if you register I'll remember your name and email in future orders!", 'secondary')
                         return redirect(url_for('security.register'))
                 return render_template('result.html', heading="Order Placed")
             else:
-                flash(u"Error in form validation", 'danger')
+                flash("Error in form validation", 'danger')
 
     # either provide the recipe and the form,
     # or after the post show the result
@@ -251,10 +251,10 @@ def confirm_order():
     order_id = request.args.get('order_id')
     order = Order.query.filter_by(id=order_id).one_or_none()
     if not order:
-        flash(u"Error: Invalid order_id", 'danger')
+        flash("Error: Invalid order_id", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
     if order.confirmed:
-        flash(u"Error: Order has already been confirmed", 'danger')
+        flash("Error: Order has already been confirmed", 'danger')
         return render_template("result.html", heading="Invalid confirmation link")
 
     bartender = user_datastore.find_user(id=order.bartender_id)
@@ -268,7 +268,7 @@ def confirm_order():
     # update users db
     user = User.query.filter_by(email=order.user_email).one_or_none()
     if user:
-        greeting = u"{}, you".format(user.get_name(short=True))
+        greeting = "{}, you".format(user.get_name(short=True))
         if order.user_id and order.user_id != user.id:
             flash("Order was created with different id than confirming user!", 'danger')
             return render_template('result.html', heading="Invalid request")
@@ -282,17 +282,17 @@ def confirm_order():
     if bar is None:
         flash("Invalid bar id with order", 'danger')
         return render_template('result.html', heading="Invalid request")
-    subject = u"[Mix-Mind] Your {} Confirmation".format(current_bar.name)
+    subject = "[Mix-Mind] Your {} Confirmation".format(current_bar.name)
     sent = send_mail(subject, order.user_email, "order_confirmation",
             greeting=greeting,
             recipe_name=order.recipe_name,
             recipe_html=order.recipe_html,
             venmo_link=venmo_link)
     if sent:
-        flash(u'Confirmation sent')
+        flash('Confirmation sent')
     else:
-        flash(u'Confimration email failed', 'danger')
-    return render_template('result.html', heading=u"{} for {}".format(order.recipe_name, user.get_name(short=True) if user else order.user_email),
+        flash('Confimration email failed', 'danger')
+    return render_template('result.html', heading="{} for {}".format(order.recipe_name, user.get_name(short=True) if user else order.user_email),
             body=order.recipe_html)
 
 
@@ -302,7 +302,7 @@ def user_profile():
     try:
         user_id = int(request.args.get('user_id'))
     except ValueError:
-        flash(u"Invalid user_id parameter", 'danger')
+        flash("Invalid user_id parameter", 'danger')
         return render_template('result.html', heading="User profile unavailable")
 
     if current_user.id != user_id and not current_user.has_role('admin'):
@@ -314,11 +314,11 @@ def user_profile():
             admin = user_datastore.find_role('admin')
             user_datastore.add_role_to_user(current_user, admin)
             user_datastore.commit()
-            flash(u"You have been upgraded to admin", 'success')
+            flash("You have been upgraded to admin", 'success')
 
     this_user = user_datastore.find_user(id=user_id)
     if not this_user:
-        flash(u"Unknown user_id", 'danger')
+        flash("Unknown user_id", 'danger')
         return render_template('result.html', heading="User profile unavailable")
 
     form = get_form(EditUserForm)
@@ -329,10 +329,10 @@ def user_profile():
             this_user.nickname = form.nickname.data
             this_user.venmo_id = form.venmo_id.data
             user_datastore.commit()
-            flash(u"Profile updated", 'success')
+            flash("Profile updated", 'success')
             return redirect(request.url)
         else:
-            flash(u"Error in form validation", 'danger')
+            flash("Error in form validation", 'danger')
             return render_template('user_profile.html', this_user=this_user, edit_user=form,
                     human_timestamp=mms.time_human_formatter, human_timediff=mms.time_diff_formatter,
                     timestamp=mms.timestamp_formatter)
@@ -358,7 +358,7 @@ def post_login_redirect():
     for order in orders:
         if not order.user_id:
             order.user_id = current_user.id
-            print "Attributing order {} to user {}".format(order.id, current_user.id)
+            print("Attributing order {} to user {}".format(order.id, current_user.id))
     db.session.commit()
     return redirect(url_for('browse'))
 
@@ -399,15 +399,15 @@ def bar_settings():
             bar_id = current_bar.id
             bar = Bar.query.filter_by(id=bar_id).one_or_none()
             if bar is None:
-                flash(u"Invalid bar_id: {}".format(bar_id), 'danger')
+                flash("Invalid bar_id: {}".format(bar_id), 'danger')
                 return redirect(request.url)
 
             # unassign previous bartender
             if bar.bartender_on_duty:
                 old_bartender = user_datastore.find_user(id=bar.bartender_on_duty)
                 send_mail("[Mix-Mind] Bartender Duty Unassigned", old_bartender.email, 'simple',
-                        heading=u"No longer bartending at {}".format(bar.name),
-                        message=u"You have been unassigned as the bartender-on-duty at {}.".format(bar.name))
+                        heading="No longer bartending at {}".format(bar.name),
+                        message="You have been unassigned as the bartender-on-duty at {}.".format(bar.name))
             # add bartender on duty
             user = user_datastore.find_user(email=edit_bar_form.bartender.data)
             if user and user.id != bar.bartender_on_duty:
@@ -416,8 +416,8 @@ def bar_settings():
                 bar.bartenders.append(user)
                 bar.bartender_on_duty = user.id
                 send_mail("[Mix-Mind] Bartender Duty Assigned", user.email, 'simple',
-                        heading=u"Bartending at {}".format(bar.name),
-                        message=u"You have been assigned as the bartender-on-duty at {}.".format(bar.name))
+                        heading="Bartending at {}".format(bar.name),
+                        message="You have been assigned as the bartender-on-duty at {}.".format(bar.name))
             else:
                 # closed/no bartender is same result
                 if not user or edit_bar_form.status.data == False:
@@ -426,10 +426,10 @@ def bar_settings():
             for attr in BAR_BULK_ATTRS:
                 setattr(bar, attr, getattr(edit_bar_form, attr).data)
             db.session.commit()
-            flash(u"Successfully updated config for {}".format(bar.cname))
+            flash("Successfully updated config for {}".format(bar.cname))
             return redirect(request.url)
         else:
-            flash(u"Error in form validation", 'warning')
+            flash("Error in form validation", 'warning')
 
     # for GET requests, fill in the edit bar form
     edit_bar_form.status.data = not current_bar.is_closed
@@ -450,10 +450,10 @@ def ingredient_stock():
     form = get_form(BarstockForm)
     upload_form = get_form(UploadBarstockForm)
     form_open = False
-    print form.errors
+    print(form.errors)
 
     if request.method == 'POST':
-        print request
+        print(request)
         if 'add-ingredient' in request.form:
             if form.validate():
                 row = {}
@@ -472,13 +472,13 @@ def ingredient_stock():
                 return redirect(request.url)
             else:
                 form_open = True
-                flash(u"Error in form validation", 'danger')
+                flash("Error in form validation", 'danger')
 
         elif 'upload-csv' in request.form:
             # TODO handle files < 500 kb by keeping in mem
             csv_file = request.files['upload_csv']
             if not csv_file or csv_file.filename == '':
-                flash(u'No selected file', 'danger')
+                flash('No selected file', 'danger')
                 return redirect(request.url)
 
             tmp_filename = get_tmp_file()
@@ -486,7 +486,7 @@ def ingredient_stock():
             Barstock_SQL(current_bar.id).load_from_csv([tmp_filename], current_bar.id,
                     replace_existing=upload_form.replace_existing.data)
             mms.generate_recipes(current_bar)
-            msg = u"Ingredients database {} {} for {}".format(
+            msg = "Ingredients database {} {} for {}".format(
                     "replaced by" if upload_form.replace_existing.data else "added to from",
                     csv_file.filename, current_bar.cname)
             log.info(msg)
@@ -509,7 +509,7 @@ def set_bar_owner():
         bar_id = current_bar.id
         bar = Bar.query.filter_by(id=bar_id).one_or_none()
         if bar is None:
-            flash(u"Invalid bar_id: {}".format(bar_id), 'danger')
+            flash("Invalid bar_id: {}".format(bar_id), 'danger')
             return None
 
         # assign owner
@@ -520,23 +520,23 @@ def set_bar_owner():
             user_datastore.add_role_to_user(user, owner)
             bar.owner = user
             send_mail("[Mix-Mind] Bar Ownership Granted", user.email, 'simple',
-                    heading=u"{}, you now own {}".format(user.get_name(), bar.name),
-                    message=u"You have been assigned as the owner of {}</p><p>The bar can now be managed from the site. Switch to your bar, and then navigate to the management settings.".format(bar.name))
-            flash(u"{} is now the proud owner of {}".format(user.get_name(), bar.cname))
+                    heading="{}, you now own {}".format(user.get_name(), bar.name),
+                    message="You have been assigned as the owner of {}</p><p>The bar can now be managed from the site. Switch to your bar, and then navigate to the management settings.".format(bar.name))
+            flash("{} is now the proud owner of {}".format(user.get_name(), bar.cname))
         elif set_owner_form.owner.data == '' and bar.owner:
             # remove the owner from this bar
-            flash(u"{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
+            flash("{} is no longer the owner of {}".format(bar.owner.get_name(), bar.cname))
             bar.owner = None
             # remove "owner" role if user does not own any more bars
             if not old_owner.owns:
                 user_datastore.remove_role_from_user(old_owner, owner)
         if old_owner:
             send_mail("[Mix-Mind] Bar Ownership Revoked", old_owner.email, 'simple',
-                    heading=u"{}, you no longer own {}".format(old_owner.get_name(), bar.name),
-                    message=u"You have been unassigned as the owner of {}.".format(bar.name))
+                    heading="{}, you no longer own {}".format(old_owner.get_name(), bar.name),
+                    message="You have been unassigned as the owner of {}.".format(bar.name))
         user_datastore.commit()
     else:
-        flash(u"Error in form validation", 'warning')
+        flash("Error in form validation", 'warning')
 
     return redirect(url_for('admin_dashboard'))
 
@@ -550,7 +550,7 @@ def admin_dashboard():
         if 'create_bar' in request.form:
             if new_bar_form.validate():
                 if Bar.query.filter_by(cname=new_bar_form.cname.data).one_or_none():
-                    flash(u"Bar name already in use", 'warning')
+                    flash("Bar name already in use", 'warning')
                     return None
                 bar_args = {'cname': new_bar_form.cname.data}
                 if new_bar_form.name.data == "":
@@ -562,24 +562,24 @@ def admin_dashboard():
                 new_bar = Bar(**bar_args)
                 db.session.add(new_bar)
                 db.session.commit()
-                flash(u"Created a new bar", 'success')
+                flash("Created a new bar", 'success')
             else:
-                flash(u"Error in form validation", 'warning')
+                flash("Error in form validation", 'warning')
 
         if 'set-default-bar' in request.form:
             bar_id = request.form.get('bar_id', None, int)
             to_activate_bar = Bar.query.filter_by(id=bar_id).one_or_none()
             if to_activate_bar.is_default:
-                flash(u"Bar ID: {} is already the default".format(bar_id), 'warning')
+                flash("Bar ID: {} is already the default".format(bar_id), 'warning')
                 return redirect(request.url)
             if not to_activate_bar:
-                flash(u"Error: Bar ID: {} is invalid".format(bar_id), 'danger')
+                flash("Error: Bar ID: {} is invalid".format(bar_id), 'danger')
                 return redirect(request.url)
             bars = Bar.query.all()
             for bar in bars:
                 bar.is_default = (bar.id == bar_id)
             db.session.commit()
-            flash(u"Bar ID: {} is now the default".format(bar_id), 'success')
+            flash("Bar ID: {} is now the default".format(bar_id), 'success')
             return redirect(request.url)
 
     set_owner_form.owner.data = '' if not current_bar.owner else current_bar.owner.email
@@ -599,18 +599,18 @@ def admin_dashboard():
 def menu_generator():
     return render_template('result.html', heading="Still under construction...")
     form = get_form(DrinksForm)
-    print form.errors
+    print(form.errors)
     recipes = []
     excluded = None
     stats = None
 
     if request.method == 'POST':
         if form.validate():
-            print request
+            print(request)
             recipes, excluded, stats = recipes_from_options(form, to_html=True)
-            flash(u"Settings applied. Showing {} available recipes".format(len(recipes)))
+            flash("Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
-            flash(u"Error in form validation", 'danger')
+            flash("Error in form validation", 'danger')
 
     return render_template('menu_generator.html', form=form, recipes=recipes, excluded=excluded, stats=stats)
 
@@ -623,7 +623,7 @@ def menu_download():
     raise NotImplementedError
 
     if form.validate():
-        print request
+        print(request)
         recipes, _, _ = recipes_from_options(form)
 
         display_options = bundle_options(DisplayOptions, form)
@@ -635,7 +635,7 @@ def menu_download():
         return send_file(os.path.abspath(pdf_file), 'application/pdf', as_attachment=True, attachment_filename=pdf_file.lstrip('menus/'))
 
     else:
-        flash(u"Error in form validation", 'danger')
+        flash("Error in form validation", 'danger')
         return render_template('application_main.html', form=form, recipes=[], excluded=None)
 
 
@@ -645,16 +645,16 @@ def menu_download():
 def recipe_library():
     return render_template('result.html', heading="Still under construction...")
     select_form = get_form(RecipeListSelector)
-    print select_form.errors
+    print(select_form.errors)
     add_form = get_form(RecipeForm)
-    print add_form.errors
+    print(add_form.errors)
 
     if request.method == 'POST':
-        print request
+        print(request)
         if 'recipe-list-select' in request.form:
             recipes = select_form.recipes.data
             mms.regenerate_recipes(current_bar)
-            flash(u"Now using recipes from {}".format(recipes))
+            flash("Now using recipes from {}".format(recipes))
 
     return render_template('recipes.html', select_form=select_form, add_form=add_form)
 
@@ -768,14 +768,14 @@ def api_ingredient():
 
         data = ingredient.as_dict()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-        return api_success(data, message=u'Successfully updated "{}" for "{}"'.format(field, ingredient.iid()))
+        return api_success(data, message='Successfully updated "{}" for "{}"'.format(field, ingredient.iid()))
 
     # delete
     elif request.method == 'DELETE':
         db.session.delete(ingredient)
         db.session.commit()
         mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
-        return api_success({'iid': ingredient.iid()}, message=u'Successfully deleted "{}"'.format(ingredient.iid()))
+        return api_success({'iid': ingredient.iid()}, message='Successfully deleted "{}"'.format(ingredient.iid()))
 
     return api_error("Unknwon method")
 
@@ -806,31 +806,31 @@ def api_user_current_bar():
     try:
         user_id = int(request.args.get('user_id'))
     except ValueError:
-        flash(u"Invalid user_id parameter", 'danger')
+        flash("Invalid user_id parameter", 'danger')
         return render_template('result.html', heading="User profile unavailable")
     try:
         bar_id = int(request.args.get('bar_id'))
     except ValueError:
-        flash(u"Invalid bar_id parameter", 'danger')
+        flash("Invalid bar_id parameter", 'danger')
         return render_template('result.html', heading="Bar unavailable")
     next_url = request.args.get('next', url_for('browse'))
 
     user = user_datastore.find_user(id=user_id)
     if user:
         if user != current_user and not current_user.has_role('admin'):
-            flash(u"Cannot change default bar for another user {}".format(user_id), 'danger')
+            flash("Cannot change default bar for another user {}".format(user_id), 'danger')
             return render_template('result.html', heading="Invalid default bar request")
         bar = Bar.query.filter_by(id=bar_id).one_or_none()
         if not bar:
-            flash(u"Invalid bar id: {}".format(bar_id))
+            flash("Invalid bar id: {}".format(bar_id))
             return render_template('result.html', heading="Invalid bar")
         if not bar.is_public and (user.id != bar.owner_id) and not user.has_role('admin'):
-            flash(u"Bar {} is not publicly available, you need to be the owner or admin".format(bar_id), 'danger')
+            flash("Bar {} is not publicly available, you need to be the owner or admin".format(bar_id), 'danger')
             return render_template('result.html', heading="Invalid bar")
         user.current_bar_id = bar.id
         user_datastore.commit()
     else:
-        flash(u"Invalid user {}".format(user_id), 'danger')
+        flash("Invalid user {}".format(user_id), 'danger')
         return render_template('result.html', heading="Invalid user")
 
     return redirect(next_url)
@@ -854,7 +854,7 @@ def admin_database_debug():
 
 @app.route('/api/json/<recipe_name>')
 def recipe_json(recipe_name):
-    recipe_name = urllib.unquote_plus(recipe_name)
+    recipe_name = urllib.parse.unquote_plus(recipe_name)
     try:
         return jsonify(mms.base_recipes[recipe_name])
     except KeyError:

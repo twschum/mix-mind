@@ -31,7 +31,7 @@ class UnionResultRecipes(ResultRecipes):
         for recipe in recipes:
             self.container[recipe.name] = recipe
     def get_items(self):
-        return self.container.values()
+        return list(self.container.values())
 
 class IntersectionResultRecipes(ResultRecipes):
     def __init__(self):
@@ -74,7 +74,7 @@ def filter_recipes(all_recipes, filter_options, union_results=False):
     result_recipes = result_recipes.get_items()
 
     def get_names(items):
-        return set(map(lambda i: i.name, items))
+        return set([i.name for i in items])
     excluded = sorted(list(get_names(all_recipes) - get_names(result_recipes)))
     log.debug("Excluded: {}\n".format(', '.join(excluded)))
     return result_recipes, excluded
@@ -88,7 +88,7 @@ def filter_on_attribute(recipes, filter_options, attribute):
     return recipes
 
 def get_uuid():
-    return unicode(uuid.uuid4())
+    return str(uuid.uuid4())
 
 class StatTracker(dict):
     # mutable class variables
@@ -111,7 +111,7 @@ class StatTracker(dict):
             .format(self._title_width+1, self._name_width+1).format(**self)
 
     def as_html(self):
-        return u"<tr><td> {{title:{}}} </td><td> {{drink_name:{}}} </td><td> ${{cost:.2f}} </td><td> {{abv:>5.2f}}% ABV </td><td> {{std_drinks:.2f}} </td><td style:text-align=left> {{kinds}} </td></tr>"\
+        return "<tr><td> {{title:{}}} </td><td> {{drink_name:{}}} </td><td> ${{cost:.2f}} </td><td> {{abv:>5.2f}}% ABV </td><td> {{std_drinks:.2f}} </td><td style:text-align=left> {{kinds}} </td></tr>"\
             .format(self._title_width+1, self._name_width+1).format(**self)
 
     def update_stat(self, recipe):
@@ -140,7 +140,7 @@ def report_stats(recipes, as_html=False):
             least_booze.update_stat(recipe)
             least_abv.update_stat(recipe)
     if as_html:
-        return u"<table class=statsbloc><thead><th></th><th>Drink</th><th style='text-align: right;'>Cost</th><th style='text-align: right;'>Est ABV</th><th style='text-align: right;'>Std Drinks</th><th>Ingredients</th></thead><tbody>{}</tbody></table>".format(u''.join([s.as_html()
+        return "<table class=statsbloc><thead><th></th><th>Drink</th><th style='text-align: right;'>Cost</th><th style='text-align: right;'>Est ABV</th><th style='text-align: right;'>Std Drinks</th><th>Ingredients</th></thead><tbody>{}</tbody></table>".format(''.join([s.as_html()
             for s in [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]]))
     else:
         return [most_expensive, most_booze, most_abv, least_expensive, least_booze, least_abv]
@@ -151,9 +151,9 @@ def load_recipe_json(recipe_files):
         with open(recipe_json) as fp:
             other_recipes = json.load(fp, object_pairs_hook=OrderedDict)
             log.info("Recipes loaded from {}".format(recipe_json))
-            for item in other_recipes.itervalues():
+            for item in other_recipes.values():
                 item.update({'source_file': recipe_json})
-            for name in [name for name in other_recipes.keys() if name in base_recipes.keys()]:
+            for name in [name for name in list(other_recipes.keys()) if name in list(base_recipes.keys())]:
                 log.debug("Keeping {} from {} over {}".format(name, base_recipes[name]['source_file'], other_recipes[name]['source_file']))
                 del other_recipes[name]
             base_recipes.update(other_recipes)
@@ -175,7 +175,7 @@ def from_float(s):
         return 0.0
     return float(s)
 def from_price_float(s):
-    if isinstance(s, basestring):
+    if isinstance(s, str):
         return from_float(s.replace('$', ''))
     return from_float(s)
 def from_bool_from_num(s):
@@ -184,7 +184,7 @@ def from_bool_from_num(s):
     return bool(float(s))
 def as_utf8(s):
     try:
-        return unicode(s, 'utf-8')
+        return str(s, 'utf-8')
     except TypeError as e:
         if "decoding Unicode is not supported" in str(e):
             return s
@@ -357,10 +357,10 @@ class IngredientSpecifier(object):
         return cls(ingredient, kind)
 
     def __str__(self):
-        return self.kind if self.kind else u"{}{}".format(self.ingredient, u' '+self.extra if self.extra else u'')
+        return self.kind if self.kind else "{}{}".format(self.ingredient, ' '+self.extra if self.extra else '')
 
     def __repr__(self):
-        return u"{}:{}".format(self.ingredient, self.kind if self.kind else '')
+        return "{}:{}".format(self.ingredient, self.kind if self.kind else '')
 
 def to_human_diff(dt):
     """Return datetime as humanized diff from now"""
@@ -371,7 +371,7 @@ def get_ts_formatter(fmt, tz):
     return lambda dt: pendulum.instance(dt).in_timezone(tz).format(fmt) if dt else '-'
 
 class UnicodeDictReader(csv.DictReader, object):
-    def next(self):
-        row = super(UnicodeDictReader, self).next()
-        return {unicode(key, 'utf-8'): unicode(value, 'utf-8') for key, value in row.iteritems()}
+    def __next__(self):
+        row = next(super(UnicodeDictReader, self))
+        return {str(key, 'utf-8'): str(value, 'utf-8') for key, value in row.items()}
 
