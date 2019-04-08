@@ -12,14 +12,14 @@ except ImportError:
 from sqlalchemy import and_
 from sqlalchemy.exc import SQLAlchemyError
 
-import util
+from . import util
 from .database import db
 from .ingredient import Categories, Ingredient, display_name_mappings
 
 def get_barstock_instance(csv_list, use_sql=False, bar_id=None, include_all=False):
     """ Factory for getting the right, initialized barstock
     """
-    if isinstance(csv_list, basestring):
+    if isinstance(csv_list, str):
         csv_list = [csv_list]
     if use_sql or not has_pandas:
         if bar_id is None:
@@ -87,21 +87,21 @@ class Barstock_SQL(Barstock):
         """ where row is a dict of fields from the csv
         returns the Model object for the updated/inserted row"""
         if not row.get('Ingredient', row.get('Type')) or not row.get('Kind', row.get('Bottle')):
-            log.debug(u"Primary key (Ingredient, Kind) missing, skipping ingredient: {}".format(row))
+            log.debug("Primary key (Ingredient, Kind) missing, skipping ingredient: {}".format(row))
             return
         try:
             clean_row = {display_name_mappings[k]['k'] : display_name_mappings[k]['v'](v)
-                    for k,v in row.iteritems()
+                    for k,v in row.items()
                     if k in display_name_mappings}
         except UnicodeDecodeError:
-            log.warning(u"UnicodeDecodeError for ingredient: {}".format(row))
+            log.warning("UnicodeDecodeError for ingredient: {}".format(row))
             return None
         try:
             ingredient = Ingredient(bar_id=bar_id, **clean_row)
             row = Ingredient.query.filter_by(bar_id=ingredient.bar_id,
                     Kind=ingredient.Kind, Type=ingredient.Type).one_or_none()
             if row: # update
-                for k, v in clean_row.iteritems():
+                for k, v in clean_row.items():
                     row[k] = v
                 _update_computed_fields(row)
                 db.session.commit()
@@ -112,7 +112,7 @@ class Barstock_SQL(Barstock):
                 db.session.commit()
                 return ingredient
         except SQLAlchemyError as err:
-            msg = u"{}: on row: {}".format(err, clean_row)
+            msg = "{}: on row: {}".format(err, clean_row)
             raise DataError(msg)
 
     def get_all_kind_combinations(self, specifiers):
@@ -125,28 +125,28 @@ class Barstock_SQL(Barstock):
         return opts
 
     def get_kind_abv(self, ingredient):
-        return self.get_kind_field(ingredient, u'ABV')
+        return self.get_kind_field(ingredient, 'ABV')
 
     def get_kind_category(self, ingredient):
-        return self.get_kind_field(ingredient, u'Category')
+        return self.get_kind_field(ingredient, 'Category')
 
-    def cost_by_kind_and_volume(self, ingredient, amount, unit=u'oz'):
-        per_unit = self.get_kind_field(ingredient, u'Cost_per_{}'.format(unit))
+    def cost_by_kind_and_volume(self, ingredient, amount, unit='oz'):
+        per_unit = self.get_kind_field(ingredient, 'Cost_per_{}'.format(unit))
         return per_unit * amount
 
     def get_kind_field(self, ingredient, field):
-        if field not in Ingredient.__table__.columns.keys():
-            raise AttributeError(u"get-kind-field '{}' not a valid field in the data".format(field))
+        if field not in list(Ingredient.__table__.columns.keys()):
+            raise AttributeError("get-kind-field '{}' not a valid field in the data".format(field))
         return self.get_ingredient_row(ingredient)[field]
 
     def get_ingredient_row(self, ingredient):
         if ingredient.kind is None:
-            raise ValueError(u"ingredient {} has no kind specified".format(ingredient.__repr__()))
+            raise ValueError("ingredient {} has no kind specified".format(ingredient.__repr__()))
         row = self.slice_on_type(ingredient)
         if len(row) > 1:
-            raise ValueError(u'{} has multiple entries in the input data!'.format(ingredient.__repr__()))
+            raise ValueError('{} has multiple entries in the input data!'.format(ingredient.__repr__()))
         elif len(row) < 1:
-            raise ValueError(u'{} has no entry in the input data!'.format(ingredient.__repr__()))
+            raise ValueError('{} has no entry in the input data!'.format(ingredient.__repr__()))
         return row[0]
 
     # TODO sqlqlchemy exception decorator?
@@ -155,14 +155,14 @@ class Barstock_SQL(Barstock):
         Handles several special cases
         """
         type_ = specifier.ingredient.lower()
-        if type_ in [u'rum', u'whiskey', u'whisky', u'tequila', u'vermouth']:
-            type_ = u'whisk' if type_ == u'whisky' else type_
-            filter_ = Ingredient.type_.like(u'%{}%'.format(type_))
-        elif type_ == u'any spirit':
-            spirits = [u'dry gin', u'rye whiskey', u'bourbon whiskey', u'amber rum', u'dark rum', u'white rum', u'genever', u'cognac', u'brandy', u'aquavit']
+        if type_ in ['rum', 'whiskey', 'whisky', 'tequila', 'vermouth']:
+            type_ = 'whisk' if type_ == 'whisky' else type_
+            filter_ = Ingredient.type_.like('%{}%'.format(type_))
+        elif type_ == 'any spirit':
+            spirits = ['dry gin', 'rye whiskey', 'bourbon whiskey', 'amber rum', 'dark rum', 'white rum', 'genever', 'cognac', 'brandy', 'aquavit']
             filter_ = Ingredient.type_.in_(spirits)
-        elif type_ == u'bitters':
-            filter_ = Ingredient.Category == u'Bitters'
+        elif type_ == 'bitters':
+            filter_ = Ingredient.Category == 'Bitters'
         else:
             filter_ = Ingredient.type_ == type_
 
@@ -173,11 +173,11 @@ class Barstock_SQL(Barstock):
         return Ingredient.query.filter(filter_).all()
 
     def to_csv(self):
-        cols = Ingredient.__table__.columns.keys()
-        result = [u','.join(cols)]
+        cols = list(Ingredient.__table__.columns.keys())
+        result = [','.join(cols)]
         for row in Ingredient.query.all():
-            result.append(u','.join([unicode(row[col]) for col in cols]))
-        return u'\n'.join(result)
+            result.append(','.join([str(row[col]) for col in cols]))
+        return '\n'.join(result)
 
 
 class Barstock_DF(Barstock):
@@ -246,13 +246,13 @@ class Barstock_DF(Barstock):
     def add_row(self, row):
         """ where row is a dict """
         _calculated_columns(row)
-        row = {k:[v] for k,v in row.iteritems()}
+        row = {k:[v] for k,v in row.items()}
         row = pd.DataFrame.from_dict(row)
         self.df = pd.concat([self.df, row])
 
     @classmethod
     def load(cls, barstock_csv, include_all=False):
-        if isinstance(barstock_csv, basestring):
+        if isinstance(barstock_csv, str):
             barstock_csv = [barstock_csv]
         # TODO validate columns, merge duplicates
         df = pd.concat([pd.read_csv(filename) for filename in barstock_csv])
@@ -263,7 +263,7 @@ class Barstock_DF(Barstock):
             df[col] = df[col].replace('[\$,]', '', regex=True).astype(float)
         df = df.fillna(0)
         _calculated_columns(df)
-        df['type'] = map(string.lower, df['Type'])
+        df['type'] = list(map(string.lower, df['Type']))
         df['Category'] = pd.Categorical(df['Category'], Categories)
 
         # drop out of stock items
