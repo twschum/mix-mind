@@ -71,7 +71,7 @@ class DrinkRecipe(object):
         return "{}:{}".format(self.__class__.__name__, self.name)
 
     def prep_line(self, extended=True, caps=True):
-        case_fn = string.upper if caps else string.lower
+        case_fn = str.upper if caps else str.lower
         layout = "{{}} glass | {{}}{} | {{}}".format("" if self.ice == 'neat' else " ice") if extended else "{} | {} | {}"
         return case_fn(layout.format(self.glass, self.ice, self.prep))
 
