@@ -111,6 +111,28 @@
         "ice": "neat"
     },
 
+    "Red Wine": {
+        "info": "Red wines by the glass",
+        "style": "All Day Cocktail",
+        "ingredients": {
+            "red wine": 5
+        },
+        "glass": "red wine",
+        "prep": "pour",
+        "ice": "neat"
+    },
+
+    "White Wine": {
+        "info": "White wines by the glass",
+        "style": "All Day Cocktail",
+        "ingredients": {
+            "white wine": 5
+        },
+        "glass": "white wine",
+        "prep": "pour",
+        "ice": "neat"
+    },
+
     "Blackberry Garden": {
         "info": "Created after I made a batch of blackberry liqueur",
         "style": "All Day Cocktail",
