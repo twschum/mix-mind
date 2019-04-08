@@ -27,7 +27,7 @@
 	</head>
 
 {# macro for generating nav-link href and "active" attribute #}
-{% macro nav_link(endpoint) %} {% set url_ = url_for(endpoint) %}href="{{ url_ }}" {% if url_ in request.url %} active {% endif %} {% endmacro %}
+{% macro nav_link(endpoint) %} {% set url_ = url_for(endpoint, **kwargs) %}href="{{ url_ }}" {% if url_ in request.url %} active {% endif %} {% endmacro %}
 
 	<body>
 		<!-- navbar is shown at the top of every page -->
@@ -55,13 +55,14 @@
 					{% if current_user.is_authenticated %}
 
 					{# Current Bar Selector #}
+					{% if g.bar_list|length > 1 %}
 					<div class="nav-item dropdown {{ d_full }}" id="barDropdown">
 						<a class="nav-link" href="#" id="barDropdownToggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 							<i class="fas fa-map-marked-alt"></i>Bar<i id="barDropdownIcon" class="fas fa-caret-down"></i></a>
 						<div class="dropdown-menu" aria-labelledby="barDropdownToggle">
 							<h6 class="dropdown-header">Change Current Bar</h6>
 							{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner == current_user or current_user.has_role('admin')) %}
-							<a class="dropdown-item" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
+							<a class="dropdown-item" {{ nav_link("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}>
 								<i class="fas fa-map-marker-alt"></i>{{ bar.name }}</a>
 							{% endfor %}
 						</div>
@@ -70,10 +71,11 @@
 						<i class="fas fa-map-marked-alt"></i>Change Current Bar<i id="barNavdropIcon" class="fas fa-caret-down"></i></a>
 					<div class="collapse navbar-nav pl-4 w-100" id="barNavdrop">
 						{% for bar in g.bar_list if bar.id != g.current_bar.id and (bar.is_public or bar.owner == current_user or current_user.has_role('admin')) %}
-						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}">
+						<a class="nav-item nav-link {{ d_small }}" {{ nav_link("api_user_current_bar", user_id=current_user.id, bar_id=bar.id, next=request.url) }}>
 							<i class="fas fa-map-marker-alt"></i>{{ bar.name }}</a>
 						{% endfor %}
 					</div>
+					{% endif %}
 
 					{# Bar management links #}
 					{% if g.current_bar.owner == current_user or current_user.has_role('admin') %}
@@ -82,15 +84,15 @@
 							<i class="fas fa-cogs"></i>{{ g.current_bar.name }}<i id="currentBarDropdownIcon" class="fas fa-caret-down"></i></a>
 						<div class="dropdown-menu" aria-labelledby="currentBarDropdown">
 							<h6 class="dropdown-header">Manage {{ g.current_bar.name }}</h6>
-							<a class="dropdown-item" href="{{ url_for('bar_settings') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
-							<a class="dropdown-item" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
+							<a class="dropdown-item" {{ nav_link('bar_settings') }}><i class="fas fa-sliders-h"></i>Bar Settings</a>
+							<a class="dropdown-item" {{ nav_link('ingredient_stock') }}><i class="fas fa-warehouse"></i>Ingredient Stock</a>
 						</div>
 					</div>
 					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#currentBarNavdrop" aria-controls="currentBarNavdrop" aria-expanded="false">
 						<i class="fas fa-cogs"></i>Manage {{ g.current_bar.name }}<i id="currentBarNavdropIcon" class="fas fa-caret-down"></i></a>
 					<div class="collapse navbar-nav pl-4 w-100" id="currentBarNavdrop">
-						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-sliders-h"></i>Bar Settings</a>
-						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('ingredient_stock') }}"><i class="fas fa-warehouse"></i>Ingredient Stock</a>
+						<a class="nav-item nav-link {{ d_small }}" {{ nav_link('bar_settings') }}><i class="fas fa-sliders-h"></i>Bar Settings</a>
+						<a class="nav-item nav-link {{ d_small }}" {{ nav_link('ingredient_stock') }}><i class="fas fa-warehouse"></i>Ingredient Stock</a>
 					</div>
 					{% endif %}
 
@@ -101,24 +103,24 @@
 							<i class="fas fa-toolbox"></i>Admin<i id="adminDropdownIcon" class="fas fa-caret-down"></i></a>
 						<div class="dropdown-menu" aria-labelledby="adminDropdown">
 							<h6 class="dropdown-header">Administrative Pages</h6>
-							<a class="dropdown-item" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
-							<a class="dropdown-item" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
-							<a class="dropdown-item" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
+							<a class="dropdown-item" {{ nav_link('admin_dashboard') }}><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+							<a class="dropdown-item" {{ nav_link('recipe_library') }}><i class="fas fa-book"></i>Recipe Library</a>
+							<a class="dropdown-item" {{ nav_link('menu_generator') }}><i class="far fa-file-alt"></i>Menu Generator</a>
 						</div>
 					</div>
 					<a class="nav-item nav-link {{ d_small }}" href="#" data-toggle="collapse" data-target="#adminNavdrop" aria-controls="adminNavdrop" aria-expanded="false">
 							<i class="fas fa-toolbox"></i>Admin Section<i id="adminNavdropIcon" class="fas fa-caret-down"></i></a>
 					<div class="collapse navbar-nav pl-4 w-100" id="adminNavdrop">
-						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
-						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('menu_generator') }}"><i class="far fa-file-alt"></i>Menu Generator</a>
-						<a class="nav-item nav-link {{ d_small }}" href="{{ url_for('recipe_library') }}"><i class="fas fa-book"></i>Recipe Library</a>
+						<a class="nav-item nav-link {{ d_small }}" {{ nav_link('admin_dashboard') }}><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+						<a class="nav-item nav-link {{ d_small }}" {{ nav_link('menu_generator') }}><i class="far fa-file-alt"></i>Menu Generator</a>
+						<a class="nav-item nav-link {{ d_small }}" {{ nav_link('recipe_library') }}><i class="fas fa-book"></i>Recipe Library</a>
 					</div>
 					{% endif %}
 
 					{# User profile #}
-					<a class="nav-item nav-link {{ d_small }}" href={{ url_for('user_profile', user_id=current_user.id) }}>
+					<a class="nav-item nav-link {{ d_small }}" {{ nav_link('user_profile', user_id=current_user.id) }}>
 						<i class="fas fa-user"></i>{{ current_user.get_name(short=True) }}</a>
-					<a class="nav-item nav-link {{ d_full }}" href={{ url_for('user_profile', user_id=current_user.id) }}>
+					<a class="nav-item nav-link {{ d_full }}" {{ nav_link('user_profile', user_id=current_user.id) }}>
 						<i class="fas fa-user"></i>{{ current_user.get_name(short=True) }}</a>
 
 					<a class="nav-item nav-link {{ d_small }}" href="/logout"><i class="fas fa-sign-out-alt"></i>Log out</a>
@@ -128,8 +130,8 @@
 
 					{% block extra_navitems %}
 						{% if not current_user.is_authenticated %}
-						<a class="nav-item nav-link" href={{ url_for('security.login') }}><i class="fas fa-sign-in-alt"></i>Log in</a>
-						<a class="nav-item nav-link" href={{ url_for('security.register') }}><i class="fas fa-user-plus"></i>Register</a>
+						<a class="nav-item nav-link" {{ nav_link('security.login') }}><i class="fas fa-sign-in-alt"></i>Log in</a>
+						<a class="nav-item nav-link" {{ nav_link('security.register') }}><i class="fas fa-user-plus"></i>Register</a>
 						{% endif %}
 					{% endblock extra_navitems %}
 
