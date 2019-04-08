@@ -24,9 +24,9 @@ class CSVField(Field):
 
     def _value(self):
         if self.data:
-            return u', '.join(self.data)
+            return ', '.join(self.data)
         else:
-            return u''
+            return ''
 
     def process_formdata(self, valuelist):
         if valuelist[0]:
@@ -186,7 +186,7 @@ class RecipeListSelector(BaseForm):
                 ("IBA_new_era_drinks.json", "IBA New Era Drinks")])
 
 class UploadBarstockForm(BaseForm):
-    upload_csv = FileField("Choose file", validators=[validators.regexp(ur'^[^/\\]\.csv$')])
+    upload_csv = FileField("Choose file", validators=[validators.regexp(r'^[^/\\]\.csv$')])
     replace_existing = BooleanField("Replace existing stock?", default=False)
 
 class BarstockForm(BaseForm):

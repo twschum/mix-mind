@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-import urllib
+
+import urllib.request, urllib.parse, urllib.error
 import copy
 import uuid
 
 from sqlalchemy import Boolean, DateTime, Column, Integer, ForeignKey, Enum, Float, Unicode
 from sqlalchemy_utils import UUIDType
 
-import util
+from . import util
 from .database import db
 from .compose_html import close
 
@@ -56,16 +56,16 @@ class Ingredient(db.Model):
             data[attr] = getattr(self, attr)
         return data
 
-    _csv_labels = sorted([label for label, val in display_name_mappings.iteritems() if val.get('csv')],
+    _csv_labels = sorted([label for label, val in display_name_mappings.items() if val.get('csv')],
             key=lambda x: display_name_mappings[x].get('csv'))
     _iid_prefix = "ingredient-"
 
     @classmethod
     def csv_heading(self):
-        return u'{}\n'.format(','.join(self._csv_labels))
+        return '{}\n'.format(','.join(self._csv_labels))
 
     def as_csv(self):
-        return u'{}\n'.format(u','.join([unicode(self[display_name_mappings[attr]['k']])
+        return '{}\n'.format(','.join([str(self[display_name_mappings[attr]['k']])
                 for attr in self._csv_labels]))
 
     def __getitem__(self, field):

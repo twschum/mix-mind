@@ -8,7 +8,7 @@ from pylatex import Document, Command, Section, Subsection, Subsubsection, MiniP
 from pylatex.utils import italic, bold, NoEscape
 import time
 
-import util
+from . import util
 
 class TitleText(HugeText):
     _latex_name = 'LARGE'
@@ -50,7 +50,7 @@ def append_liquor_list(doc, df, own_page):
     # TODO no interaction with dataframe?
     kinds = df[df.Category.isin(['Spirit', 'Vermouth', 'Liqueur'])][['Kind', 'Type']]
     if own_page:
-        print "Appending list as new page"
+        print("Appending list as new page")
         doc.append(NewPage())
     listing = SamepageEnvironment()
     block = Center()
@@ -152,7 +152,7 @@ def generate_recipes_pdf(recipes, pdf_opts, display_opts, ingredient_df):
     recipes is an ordered list of RecipeTuple namedtuples
     """
 
-    print "Generating {}.tex".format(pdf_opts.pdf_filename)
+    print("Generating {}.tex".format(pdf_opts.pdf_filename))
     pylatex.config.active = pylatex.config.Version1(indent=False)
 
     # Determine some settings based on the number of cols
@@ -205,9 +205,9 @@ def generate_recipes_pdf(recipes, pdf_opts, display_opts, ingredient_df):
     if pdf_opts.liquor_list or pdf_opts.liquor_list_own_page:
         append_liquor_list(doc, ingredient_df, own_page=pdf_opts.liquor_list_own_page)
 
-    print "Compiling {}.pdf".format(pdf_opts.pdf_filename)
+    print("Compiling {}.pdf".format(pdf_opts.pdf_filename))
     doc.generate_pdf(pdf_opts.pdf_filename, clean_tex=False)
-    print "Done"
+    print("Done")
     return True
 
 def filename_from_options(pdf_opts, display_opts, base_name='drinks'):

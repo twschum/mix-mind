@@ -46,19 +46,19 @@ class User(db.Model, UserMixin):
     def get_name(self, short=False):
         if short:
             if self.nickname:
-                return unicode(self.nickname)
+                return str(self.nickname)
             else:
-                return unicode(self.first_name)
-        return u'{} {}'.format(self.first_name, self.last_name)
+                return str(self.first_name)
+        return '{} {}'.format(self.first_name, self.last_name)
 
     def get_name_with_email(self):
-        return u'{} ({})'.format(self.get_name(short=True), self.email)
+        return '{} ({})'.format(self.get_name(short=True), self.email)
 
     def get_role_names(self):
-        return u', '.join([role.name for role in self.roles])
+        return ', '.join([role.name for role in self.roles])
 
     def get_bar_names(self):
-        return u', '.join([bar.cname for bar in self.works_at])
+        return ', '.join([bar.cname for bar in self.works_at])
 
 class Order(db.Model):
     id = Column(Integer, primary_key=True)
@@ -89,7 +89,7 @@ class Bar(db.Model):
     id = Column(Integer(), primary_key=True)
     cname = Column(Unicode(length=63), unique=True) # unique name for finding the bar
     name = Column(Unicode(length=63))
-    tagline = Column(Unicode(length=255), default=u"Tips – always appreciated, never required")
+    tagline = Column(Unicode(length=255), default="Tips – always appreciated, never required")
     is_public = Column(Boolean(), default=False) # visible to public customers
     is_default = Column(Boolean(), default=False) # the current default bar
     bartender_on_duty = Column(Integer(), ForeignKey('user.id'))
