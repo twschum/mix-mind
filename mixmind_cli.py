@@ -4,7 +4,7 @@ Turn recipes json into a readable menu
 """
 
 import argparse
-import cPickle as pickle
+import pickle as pickle
 from collections import Counter, defaultdict
 import json
 import jsonschema
@@ -125,12 +125,12 @@ def main():
     pd.set_option('display.expand_frame_repr', False)
 
     if args.command == 'test':
-        print "This is a test"
+        print("This is a test")
         recipes = util.load_recipe_json(args.recipes)
         # get all the properties
         fields = {}
-        for recipe in recipes.itervalues():
-            for label, value in recipe.iteritems():
+        for recipe in recipes.values():
+            for label, value in recipe.items():
                 if label not in ['info', 'variants', 'garnish', 'IBA_description', 'optional', 'ingredients', 'misc']:
                     if not isinstance(value, list):
                         value = [value]
@@ -138,19 +138,19 @@ def main():
                         fields.setdefault(label, Counter()).update(value)
                     except Exception as e:
                         import ipdb; ipdb.set_trace();
-                        print e
-        for field, values in fields.iteritems():
-            print "{}: {}".format(field, values.most_common())
+                        print(e)
+        for field, values in fields.items():
+            print("{}: {}".format(field, values.most_common()))
         return
 
-        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in recipes.iteritems()]
+        recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in recipes.items()]
 
         # output all the ingredients
         ingredients = Counter()
-        for info in recipes.itervalues():
-            ingredients.update(info.get('ingredients', {}).iterkeys())
+        for info in recipes.values():
+            ingredients.update(iter(info.get('ingredients', {}).keys()))
         for i, n in ingredients.most_common():
-            print '{:2d} {}'.format(n, unicode(i).encode('ascii', errors='replace'))
+            print('{:2d} {}'.format(n, str(i).encode('ascii', errors='replace')))
         return
 
     if args.command == 'validate':
@@ -160,7 +160,7 @@ def main():
             with open(recipe_file) as fp:
                 recipes = json.load(fp)
             jsonschema.validate(recipes, schema)
-            print "{} passes schema"
+            print("{} passes schema")
         return
 
     RECIPES_CACHE_FILE = 'cache_recipes.pkl'
@@ -169,37 +169,37 @@ def main():
         barstock = Barstock(pd.read_pickle(BARSTOCK_CACHE_FILE))
         with open(CACHE_FILE) as fp:
             recipes, filter_options = pickle.load(fp)
-            print "Loaded {} recipes from cache file with options:\n{}\n{}".format(len(recipes), filter_options)
+            print("Loaded {} recipes from cache file with options:\n{}\n{}".format(len(recipes), filter_options))
 
     else:
         base_recipes = util.load_recipe_json(args.recipes)
         if args.barstock:
             barstock = Barstock.load(args.barstock, args.all_)
             recipes = [drink_recipe.DrinkRecipe(name, recipe).generate_examples(barstock)
-                for name, recipe in base_recipes.iteritems()]
+                for name, recipe in base_recipes.items()]
         else:
-            recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.iteritems()]
+            recipes = [drink_recipe.DrinkRecipe(name, recipe) for name, recipe in base_recipes.items()]
         if args.convert:
-            print "Converting recipes to unit: {}".format(args.convert)
-            map(lambda r: r.convert(args.convert), recipes)
+            print("Converting recipes to unit: {}".format(args.convert))
+            recipes = [r.convert(args.convert) for r in recipes]
         recipes, excluded = util.filter_recipes(recipes, filter_options)
 
     if args.save_cache:
         barstock.df.to_pickle(BARSTOCK_CACHE_FILE)
         with open(RECIPE_CACHE_FILE, 'w') as fp:
             pickle.dump((recipes, filter_options), fp)
-            print "Saved recipes and barstock to cache file".format(len(recipes))
+            print("Saved recipes and barstock to cache file".format(len(recipes)))
 
     if args.stats and recipes:
         stats = util.report_stats(recipes)
         for stat in stats:
-            print stat
+            print(stat)
 
     if args.command == 'pdf':
         #recipes.sort(key=lambda x: x.name)
         if not args.barstock:
             if args.liquor_list or args.liquor_list_own_page or args.examples or args.prices:
-                print "Must have a barstock file for these options"
+                print("Must have a barstock file for these options")
                 return
             barstock_df = None
         else:
@@ -220,22 +220,22 @@ def main():
             for recipe in recipes:
                 try:
                     if args.ingredients:
-                        print "{{:<{}}} - {{}}".format(name_w).format(recipe.name, ', '.join(recipe.get_ingredient_list()))
+                        print("{{:<{}}} - {{}}".format(name_w).format(recipe.name, ', '.join(recipe.get_ingredient_list())))
                     else:
-                        print recipe.name
+                        print(recipe.name)
                 except UnicodeEncodeError:
                     from pprint import pprint; import ipdb; ipdb.set_trace()
-                    print recipe
+                    print(recipe)
             #print '\n'.join([str(len(str(recipe).split('\n')))+' '+recipe.name for recipe in recipes])
-            print '------------\n{} recipes\n'.format(len(recipes))
+            print('------------\n{} recipes\n'.format(len(recipes)))
             return
 
         #if args.write:
             #with open(args.write, 'w') as fp:
                 #fp.write('\n\n'.join(menu))
         else:
-            print '\n'.join([str(recipe) for recipe in recipes])
-            print
+            print('\n'.join([str(recipe) for recipe in recipes]))
+            print()
 
 if __name__ == "__main__":
     main()
