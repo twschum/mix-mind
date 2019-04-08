@@ -71,7 +71,7 @@ def recipes_from_options(form, display_opts=None, filter_opts=None, to_html=Fals
         attr = 'avg_{}'.format(form.sorting.data.rstrip('X'))
         recipes = sorted(recipes, key=lambda r: getattr(r.stats, attr), reverse=reverse)
     if convert_to:
-        recipes = [r.convert(convert_to) for r in recipes]
+        [r.convert(convert_to) for r in recipes]
     if display_options.stats and recipes:
         stats = report_stats(recipes, as_html=True)
     else:
