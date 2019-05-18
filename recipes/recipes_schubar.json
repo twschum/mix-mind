@@ -133,6 +133,36 @@
         "ice": "neat"
     },
 
+    "A Shot": {
+        "info": "Not throwin' away this... shot!",
+        "ingredients": {
+            "any spirit": 1.5
+        },
+        "glass": "shot",
+        "prep": "pour",
+        "ice": "neat"
+    },
+
+    "Bartender's Handshake": {
+        "info": "Gentle intorduction to Fernet",
+        "ingredients": {
+            "Fernet": 1.5
+        },
+        "glass": "shooter",
+        "prep": "pour",
+        "ice": "neat"
+    },
+
+    "Digestief": {
+        "info": "Sip after a rich meal",
+        "ingredients": {
+            "Amaro": 1.5
+        },
+        "glass": "snifter",
+        "prep": "pour",
+        "ice": "neat"
+    },
+
     "Blackberry Garden": {
         "info": "Created after I made a batch of blackberry liqueur",
         "style": "All Day Cocktail",
@@ -291,7 +321,7 @@
         "variants": ["Hanky Panky: The Savoy classic using 1.5oz vermouth, just a dash of Fernet, and an orange twist"],
         "garnish": "Mint sprig"
     },
-    
+
     "Beatrice & Bluto": {
         "info": "Created by Eric the owner 327 Braun Court, named after Popeye, rich smokey amaro and peat",
         "style": "After Dinner Cocktail",

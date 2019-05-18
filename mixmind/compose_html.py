@@ -49,12 +49,12 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
             "tiki":        "/static/glassware/rocks.svg",
             "flute":       "/static/glassware/flute.svg",
             "glencairn":   "/static/glassware/glencairn.svg",
-            "mug":         "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg",
+            "mug":         "/static/glassware/irish_coffee_mug.svg",
             "white wine":  "/static/glassware/white_wine_kentfield.svg",
 	    "red wine":    "/static/glassware/red_wine_kentfield.svg",
-            "shot":        "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
-            "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
-            }
+            "shooter":     "/static/glassware/shooter.svg",
+            "shot":        "/static/glassware/shot.svg",
+    }
 
     if convert_to:
         recipe.convert(convert_to)
