@@ -50,8 +50,8 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
             "flute":       "/static/glassware/flute.svg",
             "glencairn":   "/static/glassware/glencairn.svg",
             "mug":         "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg",
-            "white wine":  "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg",
-            "red wine":    "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg",
+            "white wine":  "/static/glassware/white_wine_kentfield.svg",
+	    "red wine":    "/static/glassware/red_wine_kentfield.svg",
             "shot":        "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             "shooter":     "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg",
             }
