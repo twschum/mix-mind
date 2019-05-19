@@ -113,6 +113,7 @@
 
     "Red Wine": {
         "info": "Red wines by the glass",
+        "tag": "core",
         "style": "All Day Cocktail",
         "ingredients": {
             "red wine": 5
@@ -124,6 +125,7 @@
 
     "White Wine": {
         "info": "White wines by the glass",
+        "tag": "core",
         "style": "All Day Cocktail",
         "ingredients": {
             "white wine": 5
@@ -135,6 +137,7 @@
 
     "A Shot": {
         "info": "Not throwin' away this... shot!",
+        "tag": "core",
         "ingredients": {
             "any spirit": 1.5
         },
@@ -145,6 +148,7 @@
 
     "Bartender's Handshake": {
         "info": "Gentle intorduction to Fernet",
+        "tag": "core",
         "ingredients": {
             "Fernet": 1.5
         },
@@ -388,7 +392,8 @@
             "grapefruit juice": 1.5
         },
         "origin": "Schubar original",
-        "garnish": "Flamed rosemary"
+        "garnish": "Flamed rosemary",
+        "glass": "footed rocks"
     },
 
     "Fresh Lime Gimlet": {
