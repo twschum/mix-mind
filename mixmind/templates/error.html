@@ -1,0 +1,23 @@
+{# simple template for displaying a result to the user #}
+{% extends "form_base.html" %}
+{% from "_macros.html" import formheader %}
+{% block formblock %}
+
+{{ formheader("OOPS - Something went wrong...) }}
+<!-- return to main page -->
+<div class="mb-3">
+{{ body|safe }}
+</div>
+<form action="/">
+	<div class="row no-gutters">
+		<div class="col">
+			<h4>Just want a drink?</h4>
+			<input type="submit" class="btn btn-primary" value="Back to Browse"></input>
+		</div>
+		<div class="col">
+			<h4>Or be awesome and submit a bug report describing what happened</h4>
+			<input type="submit" class="btn btn-danger" value="Submit a Bug Report"></input>
+		</div>
+	</div>
+</form>
+{% endblock formblock %}
