@@ -70,7 +70,7 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 	{% if prepend %}
 	<div class="input-group">{# makes this inline with the input #}
 		<div class="input-group-prepend">
-			<{{ prepend['tag'] }} {% for k, v in prepend.iteritems() if k not in ['tag', 'body'] %}{{ k }}="{{ v }}"{% endfor %}>{{ prepend.get('body', '') }}</{{ prepend['tag'] }}>
+			<{{ prepend['tag'] }} {% for k, v in prepend.items() if k not in ['tag', 'body'] %}{{ k }}="{{ v }}"{% endfor %}>{{ prepend.get('body', '') }}</{{ prepend['tag'] }}>
 		</div>
 	{% endif %}
 
