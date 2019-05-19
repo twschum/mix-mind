@@ -3,7 +3,7 @@
 {% from "_macros.html" import formheader %}
 {% block formblock %}
 
-{{ formheader("OOPS - Something went wrong...) }}
+{{ formheader("OOPS - Something went wrong...") }}
 <!-- return to main page -->
 <div class="mb-3">
 {{ body|safe }}
@@ -11,12 +11,12 @@
 <form action="/">
 	<div class="row no-gutters">
 		<div class="col">
-			<h4>Just want a drink?</h4>
 			<input type="submit" class="btn btn-primary" value="Back to Browse"></input>
+			<p><br>Just want a drink?</p>
 		</div>
 		<div class="col">
-			<h4>Or be awesome and submit a bug report describing what happened</h4>
-			<input type="submit" class="btn btn-danger" value="Submit a Bug Report"></input>
+			<a class="btn btn-danger" href="https://github.com/twschum/mix-mind/issues/" target="_blank" role="button">Submit a Bug Report</a>
+			<p><br>Be awesome and submit a bug report describing what happened, with steps to reproduce and what page or action caused the problem.</p>
 		</div>
 	</div>
 </form>
