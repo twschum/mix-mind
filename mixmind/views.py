@@ -836,13 +836,25 @@ def api_user_current_bar():
     return redirect(next_url)
 
 
-@app.route("/admin/debug", methods=['GET'])
+@app.route("/dev/debug", methods=['GET'])
 @login_required
 @roles_required('admin')
-def admin_database_debug():
+def dev_debug_console():
     if app.config.get('DEBUG', False):
         import ipdb; ipdb.set_trace();
         return render_template('result.html', heading="Finished debug session...")
+    else:
+        return render_template('result.html', heading="Debug unavailable")
+
+@app.route("/dev/debug/error_handler", methods=['GET'])
+@login_required
+@roles_required('admin')
+def dev_debug_error_handler_page():
+    """Tracebacks are surfaced in dev mode, so this is where
+    to test the 500 handler page
+    """
+    if app.config.get('DEBUG', False):
+        return render_template('error.html')
     else:
         return render_template('result.html', heading="Debug unavailable")
 

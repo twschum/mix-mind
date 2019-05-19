@@ -2,8 +2,10 @@
 export FLASK_APP=mixmind
 export UPLOADS_DEFAULT_DEST=stockdb
 export FLASK_RUN_PORT=8888
+export FLASK_DEBUG=1
 if [[ $1 == 'prod' ]]; then
     export FLASK_ENV='production'
+    args='--no-reload'
 else
     export FLASK_ENV='development'
 fi
