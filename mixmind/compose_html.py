@@ -28,16 +28,6 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
     """ use yattag lib to build an html blob contained in a div for the recipe"""
     doc, tag, text, line = yattag.Doc().ttl()
 
-    """
-            "https://upload.wikimedia.org/wikipedia/commons/3/3a/Cocktail_Glass_%28Martini%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/c/c8/Highball_Glass_%28Tumbler%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/4/4c/Old_Fashioned_Glass.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/6/6b/Irish_Coffee_Glass_%28Footed%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/4/4e/Wine_Glass_%28White%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/a/ac/Shot_Glass_%28Standard%29.svg"
-            "https://upload.wikimedia.org/wikipedia/commons/1/1e/Flute_Glass.svg"
-    """
-
     glassware = {
             "cocktail":    "/static/glassware/coupe.svg",
             "martini":     "/static/glassware/martini.svg",

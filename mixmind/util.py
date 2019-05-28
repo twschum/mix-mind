@@ -195,9 +195,9 @@ def to_fraction(amount):
     fraction = Fraction.from_float(float(amount)).limit_denominator(99)
     if fraction.denominator == 1:
         return fraction.numerator
-    whole = fraction.numerator / fraction.denominator
+    whole = fraction.numerator // fraction.denominator
     numer = fraction.numerator % fraction.denominator
-    return "{}{}/{}".format(str(whole)+' ' if whole > 0 else '', numer, fraction.denominator)
+    return "{}{}/{}".format(str(int(whole))+' ' if whole > 0 else '', numer, fraction.denominator)
 
 def calculate_price(cost, markup):
     return int(((cost + 1) * float(markup)) +1)
