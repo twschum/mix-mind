@@ -259,7 +259,7 @@ class EditBarForm(BaseForm):
     examples = ToggleField("Examples", description="Show specific examples for each recipe",
             on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
     convert = SelectField("Convert to", choices=[('', 'None')]+pairs(VALID_UNITS))
-    markup = DecimalField("Margin", description="Drink markup: price = ceil((base_cost+1)*markup)")
+    markup = DecimalField("Margin", description="Recommended Tip = ceil((material_cost+1)*margin)")
     info = ToggleField("Info", description="Adds info tidbit to recipes",
             on=ONTEXT, off=OFFTEXT, onstyle=ONSTYLE, offstyle=OFFSTYLE)
     origin = ToggleField("Origin", description="Denote drinks originating at Schubar",
