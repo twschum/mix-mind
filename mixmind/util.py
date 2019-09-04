@@ -192,6 +192,10 @@ def as_utf8(s):
 
 
 def to_fraction(amount):
+    """ Get a mixed number notation
+    0.5 -> 1/2
+    1.25 -> 1 1/4
+    """
     fraction = Fraction.from_float(float(amount)).limit_denominator(99)
     if fraction.denominator == 1:
         return fraction.numerator
