@@ -466,7 +466,7 @@ def ingredient_stock():
                 row['Price Paid'] = float(form.price.data)
                 try:
                     ingredient = Barstock_SQL(current_bar.id).add_row(row, current_bar.id)
-                except DataError as e:
+                except NameError as e:
                     flash('Error: {}'.format(e), 'danger')
                 else:
                     mms.regenerate_recipes(current_bar, ingredient=ingredient.type_)
