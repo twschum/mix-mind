@@ -451,10 +451,10 @@ def ingredient_stock():
     form = get_form(BarstockForm)
     upload_form = get_form(UploadBarstockForm)
     form_open = False
-    log.error(form.errors)
+    log.debug("Form errors: {}".format(form.errors))
 
     if request.method == 'POST':
-        log.error(request)
+        log.debug(request)
         if 'add-ingredient' in request.form:
             if form.validate():
                 row = {}
@@ -600,7 +600,7 @@ def admin_dashboard():
 def menu_generator():
     return render_template('result.html', heading="Still under construction...")
     form = get_form(DrinksForm)
-    log.error(form.errors)
+    log.debug("Form errors: {}".format(form.errors))
     recipes = []
     excluded = None
     stats = None
@@ -646,9 +646,9 @@ def menu_download():
 def recipe_library():
     return render_template('result.html', heading="Still under construction...")
     select_form = get_form(RecipeListSelector)
-    log.error(select_form.errors)
+    log.debug("Form errors: {}".format(select_form.errors))
     add_form = get_form(RecipeForm)
-    log.error(add_form.errors)
+    log.debug("Form errors: {}".format(add_form.errors))
 
     if request.method == 'POST':
         log.info(request)
