@@ -16,11 +16,11 @@ Categories = 'Spirit Liqueur Vermouth Bitters Syrup Juice Mixer Wine Beer Dry Ic
 # key is the value that should exist in the CSV file,
 # inner key is the name in the Model
 display_name_mappings = {
-    "Category":    {'k':  "Category",     'v':  util.as_utf8, 'csv': 1},
-    "Ingredient":  {'k':  "Type",         'v':  util.as_utf8, 'csv': 2},
-    "Type":        {'k':  "Type",         'v':  util.as_utf8},
-    "Kind":        {'k':  "Kind",         'v':  util.as_utf8, 'csv': 3},
-    "Bottle":      {'k':  "Kind",         'v':  util.as_utf8},
+    "Category":    {'k':  "Category",     'v':  str, 'csv': 1},
+    "Ingredient":  {'k':  "Type",         'v':  str, 'csv': 2},
+    "Type":        {'k':  "Type",         'v':  str},
+    "Kind":        {'k':  "Kind",         'v':  str, 'csv': 3},
+    "Bottle":      {'k':  "Kind",         'v':  str},
     "In Stock":    {'k':  "In_Stock",     'v':  util.from_bool_from_num},
     "ABV":         {'k':  "ABV",          'v':  util.from_float, 'csv': 5},
     "Proof":       {'k':  "ABV",          'v':  lambda x: util.from_float(x) / 2.0},

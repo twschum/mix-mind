@@ -1,3 +1,4 @@
+import csv
 import string
 import itertools
 import codecs
@@ -72,11 +73,9 @@ class Barstock_SQL(Barstock):
             db.session.commit()
             log.info("Dropped {} rows for {} table".format(rows_deleted, Ingredient.__tablename__))
         for csv_file in csv_list:
-            with open(csv_file) as fp:
-                # nom the bom
-                if fp.read(len(codecs.BOM_UTF8)) != codecs.BOM_UTF8:
-                    fp.seek(0)
-                reader = util.UnicodeDictReader(fp)
+            # utf-8-sig handles the BOM, /uffef
+            with open(csv_file, encoding='utf-8-sig') as fp:
+                reader = csv.DictReader(fp)
                 for row in reader:
                     try:
                         self.add_row(row, bar_id)
@@ -89,13 +88,9 @@ class Barstock_SQL(Barstock):
         if not row.get('Ingredient', row.get('Type')) or not row.get('Kind', row.get('Bottle')):
             log.debug("Primary key (Ingredient, Kind) missing, skipping ingredient: {}".format(row))
             return
-        try:
-            clean_row = {display_name_mappings[k]['k'] : display_name_mappings[k]['v'](v)
-                    for k,v in row.items()
-                    if k in display_name_mappings}
-        except UnicodeDecodeError:
-            log.warning("UnicodeDecodeError for ingredient: {}".format(row))
-            return None
+        clean_row = {display_name_mappings[k]['k'] : display_name_mappings[k]['v'](v)
+                for k,v in row.items()
+                if k in display_name_mappings}
         try:
             ingredient = Ingredient(bar_id=bar_id, **clean_row)
             row = Ingredient.query.filter_by(bar_id=ingredient.bar_id,
