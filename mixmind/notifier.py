@@ -29,7 +29,7 @@ def send_mail(subject, recipient, template, **context):
     try:
         mail.send(msg)
     except Exception as e:
-        log.error("{} sending {} email to {}: {}".format(e.__class__.__name__, template, email, e))
+        log.error("{} sending {} email to {}: {}".format(e.__class__.__name__, template, recipient, e))
         return False
     else:
         return True
