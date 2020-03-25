@@ -25,7 +25,9 @@ from .compose_html import recipe_as_html, users_as_table, orders_as_table, bars_
 from .util import filter_recipes, DisplayOptions, FilterOptions, PdfOptions, load_recipe_json, report_stats, convert_units
 from .database import db
 from .models import User, Order, Bar
-from . import log, app, mms, current_bar
+from . import app, mms, current_bar
+from .logger import get_logger
+log = get_logger(__name__)
 
 """
 BUGS:
@@ -39,7 +41,6 @@ NOTES:
 * menu schemas
     - would be able to include definitive item lists for serving, ice, tag, etc.
 * hardening
-    - get logging working for reals
     - test error handling
 """
 @app.before_request
@@ -358,7 +359,7 @@ def post_login_redirect():
     for order in orders:
         if not order.user_id:
             order.user_id = current_user.id
-            print("Attributing order {} to user {}".format(order.id, current_user.id))
+            log.info("Attributing order {} to user {}".format(order.id, current_user.id))
     db.session.commit()
     return redirect(url_for('browse'))
 
@@ -450,10 +451,10 @@ def ingredient_stock():
     form = get_form(BarstockForm)
     upload_form = get_form(UploadBarstockForm)
     form_open = False
-    print(form.errors)
+    log.error(form.errors)
 
     if request.method == 'POST':
-        print(request)
+        log.error(request)
         if 'add-ingredient' in request.form:
             if form.validate():
                 row = {}
@@ -599,14 +600,14 @@ def admin_dashboard():
 def menu_generator():
     return render_template('result.html', heading="Still under construction...")
     form = get_form(DrinksForm)
-    print(form.errors)
+    log.error(form.errors)
     recipes = []
     excluded = None
     stats = None
 
     if request.method == 'POST':
         if form.validate():
-            print(request)
+            log.info(request)
             recipes, excluded, stats = recipes_from_options(form, to_html=True)
             flash("Settings applied. Showing {} available recipes".format(len(recipes)))
         else:
@@ -623,7 +624,7 @@ def menu_download():
     raise NotImplementedError
 
     if form.validate():
-        print(request)
+        log.info(request)
         recipes, _, _ = recipes_from_options(form)
 
         display_options = bundle_options(DisplayOptions, form)
@@ -645,12 +646,12 @@ def menu_download():
 def recipe_library():
     return render_template('result.html', heading="Still under construction...")
     select_form = get_form(RecipeListSelector)
-    print(select_form.errors)
+    log.error(select_form.errors)
     add_form = get_form(RecipeForm)
-    print(add_form.errors)
+    log.error(add_form.errors)
 
     if request.method == 'POST':
-        print(request)
+        log.info(request)
         if 'recipe-list-select' in request.form:
             recipes = select_form.recipes.data
             mms.regenerate_recipes(current_bar)
