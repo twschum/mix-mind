@@ -15,6 +15,8 @@ from . import util
 WATER_BY_PREP = {'shake': 1.6, 'stir': 1.3, 'build': 1.0, 'pour': 1.0}
 WATER_BY_ICE = {'cubed': 1.1, 'crushed': 1.4, 'neat': 1.0}
 
+EXAMPLE_LIMIT = 3
+
 class RecipeError(Exception):
     pass
 
@@ -125,6 +127,12 @@ class DrinkRecipe(object):
             self.calculate_stats()
             # attempting to use an average here instead of max_cost
             self.max_cost = self.stats.avg_cost
+        # Apply a limit on the number of examples used
+        if len(self.examples) > EXAMPLE_LIMIT:
+            # TODO grabbing spaced indicies
+            self.examples = [self.examples[0],
+                    self.examples[(len(self.examples)-1)//2],
+                    self.examples[len(self.examples)-1]]
         return self # so it can be used when chained
 
     def calculate_stats(self):
