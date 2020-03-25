@@ -47,6 +47,12 @@ h1, h2, h3, h4, h5, h6 {
     background-color: unset;
 }
 
+/* no bullets on unordered lists */
+ul {
+    list-style-type: none;
+}
+
+
 /* Tweak down icons in buttons */
 .icon-btn-tweak {
     position: relative;
