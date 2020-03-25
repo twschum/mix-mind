@@ -789,8 +789,7 @@ def api_ingredients_download():
     filename = "{}_ingredients_{}.csv".format(current_bar.cname.replace(' ','_'), pendulum.now().int_timestamp)
     tmp_filename = get_tmp_file()
     with open(tmp_filename, 'w') as fp:
-        fp.write(codecs.BOM_UTF8)
-        fp.writelines((i.encode('utf-8') for i in ingredients))
+        fp.writelines((i for i in ingredients))
     return send_file(tmp_filename, 'text/csv', as_attachment=True, attachment_filename=filename)
 
 @app.route("/api/user_current_bar", methods=['POST', 'GET', 'PUT', 'DELETE'])
