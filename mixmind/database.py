@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_alembic import Alembic
-from . import app
+from . import app, log
 
 db = SQLAlchemy()
 alembic = Alembic()
@@ -25,11 +25,11 @@ def init_db():
         try:
             alembic.revision('Automatic upgrade')
         except Exception as err:
-            print("{}: {}".format(err.__class__.__name__, err))
+            log.error("{}: {}".format(err.__class__.__name__, err))
         try:
             alembic.upgrade()
         except NotImplementedError as err:
-            print("{}: {}".format(err.__class__.__name__, err))
+            log.error("{}: {}".format(err.__class__.__name__, err))
     elif app.config.get('DO_DB_UPGRADE', False):
         alembic.revision('Automatic upgrade')
         alembic.upgrade()

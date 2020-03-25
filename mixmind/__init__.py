@@ -1,7 +1,8 @@
 # mixmind/__init__.py
 
-import logging
-log = logging.getLogger()
+from mixmind.logger import get_logger
+log = get_logger('mixmind')
+
 
 from flask import Flask
 from flask_uploads import UploadSet, DATA, configure_uploads

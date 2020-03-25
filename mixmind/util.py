@@ -9,7 +9,8 @@ import csv
 import inspect
 import uuid
 import pendulum
-from . import log
+from .logging import get_logger
+log = get_logger(__name__)
 
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
