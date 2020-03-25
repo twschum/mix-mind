@@ -11,6 +11,8 @@ from flask_mail import Mail, Message
 mail = Mail()
 
 from . import app
+from .logger import get_logger
+log = get_logger(__name__)
 
 def send_mail(subject, recipient, template, **context):
     """Send an email via the Flask-Mail extension.

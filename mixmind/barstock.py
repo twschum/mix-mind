@@ -2,7 +2,6 @@ import csv
 import string
 import itertools
 import codecs
-import logging as log
 
 try:
     import pandas as pd
@@ -16,6 +15,8 @@ from sqlalchemy.exc import SQLAlchemyError
 from . import util
 from .database import db
 from .ingredient import Categories, Ingredient, display_name_mappings
+from .logger import get_logger
+log = get_logger(__name__)
 
 def get_barstock_instance(csv_list, use_sql=False, bar_id=None, include_all=False):
     """ Factory for getting the right, initialized barstock

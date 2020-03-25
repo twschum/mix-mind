@@ -16,9 +16,8 @@ from .barstock import Barstock_SQL, Ingredient
 from .database import db
 from .models import Bar, User
 from .util import load_recipe_json, to_human_diff, get_ts_formatter
-from . import log
-# TODO: No handlers could be found for logger "root"
-# actual log infos instead of prints
+from .logger import get_logger
+log = get_logger(__name__)
 
 def get_recipe_files(app):
     return get_checked_files(app,
@@ -54,18 +53,18 @@ class MixMindServer():
         if existing_default_bar:
             default_bar = existing_default_bar
         else:
-            print(("STARTUP: Adding default bar \"{}\"".format(default_bar.cname)))
+            log.info("STARTUP: Adding default bar \"{}\"".format(default_bar.cname))
             db.session.add(default_bar)
             db.session.commit()
         # setup ingredient stock, using default if the database is empty
         barstock = Barstock_SQL(default_bar.id)
         if Ingredient.query.filter_by(bar_id=default_bar.id).count() == 0:
             barstock_files = get_ingredient_files(app)
-            print(("STARTUP: Loading ingredient stock from files: {}".format(barstock_files)))
+            log.info("STARTUP: Loading ingredient stock from files: {}".format(barstock_files))
             barstock.load_from_csv(barstock_files, default_bar.id)
         # initialize recipe library
         recipe_files = get_recipe_files(app)
-        print(("STARTUP: Loading recipes from files: {}".format(recipe_files)))
+        log.info("STARTUP: Loading recipes from files: {}".format(recipe_files))
         self.base_recipes = load_recipe_json(recipe_files)
         self._processed_recipes = {}
 
@@ -83,7 +82,7 @@ class MixMindServer():
         return None
 
     def generate_recipes(self, bar):
-        print(("Generating recipe library for {}".format(bar.cname)))
+        log.info("Generating recipe library for {}".format(bar.cname))
         barstock = Barstock_SQL(bar.id)
         self._processed_recipes[bar.id] = [DrinkRecipe(name, recipe).generate_examples(barstock, stats=True)
                 for name, recipe in list(self.base_recipes.items())]
@@ -94,17 +93,17 @@ class MixMindServer():
         :param string reipce_name: only updates the given recipe
         """
         if ingredient:
-            print(("Updating recipes containing {} for {}".format(ingredient, bar.cname)))
+            log.info("Updating recipes containing {} for {}".format(ingredient, bar.cname))
             [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes(bar)
                             if recipe.contains_ingredient(ingredient)]
         elif recipe_name:
             recipe = find_recipe(bar, recipe_name)
             if recipe is None:
-                print(("Error: no recipe found matching name \"{}\"".format(recipe_name)))
-            print(("Updating recipe {} at {}".format(recipe, bar.cname)))
+                log.info("Error: no recipe found matching name \"{}\"".format(recipe_name))
+            log.info("Updating recipe {} at {}".format(recipe, bar.cname))
             recipe.generate_examples(Barstock_SQL(bar.id), stats=True)
         else:
-            print(("Regenerating recipe library for {}".format(bar.cname)))
+            log.info("Regenerating recipe library for {}".format(bar.cname))
             [recipe.generate_examples(Barstock_SQL(bar.id), stats=True) for recipe in self.processed_recipes(bar)]
 
 BarConfig = namedtuple("BarConfig", "id,cname,name,tagline,owner,bartender,markup,prices,stats,examples,convert,prep_line,origin,info,variants,summarize,is_closed,is_public")
