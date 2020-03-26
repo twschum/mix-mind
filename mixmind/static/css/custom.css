@@ -54,6 +54,13 @@ ul {
     padding: 0.45rem;
 }
 
+/* Smaller text size on select dropdowns */
+.bootstrap-select {
+    font-size: 0.9rem;
+}
+.bootstrap-select .dropdown-item {
+    font-size: 0.85rem;
+}
 
 /* Tweak down icons in buttons */
 .icon-btn-tweak {

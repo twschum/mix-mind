@@ -44,11 +44,14 @@ class SelectExtended(widgets.Select):
     The field must provide an `iter_choices()` method which the widget will
     call on rendering; this method must yield tuples of
     `(value, label, selected, disabled)`.
+
+    Leverages bootstrap-select by adding the selectpicker class for styling
     """
     def __call__(self, field, **kwargs):
         kwargs.setdefault('id', field.id)
         if self.multiple:
             kwargs['multiple'] = True
+        # bootstrap-select class
         html = ['<select %s>' % widgets.html_params(name=field.name, **kwargs)]
         for val, label, selected, disabled in field.iter_choices():
             html.append(self.render_option(val, label, selected, disabled))
@@ -133,7 +136,6 @@ class DrinksForm(BaseForm):
     exclude = CSVField("Exclude Ingredients", description="Recipes that don't contain any/all of these comma separated ingredient(s)")
     include_use_or = ToggleField("<br>", on="any", off="all", onstyle="secondary", offstyle="secondary")
     exclude_use_or = ToggleField("<br>", default='y', on="any", off="all", onstyle="secondary", offstyle="secondary")
-    name = TextField("Name", description="")
     tag = TextField("Tag", description="Filter by tag")
     style = SelectField("Style", description="", choices=pairs(['','All Day Cocktail','Before Dinner Cocktail','After Dinner Cocktail','Longdrink', 'Hot Drink', 'Sparkling Cocktail', 'Wine Cocktail']))
     glass = SelectField("Glass", description="", choices=pairs(['','cocktail','martini','collins','rocks','highball','flute','shot','shooter','mug']))
