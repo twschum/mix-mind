@@ -59,15 +59,16 @@ def recipe_as_html(recipe, display_opts, order_link=None, condense_ingredients=F
     with tag(main_tag, id=recipe.name, **extra_kwargs):
         # embed glass image in name line
         name_line = []
+        recipe_name = recipe.name
+        if display_opts.origin and 'schubar original' in recipe.origin.lower():
+            recipe_name += sup('*')
         # attempt hack for keeping text aligned right of image when wrapping
         if fancy:
             name_line.append('<div class="clearfix" style="position:relative;">')
             name_line.append('<img src={} style="height:2.2em; float:left;">'.format(glassware.get(recipe.glass)))
-            name_line.append(close(recipe.name, 'span', style="position:absolute;bottom:0;"))
+            name_line.append(close(recipe_name, 'span', style="position:absolute;bottom:0;"))
         else:
-            name_line.append(close(recipe.name, 'span'))
-        if display_opts.origin and 'schubar original' in recipe.origin.lower():
-            name_line.append(sup('*'))
+            name_line.append(close(recipe_name, 'span'))
         if display_opts.prices and recipe.max_cost:
             price = util.calculate_price(recipe.max_cost, display_opts.markup)
             price = '&{};{}{}'.format('nbsp' if fancy else 'mdash', sup('$'), price)
