@@ -14,7 +14,7 @@ log = get_logger(__name__)
 
 # make passing a bunch of options around a bit cleaner
 DisplayOptions = namedtuple('DisplayOptions', 'prices,stats,examples,all_ingredients,markup,prep_line,origin,info,variants')
-FilterOptions = namedtuple('FilterOptions', 'search,all_,include,exclude,include_use_or,exclude_use_or,style,glass,prep,ice,name,tag')
+FilterOptions = namedtuple('FilterOptions', 'search,all_,include,exclude,include_use_or,exclude_use_or,style,glass,prep,ice,tag')
 PdfOptions = namedtuple('PdfOptions', 'pdf_filename,ncols,liquor_list,liquor_list_own_page,debug,align,title,tagline')
 
 VALID_UNITS = ['oz', 'mL', 'cL']
@@ -69,7 +69,7 @@ def filter_recipes(all_recipes, filter_options, union_results=False):
         result_recipes.add_items([recipe for recipe in recipes if
                 reduce_fn((not recipe.contains_ingredient(ingredient, include_optional=False)
                 for ingredient in filter_options.exclude))])
-    for attr in 'style glass prep ice name tag'.split():
+    for attr in 'style glass prep ice tag'.split():
         result_recipes.add_items(filter_on_attribute(recipes, filter_options, attr))
 
     result_recipes = result_recipes.get_items()

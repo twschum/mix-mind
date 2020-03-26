@@ -44,14 +44,11 @@ class SelectExtended(widgets.Select):
     The field must provide an `iter_choices()` method which the widget will
     call on rendering; this method must yield tuples of
     `(value, label, selected, disabled)`.
-
-    Leverages bootstrap-select by adding the selectpicker class for styling
     """
     def __call__(self, field, **kwargs):
         kwargs.setdefault('id', field.id)
         if self.multiple:
             kwargs['multiple'] = True
-        # bootstrap-select class
         html = ['<select %s>' % widgets.html_params(name=field.name, **kwargs)]
         for val, label, selected, disabled in field.iter_choices():
             html.append(self.render_option(val, label, selected, disabled))
