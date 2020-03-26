@@ -43,7 +43,7 @@ style="background-color:{{ color }};border-radius:20px;color:#ffffff;display:inl
 	{% set show_label = ((field.type not in ['HiddenField', 'SubmitField'] and not field.flags.hidden and field.label.text != "") or force_label)  %}
 	{% set group_classes = { 'BooleanField': "form-check", 'FileField': "custom-file" } %}
 	{% set label_classes = { 'BooleanField': "form-check-label", 'FileField': "custom-file-label" } %}
-	{% set input_classes = { 'BooleanField': "form-check-input", 'FileField': "custom-file-input", 'SubmitField': "btn btn-primary", 'SelectField': "selectpicker" } %}
+	{% set input_classes = { 'BooleanField': "form-check-input", 'FileField': "custom-file-input", 'SubmitField': "btn btn-primary", 'SelectField': "selectpicker", 'SelectWithPlaceholderField': "selectpicker"} %}
 
 	<div class="{{ group_classes.get(field.type, "form-group") }} {{ form_group_classes }}">
 

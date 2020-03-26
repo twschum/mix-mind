@@ -55,7 +55,7 @@
 				<div id="sort-expand" class="collapse collapse-remember">
 					<div class="row mb-2">
 						<div class="col-md no-gutters">
-							{{ render_field(form.sorting, form_group_classes="col") }}
+							{{ render_field(form.sorting, form_group_classes="col", data_width="100%") }}
 						</div>
 					</div>
 				</div>
@@ -95,10 +95,10 @@
 						<div class="row mb-2">
 							<div class="col-md">
 								<div class="form-row">
-									{{ render_field(form.style, form_group_classes="col-3", data_width="95%") }}
-									{{ render_field(form.glass, form_group_classes="col-3", data_width="95%") }}
-									{{ render_field(form.prep, form_group_classes="col-3", data_width="95%") }}
-									{{ render_field(form.ice, form_group_classes="col-3", data_width="95%") }}
+									{{ render_field(form.style, form_group_classes="col-md-3", data_width="95%") }}
+									{{ render_field(form.glass, form_group_classes="col-md-3", data_width="95%") }}
+									{{ render_field(form.prep, form_group_classes="col-md-3", data_width="95%") }}
+									{{ render_field(form.ice, form_group_classes="col-md-3", data_width="95%") }}
 								</div>
 							</div>
 						</div>
