@@ -913,6 +913,21 @@
         "ice": "cubed",
         "prep": "build",
         "garnish": "Flag of lemon peel and raspberries"
+    },
+    
+    "Bitter Giuseppe": {
+        "style": "After Dinner Cocktail",
+        "info": "Cynar Manhattan, best with Antica Formula and Regans' No. 6",
+        "ingredients": {
+            "Cynar": 2,
+            "sweet vermouth": 1,
+            "lemon juice": 1/4,
+            "orange bitters": "6 dashes"
+        },
+        "glass": "rocks",
+        "ice": "cubed",
+        "prep": "stir",
+        "garnish": "Lemon twist"
     }
 
 }
