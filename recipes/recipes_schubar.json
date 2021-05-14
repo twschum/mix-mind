@@ -921,7 +921,7 @@
         "ingredients": {
             "Cynar": 2,
             "sweet vermouth": 1,
-            "lemon juice": 1/4,
+            "lemon juice": 0.25,
             "orange bitters": "6 dashes"
         },
         "glass": "rocks",
