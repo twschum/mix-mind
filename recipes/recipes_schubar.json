@@ -46,7 +46,7 @@
         "garnish": "Orange twist, optionally flamed"
     },
 
-    "Margarita": {
+    "Classic Margarita": {
         "info": "Classic version of the tequila icon",
         "style": "All Day Cocktail",
         "tag": "core",
@@ -331,7 +331,7 @@
         "style": "After Dinner Cocktail",
         "tag": "core",
         "ingredients": {
-            "Scotch whisky": 0.5,
+            "Scotch whisky (blended)": 0.5,
             "Scotch whisky (peated)": 0.25,
             "Amaro Rabarbaro": 0.75,
             "Maraschino liqueur": 0.75,
@@ -928,6 +928,20 @@
         "ice": "cubed",
         "prep": "stir",
         "garnish": "Lemon twist"
+    },
+    
+    "Sin Cyn": {
+        "style": "Before Dinner Cocktail",
+        "info": "Cynar and Scotch Boulevardier, by Philly bartender Paul Dellevigne and best with Antica Formula and a non-peated, sherried whisky like Macallan 12",
+        "ingredients": {
+            "Scotch whisky": 1,
+            "Cynar": 1,
+            "sweet vermouth": 1
+        },
+        "glass": "rocks",
+        "ice": "cubed",
+        "prep": "stir",
+        "garnish": "Orange twist, if any"
     }
-
+    
 }
