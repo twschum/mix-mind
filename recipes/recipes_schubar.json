@@ -914,14 +914,14 @@
         "prep": "build",
         "garnish": "Flag of lemon peel and raspberries"
     },
-    
+
     "Bitter Giuseppe": {
         "style": "After Dinner Cocktail",
         "info": "Cynar Manhattan, best with Antica Formula and Regans' No. 6",
         "ingredients": {
             "Cynar": 2,
             "sweet vermouth": 1,
-            "lemon juice": 1/4,
+            "lemon juice": 0.25,
             "orange bitters": "6 dashes"
         },
         "glass": "rocks",
@@ -929,7 +929,7 @@
         "prep": "stir",
         "garnish": "Lemon twist"
     },
-    
+
     "Sin Cyn": {
         "style": "Before Dinner Cocktail",
         "info": "Cynar and Scotch Boulevardier, by Philly bartender Paul Dellevigne and best with Antica Formula and a non-peated, sherried whisky like Macallan 12",
@@ -943,5 +943,5 @@
         "prep": "stir",
         "garnish": "Orange twist, if any"
     }
-    
+
 }
